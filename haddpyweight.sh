@@ -1,9 +1,9 @@
-pho=(60 80)
-jet=(30 40)
+pho=(40)
+jet=(30)
 ga=(0 1)
 qg=(1 2)
 
-for pt in `seq 0 1` 
+for pt in 0
 do  
     for g in `echo ${ga[*]}` 
     do
