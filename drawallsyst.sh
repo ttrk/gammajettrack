@@ -1,5 +1,0 @@
-root -b -q dataff5step.C\(60,1000,30,1,0,1,\"syst/syst_jes1/\",\"systjes1.root\"\)
-root -b -q dataff5step.C\(60,1000,30,1,0,1,\"syst/syst_jes0/\",\"systjes0.root\"\)
-root -b -q dataff5step.C\(60,1000,30,1,0,1,\"syst/syst_pes1/\",\"systpes1.root\"\)
-root -b -q dataff5step.C\(60,1000,30,1,0,1,\"syst/syst_pes0/\",\"systpes0.root\"\)
-root -b -q dataff5step.C\(60,1000,30,1,0,1,\"syst/syst_nominal/\",\"systnominal.root\"\)
