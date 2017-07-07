@@ -6,6 +6,10 @@ if [[ $# -ne 5 ]]; then
     exit 1
 fi
 
+g++ ../photon_jet_track_skim.C -Wall -Werror -O2 -Wno-narrowing `root-config --cflags --libs` -o photon_jet_track_skim.exe
+echo "g++ ../photon_jet_track_skim.C -Wall -Werror -O2 -Wno-narrowing `root-config --cflags --libs` -o photon_jet_track_skim.exe"
+
+mkdir -p logs/
 rm logs/*
 
 mkdir -p $3
@@ -26,7 +30,7 @@ Rank         = Mips
 +AccountingGroup = "group_cmshi.$(whoami)"
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = gammajetSkim.exe,residuals.tgz,$2
+transfer_input_files = photon_jet_track_skim.exe,residuals.tgz,$2
 #noop_job = !( stringListMember("\$(Process)","__FAILED__") )
 
 Queue $JOBS
@@ -67,8 +71,8 @@ case \$2 in
         ;;
 esac
 
-echo ./gammajetSkim.exe \$FILE \${1}.root \$JETALGO \$ISPP 1 \$MIXFILE
-./gammajetSkim.exe \$FILE \${1}.root \$JETALGO \$ISPP 1 \$MIXFILE
+echo ./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP 1 \$MIXFILE
+./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP 1 \$MIXFILE
 
 if [[ \$? -eq 0 ]]; then
     mv \${1}.root \${4}
