@@ -1,4 +1,5 @@
 #include "TRandom3.h"
+#include "TF1.h"
 #include "TH1.h"
 #include "TLorentzVector.h"
 
@@ -12,8 +13,8 @@ TRandom3 smear_rand(12345);
 float lowxi_jec[4] = {1.073, 1.079, 1.083, 1.074};
 float midxi_jec[4] = {1.0514, 1.0478, 1.0483, 1.0471};
 
-std::vector<float> sys_table_pp = {0, 1.02, 1.01, 0.99, 0.98, 1.05, 1.10, 1.15};
-std::vector<float> sys_table_pbpb = {0, 1.05, 1.025, 0.975, 0.95, 1.05, 1.10, 1.15};
+std::vector<float> sys_table_pp = {0, 0, 0, 0, 0, 1.05, 1.10, 1.15};
+std::vector<float> sys_table_pbpb = {0, 0, 0, 0, 0, 1.05, 1.10, 1.15};
 
 void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string gen, int checkjetid, float trkptmin, int gammaxi, int whichSys, float sysScaleFactor) {
   return;
@@ -65,6 +66,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   // TFile* fffjec = new TFile(Form("ffjec_%i_%i.root", (int)phoetmin, (int)jetptcut), "read");
   // TH1D* hffjec = (TH1D*)fffjec->Get(Form("hffjec_%i_%i", abs(centmin), abs(centmax)));
 
+  TF1* f_JES_Q[4] = {0};
+  f_JES_Q[0] = new TF1("f_JES_Q_3", "0.011180+0.195313/sqrt(x)", 30, 300);
+  f_JES_Q[1] = new TF1("f_JES_Q_4", "0.014200+0.127950/sqrt(x)", 30, 300);
+  f_JES_Q[2] = new TF1("f_JES_Q_5", "0.014454+0.089004/sqrt(x)", 30, 300);
+  f_JES_Q[3] = new TF1("f_JES_Q_6", "0.010469+0.084808/sqrt(x)", 30, 300);
+  TF1* f_JES_G[4] = {0};
+  f_JES_G[0] = new TF1("f_JES_G_3", "0.021607+0.458346/sqrt(x)", 30, 300);
+  f_JES_G[1] = new TF1("f_JES_G_4", "0.023489+0.313111/sqrt(x)", 30, 300);
+  f_JES_G[2] = new TF1("f_JES_G_5", "0.021607+0.295396/sqrt(x)", 30, 300);
+  f_JES_G[3] = new TF1("f_JES_G_6", "0.021607+0.213359/sqrt(x)", 30, 300);
+
+  fChain->GetEntry(0);
   std::vector<float> sys_table = isPP ? sys_table_pp : sys_table_pbpb;
 
   // generic pointers
@@ -270,9 +283,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         // }
 
         switch (systematic) {
-          case 1: case 2: case 3: case 4:
-            tmpjetpt = tmpjetpt * sys_table[systematic];
-            break;
+          case 1: case 2: {
+            float flavor_factor = 0;
+            if (!isPP) { flavor_factor = f_JES_Q[centBin]->Eval(tmpjetpt); }
+            float jes_factor = 1 + TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
+            tmpjetpt = tmpjetpt * jes_factor;
+            break; }
+          case 3: case 4: {
+            float flavor_factor = 0;
+            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin]->Eval(tmpjetpt); }
+            float jes_factor = 1 - TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
+            tmpjetpt = tmpjetpt * jes_factor;
+            break; }
           case 5: case 6: case 7: {
             float jer_factor = sys_table[systematic];
             float initial_res = getResolutionHI(tmpjetpt, centBin);
