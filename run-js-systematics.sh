@@ -7,7 +7,7 @@ if [ $# -lt 7 ]; then
 fi
 
 if [ $6 = "pbpbdata" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170519.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170524.root"
     TYPE="recoreco"
     MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170519.root"
     MCSAMPLE="pbpbmc"
@@ -21,7 +21,7 @@ else
     exit 1
 fi
 
-SYSTEMATIC=(placeholder jes_up jes_up_minus jes_down_plus jes_down jer_minus_minus jer_minus jer pes purity_up purity_up_minus purity_down_plus purity_down tracking iso)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes purity_up purity_down tracking iso)
 
 echo "compiling macros..."
 g++ jetshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetshape || exit 1
@@ -32,7 +32,7 @@ g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o c
 
 set -x
 
-for SYS in 1 2 3 4 5 6 7 8
+for SYS in 1 2 3 4
 do
     ./jetshape $SKIM $6 0 20 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
     ./jetshape $SKIM $6 20 60 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
@@ -42,8 +42,6 @@ done
 wait
 
 ./draw_js $6 data_data_${1}_${3}_gxi${5}_js_merged.root purity_up_${6}_${1}_${3}_gxi${5}_js_final.root ${1} 2 $TYPE
-./draw_js $6 data_data_${1}_${3}_gxi${5}_js_merged.root purity_up_minus_${6}_${1}_${3}_gxi${5}_js_final.root ${1} 1 $TYPE
-./draw_js $6 data_data_${1}_${3}_gxi${5}_js_merged.root purity_down_plus_${6}_${1}_${3}_gxi${5}_js_final.root ${1} -1 $TYPE
 ./draw_js $6 data_data_${1}_${3}_gxi${5}_js_merged.root purity_down_${6}_${1}_${3}_gxi${5}_js_final.root ${1} -2 $TYPE
 
 if [ $6 = "pbpbdata" ]; then
@@ -84,7 +82,7 @@ hadd -f iso_${MCSAMPLE}_${1}_${3}_gxi${5}_js_merged.root iso_${MCSAMPLE}_${1}_${
 
 ./calc_iso_systematics nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_js_final.root iso_${MCSAMPLE}_${1}_${3}_gxi${5}_js_final.root $7 $MCSAMPLE $6 $TYPE $1 $3 $5
 
-for SYS in 1 2 3 4 5 6 7 8
+for SYS in 1 2 3 4
 do
     hadd -f ${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_${TYPE}_js.root ${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_*_*.root
     rm ${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_*_*.root
@@ -98,7 +96,7 @@ if [ -f $SYSLIST ]; then
 fi
 touch $SYSLIST
 
-for SYS in 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+for SYS in 1 2 3 4 5 6 7 8
 do
     echo -e "${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_js_final.root" >> $SYSLIST
 done

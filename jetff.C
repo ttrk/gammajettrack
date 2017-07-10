@@ -37,7 +37,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   bool isMC = (sample.find("mc") != std::string::npos);
 
-  if (fChain == 0 || pfChain == 0) return;
+  if (fChain == 0) return;
   int64_t nentries = fChain->GetEntriesFast();
 
   TFile* fout = new TFile(Form("%s_%s_%s_%d_%d_%i_%d_%d.root", label.data(), sample.data(), genlevel.data(), (int)phoetmin, (int)jetptcut, gammaxi, abs(centmin), abs(centmax)), "recreate");
@@ -137,7 +137,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     if (ientry < 0) break;
 
     fChain->GetEntry(jentry);
-    pfChain->GetEntry(jentry);
 
     // check for number of mixed events
     if (!isPP && nmix < 3) continue;

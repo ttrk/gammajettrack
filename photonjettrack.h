@@ -517,21 +517,21 @@ public :
    TBranch        *b_mcMomPID;   //!
 
    // pf cand tree
-   TTree* pfChain;
+   // TTree* pfChain;
 
-   int nPFpart;
-   std::vector<int>* pfId;
-   std::vector<float>* pfPt;
-   std::vector<float>* pfEnergy;
-   std::vector<float>* pfEta;
-   std::vector<float>* pfPhi;
+   // int nPFpart;
+   // std::vector<int>* pfId;
+   // std::vector<float>* pfPt;
+   // std::vector<float>* pfEnergy;
+   // std::vector<float>* pfEta;
+   // std::vector<float>* pfPhi;
 
-   TBranch* b_nPFpart;
-   TBranch* b_pfId;
-   TBranch* b_pfPt;
-   TBranch* b_pfEnergy;
-   TBranch* b_pfEta;
-   TBranch* b_pfPhi;
+   // TBranch* b_nPFpart;
+   // TBranch* b_pfId;
+   // TBranch* b_pfPt;
+   // TBranch* b_pfEnergy;
+   // TBranch* b_pfEta;
+   // TBranch* b_pfPhi;
 
    photonjettrack(std::string filename);
    virtual ~photonjettrack();
@@ -540,7 +540,8 @@ public :
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
-   virtual void     Init(TTree* tree, TTree* pfctree);
+   // virtual void     Init(TTree* tree, TTree* pfctree);
+   virtual void     Init(TTree* tree);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -551,8 +552,9 @@ photonjettrack::photonjettrack(std::string filename) : fChain(0)
 // used to generate this class and read the Tree.
    TFile* f = TFile::Open(filename.c_str());
    TTree* t = (TTree*)f->Get("pjtt");
-   TTree* pfct = (TTree*)f->Get("pfct");
-   Init(t, pfct);
+   // TTree* pfct = (TTree*)f->Get("pfct");
+   // Init(t, pfct);
+   Init(t);
 }
 
 photonjettrack::~photonjettrack()
@@ -581,7 +583,8 @@ Long64_t photonjettrack::LoadTree(Long64_t entry)
    return centry;
 }
 
-void photonjettrack::Init(TTree* tree, TTree* pfctree)
+// void photonjettrack::Init(TTree* tree, TTree* pfctree)
+void photonjettrack::Init(TTree* tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -693,21 +696,22 @@ void photonjettrack::Init(TTree* tree, TTree* pfctree)
    mcMomPhi = 0;
    mcMomPID = 0;
 
-   pfId = 0;
-   pfPt = 0;
-   pfEnergy = 0;
-   pfEta = 0;
-   pfPhi = 0;
+   // pfId = 0;
+   // pfPt = 0;
+   // pfEnergy = 0;
+   // pfEta = 0;
+   // pfPhi = 0;
 
    // Set branch addresses and branch pointers
-   if (!tree || !pfctree) return;
+   // if (!tree || !pfctree) return;
+   if (!tree) return;
    fCurrent = -1;
 
    fChain = tree;
    fChain->SetMakeClass(1);
 
-   pfChain = pfctree;
-   pfChain->SetMakeClass(1);
+   // pfChain = pfctree;
+   // pfChain->SetMakeClass(1);
 
    fChain->SetBranchAddress("isPP", &isPP, &b_isPP);
    fChain->SetBranchAddress("run", &run, &b_run);
@@ -869,12 +873,12 @@ void photonjettrack::Init(TTree* tree, TTree* pfctree)
    fChain->SetBranchAddress("mcMomPhi", &mcMomPhi, &b_mcMomPhi);
    fChain->SetBranchAddress("mcMomPID", &mcMomPID, &b_mcMomPID);
 
-   pfChain->SetBranchAddress("nPFpart", &nPFpart, &b_nPFpart);
-   pfChain->SetBranchAddress("pfId", &pfId, &b_pfId);
-   pfChain->SetBranchAddress("pfPt", &pfPt, &b_pfPt);
-   pfChain->SetBranchAddress("pfEnergy", &pfEnergy, &b_pfEnergy);
-   pfChain->SetBranchAddress("pfEta", &pfEta, &b_pfEta);
-   pfChain->SetBranchAddress("pfPhi", &pfPhi, &b_pfPhi);
+   // pfChain->SetBranchAddress("nPFpart", &nPFpart, &b_nPFpart);
+   // pfChain->SetBranchAddress("pfId", &pfId, &b_pfId);
+   // pfChain->SetBranchAddress("pfPt", &pfPt, &b_pfPt);
+   // pfChain->SetBranchAddress("pfEnergy", &pfEnergy, &b_pfEnergy);
+   // pfChain->SetBranchAddress("pfEta", &pfEta, &b_pfEta);
+   // pfChain->SetBranchAddress("pfPhi", &pfPhi, &b_pfPhi);
 
    Notify();
 }
