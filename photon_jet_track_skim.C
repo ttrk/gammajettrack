@@ -2,6 +2,7 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TF1.h"
+#include "TMath.h"
 
 #include "photon_jet_track_tree.h"
 #include "photon_tree.h"
@@ -11,7 +12,15 @@
 #include "particleflow_tree.h"
 
 #include "L2L3ResidualWFits.h"
+
+// uncomment this to use UIC tracking efficiency corrections instead
+// #define UIC_TRK_CORR
+
+#ifdef UIC_TRK_CORR
+#include "trkCorr.h"
+#else
 #include "getTrkCorr.h"
+#endif
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -264,7 +273,11 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
   TrkCorr* trkCorr;
   if (isHI)
+#ifdef UIC_TRK_CORR
+    trkCorr = new TrkCorr("Corrections/TrkCorr_5020GeV_PbPb/inputCorr_v11_residual.root");
+#else
     trkCorr = new TrkCorr("Corrections/TrkCorr_Jun7_Iterative_PbPb_etaLT2p4/");
+#endif
   else
     trkCorr = new TrkCorr("Corrections/TrkCorr_July22_Iterative_pp_eta2p4/");
 
@@ -805,7 +818,11 @@ float getTrkWeight(TrkCorr* trkCorr, int itrk, int hiBin, jetTree* jt_trkcorr, t
     if (rmin * rmin > R) rmin = TMath::Power(R, 0.5);
   }
 
+#ifdef UIC_TRK_CORR
+  return trkCorr->getTrkCorr(tt->trkPt[itrk], tt->trkEta[itrk], tt->trkPhi[itrk], hiBin);
+#else
   return trkCorr->getTrkCorr(tt->trkPt[itrk], tt->trkEta[itrk], tt->trkPhi[itrk], hiBin, rmin);
+#endif
 }
 
 int main(int argc, char* argv[]) {
