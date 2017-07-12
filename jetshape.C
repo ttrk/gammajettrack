@@ -1,7 +1,6 @@
 #include "TRandom3.h"
 #include "TF1.h"
 #include "TH1.h"
-#include "TLorentzVector.h"
 
 #include "photonjettrack.h"
 
@@ -25,9 +24,10 @@ void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, flo
 // 5: ISO
 
 void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic) {
-  // TFile* fweight = (isPP) ? TFile::Open("pp-weights.root") : TFile::Open("PbPb-weights.root");
-  // TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
-  // TH1D* hcentweight = (TH1D*)fweight->Get("hcent");
+  bool isHI = (sample.find("pbpb") != std::string::npos);
+  TFile* fweight = (isHI) ? TFile::Open("PbPb-weights.root") : TFile::Open("pp-weights.root");
+  TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
+  TH1D* hcentweight = (TH1D*)fweight->Get("hcent");
 
   bool isMC = (sample.find("mc") != std::string::npos);
 
@@ -42,19 +42,25 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   hjetpt_mix[0] = new TH1D(Form("hjetpt_mix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt_mix[1] = new TH1D(Form("hjetpt_mix_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
 
-  TH1D* hjetshape[2]; TH1D* hjetshape_ue[2]; TH1D* hjetshape_mix[2]; TH1D* hjetshape_mix_ue[2];
+  TH1D* hjetshape[2]; TH1D* hjetshape_ue[2]; TH1D* hjetshape_mixjet[2]; TH1D* hjetshape_mixjet_ue[2];
   hjetshape[0] = new TH1D(Form("hjetshape_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape[1] = new TH1D(Form("hjetshape_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape_ue[0] = new TH1D(Form("hjetshape_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape_ue[1] = new TH1D(Form("hjetshape_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mix[0] = new TH1D(Form("hjetshape_mix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mix[1] = new TH1D(Form("hjetshape_mix_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mix_ue[0] = new TH1D(Form("hjetshape_mix_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mix_ue[1] = new TH1D(Form("hjetshape_mix_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mixjet[0] = new TH1D(Form("hjetshape_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mixjet[1] = new TH1D(Form("hjetshape_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mixjet_ue[0] = new TH1D(Form("hjetshape_mixjet_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mixjet_ue[1] = new TH1D(Form("hjetshape_mixjet_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
-  TH1D* hjetshape_mix_signal[2];
-  hjetshape_mix_signal[0] = new TH1D(Form("hjetshape_mix_signal_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mix_signal[1] = new TH1D(Form("hjetshape_mix_signal_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  TH1D* hjetpt_mixsignal[2];
+  hjetpt_mixsignal[0] = new TH1D(Form("hjetpt_mixsignal_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  hjetpt_mixsignal[1] = new TH1D(Form("hjetpt_mixsignal_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+
+  TH1D* hjetshape_mixsignal[2]; TH1D* hjetshape_mixsignal_ue[2];
+  hjetshape_mixsignal[0] = new TH1D(Form("hjetshape_mixsignal_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mixsignal[1] = new TH1D(Form("hjetshape_mixsignal_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mixsignal_ue[0] = new TH1D(Form("hjetshape_mixsignal_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mixsignal_ue[1] = new TH1D(Form("hjetshape_mixsignal_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
   TF1* f_JES_Q[4] = {0};
   f_JES_Q[0] = new TF1("f_JES_Q_3", "0.011180+0.195313/sqrt(x)", 30, 300);
@@ -166,8 +172,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     // apply fix to gamma-jet jec
     float jec_fix = isPP ? 0.99 : 0.98;
 
-    // if (isMC) weight = weight * hvzweight->GetBinContent(hvzweight->FindBin(vz));
-    // if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
+    if (isMC) weight = weight * hvzweight->GetBinContent(hvzweight->FindBin(vz));
+    if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
 
     int centBin = getCentralityBin(centmin);
 
@@ -236,37 +242,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         // jet phi cut
         if (acos(cos(tmpjetphi - phoPhi)) < 7 * pi / 8) continue;
-
-        // apply ff-based jec
-        // if (!isPP && jet_type_is("reco", genlevel)) {
-        //   TLorentzVector vjet;
-        //   vjet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
-
-        //   float min_xi = 99.;
-        //   for (int ip = 0; ip < nip; ++ip) {
-        //     if ((*p_pt)[ip] < trkptmin) continue;
-        //     float dphi = acos(cos(tmpjetphi - (*p_phi)[ip]));
-        //     float deta = tmpjeteta - (*p_eta)[ip];
-        //     float deltar2 = (dphi * dphi) + (deta * deta);
-        //     if (deltar2 < 0.09) {
-        //       TLorentzVector vtrack;
-        //       vtrack.SetPtEtaPhiM((*p_pt)[ip], (*p_eta)[ip], (*p_phi)[ip], 0);
-        //       float angle = vjet.Angle(vtrack.Vect());
-        //       float refpt = gammaxi ? phoEtCorrected : tmpjetpt;
-        //       float z = (*p_pt)[ip] * cos(angle) / refpt;
-        //       float xi = log(1.0 / z);
-        //       if (xi < min_xi) min_xi = xi;
-        //     }
-        //   }
-
-        //   if (min_xi >= hffjec->GetBinLowEdge(1) && min_xi < hffjec->GetBinLowEdge(hffjec->GetNbinsX() + 1))
-        //     tmpjetpt = tmpjetpt / hffjec->GetBinContent(hffjec->FindBin(min_xi));
-        // }
-
-        // if (!isPP && jet_type_is("reco", genlevel)) {
-        //   if ((*npfcand_4)[ij] >= hffjec->GetBinLowEdge(1) && (*npfcand_4)[ij] < hffjec->GetBinLowEdge(hffjec->GetNbinsX() + 1))
-        //     tmpjetpt = tmpjetpt / hffjec->GetBinContent(hffjec->FindBin((*npfcand_4)[ij]));
-        // }
 
         switch (systematic) {
           case 1: {
@@ -371,40 +346,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt) * jec_fix;
         tmpjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
 
-        // jet phi cut
-        if (acos(cos(tmpjetphi - phoPhi)) < 7 * pi / 8) continue;
-
-        // apply ff-based jec
-        // if (!isPP && jet_type_is("reco", genlevel)) {
-        //   TLorentzVector vjet;
-        //   vjet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
-
-        //   float min_xi = 99.;
-        //   for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
-        //     if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
-        //     float dphi = acos(cos(tmpjetphi - (*p_phi_mix)[ip_mix]));
-        //     float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
-        //     float deltar2 = (dphi * dphi) + (deta * deta);
-        //     if (deltar2 < 0.09) {
-        //       TLorentzVector vtrack;
-        //       vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
-        //       float angle = vjet.Angle(vtrack.Vect());
-        //       float refpt = gammaxi ? phoEtCorrected : tmpjetpt;
-        //       float z = (*p_pt_mix)[ip_mix] * cos(angle) / refpt;
-        //       float xi = log(1.0 / z);
-        //       if (xi < min_xi) min_xi = xi;
-        //     }
-        //   }
-
-        //   if (min_xi >= hffjec->GetBinLowEdge(1) && min_xi < hffjec->GetBinLowEdge(hffjec->GetNbinsX() + 1))
-        //     tmpjetpt = tmpjetpt / hffjec->GetBinContent(hffjec->FindBin(min_xi));
-        // }
-
-        // if (!isPP && jet_type_is("reco", genlevel)) {
-        //   if ((*npfcand_4_mix)[ij_mix] >= hffjec->GetBinLowEdge(1) && (*npfcand_4_mix)[ij_mix] < hffjec->GetBinLowEdge(hffjec->GetNbinsX() + 1))
-        //     tmpjetpt = tmpjetpt / hffjec->GetBinContent(hffjec->FindBin((*npfcand_4_mix)[ij_mix]));
-        // }
-
         switch (systematic) {
           case 1: {
             float flavor_factor = 0;
@@ -430,27 +371,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         // jet pt cut
         if (tmpjetpt < jetptcut) continue;
 
-        hjetpt_mix[background]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
-
         float refpt = gammaxi ? phoEtCorrected : tmpjetpt;
-        // mix jets - jetshape
-        for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
-          // tracks and jet must come from same mixed event
-          if ((*j_ev_mix)[ij_mix] != (*p_ev_mix)[ip_mix]) continue;
-          if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
-          if (part_type_is("gen0", genlevel) || part_type_is("gen", genlevel)) {
-            if ((*chg_mix)[ip_mix] == 0) continue;
-          }
-
-          float dphi = acos(cos(tmpjetphi - (*p_phi_mix)[ip_mix]));
-          float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
-          float deltar2 = (dphi * dphi) + (deta * deta);
-          if (deltar2 < 1) {
-            float deltar = sqrt(deltar2);
-            hjetshape_mix[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet);
-            hjetshape_mix_signal[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet);
-          }
-        }
 
         // mix signal - jetshape
         for (int ip = 0; ip < nip; ++ip) {
@@ -468,7 +389,31 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_mix_signal[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * smear_weight / nmixedevents_jet);
+            hjetpt_mixsignal[background]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
+            hjetshape_mixsignal[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * smear_weight / nmixedevents_jet);
+          }
+        }
+
+        // jet phi cut
+        if (acos(cos(tmpjetphi - phoPhi)) < 7 * pi / 8) continue;
+
+        hjetpt_mix[background]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
+
+        // mix jets - jetshape
+        for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
+          // tracks and jet must come from same mixed event
+          if ((*j_ev_mix)[ij_mix] != (*p_ev_mix)[ip_mix]) continue;
+          if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
+          if (part_type_is("gen0", genlevel) || part_type_is("gen", genlevel)) {
+            if ((*chg_mix)[ip_mix] == 0) continue;
+          }
+
+          float dphi = acos(cos(tmpjetphi - (*p_phi_mix)[ip_mix]));
+          float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
+          float deltar2 = (dphi * dphi) + (deta * deta);
+          if (deltar2 < 1) {
+            float deltar = sqrt(deltar2);
+            hjetshape_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet);
           }
         }
 
@@ -488,7 +433,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_mix_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
+            hjetshape_mixjet_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
+            hjetshape_mixsignal_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
           }
         }
       }
@@ -500,7 +446,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 }
 
 int main(int argc, char* argv[]) {
-  if (argc > 13 || argc < 3) {
+  if (argc > 13 || argc < 5) {
     printf("usage: ./jetshape [input] [sample] [centmin centmax] [phoetmin phoetmax] [jetptcut] [genlevel] [trkptmin] [gammaxi] [label] [systematic]\n");
     return 1;
   }
