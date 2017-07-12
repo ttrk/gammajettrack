@@ -280,7 +280,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             TLorentzVector vtrack;
             vtrack.SetPtEtaPhiM((*p_pt)[ip], (*p_eta)[ip], (*p_phi)[ip], 0);
             float angle = vjet.Angle(vtrack.Vect());
-            float z = vtrack.P() * cos(angle) / refpt;
+            float z = (*p_pt)[ip] * cos(angle) / refpt;
             float xi = log(1.0 / z);
             hgammaffxi[background]->Fill(xi, weight * (*p_weight)[ip] * smear_weight);
           }
@@ -305,7 +305,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             TLorentzVector vtrack;
             vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
             float angle = vjet.Angle(vtrack.Vect());
-            float z = vtrack.P() * cos(angle) / refpt;
+            float z = (*p_pt_mix)[ip_mix] * cos(angle) / refpt;
             float xi = log(1.0 / z);
             hgammaffxiue[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_ue);
           }
@@ -395,7 +395,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             TLorentzVector vtrack;
             vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
             float angle = vjet.Angle(vtrack.Vect());
-            float z = vtrack.P() * cos(angle) / refpt;
+            float z = (*p_pt_mix)[ip_mix] * cos(angle) / refpt;
             float xi = log(1.0 / z);
             hgammaffxijetmix[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet);
           }
@@ -419,7 +419,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             TLorentzVector vtrack;
             vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
             float angle = vjet.Angle(vtrack.Vect());
-            float z = vtrack.P() * cos(angle) / refpt;
+            float z = (*p_pt_mix)[ip_mix] * cos(angle) / refpt;
             float xi = log(1.0 / z);
             hgammaffxijetmixue[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
           }
