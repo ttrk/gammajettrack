@@ -21,7 +21,7 @@ void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, flo
 // 4: PES
 // 5: ISO
 
-void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic) {
+void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int defnFF) {
   bool isHI = (sample.find("pbpb") != std::string::npos);
   TFile* fweight = (isHI) ? TFile::Open("PbPb-weights.root") : TFile::Open("pp-weights.root");
   TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
@@ -253,15 +253,17 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             break;
         }
 
-        TLorentzVector vjet;
-        vjet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
+        TLorentzVector vRef;
+        vRef.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
+        if (gammaxi > 0) vRef.SetPtEtaPhiM(phoEtCorrected, 0, phoPhi, 0);
 
         // jet pt cut
         if (tmpjetpt < jetptcut) continue;
 
         hjetpt[background]->Fill(tmpjetpt, weight * smear_weight);
 
-        float refpt = gammaxi ? phoEtCorrected : tmpjetpt;
+        float refP = gammaxi ? phoEtCorrected : tmpjetpt;
+        if (defnFF == 1) refP = gammaxi ? phoEtCorrected : vRef.P();
         // raw jets - jetshape
         for (int ip = 0; ip < nip; ++ip) {
           if ((*p_pt)[ip] < trkptmin) continue;
@@ -278,9 +280,22 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
-            vtrack.SetPtEtaPhiM((*p_pt)[ip], (*p_eta)[ip], (*p_phi)[ip], 0);
-            float angle = vjet.Angle(vtrack.Vect());
-            float z = (*p_pt)[ip] * cos(angle) / refpt;
+            float z = -1;
+            if (defnFF == 0) {
+                vtrack.SetPtEtaPhiM((*p_pt)[ip], (*p_eta)[ip], (*p_phi)[ip], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = (*p_pt)[ip] * cos(angle) / refP;
+            }
+            else if (defnFF == 1 && gammaxi == 0) {
+                vtrack.SetPtEtaPhiM((*p_pt)[ip], (*p_eta)[ip], (*p_phi)[ip], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = vtrack.P() * cos(angle) / refP;
+            }
+            else if (defnFF == 1 && gammaxi > 0) {
+                vtrack.SetPtEtaPhiM((*p_pt)[ip], 0, (*p_phi)[ip], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = vtrack.P() * fabs(cos(angle)) / refP;
+            }
             float xi = log(1.0 / z);
             hgammaffxi[background]->Fill(xi, weight * (*p_weight)[ip] * smear_weight);
           }
@@ -303,9 +318,22 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
-            vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
-            float angle = vjet.Angle(vtrack.Vect());
-            float z = (*p_pt_mix)[ip_mix] * cos(angle) / refpt;
+            float z = -1;
+            if (defnFF == 0) {
+                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
+            }
+            else if (defnFF == 1 && gammaxi == 0) {
+                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = vtrack.P() * cos(angle) / refP;
+            }
+            else if (defnFF == 1 && gammaxi > 0) {
+                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = vtrack.P() * fabs(cos(angle)) / refP;
+            }
             float xi = log(1.0 / z);
             hgammaffxiue[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_ue);
           }
@@ -370,15 +398,17 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             break;
         }
 
-        TLorentzVector vjet;
-        vjet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
+        TLorentzVector vRef;
+        vRef.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
+        if (gammaxi > 0) vRef.SetPtEtaPhiM(phoEtCorrected, 0, phoPhi, 0);
 
         // jet pt cut
         if (tmpjetpt < jetptcut) continue;
 
         hjetptjetmix[background]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
 
-        float refpt = gammaxi ? phoEtCorrected : tmpjetpt;
+        float refP = gammaxi ? phoEtCorrected : tmpjetpt;
+        if (defnFF == 1) refP = gammaxi ? phoEtCorrected : vRef.P();
         // mix jets - jetshape
         for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
           // tracks and jet must come from same mixed event
@@ -393,9 +423,22 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
-            vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
-            float angle = vjet.Angle(vtrack.Vect());
-            float z = (*p_pt_mix)[ip_mix] * cos(angle) / refpt;
+            float z = -1;
+            if (defnFF == 0) {
+                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
+            }
+            else if (defnFF == 1 && gammaxi == 0) {
+                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = vtrack.P() * cos(angle) / refP;
+            }
+            else if (defnFF == 1 && gammaxi > 0) {
+                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = vtrack.P() * fabs(cos(angle)) / refP;
+            }
             float xi = log(1.0 / z);
             hgammaffxijetmix[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet);
           }
@@ -417,9 +460,22 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
-            vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
-            float angle = vjet.Angle(vtrack.Vect());
-            float z = (*p_pt_mix)[ip_mix] * cos(angle) / refpt;
+            float z = -1;
+            if (defnFF == 0) {
+                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
+            }
+            else if (defnFF == 1 && gammaxi == 0) {
+                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = vtrack.P() * cos(angle) / refP;
+            }
+            else if (defnFF == 1 && gammaxi > 0) {
+                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
+                float angle = vRef.Angle(vtrack.Vect());
+                z = vtrack.P() * fabs(cos(angle)) / refP;
+            }
             float xi = log(1.0 / z);
             hgammaffxijetmixue[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
           }
@@ -434,7 +490,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
 int main(int argc, char* argv[]) {
   if (argc > 13 || argc < 5) {
-    printf("usage: ./jetshape [input] [sample] [centmin centmax] [phoetmin phoetmax] [jetptcut] [genlevel] [trkptmin] [gammaxi] [label] [systematic]\n");
+    printf("usage: ./jetshape [input] [sample] [centmin centmax] [phoetmin phoetmax] [jetptcut] [genlevel] [trkptmin] [gammaxi] [label] [systematic] [defnFF]\n");
     return 1;
   }
 
@@ -457,6 +513,8 @@ int main(int argc, char* argv[]) {
     t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]), argv[8], std::atof(argv[9]), std::atoi(argv[10]), argv[11]);
   else if (argc == 13)
     t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]), argv[8], std::atof(argv[9]), std::atoi(argv[10]), argv[11], std::atoi(argv[12]));
+  else if (argc == 14)
+    t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]), argv[8], std::atof(argv[9]), std::atoi(argv[10]), argv[11], std::atoi(argv[12]), std::atoi(argv[13]));
 
   return 0;
 }
