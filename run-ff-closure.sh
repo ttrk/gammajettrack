@@ -16,17 +16,17 @@ else
 fi
 
 echo "compiling macros..."
-g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff || exit 1
+g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff.exe || exit 1
 
 set -x
 
 echo running closure histograms
 for i in ${@:8}; do
   if [ ! -f ${7}_${6}_${1}_${3}_gxi${5}_${i}_ff.root ]; then
-    ./jetff $SKIM $6 0 20 $1 $2 $3 $i $4 $5 $7 &
-    ./jetff $SKIM $6 20 60 $1 $2 $3 $i $4 $5 $7 &
-    ./jetff $SKIM $6 60 100 $1 $2 $3 $i $4 $5 $7 &
-    ./jetff $SKIM $6 100 200 $1 $2 $3 $i $4 $5 $7 &
+    ./jetff.exe $SKIM $6 0 20 $1 $2 $3 $i $4 $5 $7 &
+    ./jetff.exe $SKIM $6 20 60 $1 $2 $3 $i $4 $5 $7 &
+    ./jetff.exe $SKIM $6 60 100 $1 $2 $3 $i $4 $5 $7 &
+    ./jetff.exe $SKIM $6 100 200 $1 $2 $3 $i $4 $5 $7 &
   fi
 done
 wait
