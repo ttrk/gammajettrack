@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $# -ne 5 ]]; then
-    echo "usage: ./skim-condor.sh [0/1/2/3] [input list] [output dir] [residuals] [mixing]"
+    echo "usage: ./skim-condor-submit.sh [0/1/2/3] [input list] [output dir] [residuals] [mixing]"
     echo "[0: PbPb Data, 1: PbPb MC, 2: pp Data, 3: pp MC]"
     exit 1
 fi
@@ -16,7 +16,7 @@ SRM_PATH=${3#${SRM_PREFIX}}
 
 gfal-mkdir -p gsiftp://se01.cmsaf.mit.edu:2811/${SRM_PATH}
 
-[ -d "logs" ] && rmdir logs
+[ -d "logs" ] && rm -r logs
 mkdir -p logs/
 
 JOBS=$(cat $2 | wc -l)
