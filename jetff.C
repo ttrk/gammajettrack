@@ -32,7 +32,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   if (fChain == 0) return;
   int64_t nentries = fChain->GetEntriesFast();
 
-  TFile* fout = new TFile(Form("%s_%s_%s_%d_%d_%i_%d_%d.root", label.data(), sample.data(), genlevel.data(), (int)phoetmin, (int)jetptcut, gammaxi, abs(centmin), abs(centmax)), "recreate");
+  TFile* fout = new TFile(Form("%s_%s_%s_%d_%d_%i_%d_%d_%d.root", label.data(), sample.data(), genlevel.data(), (int)phoetmin, (int)jetptcut, gammaxi, defnFF, abs(centmin), abs(centmax)), "recreate");
 
   TH1D* hjetpt[2]; TH1D* hjetptjetmix[2];
   hjetpt[0] = new TH1D(Form("hjetpt_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
@@ -41,14 +41,20 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   hjetptjetmix[1] = new TH1D(Form("hjetptjetmixsideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
 
   TH1D* hgammaffxi[2]; TH1D* hgammaffxiue[2]; TH1D* hgammaffxijetmix[2]; TH1D* hgammaffxijetmixue[2];
-  hgammaffxi[0] = new TH1D(Form("hgammaffxi_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#xi;", 10, 0, 5);
-  hgammaffxi[1] = new TH1D(Form("hgammaffxisideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#xi;", 10, 0, 5);
-  hgammaffxiue[0] = new TH1D(Form("hgammaffxiuemix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#xi;", 10, 0, 5);
-  hgammaffxiue[1] = new TH1D(Form("hgammaffxiuemixsideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#xi;", 10, 0, 5);
-  hgammaffxijetmix[0] = new TH1D(Form("hgammaffxijetmix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#xi;", 10, 0, 5);
-  hgammaffxijetmix[1]= new TH1D(Form("hgammaffxijetmixsideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#xi;", 10, 0, 5);
-  hgammaffxijetmixue[0] = new TH1D(Form("hgammaffxijetmixue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#xi;", 10, 0, 5);
-  hgammaffxijetmixue[1] = new TH1D(Form("hgammaffxijetmixuesideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#xi;", 10, 0, 5);
+  std::string xTitle = "xi";
+  if (defnFF == 0 && gammaxi == 0) xTitle = "#xi_{jet,1}";
+  else if (defnFF == 0 && gammaxi == 1) xTitle = "#xi_{#gamma,1}";
+  else if (defnFF == 1 && gammaxi == 0) xTitle = "#xi_{jet,2}";
+  else if (defnFF == 1 && gammaxi == 1) xTitle = "#xi_{#gamma,2}";
+  std::string hTitle = Form(";%s;", xTitle.c_str());
+  hgammaffxi[0] = new TH1D(Form("hgammaffxi_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), xTitle.c_str(), 10, 0, 5);
+  hgammaffxi[1] = new TH1D(Form("hgammaffxisideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), xTitle.c_str(), 10, 0, 5);
+  hgammaffxiue[0] = new TH1D(Form("hgammaffxiuemix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), xTitle.c_str(), 10, 0, 5);
+  hgammaffxiue[1] = new TH1D(Form("hgammaffxiuemixsideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), xTitle.c_str(), 10, 0, 5);
+  hgammaffxijetmix[0] = new TH1D(Form("hgammaffxijetmix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), xTitle.c_str(), 10, 0, 5);
+  hgammaffxijetmix[1]= new TH1D(Form("hgammaffxijetmixsideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), xTitle.c_str(), 10, 0, 5);
+  hgammaffxijetmixue[0] = new TH1D(Form("hgammaffxijetmixue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), xTitle.c_str(), 10, 0, 5);
+  hgammaffxijetmixue[1] = new TH1D(Form("hgammaffxijetmixuesideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), xTitle.c_str(), 10, 0, 5);
 
   TF1* f_JES_Q[4] = {0};
   f_JES_Q[0] = new TF1("f_JES_Q_3", "0.011180+0.195313/sqrt(x)", 30, 300);
@@ -489,7 +495,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 }
 
 int main(int argc, char* argv[]) {
-  if (argc > 13 || argc < 5) {
+  if (argc > 14 || argc < 5) {
     printf("usage: ./jetshape [input] [sample] [centmin centmax] [phoetmin phoetmax] [jetptcut] [genlevel] [trkptmin] [gammaxi] [label] [systematic] [defnFF]\n");
     return 1;
   }
