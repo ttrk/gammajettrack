@@ -22,6 +22,10 @@ echo "g++ draw_ff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o draw_ff.
 g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results.exe || exit 1
 echo "g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results.exe || exit 1"
 
+outDir="/export/d00/scratch/"$USER"/GJT-out/results/"
+mkdir -p outDir
+echo "outDir : $outDir"
+
 PLOTLIST=ffplot_${1}_${3}_${5}_${6}_${7}_${8}.list
 if [ -f $PLOTLIST ]; then
     rm $PLOTLIST
@@ -32,10 +36,10 @@ echo "PLOTLIST : $PLOTLIST"
 if [[ $8 == "data" ]]; then
     echo "running $8"
     set -x
-
-    hadd -f data_data_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root data_ppdata_${1}_${3}_gxi${5}_defnFF${6}_srecoreco_ff.root data_pbpbdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root
-    ./draw_ff.exe pbpbdata data_data_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root data_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${1} 0 recoreco
-    ./draw_ff.exe ppdata data_data_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root data_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${1} 0 srecoreco
+    outPrefix=$outDir"data"
+    hadd -f ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_ppdata_${1}_${3}_gxi${5}_defnFF${6}_srecoreco_ff.root ${outPrefix}_pbpbdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root
+    ./draw_ff.exe pbpbdata ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${1} 0 recoreco
+    ./draw_ff.exe ppdata ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${1} 0 srecoreco
 
     echo -e "pp (smeared)" >> $PLOTLIST
     echo -e "hff_final_ppdata_srecoreco_0_20" >> $PLOTLIST
@@ -48,16 +52,17 @@ if [[ $8 == "data" ]]; then
     echo -e "hff_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
     echo -e "hff_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
-    ./plot_results.exe data_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root data_data_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 2
+    ./plot_results.exe ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_data_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 2
 elif [[ $8 == "datamc" ]]; then
     echo "running $8"
     set -x
 
-    hadd -f data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root data_ppdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root data_pbpbdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root closure_ppmc_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root closure_pbpbmc_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root
-    ./draw_ff.exe pbpbdata data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root $1 0 recoreco
-    ./draw_ff.exe ppdata data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root $1 0 recoreco
-    ./draw_ff.exe pbpbmc data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root $1 0 recoreco
-    ./draw_ff.exe ppmc data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root $1 0 recoreco
+    outPrefix=$outDir"data"
+    hadd -f ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_ppdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root ${outPrefix}_pbpbdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root closure_ppmc_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root closure_pbpbmc_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root
+    ./draw_ff.exe pbpbdata ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root $1 0 recoreco
+    ./draw_ff.exe ppdata ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root $1 0 recoreco
+    ./draw_ff.exe pbpbmc ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root $1 0 recoreco
+    ./draw_ff.exe ppmc ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root $1 0 recoreco
 
     echo -e "pp MC" >> $PLOTLIST
     echo -e "hff_final_ppmc_recoreco_0_20" >> $PLOTLIST
@@ -80,7 +85,7 @@ elif [[ $8 == "datamc" ]]; then
     echo -e "hff_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
     echo -e "hff_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
-    ./plot_results.exe data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root data_mc_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 0 $5 $1 $3 2
+    ./plot_results.exe ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_mc_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 0 $5 $1 $3 2
     rm $PLOTLIST
 
     echo -e "pp MC" >> $PLOTLIST
@@ -94,7 +99,7 @@ elif [[ $8 == "datamc" ]]; then
     echo -e "hff_final_ppdata_recoreco_60_100" >> $PLOTLIST
     echo -e "hff_final_ppdata_recoreco_100_200" >> $PLOTLIST
 
-    ./plot_results.exe data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root data_mc_gxi${5}_defnFF${6}_${1}_${3}_pp $PLOTLIST 1 $5 $1 $3 2
+    ./plot_results.exe ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_mc_gxi${5}_defnFF${6}_${1}_${3}_pp $PLOTLIST 1 $5 $1 $3 2
     rm $PLOTLIST
 
     echo -e "PbPb MC" >> $PLOTLIST
@@ -108,7 +113,7 @@ elif [[ $8 == "datamc" ]]; then
     echo -e "hff_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
     echo -e "hff_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
-    ./plot_results.exe data_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root data_mc_gxi${5}_defnFF${6}_${1}_${3}_pbpb $PLOTLIST 1 $5 $1 $3 2
+    ./plot_results.exe ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_mc_gxi${5}_defnFF${6}_${1}_${3}_pbpb $PLOTLIST 1 $5 $1 $3 2
 else
     echo "running $8"
     set -x

@@ -25,20 +25,25 @@ if [[ "$(hostname)" == "hidsk0001.cmsaf.mit.edu" ]]; then
   PPSKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/skims/data_pp.root"
 fi
 
+outDir="/export/d00/scratch/"$USER"/GJT-out/results/"
+mkdir -p $outDir
+echo "outDir : $outDir"
+
 set +x
 
 if [[ $7 == "pbpb" ]]; then
     echo "running on pbpb data"
     echo "PBPBSKIM : $PBPBSKIM"
     set -x
-    ./jetff.exe $PBPBSKIM pbpbdata 0 20 $1 $2 $3 recoreco $4 $5 data 0 $6 &
-    ./jetff.exe $PBPBSKIM pbpbdata 20 60 $1 $2 $3 recoreco $4 $5 data 0 $6 &
-    ./jetff.exe $PBPBSKIM pbpbdata 60 100 $1 $2 $3 recoreco $4 $5 data 0 $6 &
-    ./jetff.exe $PBPBSKIM pbpbdata 100 200 $1 $2 $3 recoreco $4 $5 data 0 $6 &
+    outPrefix=$outDir"data"
+    ./jetff.exe $PBPBSKIM pbpbdata 0 20 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PBPBSKIM pbpbdata 20 60 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PBPBSKIM pbpbdata 60 100 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PBPBSKIM pbpbdata 100 200 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
     wait
 
-    hadd -f data_pbpbdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root data_pbpbdata_recoreco_${1}_${3}_${5}_${6}_*_*.root
-    rm data_pbpbdata_recoreco_${1}_${3}_${5}_${6}_*_*.root
+    hadd -f ${outPrefix}_pbpbdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root ${outPrefix}_pbpbdata_recoreco_${1}_${3}_${5}_${6}_*_*.root
+    rm ${outPrefix}_pbpbdata_recoreco_${1}_${3}_${5}_${6}_*_*.root
 
     ./run-ff-plot.sh $1 $2 $3 $4 $5 $6 pbpbdata data recoreco
 fi
@@ -47,20 +52,21 @@ if [[ $7 == "pp" ]]; then
     echo "running on pp data"
     echo "PPSKIM : $PPSKIM"
     set -x
-    ./jetff.exe $PPSKIM ppdata 0 20 $1 $2 $3 srecoreco $4 $5 data 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 20 60 $1 $2 $3 srecoreco $4 $5 data 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 60 100 $1 $2 $3 srecoreco $4 $5 data 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 100 200 $1 $2 $3 srecoreco $4 $5 data 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 0 20 $1 $2 $3 recoreco $4 $5 data 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 20 60 $1 $2 $3 recoreco $4 $5 data 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 60 100 $1 $2 $3 recoreco $4 $5 data 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 100 200 $1 $2 $3 recoreco $4 $5 data 0 $6 &
+    outPrefix=$outDir"data"
+    ./jetff.exe $PPSKIM ppdata 0 20 $1 $2 $3 srecoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PPSKIM ppdata 20 60 $1 $2 $3 srecoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PPSKIM ppdata 60 100 $1 $2 $3 srecoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PPSKIM ppdata 100 200 $1 $2 $3 srecoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PPSKIM ppdata 0 20 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PPSKIM ppdata 20 60 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PPSKIM ppdata 60 100 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PPSKIM ppdata 100 200 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
     wait
 
-    hadd -f data_ppdata_${1}_${3}_gxi${5}_defnFF${6}_srecoreco_ff.root data_ppdata_srecoreco_${1}_${3}_${5}_${6}_*_*.root
-    hadd -f data_ppdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root data_ppdata_recoreco_${1}_${3}_${5}_${6}_*_*.root
-    rm data_ppdata_srecoreco_${1}_${3}_${5}_${6}_*_*.root
-    rm data_ppdata_recoreco_${1}_${3}_${5}_${6}_*_*.root
+    hadd -f ${outPrefix}_ppdata_${1}_${3}_gxi${5}_defnFF${6}_srecoreco_ff.root ${outPrefix}_ppdata_srecoreco_${1}_${3}_${5}_${6}_*_*.root
+    hadd -f ${outPrefix}_ppdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root ${outPrefix}_ppdata_recoreco_${1}_${3}_${5}_${6}_*_*.root
+    rm ${outPrefix}_ppdata_srecoreco_${1}_${3}_${5}_${6}_*_*.root
+    rm ${outPrefix}_ppdata_recoreco_${1}_${3}_${5}_${6}_*_*.root
 
     ./run-ff-plot.sh $1 $2 $3 $4 $5 $6 ppdata data srecoreco
     ./run-ff-plot.sh $1 $2 $3 $4 $5 $6 ppdata data recoreco
