@@ -1,5 +1,5 @@
 mkdir tmp
-for i in `ls | grep -v .sh | grep -v .condor | grep -v logs | grep -v gammajetSkim.exe | grep -v residuals | grep -v tmp `
+for i in `ls | grep -v .sh | grep -v .condor | grep -v logs | grep -v photon_jet_track_skim.exe | grep -v residuals | grep -v tmp `
 do
     cp -r $i tmp
 done

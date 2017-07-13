@@ -9,7 +9,6 @@
 #include "jet_tree.h"
 #include "track_tree.h"
 #include "genpart_tree.h"
-#include "particleflow_tree.h"
 
 #include "L2L3ResidualWFits.h"
 
@@ -60,19 +59,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
   TTree* outtree = new TTree("pjtt", "photon jet track tree");
   photonJetTrackTree pjtt(outtree);
-
-  TTree* pfcand_tree = (TTree*)finput->Get("pfcandAnalyzer/pfTree");
-  pfcand_tree->SetBranchStatus("*", 0);
-  pfcand_tree->SetBranchStatus("nPFpart", 1);
-  pfcand_tree->SetBranchStatus("pfId", 1);
-  pfcand_tree->SetBranchStatus("pfPt", 1);
-  pfcand_tree->SetBranchStatus("pfEnergy", 1);
-  pfcand_tree->SetBranchStatus("pfEta", 1);
-  pfcand_tree->SetBranchStatus("pfPhi", 1);
-
-  TTree* outpfcand_tree = pfcand_tree->CloneTree(0);
-  outpfcand_tree->SetName("pfct");
-  outpfcand_tree->SetTitle("pf cand tree");
 
   TTree* event_tree = (TTree*)finput->Get("hiEvtAnalyzer/HiTree");
   if (!event_tree) { printf("Could not access event tree!\n"); return 1; }
@@ -139,11 +125,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     gpt.read_tree(genpart_tree);
   }
 
-  TTree* particleflow_tree = (TTree*)finput->Get("pfcandAnalyzer/pfTree");
-  if (!particleflow_tree) {printf("Could not access particle flow tree!\n"); return 1; }
-  particleflow_tree->SetBranchStatus("*", 0);
-  particleflowTree pft(particleflow_tree);
-
   /**********************************************************
   * OPEN MINBIAS MIXING FILE
   **********************************************************/
@@ -154,13 +135,11 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   TTree* jet_tree_for_trk_corr_mix = 0;
   TTree* track_tree_mix = 0;
   TTree* genpart_tree_mix = 0;
-  TTree* particleflow_tree_mix = 0;
 
   jetTree jt_mix;
   jetTree jt_trkcorr_mix;
   trackTree tt_mix;
   genpartTree gpt_mix;
-  particleflowTree pft_mix;
 
   int hiBin_mix;
   float vz_mix;
@@ -210,35 +189,27 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
       genpart_tree_mix->SetBranchStatus("*", 0);
       gpt_mix.read_tree(genpart_tree_mix);
     }
-
-    particleflow_tree_mix = (TTree*)fmixing->Get("pfcandAnalyzer/pfTree");
-    if (!particleflow_tree_mix) {
-      printf("Could not access particle flow tree!\n");
-    } else {
-      particleflow_tree_mix->SetBranchStatus("*", 0);
-      pft_mix.read_tree(particleflow_tree_mix);
-    }
   }
 
   /**********************************************************
   * OPEN CORRECTION FILES
   **********************************************************/
-  int const nCentBins = 5;
-  int const nEtaBins = 1;
-  TH1D* photonEnergyCorrections[nCentBins][nEtaBins];
-  TFile* energyCorrectionFile = TFile::Open("Corrections/photonEnergyCorrections.root");
-  for (int icent = 0; icent < nCentBins; ++icent) {
-    for (int ieta = 0; ieta < nEtaBins; ++ieta) {
-      photonEnergyCorrections[icent][ieta] = (TH1D*)energyCorrectionFile->Get(Form("photonEnergyCorr_cent%i_eta%i", icent, ieta));
+  TH1D* photonEnergyCorrections[5] = {0};
+  TH1D* photonEnergyCorrections_pp = 0;
+  if (isPP) {
+    TFile* energyCorrectionFile = TFile::Open("Corrections/photonEnergyCorrections.root");
+    photonEnergyCorrections_pp = (TH1D*)energyCorrectionFile->Get("photonEnergyCorr_eta0");
+  } else {
+    TFile* energyCorrectionFile = TFile::Open("Corrections/photonEnergyCorrections.root");
+    for (int icent = 0; icent < 5; ++icent) {
+      photonEnergyCorrections[icent] = (TH1D*)energyCorrectionFile->Get(Form("photonEnergyCorr_cent%i_eta0", icent));
     }
   }
 
-  TFile* sumIsoCorrectionFile = 0;
-  if (isMC)
-    sumIsoCorrectionFile = TFile::Open("Corrections/sumIsoCorrections_MC.root");
-  else
-    sumIsoCorrectionFile = TFile::Open("Corrections/sumIsoCorrections_Data.root");
-  TH1D* sumIsoCorrections = (TH1D*)sumIsoCorrectionFile->Get("sumIsoCorrections");
+  TFile* sumIsoCorrectionFile = isMC ? TFile::Open("Corrections/sumIsoCorrections_MC.root") : TFile::Open("Corrections/sumIsoCorrections_Data.root");
+  TH1D* sumIsoCorrections[5] = {0};
+  for (int icent = 0; icent < 5; ++icent)
+    sumIsoCorrections[icent] = (TH1D*)sumIsoCorrectionFile->Get(Form("sumIsoCorrections_cent%i", icent));
 
   L2L3ResidualWFits* jet_corr = new L2L3ResidualWFits();
   jet_corr->setL2L3Residual(3, 3, false);
@@ -252,23 +223,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     jetResidualFunction[0] = ((TH1F*)jetResidualFile->Get("resCorr_cent0to10_h"))->GetFunction("f1_p");
   } else {
     jetResidualFunction[0] = new TF1("f1_p", "(1+.5/x)", 5, 300);
-  }
-
-  TF1* zjet_jec[4][3] = {0};
-  if (isHI) {
-    TFile* zjet_jec_file = TFile::Open("Corrections/corrFile_jecConfigZJet_NoCorr_LINX_PYTHIA_HYDJET_7Over8PIDPhiCut_20170118.root");
-    zjet_jec[3][0] = (TF1*)zjet_jec_file->Get("corr_Eta0p0to0p5_Inc_FitMean_akPu3PF_Cent50to100_c");
-    zjet_jec[3][1] = (TF1*)zjet_jec_file->Get("corr_Eta0p5to1p0_Inc_FitMean_akPu3PF_Cent50to100_c");
-    zjet_jec[3][2] = (TF1*)zjet_jec_file->Get("corr_Eta1p0to1p6_Inc_FitMean_akPu3PF_Cent50to100_c");
-    zjet_jec[2][0] = (TF1*)zjet_jec_file->Get("corr_Eta0p0to0p5_Inc_FitMean_akPu3PF_Cent30to50_c");
-    zjet_jec[2][1] = (TF1*)zjet_jec_file->Get("corr_Eta0p5to1p0_Inc_FitMean_akPu3PF_Cent30to50_c");
-    zjet_jec[2][2] = (TF1*)zjet_jec_file->Get("corr_Eta1p0to1p6_Inc_FitMean_akPu3PF_Cent30to50_c");
-    zjet_jec[1][0] = (TF1*)zjet_jec_file->Get("corr_Eta0p0to0p5_Inc_FitMean_akPu3PF_Cent10to30_c");
-    zjet_jec[1][1] = (TF1*)zjet_jec_file->Get("corr_Eta0p5to1p0_Inc_FitMean_akPu3PF_Cent10to30_c");
-    zjet_jec[1][2] = (TF1*)zjet_jec_file->Get("corr_Eta1p0to1p6_Inc_FitMean_akPu3PF_Cent10to30_c");
-    zjet_jec[0][0] = (TF1*)zjet_jec_file->Get("corr_Eta0p0to0p5_Inc_FitMean_akPu3PF_Cent0to10_c");
-    zjet_jec[0][1] = (TF1*)zjet_jec_file->Get("corr_Eta0p5to1p0_Inc_FitMean_akPu3PF_Cent0to10_c");
-    zjet_jec[0][2] = (TF1*)zjet_jec_file->Get("corr_Eta1p0to1p6_Inc_FitMean_akPu3PF_Cent0to10_c");
   }
 
   TrkCorr* trkCorr;
@@ -341,7 +295,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                             (*pt.phoE2x5)[maxPhoIndex] / (*pt.phoE5x5)[maxPhoIndex] < 2. / 3. + 0.03));
 
     float sumIso = (*pt.pho_ecalClusterIsoR4)[maxPhoIndex] + (*pt.pho_hcalRechitIsoR4)[maxPhoIndex] + (*pt.pho_trackIsoR4PtCut20)[maxPhoIndex];
-    float sumIsoCorrected = sumIso - sumIsoCorrections->GetBinContent(sumIsoCorrections->FindBin(getAngleToEP(fabs((*pt.phoPhi)[maxPhoIndex] - hiEvtPlanes[8]))));
+    float sumIsoCorrected = sumIso - sumIsoCorrections[centBin]->GetBinContent(sumIsoCorrections[centBin]->FindBin(getAngleToEP(fabs((*pt.phoPhi)[maxPhoIndex] - hiEvtPlanes[8]))));
 
     if (isPP) {
       if (sumIso > 1) continue;
@@ -352,6 +306,8 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     if ((*pt.phoSigmaIEtaIEta_2012)[maxPhoIndex] > 0.0170) continue;
 
     bool passed = true;
+
+    bool isEle = false;
     float eleEpTemp = 100.0;
     for (int iele = 0; iele < pt.nEle; ++iele) {
       if ((*pt.elePt)[iele] < 10)
@@ -363,7 +319,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
       if (eleEpTemp < (*pt.eleEoverP)[iele])
         continue;
 
-      passed = false;
+      isEle = true;
       break;
     }
 
@@ -401,8 +357,17 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
         pjtt.weight = 1;
     }
 
+
     pjtt.phoE = (*pt.phoE)[maxPhoIndex];
     pjtt.phoEt = (*pt.phoEt)[maxPhoIndex];
+
+    float phoCorr = 0;
+    if (isHI) {
+      phoCorr = photonEnergyCorrections[centBin]->GetBinContent(photonEnergyCorrections[centBin]->FindBin(pjtt.phoEt));
+    } else {
+      phoCorr = photonEnergyCorrections_pp->GetBinContent(photonEnergyCorrections_pp->FindBin(pjtt.phoEt));
+    }
+    pjtt.phoEtCorrected = pjtt.phoEt / phoCorr;
     pjtt.phoEta = (*pt.phoEta)[maxPhoIndex];
     pjtt.phoPhi = (*pt.phoPhi)[maxPhoIndex];
     pjtt.phoSCE = (*pt.phoSCE)[maxPhoIndex];
@@ -420,6 +385,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     pjtt.phoE2x5 = (*pt.phoE2x5)[maxPhoIndex];
     pjtt.phoE5x5 = (*pt.phoE5x5)[maxPhoIndex];
     pjtt.phoNoise = !failedNoiseCut;
+    pjtt.phoisEle = isEle;
     pjtt.phoSigmaIEtaIEta = (*pt.phoSigmaIEtaIEta)[maxPhoIndex];
     pjtt.phoSigmaIEtaIEta_2012 = (*pt.phoSigmaIEtaIEta_2012)[maxPhoIndex];
 
@@ -438,25 +404,22 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
     if (isMC) pjtt.pho_genMatchedIndex = (*pt.pho_genMatchedIndex)[maxPhoIndex];
 
-    pjtt.phoCorr = photonEnergyCorrections[centBin][0]->GetBinContent(photonEnergyCorrections[centBin][0]->FindBin((*pt.phoEt)[maxPhoIndex]));
-    pjtt.phoEtCorrected = (*pt.phoEt)[maxPhoIndex] / pjtt.phoCorr;
     pjtt.pho_sumIso = sumIso;
     pjtt.pho_sumIsoCorrected = sumIsoCorrected;
     //! End photon cuts and selection
 
     // Adjust centBin
     centBin = std::min(centBin, 3);
+
     //! (2.3) Begin jet cuts and selection
     jet_tree->GetEntry(j);
-    particleflow_tree->GetEntry(j);
 
     int njet = 0;
     int nTrk = 0;
 
     for (int ij = 0; ij < jt.nref; ij++) {
-      if (jt.jtpt[ij] > jetptmin && fabs(jt.jteta[ij]) < 2 && acos(cos(jt.jtphi[ij] - pjtt.phoPhi)) > 7 * pi / 8) {
+      if (jt.jtpt[ij] > jetptmin && fabs(jt.jteta[ij]) < 2) {
         float jetpt_corr = jt.jtpt[ij];
-        float jetpt_corr_zjet = jt.jtpt[ij];
 
         // jet energy correction
         double xmin, xmax;
@@ -465,26 +428,10 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
           jetpt_corr = jetpt_corr / jetResidualFunction[centBin]->Eval(jetpt_corr);
         }
 
-        if (isHI) {
-          int etaBin = 0;
-          if (abs(jt.jteta[ij]) < 0.5) etaBin = 0;
-          else if (abs(jt.jteta[ij]) < 1.0) etaBin = 1;
-          else if (abs(jt.jteta[ij]) < 1.6) etaBin = 2;
-
-          // zjet jet energy correction
-          double xmin_zjet, xmax_zjet;
-          zjet_jec[centBin][etaBin]->GetRange(xmin_zjet, xmax_zjet);
-          if (jetpt_corr_zjet > xmin_zjet && jetpt_corr_zjet < xmax_zjet) {
-            jetpt_corr_zjet = jetpt_corr_zjet / zjet_jec[centBin][etaBin]->Eval(jetpt_corr_zjet);
-          }
-        }
-
         jetpt_corr = jet_corr->get_corrected_pt(jetpt_corr, jt.jteta[ij]);
-        jetpt_corr_zjet = jet_corr->get_corrected_pt(jetpt_corr_zjet, jt.jteta[ij]);
-        if (jetpt_corr < 30 && jetpt_corr_zjet < 30) continue; // njet is not incremented
+        if (jetpt_corr < 30) continue; // njet is not incremented
 
         pjtt.jetptCorr.push_back(jetpt_corr);
-        pjtt.jetptCorr_zjet.push_back(jetpt_corr_zjet);
         pjtt.jetpt.push_back(jt.jtpt[ij]);
         pjtt.jeteta.push_back(jt.jteta[ij]);
         pjtt.jetphi.push_back(jt.jtphi[ij]);
@@ -494,17 +441,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
         pjtt.gjetflavor.push_back(jt.refparton_flavor[ij]);
         pjtt.subid.push_back(jt.subid[ij]);
         pjtt.rawpt.push_back(jt.rawpt[ij]);
-        pjtt.chargedSum.push_back(jt.chargedSum[ij]);
-        pjtt.neutralSum.push_back(jt.neutralSum[ij]);
-        pjtt.photonSum.push_back(jt.photonSum[ij]);
-        pjtt.chargedMax.push_back(jt.chargedMax[ij]);
-        pjtt.chargedN.push_back(jt.chargedN[ij]);
-        pjtt.neutralN.push_back(jt.neutralN[ij]);
-        pjtt.photonN.push_back(jt.photonN[ij]);
-        pjtt.eN.push_back(jt.eN[ij]);
-        pjtt.muN.push_back(jt.muN[ij]);
-        pjtt.jetID.push_back(jt.goodJet(ij));
-        pjtt.npfcand_4.push_back(pft.get_npfcand_4(&jt, ij));
         njet++;
       }
     }
@@ -648,14 +584,11 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
         //! (2.52) Jets from mixed events
         jet_tree_mix->GetEntry(iminbias);
-        if (particleflow_tree_mix) { particleflow_tree_mix->GetEntry(iminbias); }
         for (int ijetmix = 0; ijetmix < jt_mix.nref; ++ijetmix) {
           if (jt_mix.jtpt[ijetmix] < jetptmin) continue;
           if (fabs(jt_mix.jteta[ijetmix]) > 2) continue;
-          if (acos(cos(jt_mix.jtphi[ijetmix] - pjtt.phoPhi)) < 7 * pi / 8) continue;
 
           float jetpt_corr_mix = jt_mix.jtpt[ijetmix];
-          float jetpt_corr_zjet_mix = jt_mix.jtpt[ijetmix];
 
           // jet energy correction
           double xmin, xmax;
@@ -664,26 +597,10 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
             jetpt_corr_mix = jetpt_corr_mix / jetResidualFunction[centBin]->Eval(jetpt_corr_mix);
           }
 
-          if (isHI) {
-            int etaBin = 0;
-            if (abs(jt_mix.jteta[ijetmix]) < 0.5) etaBin = 0;
-            else if (abs(jt_mix.jteta[ijetmix]) < 1.0) etaBin = 1;
-            else if (abs(jt_mix.jteta[ijetmix]) < 1.6) etaBin = 2;
-
-            // zjet jet energy correction
-            double xmin_zjet, xmax_zjet;
-            zjet_jec[centBin][etaBin]->GetRange(xmin_zjet, xmax_zjet);
-            if (jetpt_corr_zjet_mix > xmin_zjet && jetpt_corr_zjet_mix < xmax_zjet) {
-              jetpt_corr_zjet_mix = jetpt_corr_zjet_mix / zjet_jec[centBin][etaBin]->Eval(jetpt_corr_zjet_mix);
-            }
-          }
-
           jetpt_corr_mix = jet_corr->get_corrected_pt(jetpt_corr_mix, jt_mix.jteta[ijetmix]);
-          jetpt_corr_zjet_mix = jet_corr->get_corrected_pt(jetpt_corr_zjet_mix, jt_mix.jteta[ijetmix]);
-          if (jetpt_corr_mix < 30 && jetpt_corr_zjet_mix < 30) continue; // njet_mix is not incremented
+          if (jetpt_corr_mix < 30) continue; // njet_mix is not incremented
 
           pjtt.jetptCorr_mix.push_back(jetpt_corr_mix);
-          pjtt.jetptCorr_zjet_mix.push_back(jetpt_corr_zjet_mix);
           pjtt.jetpt_mix.push_back(jt_mix.jtpt[ijetmix]);
           pjtt.jeteta_mix.push_back(jt_mix.jteta[ijetmix]);
           pjtt.jetphi_mix.push_back(jt_mix.jtphi[ijetmix]);
@@ -692,18 +609,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
           pjtt.gjetphi_mix.push_back(jt_mix.refphi[ijetmix]);
           pjtt.subid_mix.push_back(jt_mix.subid[ijetmix]);
           pjtt.rawpt_mix.push_back(jt_mix.rawpt[ijetmix]);
-          pjtt.chargedSum_mix.push_back(jt_mix.chargedSum[ijetmix]);
-          pjtt.neutralSum_mix.push_back(jt_mix.neutralSum[ijetmix]);
-          pjtt.photonSum_mix.push_back(jt_mix.photonSum[ijetmix]);
-          pjtt.chargedMax_mix.push_back(jt_mix.chargedMax[ijetmix]);
-          pjtt.chargedN_mix.push_back(jt_mix.chargedN[ijetmix]);
-          pjtt.neutralN_mix.push_back(jt_mix.neutralN[ijetmix]);
-          pjtt.photonN_mix.push_back(jt_mix.photonN[ijetmix]);
-          pjtt.eN_mix.push_back(jt_mix.eN[ijetmix]);
-          pjtt.muN_mix.push_back(jt_mix.muN[ijetmix]);
-          pjtt.jetID_mix.push_back(jt_mix.goodJet(ijetmix));
           pjtt.nmixEv_mix.push_back(nmix);
-          pjtt.npfcand_4_mix.push_back(pft_mix.get_npfcand_4(&jt_mix, ijetmix));
           njet_mix++;
         }
         if (isMC) {
@@ -788,14 +694,10 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     memcpy(pjtt.hiEvtPlanes, hiEvtPlanes, 29 * sizeof(float));
 
     outtree->Fill();
-
-    pfcand_tree->GetEntry(j);
-    outpfcand_tree->Fill();
   }
 
   foutput->cd();
   outtree->Write("", TObject::kOverwrite);
-  outpfcand_tree->Write("", TObject::kOverwrite);
   foutput->Write("", TObject::kOverwrite);
   foutput->Close();
 
@@ -827,8 +729,8 @@ float getTrkWeight(TrkCorr* trkCorr, int itrk, int hiBin, jetTree* jt_trkcorr, t
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
-        printf("Usage: ./gammajetSkim.exe [[input]] [[output]] [jet algo] [isPP] [useless] [mix file] [jetptmin] [start] [end]\n");
-        printf("Testing: ./gammajetSkim.exe /mnt/hadoop/cms/store/user/katatar/official/Pythia8_AllQCDPhoton120Flt30_Hydjet_Cymbal_MB/HINPbPbWinter16DR-75X_mcRun2_HeavyIon_v14-v1-FOREST/170320_144030/0000/HiForestAOD_1.root test.root akPu3PFJetAnalyzer 0 1 /export/d00/scratch/biran/photon-jet-track/PbPb-MB-Hydjet-Cymbal-170331.root 30 0 20\n");
+        printf("Usage: ./photon_jet_track_skim.exe [[input]] [[output]] [jet algo] [isPP] [useless] [mix file] [jetptmin] [start] [end]\n");
+        printf("Testing: ./photon_jet_track_skim.exe /mnt/hadoop/cms/store/user/katatar/official/Pythia8_AllQCDPhoton120Flt30_Hydjet_Cymbal_MB/HINPbPbWinter16DR-75X_mcRun2_HeavyIon_v14-v1-FOREST/170320_144030/0000/HiForestAOD_1.root test.root akPu3PFJetAnalyzer 0 1 /export/d00/scratch/biran/photon-jet-track/PbPb-MB-Hydjet-Cymbal-170331.root 30 0 20\n");
         return 1;
     }
 
