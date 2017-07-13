@@ -110,4 +110,22 @@ fi
 ls | grep -v .out | grep -v .err | grep -v .log | grep -v _condor_stdout | grep -v _condor_stderr | xargs rm -rf
 EOF
 
+RESUBMIT=""
+
+for i in $(seq 0 $(($JOBS-1)))
+do
+    FILE=$3/${i}.root
+    if [ ! -f $FILE ]; then
+        PROCESS=$i
+        if [ "$RESUBMIT" = "" ]; then
+            RESUBMIT=$PROCESS
+        else
+            RESUBMIT="${RESUBMIT},${PROCESS}"
+        fi
+    fi
+done
+
+sed -i "s/\#noop/noop/g" skim.condor
+sed -i "s/__FAILED__/$RESUBMIT/g" skim.condor
+
 condor_submit skim.condor -pool submit.mit.edu:9615 -name submit.mit.edu -spool
