@@ -197,7 +197,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   TH1D* photonEnergyCorrections[5] = {0};
   TH1D* photonEnergyCorrections_pp = 0;
   if (isPP) {
-    TFile* energyCorrectionFile = TFile::Open("Corrections/photonEnergyCorrections.root");
+    TFile* energyCorrectionFile = TFile::Open("Corrections/photonEnergyCorrections_pp.root");
     photonEnergyCorrections_pp = (TH1D*)energyCorrectionFile->Get("photonEnergyCorr_eta0");
   } else {
     TFile* energyCorrectionFile = TFile::Open("Corrections/photonEnergyCorrections.root");
@@ -295,13 +295,11 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                             (*pt.phoE2x5)[maxPhoIndex] / (*pt.phoE5x5)[maxPhoIndex] < 2. / 3. + 0.03));
 
     float sumIso = (*pt.pho_ecalClusterIsoR4)[maxPhoIndex] + (*pt.pho_hcalRechitIsoR4)[maxPhoIndex] + (*pt.pho_trackIsoR4PtCut20)[maxPhoIndex];
-    float sumIsoCorrected = sumIso - sumIsoCorrections[centBin]->GetBinContent(sumIsoCorrections[centBin]->FindBin(getAngleToEP(fabs((*pt.phoPhi)[maxPhoIndex] - hiEvtPlanes[8]))));
+    float sumIsoCorrected = sumIso;
+    if (isHI)
+      sumIsoCorrected = sumIso - sumIsoCorrections[centBin]->GetBinContent(sumIsoCorrections[centBin]->FindBin(getAngleToEP(fabs((*pt.phoPhi)[maxPhoIndex] - hiEvtPlanes[8]))));
+    if (sumIsoCorrected > 1) continue;
 
-    if (isPP) {
-      if (sumIso > 1) continue;
-    } else {
-      if (sumIsoCorrected > 1) continue;
-    }
     if ((*pt.phoHoverE)[maxPhoIndex] > 0.1) continue;
     if ((*pt.phoSigmaIEtaIEta_2012)[maxPhoIndex] > 0.0170) continue;
 
@@ -356,7 +354,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     } else {
         pjtt.weight = 1;
     }
-
 
     pjtt.phoE = (*pt.phoE)[maxPhoIndex];
     pjtt.phoEt = (*pt.phoEt)[maxPhoIndex];
