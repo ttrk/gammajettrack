@@ -66,6 +66,8 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     if (layers < 2) draw_ratio = 0;
     if (draw_ratio) rows = 2;
 
+    bool plotFF = (hist_names[1].find("hff") == 0);
+
     float margin = 0.2; // left/bottom margins (with labels)
     float edge = 0.12;    // right/top edges (no labels)
 
@@ -117,10 +119,18 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                     break;
             }
 
-            if (gammaxi)
-                h1[i][k]->SetYTitle("#rho_{#gamma} (r)");
-            else
-                h1[i][k]->SetYTitle("#rho_{jet} (r)");
+            if (plotFF) {
+                if (gammaxi)
+                    h1[i][k]->SetYTitle("#frac{1}{N_{jet}} #frac{dN_{trk}}{d#xi_{#gamma}}");
+                else
+                    h1[i][k]->SetYTitle("#frac{1}{N_{jet}} #frac{dN_{trk}}{d#xi_{jet}}");
+            }
+            else {
+                if (gammaxi)
+                    h1[i][k]->SetYTitle("#rho_{#gamma} (r)");
+                else
+                    h1[i][k]->SetYTitle("#rho_{jet} (r)");
+            }
         }
 
         h1[i][0]->Draw();
@@ -182,7 +192,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             for (std::size_t r=1; r<layers; ++r) {
                 hratio[i][r] = (TH1D*)h1[i][r]->Clone(Form("hratio_%i_%zu", i, r));
                 hratio[i][r]->Divide(h1[i][0]);
-                hratio[i][r]->SetYTitle("Ratio");
+                hratio[i][r]->SetYTitle("PbPb/pp");
 
                 set_axis_style(hratio[i][r], i, 1);
                 switch (option) {
@@ -195,6 +205,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                         break;
                     case 2:
                         hratio[i][r]->SetAxisRange(0.5, 1.5, "Y");
+                        if (plotFF) hratio[i][r]->SetAxisRange(0, 3, "Y");
                         break;
                     case 3:
                         hratio[i][r]->SetAxisRange(0.5, 5, "X");
