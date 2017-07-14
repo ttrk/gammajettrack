@@ -23,7 +23,7 @@ void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, flo
 // 4: PES
 // 5: ISO
 
-void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic) {
+void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int dummy) {
   bool isHI = (sample.find("pbpb") != std::string::npos);
   TFile* fweight = (isHI) ? TFile::Open("PbPb-weights.root") : TFile::Open("pp-weights.root");
   TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
@@ -346,6 +346,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt) * jec_fix;
         tmpjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
 
+        // jet phi cut
+        if (acos(cos(tmpjetphi - phoPhi)) < 7 * pi / 8) continue;
+
         switch (systematic) {
           case 1: {
             float flavor_factor = 0;
@@ -393,9 +396,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             hjetshape_mixsignal[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * smear_weight / nmixedevents_jet);
           }
         }
-
-        // jet phi cut
-        if (acos(cos(tmpjetphi - phoPhi)) < 7 * pi / 8) continue;
 
         hjetpt_mix[background]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
 
