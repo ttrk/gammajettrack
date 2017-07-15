@@ -12,24 +12,24 @@
 #include "systematics.h"
 #include "error_bands.h"
 
-std::string sys_types[14] = {
-    "jes_up", "jes_up_minus", "jes_down_plus", "jes_down", "jer_minus_minus", "jer_minus", "jer", "pes", "purity_up", "purity_up_minus", "purity_down_plus", "purity_down", "tracking", "iso"
+std::string sys_types[8] = {
+    "jes_up", "jes_down", "jer", "pes", "purity_up", "purity_down", "tracking", "iso"
 };
 
-std::string fit_funcs[14] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
+std::string fit_funcs[8] = {
+    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
 };
 
-int options[14] = {
-    4, 4, 4, 0, 4, 4, 0, 0, 4, 4, 4, 0, 0, 0
+int options[8] = {
+    4, 0, 0, 0, 4, 0, 0, 0
 };
 
-int special[14] = {
-    0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0
+int special[8] = {
+    0, 1, 1, 0, 0, 1, 0, 0
 };
 
-std::string sys_labels[14] = {
-    "JES", "JES", "JES", "JES", "JER", "JER", "JER", "photon energy", "photon purity", "photon purity", "photon purity", "photon purity", "tracking", "photon isolation"
+std::string sys_labels[8] = {
+    "JES", "JES", "JER", "photon energy", "photon purity", "photon purity", "tracking", "photon isolation"
 };
 
 int calc_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label) {
