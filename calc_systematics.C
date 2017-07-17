@@ -25,7 +25,7 @@ int options[8] = {
 };
 
 int special[8] = {
-    0, 1, 1, 0, 0, 1, 0, 0
+    0, 1, 0, 0, 0, 1, 0, 0
 };
 
 std::string sys_labels[8] = {
