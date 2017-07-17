@@ -50,8 +50,14 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     bool is_data_plot = (sys != NULL && sys[0] != '\0');
 
     TFile* fsys = 0;
-    TH1D* hsys[4][2] = {0};
-    TH1D* hsys_ratio[4] = {0};
+    TH1D* hsys[4][2];
+    TH1D* hsys_ratio[4];
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            hsys[i][j] = 0;
+        }
+        hsys_ratio[i] = 0;
+    }
     if (is_data_plot) {
         fsys = new TFile(sys, "read");
         for (int i=0; i<4; ++i) {
@@ -80,8 +86,12 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     TCanvas* c1 = new TCanvas("c1", "", pad_width, pad_height);
     divide_canvas(c1, rows, columns, margin, edge, row_scale_factor, column_scale_factor);
 
-    TH1D* h1[4][layers] = {0};
-    TH1D* hratio[4][layers-1] = {0};
+    TH1D* h1[4][layers];
+    TH1D* hratio[4][layers-1];
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < (int)layers; ++j)   h1[i][j] = 0;
+        for (int j = 0; j < (int)layers-1; ++j) hratio[i][j] = 0;
+    }
     for (int i=0; i<4; ++i) {
         c1->cd(i+1);
         switch (option) {
