@@ -166,6 +166,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     // apply fix to gamma-jet jec
     float jec_fix = isPP ? 0.99 : 0.98;
 
+    if (!isMC)  weight = 1;
     if (isMC) weight = weight * hvzweight->GetBinContent(hvzweight->FindBin(vz));
     if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
 
