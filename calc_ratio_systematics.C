@@ -89,7 +89,7 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
     total_sys_var_t* total_sys_vars[nhists] = {0};
     sys_var_t* sys_vars[nhists][nsys] = {0};
     for (std::size_t i=0; i<nhists; ++i) {
-        total_sys_vars[i] = new total_sys_var_t(hist_list[i], hnominals[i]);
+        total_sys_vars[i] = new total_sys_var_t(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()), hnominals[i]);
 
         for (std::size_t j=0; j<nsys; ++j) {
             sys_vars[i][j] = new sys_var_t(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()), sys_types[j], hnominals[i], hratio_sys[i][j]);
