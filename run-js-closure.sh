@@ -7,9 +7,9 @@ if [ $# -lt 8 ]; then
 fi
 
 if [ $6 = "pbpbmc" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170519.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170712.root"
 elif [ $6 = "ppmc" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170524.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170712.root"
 else
     echo "invalid sample"
     exit 1
