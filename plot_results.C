@@ -63,6 +63,11 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         for (int i=0; i<4; ++i) {
             hsys[i][0] = (TH1D*)fsys->Get((hist_names[i+1] + "_systematics").c_str());
             hsys[i][1] = (TH1D*)fsys->Get((hist_names[i+6] + "_systematics").c_str());
+
+            std::string ratio_sys_name = hist_names[i+1];
+            std::size_t pbpb_pos = ratio_sys_name.find("ppdata_srecoreco");
+            ratio_sys_name.replace(pbpb_pos, 16, "ratio");
+            hsys_ratio[i] = (TH1D*)fsys->Get((ratio_sys_name + "_systematics").c_str());
         }
     }
     TGraph* gr = new TGraph();
@@ -229,8 +234,6 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             }
 
             if (is_data_plot) {
-                hsys_ratio[i] = (TH1D*)hsys[i][1]->Clone(Form("hsys_ratio_%i", i));
-                hsys_ratio[i]->Divide(h1[i][0]);
                 gr->SetFillColorAlpha(46, 0.7);
                 draw_sys_unc(gr, hratio[i][1], hsys_ratio[i]);
 
