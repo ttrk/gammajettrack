@@ -10,6 +10,7 @@ echo "compiling macros..."
 g++ jetshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetshape || exit 1
 g++ draw_js.C $(root-config --cflags --libs) -Werror -Wall -O2 -o draw_js || exit 1
 g++ calc_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_systematics || exit 1
+g++ calc_ratio_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_ratio_systematics || exit 1
 g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results || exit 1
 
 set -x
@@ -21,6 +22,28 @@ if [[ $6 -ne 1 ]]; then
     echo "running systematics"
     ./run-js-systematics.sh $@ pbpbdata data_pbpbdata_${1}_${3}_gxi${5}_js_final.root
     ./run-js-systematics.sh $@ ppdata data_ppdata_${1}_${3}_gxi${5}_js_final.root
+
+    echo "running ratio systematics"
+    SYSHISTLIST=syshist_${1}_${3}_${5}.list
+    if [ -f $SYSHISTLIST ]; then
+        rm $SYSHISTLIST
+    fi
+    echo -e "0_20" >> $SYSHISTLIST
+    echo -e "20_60" >> $SYSHISTLIST
+    echo -e "60_100" >> $SYSHISTLIST
+    echo -e "100_200" >> $SYSHISTLIST
+
+    SYSFILELIST=sysfile_${1}_${3}_${5}.list
+    if [ -f $SYSFILELIST ]; then
+        rm $SYSFILELIST
+    fi
+    echo -e "data_${1}_${3}_gxi${5}-systematics.root" >> $SYSFILELIST
+    echo -e "data_${1}_${3}_gxi${5}-systematics.root" >> $SYSFILELIST
+
+    ./calc_ratio_systematics js $SYSFILELIST $SYSHISTLIST data_${1}_${3}_gxi${5}
+
+    rm $SYSHISTLIST
+    rm $SYSFILELIST
 fi
 
 DATAFILE=data_data_${1}_${3}_gxi${5}_js_final.root
