@@ -19,10 +19,10 @@ kFF=1 # 0 : old definition, 1 : new definition
 if [ $6 = "pbpbdata" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170524.root"
     TYPE="recoreco"
-    MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170519.root"
+    MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170712.root"
     MCSAMPLE="pbpbmc"
 elif [ $6 = "ppdata" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-Data-skim-170519.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-Data-skim-170712.root"
     TYPE="srecoreco"
     MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170524.root"
     MCSAMPLE="ppmc"
@@ -134,6 +134,7 @@ echo -e "hff_final_${6}_${TYPE}_20_60" >> $HISTLIST
 echo -e "hff_final_${6}_${TYPE}_60_100" >> $HISTLIST
 echo -e "hff_final_${6}_${TYPE}_100_200" >> $HISTLIST
 
+cp $sysDir"/"data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root .
 ./calc_systematics.exe $7 $SYSLIST $HISTLIST data_${1}_${3}_gxi${5}_defnFF${kFF}
 mv sys_hff_final_${6}_${TYPE}_*_*-data_${1}_${3}_gxi${5}_defnFF${kFF}.png $sysDir 
 mv data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root $sysDir 
