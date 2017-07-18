@@ -32,7 +32,7 @@ std::string sys_observables[8] = {
     "JES", "JES", "JER", "photon energy", "photon purity", "photon purity", "tracking", "photon isolation"
 };
 
-int calc_raito_systematics(const char* observable, const char* filelist, const char* histlist, const char* label) {
+int calc_ratio_systematics(const char* observable, const char* filelist, const char* histlist, const char* label) {
     TH1::AddDirectory(kFALSE);
     TH1::SetDefaultSumw2(kTRUE);
 
@@ -84,7 +84,7 @@ int calc_raito_systematics(const char* observable, const char* filelist, const c
         }
     }
 
-    TFile* fout = new TFile(Form("%s-ratio-systematics.root", label), "update");
+    TFile* fout = new TFile(Form("%s-systematics.root", label), "update");
 
     total_sys_var_t* total_sys_vars[nhists] = {0};
     sys_var_t* sys_vars[nhists][nsys] = {0};
