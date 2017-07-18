@@ -17,14 +17,14 @@ echo "nominal results = $7"
 kFF=1 # 0 : old definition, 1 : new definition
 
 if [ $6 = "pbpbdata" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170524.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170712.root"
     TYPE="recoreco"
     MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170712.root"
     MCSAMPLE="pbpbmc"
 elif [ $6 = "ppdata" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/pp-Data-skim-170712.root"
     TYPE="srecoreco"
-    MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170524.root"
+    MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170712.root"
     MCSAMPLE="ppmc"
 else
     echo "invalid sample"
