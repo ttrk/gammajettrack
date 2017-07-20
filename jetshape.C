@@ -216,12 +216,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         if ((*gensubid)[ij] != 0) continue;
       }
 
-      float tmpjetpt = (*j_pt)[ij];
-      float tmpjeteta = (*j_eta)[ij];
-      float tmpjetphi = (*j_phi)[ij];
+      float rawjetpt = (*j_pt)[ij];
+      float rawjeteta = (*j_eta)[ij];
+      float rawjetphi = (*j_phi)[ij];
 
       // jet eta cut
-      if (fabs(tmpjeteta) > 1.6) continue;
+      if (fabs(rawjeteta) > 1.6) continue;
 
       int nsmear = 1;
       float res_pt = 0;
@@ -230,18 +230,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       // apply smearing
       if (isPP) {
         if (jet_type_is("sreco", genlevel)) {
-          res_pt = getSigmaRelPt(centmin, tmpjetpt);
-          res_phi = getSigmaRelPhi(centmin, tmpjetpt);
+          res_pt = getSigmaRelPt(centmin, rawjetpt);
+          res_phi = getSigmaRelPhi(centmin, rawjetpt);
           nsmear = _NSMEAR;
         } else if (jet_type_is("sgen", genlevel)) {
-          res_pt = getResolutionPP(tmpjetpt);
-          res_phi = getPhiResolutionPP(tmpjetpt);
+          res_pt = getResolutionPP(rawjetpt);
+          res_phi = getPhiResolutionPP(rawjetpt);
           nsmear = _NSMEAR;
         }
       } else {
         if (jet_type_is("sgen", genlevel)) {
-          res_pt = getResolutionHI(tmpjetpt, centBin);
-          res_phi = getPhiResolutionHI(tmpjetpt, centBin);
+          res_pt = getResolutionHI(rawjetpt, centBin);
+          res_phi = getPhiResolutionHI(rawjetpt, centBin);
           nsmear = _NSMEAR;
         }
       }
@@ -250,40 +250,40 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt) * jec_fix;
-        tmpjetphi = (*j_phi)[ij] + smear_rand.Gaus(0, res_phi);
+        rawjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt) * jec_fix;
+        rawjetphi = (*j_phi)[ij] + smear_rand.Gaus(0, res_phi);
 
         // jet phi cut
-        if (acos(cos(tmpjetphi - phoPhi)) < 7 * pi / 8) continue;
+        if (acos(cos(rawjetphi - phoPhi)) < 7 * pi / 8) continue;
 
         switch (systematic) {
           case 1: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_Q[centBin]->Eval(tmpjetpt); }
+            if (!isPP) { flavor_factor = f_JES_Q[centBin]->Eval(rawjetpt); }
             float jes_factor = 1 + TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
-            tmpjetpt = tmpjetpt * jes_factor;
+            rawjetpt = rawjetpt * jes_factor;
             break; }
           case 2: {
             float flavor_factor = 0;
-            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin]->Eval(tmpjetpt); }
+            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin]->Eval(rawjetpt); }
             float jes_factor = 1 - TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
-            tmpjetpt = tmpjetpt * jes_factor;
+            rawjetpt = rawjetpt * jes_factor;
             break; }
           case 3: {
             float jer_factor = 1.15;
-            float initial_res = getResolutionHI(tmpjetpt, centBin);
-            tmpjetpt = tmpjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
+            float initial_res = getResolutionHI(rawjetpt, centBin);
+            rawjetpt = rawjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
             break; }
           default:
             break;
         }
 
         // jet pt cut
-        if (tmpjetpt < jetptcut) continue;
+        if (rawjetpt < jetptcut) continue;
 
-        hjetpt[background]->Fill(tmpjetpt, weight * smear_weight);
+        hjetpt[background]->Fill(rawjetpt, weight * smear_weight);
 
-        float refpt = gammaxi ? phoEtCorrected : tmpjetpt;
+        float refpt = gammaxi ? phoEtCorrected : rawjetpt;
         // raw jets - jetshape
         for (int ip = 0; ip < nip; ++ip) {
           if ((*p_pt)[ip] < trkptmin) continue;
@@ -295,8 +295,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg)[ip] == 0) continue;
           }
 
-          float dphi = acos(cos(tmpjetphi - (*p_phi)[ip]));
-          float deta = tmpjeteta - (*p_eta)[ip];
+          float dphi = acos(cos(rawjetphi - (*p_phi)[ip]));
+          float deta = rawjeteta - (*p_eta)[ip];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
@@ -316,8 +316,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
-          float dphi = acos(cos(tmpjetphi - (*p_phi_mix)[ip_mix]));
-          float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
+          float dphi = acos(cos(rawjetphi - (*p_phi_mix)[ip_mix]));
+          float deta = rawjeteta - (*p_eta_mix)[ip_mix];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
@@ -335,20 +335,20 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     for (int ij_mix = 0; ij_mix < nij_mix; ij_mix++) {
       if ((*j_ev_mix)[ij_mix] % 3 == 0) continue;
 
-      float tmpjetpt = (*j_pt_mix)[ij_mix];
-      float tmpjeteta = (*j_eta_mix)[ij_mix];
-      float tmpjetphi = (*j_phi_mix)[ij_mix];
+      float mixjetpt = (*j_pt_mix)[ij_mix];
+      float mixjeteta = (*j_eta_mix)[ij_mix];
+      float mixjetphi = (*j_phi_mix)[ij_mix];
 
       // jet eta cut
-      if (fabs(tmpjeteta) > 1.6) continue;
+      if (fabs(mixjeteta) > 1.6) continue;
 
       int nsmear = 1;
       float res_pt = 0;
       float res_phi = 0;
 
       if (jet_type_is("sgen", genlevel)) {
-        res_pt = getResolutionHI(tmpjetpt, centBin);
-        res_phi = getPhiResolutionHI(tmpjetpt, centBin);
+        res_pt = getResolutionHI(mixjetpt, centBin);
+        res_phi = getPhiResolutionHI(mixjetpt, centBin);
         nsmear = _NSMEAR;
       }
 
@@ -356,73 +356,91 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt) * jec_fix;
-        tmpjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
+        mixjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt) * jec_fix;
+        mixjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
 
         // jet phi cut
-        if (acos(cos(tmpjetphi - phoPhi)) < 7 * pi / 8) continue;
+        if (acos(cos(mixjetphi - phoPhi)) < 7 * pi / 8) continue;
 
         switch (systematic) {
           case 1: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_Q[centBin]->Eval(tmpjetpt); }
+            if (!isPP) { flavor_factor = f_JES_Q[centBin]->Eval(mixjetpt); }
             float jes_factor = 1 + TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
-            tmpjetpt = tmpjetpt * jes_factor;
+            mixjetpt = mixjetpt * jes_factor;
             break; }
           case 2: {
             float flavor_factor = 0;
-            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin]->Eval(tmpjetpt); }
+            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin]->Eval(mixjetpt); }
             float jes_factor = 1 - TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
-            tmpjetpt = tmpjetpt * jes_factor;
+            mixjetpt = mixjetpt * jes_factor;
             break; }
           case 3: {
             float jer_factor = 1.15;
-            float initial_res = getResolutionHI(tmpjetpt, centBin);
-            tmpjetpt = tmpjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
+            float initial_res = getResolutionHI(mixjetpt, centBin);
+            mixjetpt = mixjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
             break; }
           default:
             break;
         }
 
         // jet pt cut
-        if (tmpjetpt < jetptcut) continue;
+        if (mixjetpt < jetptcut) continue;
 
-        float refpt = gammaxi ? phoEtCorrected : tmpjetpt;
+        hjetpt_mix[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
+
+        float refpt = gammaxi ? phoEtCorrected : mixjetpt;
 
         // mix signal - jetshape
+        // do not mix if there exists a signal jet within 2 * 0.3 of mix jet
+        for (int ij = 0; ij < nij; ++ij) {
+          float rawjetpt = (*j_pt)[ij];
+          float rawjeteta = (*j_eta)[ij];
+          float rawjetphi = (*j_phi)[ij];
+
+          if (rawjetpt < jetptcut) continue;
+          if (fabs(rawjeteta) > 1.6) continue;
+
+          float dphi = acos(cos(mixjetphi - rawjetphi));
+          float deta = mixjeteta - rawjeteta;
+          float deltar2 = (dphi * dphi) + (deta * deta);
+
+          if (deltar2 < 0.36)
+            goto skip_mix_signal;
+        }
+
+        hjetpt_mixsignal[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
+
         for (int ip = 0; ip < nip; ++ip) {
           if ((*p_pt)[ip] < trkptmin) continue;
           if (part_type_is("gen0", genlevel)) {
             if ((*sube)[ip] != 0) continue;
-            if ((*chg)[ip] == 0) continue;
           }
           if (part_type_is("gen", genlevel)) {
             if ((*chg)[ip] == 0) continue;
           }
 
-          float dphi = acos(cos(tmpjetphi - (*p_pt)[ip]));
-          float deta = tmpjeteta - (*p_eta)[ip];
+          float dphi = acos(cos(mixjetphi - (*p_pt)[ip]));
+          float deta = mixjeteta - (*p_eta)[ip];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetpt_mixsignal[background]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
             hjetshape_mixsignal[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight / nmixedevents_jet);
           }
         }
 
-        hjetpt_mix[background]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
-
+skip_mix_signal:
         // mix jets - jetshape
         for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
           // tracks and jet must come from same mixed event
           if ((*j_ev_mix)[ij_mix] != (*p_ev_mix)[ip_mix]) continue;
           if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
-          if (part_type_is("gen0", genlevel) || part_type_is("gen", genlevel)) {
+          if (part_type_is("gen", genlevel)) {
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
-          float dphi = acos(cos(tmpjetphi - (*p_phi_mix)[ip_mix]));
-          float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
+          float dphi = acos(cos(mixjetphi - (*p_phi_mix)[ip_mix]));
+          float deta = mixjeteta - (*p_eta_mix)[ip_mix];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
@@ -441,8 +459,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
-          float dphi = acos(cos(tmpjetphi - (*p_phi_mix)[ip_mix]));
-          float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
+          float dphi = acos(cos(mixjetphi - (*p_phi_mix)[ip_mix]));
+          float deta = mixjeteta - (*p_eta_mix)[ip_mix];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
