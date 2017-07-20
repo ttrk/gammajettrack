@@ -355,7 +355,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
         pjtt.weight = 1;
     }
 
-    pjtt.phoE = (*pt.phoE)[maxPhoIndex];
     pjtt.phoEt = (*pt.phoEt)[maxPhoIndex];
 
     float phoCorr = 0;
@@ -367,42 +366,15 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     pjtt.phoEtCorrected = pjtt.phoEt / phoCorr;
     pjtt.phoEta = (*pt.phoEta)[maxPhoIndex];
     pjtt.phoPhi = (*pt.phoPhi)[maxPhoIndex];
-    pjtt.phoSCE = (*pt.phoSCE)[maxPhoIndex];
-    pjtt.phoSCRawE = (*pt.phoSCRawE)[maxPhoIndex];
-    pjtt.phoESEn = (*pt.phoESEn)[maxPhoIndex];
-    pjtt.phoSCEta = (*pt.phoSCEta)[maxPhoIndex];
-    pjtt.phoSCPhi = (*pt.phoSCPhi)[maxPhoIndex];
-    pjtt.phoSCEtaWidth = (*pt.phoSCEtaWidth)[maxPhoIndex];
-    pjtt.phoSCPhiWidth = (*pt.phoSCPhiWidth)[maxPhoIndex];
-    pjtt.phoSCBrem = (*pt.phoSCBrem)[maxPhoIndex];
-    pjtt.phoR9 = (*pt.phoR9)[maxPhoIndex];
-    pjtt.phoHoverE = (*pt.phoHoverE)[maxPhoIndex];
-    pjtt.phoE3x3 = (*pt.phoE3x3)[maxPhoIndex];
-    pjtt.phoE1x5 = (*pt.phoE1x5)[maxPhoIndex];
-    pjtt.phoE2x5 = (*pt.phoE2x5)[maxPhoIndex];
-    pjtt.phoE5x5 = (*pt.phoE5x5)[maxPhoIndex];
-    pjtt.phoNoise = !failedNoiseCut;
-    pjtt.phoisEle = isEle;
-    pjtt.phoSigmaIEtaIEta = (*pt.phoSigmaIEtaIEta)[maxPhoIndex];
-    pjtt.phoSigmaIEtaIEta_2012 = (*pt.phoSigmaIEtaIEta_2012)[maxPhoIndex];
-
-    pjtt.pho_ecalClusterIsoR3 = (*pt.pho_ecalClusterIsoR3)[maxPhoIndex];
-    pjtt.pho_ecalClusterIsoR4 = (*pt.pho_ecalClusterIsoR4)[maxPhoIndex];
-    pjtt.pho_ecalClusterIsoR5 = (*pt.pho_ecalClusterIsoR5)[maxPhoIndex];
-    pjtt.pho_hcalRechitIsoR3 = (*pt.pho_hcalRechitIsoR3)[maxPhoIndex];
-    pjtt.pho_hcalRechitIsoR4 = (*pt.pho_hcalRechitIsoR4)[maxPhoIndex];
-    pjtt.pho_hcalRechitIsoR5 = (*pt.pho_hcalRechitIsoR5)[maxPhoIndex];
-    pjtt.pho_trackIsoR3PtCut20 = (*pt.pho_trackIsoR3PtCut20)[maxPhoIndex];
-    pjtt.pho_trackIsoR4PtCut20 = (*pt.pho_trackIsoR4PtCut20)[maxPhoIndex];
-    pjtt.pho_trackIsoR5PtCut20 = (*pt.pho_trackIsoR5PtCut20)[maxPhoIndex];
-
-    pjtt.pho_swissCrx = (*pt.pho_swissCrx)[maxPhoIndex];
-    pjtt.pho_seedTime = (*pt.pho_seedTime)[maxPhoIndex];
-
-    if (isMC) pjtt.pho_genMatchedIndex = (*pt.pho_genMatchedIndex)[maxPhoIndex];
 
     pjtt.pho_sumIso = sumIso;
     pjtt.pho_sumIsoCorrected = sumIsoCorrected;
+    if (isMC) pjtt.phoMCIsolation = (*pt.mcCalIsoDR04)[(*pt.pho_genMatchedIndex)[maxPhoIndex]];
+
+    pjtt.phoSigmaIEtaIEta_2012 = (*pt.phoSigmaIEtaIEta_2012)[maxPhoIndex];
+
+    pjtt.phoNoise = !failedNoiseCut;
+    pjtt.phoisEle = isEle;
     //! End photon cuts and selection
 
     // Adjust centBin
@@ -415,31 +387,32 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     int nTrk = 0;
 
     for (int ij = 0; ij < jt.nref; ij++) {
-      if (jt.jtpt[ij] > jetptmin && fabs(jt.jteta[ij]) < 2) {
-        float jetpt_corr = jt.jtpt[ij];
+      if (jt.jtpt[ij] < jetptmin) continue;
+      if (fabs(jt.jteta[ij] > 2)) continue;
+      if (acos(cos(jt.jtphi[ij] - pjtt.phoPhi)) < 7 * pi / 8) continue;
 
-        // jet energy correction
-        double xmin, xmax;
-        jetResidualFunction[centBin]->GetRange(xmin, xmax);
-        if (jetpt_corr > xmin && jetpt_corr < xmax) {
-          jetpt_corr = jetpt_corr / jetResidualFunction[centBin]->Eval(jetpt_corr);
-        }
+      float jetpt_corr = jt.jtpt[ij];
 
-        jetpt_corr = jet_corr->get_corrected_pt(jetpt_corr, jt.jteta[ij]);
-        if (jetpt_corr < 30) continue; // njet is not incremented
-
-        pjtt.jetptCorr.push_back(jetpt_corr);
-        pjtt.jetpt.push_back(jt.jtpt[ij]);
-        pjtt.jeteta.push_back(jt.jteta[ij]);
-        pjtt.jetphi.push_back(jt.jtphi[ij]);
-        pjtt.gjetpt.push_back(jt.refpt[ij]);
-        pjtt.gjeteta.push_back(jt.refeta[ij]);
-        pjtt.gjetphi.push_back(jt.refphi[ij]);
-        pjtt.gjetflavor.push_back(jt.refparton_flavor[ij]);
-        pjtt.subid.push_back(jt.subid[ij]);
-        pjtt.rawpt.push_back(jt.rawpt[ij]);
-        njet++;
+      // jet energy correction
+      double xmin, xmax;
+      jetResidualFunction[centBin]->GetRange(xmin, xmax);
+      if (jetpt_corr > xmin && jetpt_corr < xmax) {
+        jetpt_corr = jetpt_corr / jetResidualFunction[centBin]->Eval(jetpt_corr);
       }
+
+      jetpt_corr = jet_corr->get_corrected_pt(jetpt_corr, jt.jteta[ij]);
+      if (jetpt_corr < 30) continue; // njet is not incremented
+
+      pjtt.jetptCorr.push_back(jetpt_corr);
+      pjtt.jetpt.push_back(jt.jtpt[ij]);
+      pjtt.jeteta.push_back(jt.jteta[ij]);
+      pjtt.jetphi.push_back(jt.jtphi[ij]);
+      pjtt.gjetpt.push_back(jt.refpt[ij]);
+      pjtt.gjeteta.push_back(jt.refeta[ij]);
+      pjtt.gjetphi.push_back(jt.refphi[ij]);
+      pjtt.gjetflavor.push_back(jt.refparton_flavor[ij]);
+      pjtt.subid.push_back(jt.subid[ij]);
+      njet++;
     }
     pjtt.njet = njet;
     //! End jet selection
@@ -469,41 +442,13 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
       else trkWeight = getTrkWeight(trkCorr, itrk, hiBin, &jt_trkcorr, &tt);
 
       pjtt.trkPt.push_back(tt.trkPt[itrk]);
-      pjtt.trkPtError.push_back(tt.trkPtError[itrk]);
-      pjtt.trkNHit.push_back(tt.trkNHit[itrk]);
-      pjtt.trkNlayer.push_back(tt.trkNlayer[itrk]);
       pjtt.trkEta.push_back(tt.trkEta[itrk]);
       pjtt.trkPhi.push_back(tt.trkPhi[itrk]);
-      pjtt.trkCharge.push_back(tt.trkCharge[itrk]);
-      pjtt.highPurity.push_back(tt.highPurity[itrk]);
-      pjtt.trkChi2.push_back(tt.trkChi2[itrk]);
-      pjtt.trkNdof.push_back(tt.trkNdof[itrk]);
-      pjtt.trkDxy1.push_back(tt.trkDxy1[itrk]);
-      pjtt.trkDxyError1.push_back(tt.trkDxyError1[itrk]);
-      pjtt.trkDz1.push_back(tt.trkDz1[itrk]);
-      pjtt.trkDzError1.push_back(tt.trkDzError1[itrk]);
-      pjtt.pfEcal.push_back(tt.pfEcal[itrk]);
-      pjtt.pfHcal.push_back(tt.pfHcal[itrk]);
       pjtt.trkWeight.push_back(trkWeight);
       nTrk++;
     }
     pjtt.nTrk = nTrk;
     //! End track selection
-
-    pjtt.nMC = pt.nMC;
-    for (int imc = 0; imc < pt.nMC; ++imc) {
-      pjtt.mcPID.push_back((*pt.mcPID)[imc]);
-      pjtt.mcCalIsoDR04.push_back((*pt.mcCalIsoDR04)[imc]);
-      pjtt.mcStatus.push_back((*pt.mcStatus)[imc]);
-      pjtt.mcPt.push_back((*pt.mcPt)[imc]);
-      pjtt.mcEt.push_back((*pt.mcEt)[imc]);
-      pjtt.mcEta.push_back((*pt.mcEta)[imc]);
-      pjtt.mcPhi.push_back((*pt.mcPhi)[imc]);
-      pjtt.mcMomPt.push_back((*pt.mcMomPt)[imc]);
-      pjtt.mcMomEta.push_back((*pt.mcMomEta)[imc]);
-      pjtt.mcMomPhi.push_back((*pt.mcMomPhi)[imc]);
-      pjtt.mcMomPID.push_back((*pt.mcMomPID)[imc]);
-    }
 
     pjtt.ngen = jt.ngen;
     for (int igen = 0; igen < jt.ngen; ++igen) {
@@ -520,9 +465,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
         pjtt.pt.push_back((*gpt.pt)[igenp]);
         pjtt.eta.push_back((*gpt.eta)[igenp]);
         pjtt.phi.push_back((*gpt.phi)[igenp]);
-        pjtt.pdg.push_back((*gpt.pdg)[igenp]);
         pjtt.chg.push_back((*gpt.chg)[igenp]);
-        pjtt.matchingID.push_back((*gpt.matchingID)[igenp]);
         pjtt.sube.push_back((*gpt.sube)[igenp]);
       }
     }
@@ -584,6 +527,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
         for (int ijetmix = 0; ijetmix < jt_mix.nref; ++ijetmix) {
           if (jt_mix.jtpt[ijetmix] < jetptmin) continue;
           if (fabs(jt_mix.jteta[ijetmix]) > 2) continue;
+          if (acos(cos(jt_mix.jtphi[ijetmix] - pjtt.phoPhi)) < 7 * pi / 8) continue;
 
           float jetpt_corr_mix = jt_mix.jtpt[ijetmix];
 
@@ -605,7 +549,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
           pjtt.gjeteta_mix.push_back(jt_mix.refeta[ijetmix]);
           pjtt.gjetphi_mix.push_back(jt_mix.refphi[ijetmix]);
           pjtt.subid_mix.push_back(jt_mix.subid[ijetmix]);
-          pjtt.rawpt_mix.push_back(jt_mix.rawpt[ijetmix]);
           pjtt.nmixEv_mix.push_back(nmix);
           njet_mix++;
         }
@@ -658,7 +601,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
             pjtt.pt_mix.push_back((*gpt_mix.pt)[igenp]);
             pjtt.eta_mix.push_back((*gpt_mix.eta)[igenp]);
             pjtt.phi_mix.push_back((*gpt_mix.phi)[igenp]);
-            pjtt.pdg_mix.push_back((*gpt_mix.pdg)[igenp]);
             pjtt.chg_mix.push_back((*gpt_mix.chg)[igenp]);
             pjtt.nev_mix.push_back(nmix);
             mult_mix++;
