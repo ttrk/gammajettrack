@@ -47,6 +47,7 @@ g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff.exe || exi
 g++ draw_ff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o draw_ff.exe || exit 1
 g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results.exe || exit 1
 g++ calc_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_systematics.exe || exit 1
+g++ calc_ratio_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_ratio_systematics || exit 1
 g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_iso_systematics.exe || exit 1
 
 set -x
@@ -141,3 +142,31 @@ mv data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root $sysDir
 
 rm $SYSLIST
 rm $HISTLIST
+
+echo "running ratio systematics"
+SYSHISTLIST=syshist_${1}_${3}_${5}.list
+if [ -f $SYSHISTLIST ]; then
+  rm $SYSHISTLIST
+fi
+echo -e "0_20" >> $SYSHISTLIST
+echo -e "20_60" >> $SYSHISTLIST
+echo -e "60_100" >> $SYSHISTLIST
+echo -e "100_200" >> $SYSHISTLIST
+
+SYSFILELIST=sysfile_${1}_${3}_${5}.list
+if [ -f $SYSFILELIST ]; then
+  rm $SYSFILELIST
+fi
+echo -e "data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root" >> $SYSFILELIST
+echo -e "data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root" >> $SYSFILELIST
+
+cp $sysDir"/"data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root .
+./calc_ratio_systematics ff $SYSFILELIST $SYSHISTLIST data_${1}_${3}_gxi${5}_defnFF${kFF}
+mv sys_hff_final_*_*_*-data_${1}_${3}_gxi${5}_defnFF${kFF}.png $sysDir
+mv data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root $sysDir
+
+rm $SYSHISTLIST
+rm $SYSFILELIST
+
+
+
