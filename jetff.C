@@ -134,6 +134,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     p_weight_mix = &dummy_trkweight;
   }
 
+  int nsmear = 1;
+
   // main loop
   for (int64_t jentry = 0; jentry < nentries; jentry++) {
     if (jentry % 10000 == 0) { printf("%li/%li\n", jentry, nentries); }
@@ -365,7 +367,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       // jet eta cut
       if (fabs(tmpjeteta) > 1.6) continue;
 
-      int nsmear = 1;
+      nsmear = 1;
       float res_pt = 0;
       float res_phi = 0;
 
@@ -492,6 +494,31 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
       }
     }
+  }
+  if (nsmear > 0 && nsmear != 1) {
+      // Bin values were already corrected when filling the histograms.
+      // Increase statistical bin error by sqrt(nsmear) to account for nsmear "fake" smearing
+      for (int i = 0; i < 2; ++i) {
+          for (int iBin = 1; iBin <= hjetpt[i]->GetNbinsX(); iBin++) {
+              hjetpt[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hjetpt[i]->GetBinError(iBin));
+          }
+          for (int iBin = 1; iBin <= hjetptjetmix[i]->GetNbinsX(); iBin++) {
+              hjetptjetmix[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hjetptjetmix[i]->GetBinError(iBin));
+          }
+
+          for (int iBin = 1; iBin <= hgammaffxi[i]->GetNbinsX(); iBin++) {
+              hgammaffxi[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hgammaffxi[i]->GetBinError(iBin));
+          }
+          for (int iBin = 1; iBin <= hgammaffxiue[i]->GetNbinsX(); iBin++) {
+              hgammaffxiue[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hgammaffxiue[i]->GetBinError(iBin));
+          }
+          for (int iBin = 1; iBin <= hgammaffxijetmix[i]->GetNbinsX(); iBin++) {
+              hgammaffxijetmix[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hgammaffxijetmix[i]->GetBinError(iBin));
+          }
+          for (int iBin = 1; iBin <= hgammaffxijetmixue[i]->GetNbinsX(); iBin++) {
+              hgammaffxijetmixue[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hgammaffxijetmixue[i]->GetBinError(iBin));
+          }
+      }
   }
 
   fout->Write();
