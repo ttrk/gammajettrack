@@ -22,6 +22,7 @@ void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, flo
 // 3: JER
 // 4: PES
 // 5: ISO
+// 6: ELE_REJ
 
 void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int dummy) {
   bool isHI = (sample.find("pbpb") != std::string::npos);
@@ -167,6 +168,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       if (isMC)
         if (pho_genMatchedIndex == -1 || (*mcCalIsoDR04)[pho_genMatchedIndex] > 5.0)
           continue;
+    }
+
+    // electron rejection systematics
+    if (systematic != 6) {
+      if (phoisEle)
+        continue;
     }
 
     // apply fix to gamma-jet jec
