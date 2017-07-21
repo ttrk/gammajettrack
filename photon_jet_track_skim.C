@@ -369,7 +369,12 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
     pjtt.pho_sumIso = sumIso;
     pjtt.pho_sumIsoCorrected = sumIsoCorrected;
-    if (isMC) pjtt.phoMCIsolation = (*pt.mcCalIsoDR04)[(*pt.pho_genMatchedIndex)[maxPhoIndex]];
+    pjtt.phoMCIsolation = 0;
+    if (isMC) {
+      pjtt.pho_genMatchedIndex = (*pt.pho_genMatchedIndex)[maxPhoIndex];
+      if (pjtt.pho_genMatchedIndex != -1)
+        pjtt.phoMCIsolation = (*pt.mcCalIsoDR04)[pjtt.pho_genMatchedIndex];
+    }
 
     pjtt.phoSigmaIEtaIEta_2012 = (*pt.phoSigmaIEtaIEta_2012)[maxPhoIndex];
 

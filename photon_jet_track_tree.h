@@ -37,6 +37,7 @@ class photonJetTrackTree {
         phoPhi = 0;
         pho_sumIso = 0;
         pho_sumIsoCorrected = 0;
+        pho_genMatchedIndex = 0;
         phoMCIsolation = 0;
         phoSigmaIEtaIEta_2012 = 0;
         phoNoise = 0;
@@ -136,6 +137,7 @@ class photonJetTrackTree {
     float phoPhi;
     float pho_sumIso;
     float pho_sumIsoCorrected;
+    float pho_genMatchedIndex;
     float phoMCIsolation;
     float phoSigmaIEtaIEta_2012;
     int phoNoise;
@@ -227,6 +229,7 @@ void photonJetTrackTree::create_tree(TTree* t) {
     t->Branch("phoPhi", &phoPhi, "phoPhi/F");
     t->Branch("pho_sumIso", &pho_sumIso, "pho_sumIso/F");
     t->Branch("pho_sumIsoCorrected", &pho_sumIsoCorrected, "pho_sumIsoCorrected/F");
+    t->Branch("pho_genMatchedIndex", &pho_genMatchedIndex, "pho_genMatchedIndex/F");
     t->Branch("phoMCIsolation", &phoMCIsolation, "phoMCIsolation/F");
     t->Branch("phoSigmaIEtaIEta_2012", &phoSigmaIEtaIEta_2012, "phoSigmaIEtaIEta_2012/F");
     t->Branch("phoNoise", &phoNoise, "phoNoise/I");
