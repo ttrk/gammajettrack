@@ -266,6 +266,7 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
         // mix jet subtraction for raw photon jetshapes
         hjetshape_signal[i] = (TH1D*)hjetshape_sub[i]->Clone(Form("hjetshape_signal_%s", tag.c_str()));
         hjetshape_signal[i]->Add(hjetshape_mixjet_sub[i], -1);
+        hjetshape_signal[i]->Add(hjetshape_mixsignal_sub[i], -1);
         hjetshape_signal[i]->Scale(1.0/(hjetpt[i]->Integral() - hjetpt_mix[i]->Integral()));
 
         // histograms for background photon jetshapes
@@ -292,6 +293,7 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
         // mix jet subtraction for background photon jetshapes
         hjetshape_background[i] = (TH1D*)hjetshape_sub_bkg[i]->Clone(Form("hjetshape_background_%s", tag.c_str()));
         hjetshape_background[i]->Add(hjetshape_mixjet_sub_bkg[i], -1);
+        hjetshape_background[i]->Add(hjetshape_mixsignal_sub_bkg[i], -1);
         hjetshape_background[i]->Scale(1.0/(hjetpt_bkg[i]->Integral() - hjetpt_mix_bkg[i]->Integral()));
 
         // purity subtraction
