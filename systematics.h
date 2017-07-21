@@ -95,6 +95,7 @@ public:
     sys_var_t(sys_var_t* sys_var1, sys_var_t* sys_var2);
     ~sys_var_t();
 
+    void scale_sys(float factor);
     void fit_sys(std::string diff_fit_func, std::string ratio_fit_func);
     void write();
 
@@ -144,6 +145,13 @@ void sys_var_t::calc_sys() {
     hratio->Divide(hvariation, hnominal);
     hratio_abs = (TH1F*)hratio->Clone(Form("%s_ratio_abs", hist_name.c_str()));
     th1_ratio_abs(hratio_abs);
+}
+
+void sys_var_t::scale_sys(float factor) {
+    hdiff_abs->Scale(factor);
+    hratio_abs->Scale(factor);
+    if (hdiff_abs_fit) hdiff_abs_fit->Scale(factor);
+    if (hratio_abs_fit) hratio_abs_fit->Scale(factor);
 }
 
 void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func) {
@@ -233,8 +241,7 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option) {
             htmp->Multiply(hnominal);
             add_sqrt_sum_squares(htmp);
             htmp->Delete();
-            break;
-        }
+            break; }
         case 2:
             if (!sys_var->hdiff_abs_fit) {printf("no fit found!\n"); return;}
             add_sqrt_sum_squares(sys_var->hdiff_abs_fit);
@@ -245,8 +252,7 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option) {
             htmp->Multiply(hnominal);
             add_sqrt_sum_squares(htmp);
             htmp->Delete();
-            break;
-        }
+            break; }
         case 4:
             break;
         default:

@@ -12,24 +12,26 @@
 #include "systematics.h"
 #include "error_bands.h"
 
-std::string sys_types[8] = {
-    "jes_up", "jes_down", "jer", "pes", "purity_up", "purity_down", "tracking", "iso"
+#define NSYS 9
+
+std::string sys_types[NSYS] = {
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking"
 };
 
-std::string fit_funcs[8] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
+std::string fit_funcs[NSYS] = {
+    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
 };
 
-int options[8] = {
-    4, 0, 0, 0, 4, 0, 0, 0
+int options[NSYS] = {
+    4, 0, 0, 0, 0, 0, 4, 0, 0
 };
 
-int special[8] = {
-    0, 1, 0, 0, 0, 1, 0, 0
+int special[NSYS] = {
+    0, 1, 0, 0, 0, 2, 0, 1, 0
 };
 
-std::string sys_labels[8] = {
-    "JES", "JES", "JER", "photon energy", "photon purity", "photon purity", "tracking", "photon isolation"
+std::string sys_labels[NSYS] = {
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking"
 };
 
 int calc_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label) {
@@ -77,11 +79,18 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2");
             sys_vars[i][j]->write();
 
-            if (special[j]) {
-                sys_var_t* tmp_sys_var = sys_vars[i][j];
-                sys_vars[i][j] = new sys_var_t(sys_vars[i][j-1], tmp_sys_var);
-                sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2");
-                sys_vars[i][j]->write();
+            switch (special[j]) {
+                case 1: {
+                    sys_var_t* tmp_sys_var = sys_vars[i][j];
+                    sys_vars[i][j] = new sys_var_t(sys_vars[i][j-1], tmp_sys_var);
+                    sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2");
+                    sys_vars[i][j]->write();
+                    break; }
+                case 2:
+                    sys_vars[i][j]->scale_sys(0.55);
+                    break;
+                default:
+                    break;
             }
 
             total_sys_vars[i]->add_sys_var(sys_vars[i][j], options[j]);
