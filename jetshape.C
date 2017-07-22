@@ -23,6 +23,8 @@ void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, flo
 // 4: PES
 // 5: ISO
 // 6: ELE_REJ
+// 9: TRK_UP
+// 10: TRK_DOWN
 
 void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int dummy) {
   bool isHI = (sample.find("pbpb") != std::string::npos);
@@ -140,6 +142,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     p_ev_mix = nev_mix;
     p_weight_mix = &dummy_trkweight;
   }
+
+  float tracking_sys = isHI ? 0.05 : 0.04;
+  if (systematic == 9) { tracking_sys = 1 + tracking_sys; }
+  else if (systematic == 10) { tracking_sys = 1 - tracking_sys; }
 
   // main loop
   for (int64_t jentry = 0; jentry < nentries; jentry++) {
@@ -294,7 +300,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * smear_weight);
+            hjetshape[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight);
           }
         }
 
@@ -315,7 +321,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_ue);
+            hjetshape_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue);
           }
         }
       }
@@ -400,7 +406,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
             hjetpt_mixsignal[background]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
-            hjetshape_mixsignal[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * smear_weight / nmixedevents_jet);
+            hjetshape_mixsignal[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight / nmixedevents_jet);
           }
         }
 
@@ -420,7 +426,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet);
+            hjetshape_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
           }
         }
 
@@ -440,8 +446,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_mixjet_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
-            hjetshape_mixsignal_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
+            hjetshape_mixjet_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
+            hjetshape_mixsignal_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
           }
         }
       }
