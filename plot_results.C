@@ -18,6 +18,7 @@ int max_hiBin[4] = {20, 60, 100, 200};
 
 int rows = 1;
 int columns = 4;
+bool plotFF = false;
 
 typedef struct box_t {
     float x1, y1, x2, y2;
@@ -77,7 +78,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     if (layers < 2) draw_ratio = 0;
     if (draw_ratio) rows = 2;
 
-    bool plotFF = (hist_names[1].find("hff") == 0);
+    plotFF = (hist_names[1].find("hff") == 0);
 
     float margin = 0.2; // left/bottom margins (with labels)
     float edge = 0.12;    // right/top edges (no labels)
@@ -422,20 +423,26 @@ void set_axis_style(TH1D* h1, int i, int j) {
     y_axis->SetTitleSize(16);
 
     if (j == rows - 1) {
-        if (rows == 1)
+        if (rows == 1) {
             x_axis->SetTitleOffset(1.0);
-        else
+        }
+        else {
             x_axis->SetTitleOffset(1.8);
+            if (plotFF)  x_axis->SetTitleOffset(3);
+        }
         x_axis->CenterTitle();
     } else {
         x_axis->SetTitleOffset(999);
     }
 
     if (i == 0) {
-        if (rows == 1)
+        if (rows == 1) {
             y_axis->SetTitleOffset(1.15);
-        else
+        }
+        else {
             y_axis->SetTitleOffset(2.4);
+            if (plotFF)  y_axis->SetTitleOffset(2.8);
+        }
         y_axis->CenterTitle();
     } else {
         y_axis->SetTitleOffset(999);
