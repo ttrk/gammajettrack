@@ -40,7 +40,7 @@ echo "directory for sys variations  : $sysDir"
 nomPrefix=$nomDir"data"
 sysPrefix=$sysDir
 
-SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down)
 
 echo "compiling macros..."
 g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff.exe || exit 1
@@ -52,7 +52,7 @@ g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o c
 
 set -x
 
-for SYS in 1 2 3 4 6
+for SYS in 1 2 3 4 6 9 10
 do
     ./jetff.exe $SKIM $6 0 20 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
     ./jetff.exe $SKIM $6 20 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
@@ -64,22 +64,7 @@ wait
 ./draw_ff.exe $6 ${nomPrefix}_data_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}purity_up_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 2 $TYPE
 ./draw_ff.exe $6 ${nomPrefix}_data_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}purity_down_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} -2 $TYPE
 
-if [ $6 = "pbpbdata" ]; then
-    echo "running tracking systematics"
-    ./jetff.exe /export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170413-UIC.root $6 0 20 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}tracking 0 $kFF &
-    ./jetff.exe /export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170413-UIC.root $6 20 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}tracking 0 $kFF &
-    ./jetff.exe /export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170413-UIC.root $6 60 100 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}tracking 0 $kFF &
-    ./jetff.exe /export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170413-UIC.root $6 100 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}tracking 0 $kFF &
-    wait
-
-    hadd -f ${sysPrefix}tracking_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root ${sysPrefix}tracking_${6}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
-    rm ${sysPrefix}tracking_${6}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
-    hadd -f ${sysPrefix}tracking_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}tracking_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root
-    ./draw_ff.exe $6 ${sysPrefix}tracking_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}tracking_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 0 ${TYPE}
-else
-    cp $7 ${sysPrefix}tracking_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root
-fi
-
+# isolation systematics
 ./jetff.exe $MCSKIM $MCSAMPLE 0 20 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
 ./jetff.exe $MCSKIM $MCSAMPLE 20 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
 ./jetff.exe $MCSKIM $MCSAMPLE 60 100 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
@@ -103,7 +88,7 @@ hadd -f ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.roo
 ./calc_iso_systematics.exe ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root $7 $MCSAMPLE $6 $TYPE $1 $3 $5
 mv iso_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root $sysDir
 
-for SYS in 1 2 3 4 6
+for SYS in 1 2 3 4 6 9 10
 do
     hadd -f ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
     rm ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
@@ -117,7 +102,7 @@ if [ -f $SYSLIST ]; then
 fi
 touch $SYSLIST
 
-for SYS in 1 2 3 4 5 6 7 8 9
+for SYS in 1 2 3 4 5 6 7 8 9 10
 do
     echo -e "${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root" >> $SYSLIST
 done
