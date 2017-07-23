@@ -40,6 +40,9 @@ enum OPTIONS {
     kN_OPTIONS
 };
 
+int fillColors[2] = {38, 46};
+float fillAlpha = 0.7;
+
 int plot_results(const char* input, const char* plot_name, const char* hist_list, int draw_ratio = 0, int gammaxi = 0, int phoetmin = 60, int jetptmin = 30, int option = 0, const char* sys = "") {
     TFile* finput = new TFile(input, "read");
 
@@ -126,13 +129,19 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
 
         h1[i][0]->Draw();
 
-        gr->SetFillColorAlpha(46, 0.7);
-        if (hsys[i][1]) draw_sys_unc(gr, h1[i][1], hsys[i][1]);
+        gr->SetFillColorAlpha(fillColors[1], fillAlpha);
+        if (hsys[i][1]) {
+            draw_sys_unc(gr, h1[i][1], hsys[i][1]);
+            h1[i][1]->SetFillColorAlpha(fillColors[1], fillAlpha);
+        }
         for (std::size_t l=1; l<layers; ++l)
             h1[i][l]->Draw("same");
 
-        gr->SetFillColorAlpha(38, 0.7);
-        if (hsys[i][0]) draw_sys_unc(gr, h1[i][0], hsys[i][0]);
+        gr->SetFillColorAlpha(fillColors[0], fillAlpha);
+        if (hsys[i][0]) {
+            draw_sys_unc(gr, h1[i][0], hsys[i][0]);
+            h1[i][0]->SetFillColorAlpha(fillColors[0], fillAlpha);
+        }
         h1[i][0]->Draw("same");
 
         TLatex* centInfo = new TLatex();
@@ -167,8 +176,8 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             l1->SetFillStyle(0);
 
             if (is_data_plot) {
-                l1->AddEntry(h1[0][1], hist_names[5].c_str(), "pl");
-                l1->AddEntry(h1[0][0], hist_names[0].c_str(), "pl");
+                l1->AddEntry(h1[0][1], hist_names[5].c_str(), "plf");
+                l1->AddEntry(h1[0][0], hist_names[0].c_str(), "plf");
             } else {
                 for (std::size_t m=0; m<layers; ++m)
                     l1->AddEntry(h1[0][m], hist_names[5*m].c_str(), "pl");
