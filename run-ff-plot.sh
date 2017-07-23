@@ -119,18 +119,18 @@ else
     set -x
 
     hadd -f ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_*_ff.root
-    ./draw_ff.exe ${7} ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${1} 0 ${@:8}
+    ./draw_ff.exe ${7} ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${1} 0 ${@:9}
 
-    for i in ${@:8}
-    do
-      echo -e "$i" >> $PLOTLIST
-      echo -e "hff_final_${7}_${i}_0_20" >> $PLOTLIST
-      echo -e "hff_final_${7}_${i}_20_60" >> $PLOTLIST
-      echo -e "hff_final_${7}_${i}_60_100" >> $PLOTLIST
-      echo -e "hff_final_${7}_${i}_100_200" >> $PLOTLIST
-    done
+    #for i in ${@:9}
+    #do
+    #  echo -e "$i" >> $PLOTLIST
+    #  echo -e "hff_final_${7}_${i}_0_20" >> $PLOTLIST
+    #  echo -e "hff_final_${7}_${i}_20_60" >> $PLOTLIST
+    #  echo -e "hff_final_${7}_${i}_60_100" >> $PLOTLIST
+    #  echo -e "hff_final_${7}_${i}_100_200" >> $PLOTLIST
+    #done
 
-    ./plot_results.exe ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${8}_${7}_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 2
+    #./plot_results.exe ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${8}_${7}_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 2
 fi
 
 rm $PLOTLIST
