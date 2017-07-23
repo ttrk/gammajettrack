@@ -210,7 +210,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
     // jet loop
     for (int ij = 0; ij < nij; ij++) {
-      if (jet_type_is("gen0", genlevel)) {
+      if (jet_type_is("gen0", genlevel) || jet_type_is("sgen0", genlevel)) {
         if ((*gensubid)[ij] != 0) continue;
       }
 
@@ -367,7 +367,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     }
 
     if (isPP) continue;
-    if (jet_type_is("gen0", genlevel)) continue;
+    if (jet_type_is("gen0", genlevel) || jet_type_is("sgen0", genlevel)) continue;
 
     // mix jet loop
     float nmixedevents_jet = nmix - (nmix + 2) / 3;
