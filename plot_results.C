@@ -18,7 +18,6 @@ int max_hiBin[4] = {20, 60, 100, 200};
 
 int rows = 1;
 int columns = 4;
-bool plotFF = false;
 
 typedef struct box_t {
     float x1, y1, x2, y2;
@@ -27,15 +26,19 @@ typedef struct box_t {
 void divide_canvas(TCanvas* c1, int rows, int columns, float margin, float edge, float row_scale_factor, float column_scale_factor);
 void set_hist_style(TH1D* h1, int k);
 void set_data_style(TH1D* h1, int k);
-void set_axis_style(TH1D* h1, int i, int j);
+void set_axis_style(TH1D* h1, int i, int j, int option);
+void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option);
+void set_axis_range(TH1D* h1, bool isRatio, int option);
 void adjust_coordinates(box_t& box, float margin, float edge, int i, int j);
 void cover_axis(float margin, float edge, float column_scale_factor, float row_scale_factor);
 
-// options:
-// 0    - js, 0 < r < 1
-// 1    - js, 0 < r < 0.3
-// 2    - ff, 0 < xi < 5
-// 3    - ff, 0.5 < xi < 5
+enum OPTIONS {
+    kJS_r_lt_1,     // js, 0 < r < 1
+    kJS_r_lt_0p3,   // js, 0 < r < 0.3
+    kFF_xi_gt_0,       // ff, 0 < xi < 5
+    kFF_xi_gt_0p5,     // ff, 0.5 < xi < 5
+    kN_OPTIONS
+};
 
 int plot_results(const char* input, const char* plot_name, const char* hist_list, int draw_ratio = 0, int gammaxi = 0, int phoetmin = 60, int jetptmin = 30, int option = 0, const char* sys = "") {
     TFile* finput = new TFile(input, "read");
@@ -60,15 +63,18 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         hsys_ratio[i] = 0;
     }
     if (is_data_plot) {
-        fsys = new TFile(sys, "read");
-        for (int i=0; i<4; ++i) {
-            hsys[i][0] = (TH1D*)fsys->Get((hist_names[i+1] + "_systematics").c_str());
-            hsys[i][1] = (TH1D*)fsys->Get((hist_names[i+6] + "_systematics").c_str());
+        std::ifstream file_stream_SYS(sys);
+        if ((bool)file_stream_SYS) {
+            fsys = new TFile(sys, "read");
+            for (int i=0; i<4; ++i) {
+                hsys[i][0] = (TH1D*)fsys->Get((hist_names[i+1] + "_systematics").c_str());
+                hsys[i][1] = (TH1D*)fsys->Get((hist_names[i+6] + "_systematics").c_str());
 
-            std::string ratio_sys_name = hist_names[i+1];
-            std::size_t pbpb_pos = ratio_sys_name.find("ppdata_srecoreco");
-            ratio_sys_name.replace(pbpb_pos, 16, "ratio");
-            hsys_ratio[i] = (TH1D*)fsys->Get((ratio_sys_name + "_systematics").c_str());
+                std::string ratio_sys_name = hist_names[i+1];
+                std::size_t pbpb_pos = ratio_sys_name.find("ppdata_srecoreco");
+                ratio_sys_name.replace(pbpb_pos, 16, "ratio");
+                hsys_ratio[i] = (TH1D*)fsys->Get((ratio_sys_name + "_systematics").c_str());
+            }
         }
     }
     TGraph* gr = new TGraph();
@@ -77,8 +83,6 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     std::size_t layers = hist_names.size() / 5;
     if (layers < 2) draw_ratio = 0;
     if (draw_ratio) rows = 2;
-
-    plotFF = (hist_names[1].find("hff") == 0);
 
     float margin = 0.2; // left/bottom margins (with labels)
     float edge = 0.12;    // right/top edges (no labels)
@@ -101,7 +105,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     for (int i=0; i<4; ++i) {
         c1->cd(i+1);
         switch (option) {
-            case 0: case 1:
+            case kJS_r_lt_1: case kJS_r_lt_0p3:
                 gPad->SetLogy();
                 break;
             default:
@@ -115,42 +119,9 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             else
                 set_hist_style(h1[i][k], k);
 
-            set_axis_style(h1[i][k], i, 0);
-            switch (option) {
-                case 0:
-                    h1[i][k]->SetAxisRange(0.05, 50, "Y");
-                    break;
-                case 1:
-                    h1[i][k]->SetAxisRange(0, 0.3, "X");
-                    h1[i][k]->SetAxisRange(0.05, 50, "Y");
-                    break;
-                case 2:
-                    h1[i][k]->SetAxisRange(0, 4, "Y");
-                    break;
-                case 3:
-                    h1[i][k]->SetAxisRange(0.5, 5, "X");
-                    h1[i][k]->SetAxisRange(0, 4, "Y");
-                    break;
-                default:
-                    break;
-            }
-
-            if (plotFF) {
-                if (gammaxi) {
-                    h1[i][k]->SetXTitle("#xi_{#gamma} = ln (- |#bf{p}_{T}^{#gamma}|^{2} / #bf{p}_{T}^{trk} #bf{p}_{T}^{#gamma})");
-                    h1[i][k]->SetYTitle("#frac{1}{N_{jet}} #frac{dN_{trk}}{d#xi_{#gamma}}");
-                }
-                else {
-                    h1[i][k]->SetXTitle("#xi_{jet} = ln (p^{jet} / p_{||}^{trk})");
-                    h1[i][k]->SetYTitle("#frac{1}{N_{jet}} #frac{dN_{trk}}{d#xi_{jet}}");
-                }
-            }
-            else {
-                if (gammaxi)
-                    h1[i][k]->SetYTitle("#rho_{#gamma} (r)");
-                else
-                    h1[i][k]->SetYTitle("#rho_{jet} (r)");
-            }
+            set_axis_style(h1[i][k], i, 0, option);
+            set_axis_range(h1[i][k], false, option);
+            set_axis_title(h1[i][k], gammaxi, false, option);
         }
 
         h1[i][0]->Draw();
@@ -212,35 +183,17 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             for (std::size_t r=1; r<layers; ++r) {
                 hratio[i][r] = (TH1D*)h1[i][r]->Clone(Form("hratio_%i_%zu", i, r));
                 hratio[i][r]->Divide(h1[i][0]);
-                hratio[i][r]->SetYTitle("PbPb/pp");
 
-                set_axis_style(hratio[i][r], i, 1);
-                switch (option) {
-                    case 0:
-                        hratio[i][r]->SetAxisRange(0, 3, "Y");
-                        break;
-                    case 1:
-                        hratio[i][r]->SetAxisRange(0, 0.3, "X");
-                        hratio[i][r]->SetAxisRange(0, 3, "Y");
-                        break;
-                    case 2:
-                        hratio[i][r]->SetAxisRange(0.5, 1.5, "Y");
-                        if (plotFF) hratio[i][r]->SetAxisRange(0, 3, "Y");
-                        break;
-                    case 3:
-                        hratio[i][r]->SetAxisRange(0.5, 5, "X");
-                        hratio[i][r]->SetAxisRange(0.5, 1.5, "Y");
-                        break;
-                    default:
-                        break;
-                }
+                set_axis_style(hratio[i][r], i, 1, option);
+                set_axis_range(hratio[i][r], true, option);
+                set_axis_title(hratio[i][r], gammaxi, true, option);
 
                 hratio[i][r]->Draw("same");
             }
 
             if (is_data_plot) {
                 gr->SetFillColorAlpha(46, 0.7);
-                draw_sys_unc(gr, hratio[i][1], hsys_ratio[i]);
+                if (hsys_ratio[i]) draw_sys_unc(gr, hratio[i][1], hsys_ratio[i]);
 
                 hratio[i][1]->Draw("same");
             }
@@ -403,7 +356,7 @@ void set_data_style(TH1D* h1, int k) {
     }
 }
 
-void set_axis_style(TH1D* h1, int i, int j) {
+void set_axis_style(TH1D* h1, int i, int j, int option) {
     h1->SetNdivisions(609);
 
     TAxis* x_axis = h1->GetXaxis();
@@ -427,8 +380,11 @@ void set_axis_style(TH1D* h1, int i, int j) {
             x_axis->SetTitleOffset(1.0);
         }
         else {
-            x_axis->SetTitleOffset(1.8);
-            if (plotFF)  x_axis->SetTitleOffset(3);
+            if (option == kFF_xi_gt_0 || option == kFF_xi_gt_0p5)  {
+                x_axis->SetTitleOffset(3);
+            }
+            else
+                x_axis->SetTitleOffset(1.8);
         }
         x_axis->CenterTitle();
     } else {
@@ -440,13 +396,75 @@ void set_axis_style(TH1D* h1, int i, int j) {
             y_axis->SetTitleOffset(1.15);
         }
         else {
-            y_axis->SetTitleOffset(2.4);
-            if (plotFF)  y_axis->SetTitleOffset(2.8);
+            if (option == kFF_xi_gt_0 || option == kFF_xi_gt_0p5)  {
+                y_axis->SetTitleOffset(2.8);
+            }
+            else
+                y_axis->SetTitleOffset(2.4);
         }
         y_axis->CenterTitle();
     } else {
         y_axis->SetTitleOffset(999);
         y_axis->SetTitle("");
+    }
+}
+
+void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
+{
+    switch (option) {
+        case kJS_r_lt_1: case kJS_r_lt_0p3:
+            if (isRatio) {
+                h1->SetYTitle("PbPb/pp");
+            }
+            else {
+                if (gammaxi > 0) h1->SetYTitle("#rho_{#gamma} (r)");
+                else             h1->SetYTitle("#rho_{jet} (r)");
+            }
+            h1->SetXTitle("r");
+            break;
+        case kFF_xi_gt_0: case kFF_xi_gt_0p5:
+            if (isRatio) {
+                h1->SetYTitle("PbPb/pp");
+            }
+            else {
+                if (gammaxi > 0) {
+                    h1->SetXTitle("#xi_{#gamma} = ln (- |#bf{p}_{T}^{#gamma}|^{2} / #bf{p}_{T}^{trk} #bf{p}_{T}^{#gamma})");
+                    h1->SetYTitle("#frac{1}{N_{jet}} #frac{dN_{trk}}{d#xi_{#gamma}}");
+                }
+                else {
+                    h1->SetXTitle("#xi_{jet} = ln (p^{jet} / p_{||}^{trk})");
+                    h1->SetYTitle("#frac{1}{N_{jet}} #frac{dN_{trk}}{d#xi_{jet}}");
+                }
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+void set_axis_range(TH1D* h1, bool isRatio, int option)
+{
+    switch (option) {
+        case kJS_r_lt_1:
+            if (isRatio) h1->SetAxisRange(0, 3, "Y");
+            else         h1->SetAxisRange(0.05, 50, "Y");
+            break;
+        case kJS_r_lt_0p3:
+            h1->SetAxisRange(0, h1->GetBinLowEdge(h1->FindBin(0.3)-1), "X");
+            if (isRatio) h1->SetAxisRange(0, 3, "Y");
+            else         h1->SetAxisRange(0.05, 50, "Y");
+            break;
+        case kFF_xi_gt_0:
+            if (isRatio) h1->SetAxisRange(0, 3, "Y");
+            else         h1->SetAxisRange(0, 4, "Y");
+            break;
+        case kFF_xi_gt_0p5:
+            h1->SetAxisRange(0.5, h1->GetBinLowEdge(h1->GetNbinsX()), "X");
+            if (isRatio) h1->SetAxisRange(0, 3, "Y");
+            else         h1->SetAxisRange(0, 4, "Y");
+            break;
+        default:
+            break;
     }
 }
 
