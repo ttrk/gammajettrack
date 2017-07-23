@@ -135,10 +135,14 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             }
 
             if (plotFF) {
-                if (gammaxi)
+                if (gammaxi) {
+                    h1[i][k]->SetXTitle("#xi_{#gamma} = ln #frac{-(p_{T}^{#gamma})^{2}}{#bf{p}_{T}^{trk} #bf{p}_{T}^{#gamma}}");
                     h1[i][k]->SetYTitle("#frac{1}{N_{jet}} #frac{dN_{trk}}{d#xi_{#gamma}}");
-                else
+                }
+                else {
+                    h1[i][k]->SetXTitle("#xi_{jet} = ln #frac{p^{jet}}{p_{||}^{trk}}");
                     h1[i][k]->SetYTitle("#frac{1}{N_{jet}} #frac{dN_{trk}}{d#xi_{jet}}");
+                }
             }
             else {
                 if (gammaxi)
