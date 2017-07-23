@@ -21,6 +21,8 @@ void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, flo
 // 4: PES
 // 5: ISO
 // 6: ELE_REJ
+// 9: TRK_UP
+// 10: TRK_DOWN
 
 void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int defnFF) {
   bool isHI = (sample.find("pbpb") != std::string::npos);
@@ -136,6 +138,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   }
 
   int nsmear = 1;
+
+  float tracking_sys = isHI ? 0.05 : 0.04;
+  if (systematic == 9) { tracking_sys = 1 + tracking_sys; }
+  else if (systematic == 10) { tracking_sys = 1 - tracking_sys; }
+  else tracking_sys = 1;
 
   // main loop
   for (int64_t jentry = 0; jentry < nentries; jentry++) {
@@ -315,7 +322,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxi[background]->Fill(xi, weight * (*p_weight)[ip] * smear_weight);
+            hgammaffxi[background]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
           }
         }
 
@@ -353,7 +360,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxiue[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_ue);
+            hgammaffxiue[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue);
           }
         }
       }
@@ -459,7 +466,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxijetmix[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet);
+            hgammaffxijetmix[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
           }
         }
 
@@ -496,7 +503,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxijetmixue[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
+            hgammaffxijetmixue[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
           }
         }
       }
