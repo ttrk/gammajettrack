@@ -200,6 +200,7 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
     }
 
     float uescale[4] = {0.997, 0.99, 0.96, 0.85};
+    //float uescale[4] = {1,1, 0.97, 0.87};   // alternative UE scale
 
     TH1D* hjetpt[4] = {0};
     TH1D* hjetpt_mix[4] = {0};
