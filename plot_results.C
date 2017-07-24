@@ -249,7 +249,8 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                 hratio[i][1]->Draw("same");
             }
 
-            TLine* line1 = new TLine(h1[i][0]->GetBinLowEdge(1), 1, h1[i][0]->GetBinLowEdge(h1[i][0]->GetNbinsX() + 1), 1);
+            gPad->Update();
+            TLine* line1 = new TLine(gPad->GetUxmin(), 1, gPad->GetUxmax(), 1);
             line1->SetLineWidth(1);
             line1->SetLineStyle(2);
             line1->Draw();
