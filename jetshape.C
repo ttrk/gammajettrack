@@ -4,8 +4,9 @@
 
 #include "photonjettrack.h"
 
-#define _NSMEAR 1
-#define _NSMEAR_JER 1
+#define _NSMEAR_PP  100
+#define _NSMEAR_GEN 1
+#define _NSMEAR_JER 40
 
 TRandom3 smear_rand(12345);
 
@@ -244,17 +245,17 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         if (jet_type_is("sreco", genlevel)) {
           res_pt = getSigmaRelPt(centmin, rawjetpt);
           res_phi = getSigmaRelPhi(centmin, rawjetpt);
-          nsmear = _NSMEAR;
+          nsmear = _NSMEAR_PP;
         } else if (jet_type_is("sgen", genlevel)) {
           res_pt = getResolutionPP(rawjetpt);
           res_phi = getPhiResolutionPP(rawjetpt);
-          nsmear = _NSMEAR;
+          nsmear = _NSMEAR_GEN;
         }
       } else {
         if (jet_type_is("sgen", genlevel)) {
           res_pt = getResolutionHI(rawjetpt, centBin);
           res_phi = getPhiResolutionHI(rawjetpt, centBin);
-          nsmear = _NSMEAR;
+          nsmear = _NSMEAR_GEN;
         }
       }
 
@@ -361,7 +362,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       if (jet_type_is("sgen", genlevel)) {
         res_pt = getResolutionHI(mixjetpt, centBin);
         res_phi = getPhiResolutionHI(mixjetpt, centBin);
-        nsmear = _NSMEAR;
+        nsmear = _NSMEAR_GEN;
       }
 
       if (systematic == 3) nsmear *= _NSMEAR_JER;
