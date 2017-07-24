@@ -12,24 +12,26 @@
 #include "systematics.h"
 #include "error_bands.h"
 
+#define NSYS 10
+
 std::vector<std::string> sys_types = {
-    "jes_up", "jes_down", "jer", "pes", "purity_up", "purity_down", "tracking", "iso"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down"
 };
 
-std::string fit_funcs[8] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
+std::string fit_funcs[NSYS] = {
+    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
 };
 
-int options[8] = {
-    4, 0, 0, 0, 4, 0, 0, 0
+int options[NSYS] = {
+    4, 0, 0, 0, 0, 0, 4, 0, 4, 0
 };
 
-int special[8] = {
-    0, 1, 0, 0, 0, 1, 0, 0
+int special[NSYS] = {
+    0, 1, 0, 0, 0, 0, 0, 1, 0, 1
 };
 
-std::string sys_observables[8] = {
-    "JES", "JES", "JER", "photon energy", "photon purity", "photon purity", "tracking", "photon isolation"
+std::string sys_observables[NSYS] = {
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking"
 };
 
 int calc_ratio_systematics(const char* observable, const char* filelist, const char* histlist, const char* label) {
