@@ -66,6 +66,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     bool is_pbpbdata = false;
     bool is_ppmc = false;
     bool is_pbpbmc = false;
+    std::string mcSampleStr = "";
     for (int i = 1; i < (int)hist_names.size(); i+=5) {
         is_ppdata = is_ppdata || (hist_names[i].find("ppdata") != std::string::npos);
         is_pbpbdata = is_pbpbdata || (hist_names[i].find("pbpbdata") != std::string::npos);
@@ -73,8 +74,14 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         is_pbpbmc = is_pbpbmc || (hist_names[i].find("pbpbmc") != std::string::npos);
     }
     if (is_ppdata && is_pbpbdata)  mode = k_data_pp_pbpb;
-    else if (is_ppmc)  mode = k_mc_reco_gen;
-    else if (is_pbpbmc)  mode = k_mc_reco_gen;
+    else if (is_ppmc)  {
+        mode = k_mc_reco_gen;
+        mcSampleStr = "Pythia";
+    }
+    else if (is_pbpbmc) {
+        mode = k_mc_reco_gen;
+        mcSampleStr = "Pythia+Hydjet";
+    }
 
     std::ifstream file_stream_SYS(sys);
     bool is_data_plot = ((bool)file_stream_SYS && sys != NULL && sys[0] != '\0');
@@ -198,8 +205,11 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             latexPrelim->DrawLatexNDC(prelim_box.x1, prelim_box.y1, "Preliminary");
         }
 
-        if (i == 1) {
-            TLegend* l1 = new TLegend(0.25, 0.84-layers*0.05, 0.54, 0.84);
+        if ((mode == k_data_pp_pbpb && i == 1) || (mode == k_mc_reco_gen && i == 0)) {
+            float legX1 = 0.25;
+            if (mode == k_mc_reco_gen && (option == kJS_r_lt_1 || option == kJS_r_lt_0p3))
+                legX1 = 0.35;
+            TLegend* l1 = new TLegend(legX1, 0.84-layers*0.08, legX1+0.29, 0.84);
             l1->SetTextFont(43);
             l1->SetTextSize(15);
             l1->SetBorderSize(0);
@@ -209,6 +219,8 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                 l1->AddEntry(h1[0][1], hist_names[5].c_str(), legendOptions[1].c_str());
                 l1->AddEntry(h1[0][0], hist_names[0].c_str(), legendOptions[0].c_str());
             } else {
+                if (mcSampleStr.size() > 0)
+                    l1->SetHeader(mcSampleStr.c_str());
                 for (std::size_t m=0; m<layers; ++m)
                     l1->AddEntry(h1[0][m], hist_names[5*m].c_str(), legendOptions[m].c_str());
             }
@@ -454,7 +466,7 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
         case kJS_r_lt_1: case kJS_r_lt_0p3:
             if (isRatio) {
                 if (mode == k_data_pp_pbpb)      h1->SetYTitle("PbPb/pp");
-                else if (mode == k_mc_reco_gen)  h1->SetYTitle("reco/gen");
+                else if (mode == k_mc_reco_gen)  h1->SetYTitle("reco / gen");
             }
             else {
                 if (gammaxi > 0) h1->SetYTitle("#rho_{#gamma} (r)");
