@@ -1,5 +1,6 @@
 #include "TFile.h"
 #include "TH1.h"
+#include "TStyle.h"
 #include "TCanvas.h"
 #include "TPad.h"
 #include "TLatex.h"
@@ -87,6 +88,8 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     }
     else if (is_ppdata && is_pbpbdata)  mode = k_data_pp_pbpb;
 
+    if (mode == k_data_pp_pbpb)  gStyle->SetErrorX(0);
+
     std::ifstream file_stream_SYS(sys);
     bool is_data_plot = ((bool)file_stream_SYS && sys != NULL && sys[0] != '\0');
 
@@ -150,7 +153,10 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         std::fill(drawOptions.begin(), drawOptions.end(), "e");
 
         std::vector<std::string> legendOptions(layers);
-        std::fill(legendOptions.begin(), legendOptions.end(), "plf");
+        if (is_data_plot)
+            std::fill(legendOptions.begin(), legendOptions.end(), "pf");
+        else
+            std::fill(legendOptions.begin(), legendOptions.end(), "plf");
 
         for (std::size_t k=0; k<layers; ++k) {
             h1[i][k] = (TH1D*)finput->Get(hist_names[5*k+i+1].c_str());
@@ -211,10 +217,13 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
 
         if ((mode == k_data_pp_pbpb && i == 1) || (mode == k_data_sysvar && i == 0)
                                                || (mode == k_mc_reco_gen && i == 0)) {
-            float legX1 = 0.25;
-            if ((mode == k_data_sysvar || mode == k_mc_reco_gen) && (option == kJS_r_lt_1 || option == kJS_r_lt_0p3))
+            float legX1 = 0.10;
+            float legWidth = 0.45;
+            if ((mode == k_data_sysvar || mode == k_mc_reco_gen) && (option == kJS_r_lt_1 || option == kJS_r_lt_0p3)) {
                 legX1 = 0.35;
-            TLegend* l1 = new TLegend(legX1, 0.84-layers*0.08, legX1+0.29, 0.84);
+                legWidth = 0.30;
+            }
+            TLegend* l1 = new TLegend(legX1, 0.84-layers*0.08, legX1+legWidth, 0.84);
             l1->SetTextFont(43);
             l1->SetTextSize(15);
             l1->SetBorderSize(0);
