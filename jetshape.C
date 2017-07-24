@@ -159,6 +159,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   float tracking_sys = isHI ? 0.05 : 0.04;
   if (systematic == 9) { tracking_sys = 1 + tracking_sys; }
   else if (systematic == 10) { tracking_sys = 1 - tracking_sys; }
+  else { tracking_sys = 1; }
 
   // main loop
   for (int64_t jentry = 0; jentry < nentries; jentry++) {
