@@ -42,6 +42,7 @@ enum OPTIONS {
 
 enum MODES {
     k_data_pp_pbpb,
+    k_data_sysvar,
     k_mc_reco_gen,
     kN_modes
 };
@@ -62,18 +63,20 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     if (hist_names.size() % 5 != 0) return 1;
 
     // set the plotting mode based on histogram names
-    bool is_ppdata = false;
-    bool is_pbpbdata = false;
+    bool is_sysvar = false;
     bool is_ppmc = false;
     bool is_pbpbmc = false;
+    bool is_ppdata = false;
+    bool is_pbpbdata = false;
     std::string mcSampleStr = "";
     for (int i = 1; i < (int)hist_names.size(); i+=5) {
-        is_ppdata = is_ppdata || (hist_names[i].find("ppdata") != std::string::npos);
-        is_pbpbdata = is_pbpbdata || (hist_names[i].find("pbpbdata") != std::string::npos);
+        is_sysvar = is_sysvar || (hist_names[i].find("variation") != std::string::npos);
         is_ppmc = is_ppmc || (hist_names[i].find("ppmc") != std::string::npos);
         is_pbpbmc = is_pbpbmc || (hist_names[i].find("pbpbmc") != std::string::npos);
+        is_ppdata = is_ppdata || (hist_names[i].find("ppdata") != std::string::npos);
+        is_pbpbdata = is_pbpbdata || (hist_names[i].find("pbpbdata") != std::string::npos);
     }
-    if (is_ppdata && is_pbpbdata)  mode = k_data_pp_pbpb;
+    if (is_sysvar) mode = k_data_sysvar;
     else if (is_ppmc)  {
         mode = k_mc_reco_gen;
         mcSampleStr = "Pythia";
@@ -82,6 +85,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         mode = k_mc_reco_gen;
         mcSampleStr = "Pythia+Hydjet";
     }
+    else if (is_ppdata && is_pbpbdata)  mode = k_data_pp_pbpb;
 
     std::ifstream file_stream_SYS(sys);
     bool is_data_plot = ((bool)file_stream_SYS && sys != NULL && sys[0] != '\0');
@@ -205,9 +209,10 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             latexPrelim->DrawLatexNDC(prelim_box.x1, prelim_box.y1, "Preliminary");
         }
 
-        if ((mode == k_data_pp_pbpb && i == 1) || (mode == k_mc_reco_gen && i == 0)) {
+        if ((mode == k_data_pp_pbpb && i == 1) || (mode == k_data_sysvar && i == 0)
+                                               || (mode == k_mc_reco_gen && i == 0)) {
             float legX1 = 0.25;
-            if (mode == k_mc_reco_gen && (option == kJS_r_lt_1 || option == kJS_r_lt_0p3))
+            if ((mode == k_data_sysvar || mode == k_mc_reco_gen) && (option == kJS_r_lt_1 || option == kJS_r_lt_0p3))
                 legX1 = 0.35;
             TLegend* l1 = new TLegend(legX1, 0.84-layers*0.08, legX1+0.29, 0.84);
             l1->SetTextFont(43);
@@ -467,6 +472,7 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
         case kJS_r_lt_1: case kJS_r_lt_0p3:
             if (isRatio) {
                 if (mode == k_data_pp_pbpb)      h1->SetYTitle("PbPb/pp");
+                else if (mode == k_data_sysvar)  h1->SetYTitle("var / nominal");
                 else if (mode == k_mc_reco_gen)  h1->SetYTitle("reco / gen");
             }
             else {
@@ -478,6 +484,7 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
         case kFF_xi_gt_0: case kFF_xi_gt_0p5:
             if (isRatio) {
                 if (mode == k_data_pp_pbpb)      h1->SetYTitle("PbPb/pp");
+                else if (mode == k_data_sysvar)  h1->SetYTitle("var / nominal");
                 else if (mode == k_mc_reco_gen)  h1->SetYTitle("reco/gen");
             }
             else {
@@ -502,6 +509,7 @@ void set_axis_range(TH1D* h1, bool isRatio, int option)
         case kJS_r_lt_1:
             if (isRatio) {
                 if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 3, "Y");
+                else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
             else         h1->SetAxisRange(0.05, 50, "Y");
@@ -510,6 +518,7 @@ void set_axis_range(TH1D* h1, bool isRatio, int option)
             h1->SetAxisRange(0, h1->GetBinLowEdge(h1->FindBin(0.3)-1), "X");
             if (isRatio) {
                 if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 3, "Y");
+                else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
             else         h1->SetAxisRange(0.05, 50, "Y");
@@ -517,6 +526,7 @@ void set_axis_range(TH1D* h1, bool isRatio, int option)
         case kFF_xi_gt_0:
             if (isRatio) {
                 if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 3, "Y");
+                else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
             else         h1->SetAxisRange(0, 4, "Y");
@@ -525,6 +535,7 @@ void set_axis_range(TH1D* h1, bool isRatio, int option)
             h1->SetAxisRange(0.5, h1->GetBinLowEdge(h1->GetNbinsX()), "X");
             if (isRatio) {
                 if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 3, "Y");
+                else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
             else         h1->SetAxisRange(0, 4, "Y");
