@@ -24,15 +24,15 @@ if [ $8 = "data" ]; then
     ./draw_js ppdata data_data_${1}_${3}_gxi${5}_js_merged.root data_data_${1}_${3}_gxi${5}_js_final.root ${1} 0 srecoreco
 
     echo -e "pp (smeared)" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_srecoreco_0_20" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_srecoreco_20_60" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_srecoreco_60_100" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_srecoreco_100_200" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_srecoreco_0_20" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_srecoreco_20_60" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_srecoreco_60_100" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_srecoreco_100_200" >> $PLOTLIST
     echo -e "PbPb" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_0_20" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_20_60" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_0_20" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_20_60" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
     ./plot_results data_data_${1}_${3}_gxi${5}_js_final.root data_data_gxi${5}_${1}_${3} $PLOTLIST 1 $5 $1 $3
 elif [ $8 = "datamc" ]; then
@@ -43,53 +43,53 @@ elif [ $8 = "datamc" ]; then
     ./draw_js ppmc data_mc_${1}_${3}_gxi${5}_js_merged.root data_mc_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
 
     echo -e "pp MC" >> $PLOTLIST
-    echo -e "hjetshape_final_ppmc_recoreco_0_20" >> $PLOTLIST
-    echo -e "hjetshape_final_ppmc_recoreco_20_60" >> $PLOTLIST
-    echo -e "hjetshape_final_ppmc_recoreco_60_100" >> $PLOTLIST
-    echo -e "hjetshape_final_ppmc_recoreco_100_200" >> $PLOTLIST
+    echo -e "hjs_final_ppmc_recoreco_0_20" >> $PLOTLIST
+    echo -e "hjs_final_ppmc_recoreco_20_60" >> $PLOTLIST
+    echo -e "hjs_final_ppmc_recoreco_60_100" >> $PLOTLIST
+    echo -e "hjs_final_ppmc_recoreco_100_200" >> $PLOTLIST
     echo -e "pp data" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_recoreco_0_20" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_recoreco_20_60" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_recoreco_60_100" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_recoreco_100_200" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_recoreco_0_20" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_recoreco_20_60" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_recoreco_60_100" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_recoreco_100_200" >> $PLOTLIST
     echo -e "PbPb MC" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbmc_recoreco_0_20" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbmc_recoreco_20_60" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbmc_recoreco_60_100" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbmc_recoreco_100_200" >> $PLOTLIST
+    echo -e "hjs_final_pbpbmc_recoreco_0_20" >> $PLOTLIST
+    echo -e "hjs_final_pbpbmc_recoreco_20_60" >> $PLOTLIST
+    echo -e "hjs_final_pbpbmc_recoreco_60_100" >> $PLOTLIST
+    echo -e "hjs_final_pbpbmc_recoreco_100_200" >> $PLOTLIST
     echo -e "PbPb data" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_0_20" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_20_60" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_0_20" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_20_60" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
     ./plot_results data_mc_${1}_${3}_gxi${5}_js_final.root data_mc_gxi${5}_${1}_${3} $PLOTLIST 0 $5 $1 $3
     rm $PLOTLIST
 
     echo -e "pp MC" >> $PLOTLIST
-    echo -e "hjetshape_final_ppmc_recoreco_0_20" >> $PLOTLIST
-    echo -e "hjetshape_final_ppmc_recoreco_20_60" >> $PLOTLIST
-    echo -e "hjetshape_final_ppmc_recoreco_60_100" >> $PLOTLIST
-    echo -e "hjetshape_final_ppmc_recoreco_100_200" >> $PLOTLIST
+    echo -e "hjs_final_ppmc_recoreco_0_20" >> $PLOTLIST
+    echo -e "hjs_final_ppmc_recoreco_20_60" >> $PLOTLIST
+    echo -e "hjs_final_ppmc_recoreco_60_100" >> $PLOTLIST
+    echo -e "hjs_final_ppmc_recoreco_100_200" >> $PLOTLIST
     echo -e "pp data" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_recoreco_0_20" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_recoreco_20_60" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_recoreco_60_100" >> $PLOTLIST
-    echo -e "hjetshape_final_ppdata_recoreco_100_200" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_recoreco_0_20" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_recoreco_20_60" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_recoreco_60_100" >> $PLOTLIST
+    echo -e "hjs_final_ppdata_recoreco_100_200" >> $PLOTLIST
 
     ./plot_results data_mc_${1}_${3}_gxi${5}_js_final.root data_mc_gxi${5}_${1}_${3}_pp $PLOTLIST 1 $5 $1 $3
     rm $PLOTLIST
 
     echo -e "PbPb MC" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbmc_recoreco_0_20" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbmc_recoreco_20_60" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbmc_recoreco_60_100" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbmc_recoreco_100_200" >> $PLOTLIST
+    echo -e "hjs_final_pbpbmc_recoreco_0_20" >> $PLOTLIST
+    echo -e "hjs_final_pbpbmc_recoreco_20_60" >> $PLOTLIST
+    echo -e "hjs_final_pbpbmc_recoreco_60_100" >> $PLOTLIST
+    echo -e "hjs_final_pbpbmc_recoreco_100_200" >> $PLOTLIST
     echo -e "PbPb data" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_0_20" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_20_60" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
-    echo -e "hjetshape_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_0_20" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_20_60" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
+    echo -e "hjs_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
     ./plot_results data_mc_${1}_${3}_gxi${5}_js_final.root data_mc_gxi${5}_${1}_${3}_pbpb $PLOTLIST 1 $5 $1 $3
 else
@@ -99,10 +99,10 @@ else
     for i in ${@:8}
     do
       echo -e "$i" >> $PLOTLIST
-      echo -e "hjetshape_final_${6}_${i}_0_20" >> $PLOTLIST
-      echo -e "hjetshape_final_${6}_${i}_20_60" >> $PLOTLIST
-      echo -e "hjetshape_final_${6}_${i}_60_100" >> $PLOTLIST
-      echo -e "hjetshape_final_${6}_${i}_100_200" >> $PLOTLIST
+      echo -e "hjs_final_${6}_${i}_0_20" >> $PLOTLIST
+      echo -e "hjs_final_${6}_${i}_20_60" >> $PLOTLIST
+      echo -e "hjs_final_${6}_${i}_60_100" >> $PLOTLIST
+      echo -e "hjs_final_${6}_${i}_100_200" >> $PLOTLIST
     done
 
     ./plot_results ${7}_${6}_${1}_${3}_gxi${5}_js_final.root ${7}_${6}_gxi${5}_${1}_${3} $PLOTLIST 1 $5 $1 $3

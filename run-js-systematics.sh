@@ -94,10 +94,10 @@ if [ -f $HISTLIST ]; then
     rm $HISTLIST
 fi
 touch $HISTLIST
-echo -e "hjetshape_final_${6}_${TYPE}_0_20" >> $HISTLIST
-echo -e "hjetshape_final_${6}_${TYPE}_20_60" >> $HISTLIST
-echo -e "hjetshape_final_${6}_${TYPE}_60_100" >> $HISTLIST
-echo -e "hjetshape_final_${6}_${TYPE}_100_200" >> $HISTLIST
+echo -e "hjs_final_${6}_${TYPE}_0_20" >> $HISTLIST
+echo -e "hjs_final_${6}_${TYPE}_20_60" >> $HISTLIST
+echo -e "hjs_final_${6}_${TYPE}_60_100" >> $HISTLIST
+echo -e "hjs_final_${6}_${TYPE}_100_200" >> $HISTLIST
 
 ./calc_systematics $7 $SYSLIST $HISTLIST data_${1}_${3}_gxi${5}
 

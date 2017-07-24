@@ -6,7 +6,7 @@ int calc_iso_systematics(const char* nominal, const char* variation, const char*
 
     bool isFF = (std::string(nominal).find("_ff") != std::string::npos);
 
-    std::string histPrefix = "hjetshape_final";
+    std::string histPrefix = "hjs_final";
     if (isFF) histPrefix = "hff_final";
 
     TFile* fnominal = new TFile(nominal, "read");
