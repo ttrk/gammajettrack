@@ -260,7 +260,8 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
         hjetshape_mixsignal_sub[i] = (TH1D*)hjetshape_mixsignal[i]->Clone(Form("hjetshape_mixsignal_sub_%s", tag.c_str()));
         hjetshape_sub[i]->Add(hjetshape_ue[i], -1 * uescale[i]);
         hjetshape_mixjet_sub[i]->Add(hjetshape_mixjet_ue[i], -1);
-        hjetshape_mixsignal_ue[i]->Scale(hjetpt_mixsignal[i]->Integral() / hjetpt_mix[i]->Integral());
+        if (hjetpt_mix[i]->Integral() > 0)
+            hjetshape_mixsignal_ue[i]->Scale(hjetpt_mixsignal[i]->Integral() / hjetpt_mix[i]->Integral());
         hjetshape_mixsignal_sub[i]->Add(hjetshape_mixsignal_ue[i], -1 * uescale[i]);
 
         // mix jet subtraction for raw photon jetshapes
@@ -287,7 +288,8 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
         hjetshape_mixsignal_sub_bkg[i] = (TH1D*)hjetshape_mixsignal_bkg[i]->Clone(Form("hjetshape_mixsignal_sub_bkg_%s", tag.c_str()));
         hjetshape_sub_bkg[i]->Add(hjetshape_ue_bkg[i], -1 * uescale[i]);
         hjetshape_mixjet_sub_bkg[i]->Add(hjetshape_mixjet_ue_bkg[i], -1);
-        hjetshape_mixsignal_ue_bkg[i]->Scale(hjetpt_mixsignal_bkg[i]->Integral() / hjetpt_mix_bkg[i]->Integral());
+        if (hjetpt_mix_bkg[i]->Integral() > 0)
+            hjetshape_mixsignal_ue_bkg[i]->Scale(hjetpt_mixsignal_bkg[i]->Integral() / hjetpt_mix_bkg[i]->Integral());
         hjetshape_mixsignal_sub_bkg[i]->Add(hjetshape_mixsignal_ue_bkg[i], -1 * uescale[i]);
 
         // mix jet subtraction for background photon jetshapes
