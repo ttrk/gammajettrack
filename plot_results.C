@@ -223,6 +223,10 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                 legX1 = 0.35;
                 legWidth = 0.30;
             }
+            else if ((mode == k_data_sysvar || mode == k_mc_reco_gen) && (option == kFF_xi_gt_0p5 || option == kFF_xi_gt_0p5)) {
+                legX1 = 0.25;
+                legWidth = 0.30;
+            }
             TLegend* l1 = new TLegend(legX1, 0.84-layers*0.08, legX1+legWidth, 0.84);
             l1->SetTextFont(43);
             l1->SetTextSize(15);
