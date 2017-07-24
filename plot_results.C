@@ -278,7 +278,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     infoLatex->SetTextFont(43);
     infoLatex->SetTextSize(15);
     infoLatex->SetTextAlign(21);
-    infoLatex->DrawLatexNDC((canvas_left_margin+1-canvas_right_margin)/2, canvas_top_edge, Form("p_{T}^{trk} > 1 GeV/c, anti-k_{T} Jet R = 0.3, p_{T}^{Jet} > %i GeV/c, #left|#eta^{Jet}#right| < 1.6, p_{T}^{#gamma} > %i GeV/c, |#eta^{#gamma}| < 1.44, #Delta#phi_{J#gamma} > #frac{7#pi}{8}", jetptmin, phoetmin));
+    infoLatex->DrawLatexNDC((canvas_left_margin+1-canvas_right_margin)/2, canvas_top_edge, Form("p_{T}^{trk} > 1 GeV/c, anti-k_{T} jet R = 0.3, p_{T}^{jet} > %i GeV/c, #left|#eta^{jet}#right| < 1.6, p_{T}^{#gamma} > %i GeV/c, |#eta^{#gamma}| < 1.44, #Delta#phi_{j#gamma} > #frac{7#pi}{8}", jetptmin, phoetmin));
 
     cover_axis(margin, edge, column_scale_factor, row_scale_factor);
 
