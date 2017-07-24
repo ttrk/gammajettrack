@@ -5,7 +5,7 @@
 
 #include "photonjettrack.h"
 
-#define _NSMEAR 1
+#define _NSMEAR 15
 #define _NSMEAR_JER 25
 
 TRandom3 smear_rand(12345);
