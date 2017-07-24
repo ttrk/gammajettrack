@@ -24,11 +24,11 @@ fi
 SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down)
 
 echo "compiling macros..."
-g++ jetshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetshape || exit 1
-g++ draw_js.C $(root-config --cflags --libs) -Werror -Wall -O2 -o draw_js || exit 1
-g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results || exit 1
-g++ calc_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_systematics || exit 1
-g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_iso_systematics || exit 1
+# g++ jetshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetshape || exit 1
+# g++ draw_js.C $(root-config --cflags --libs) -Werror -Wall -O2 -o draw_js || exit 1
+# g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results || exit 1
+# g++ calc_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_systematics || exit 1
+# g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_iso_systematics || exit 1
 
 set -x
 
@@ -94,10 +94,10 @@ if [ -f $HISTLIST ]; then
     rm $HISTLIST
 fi
 touch $HISTLIST
-echo -e "hjs_final_${6}_${TYPE}_0_20" >> $HISTLIST
-echo -e "hjs_final_${6}_${TYPE}_20_60" >> $HISTLIST
-echo -e "hjs_final_${6}_${TYPE}_60_100" >> $HISTLIST
-echo -e "hjs_final_${6}_${TYPE}_100_200" >> $HISTLIST
+echo -e "hjetshape_final_${6}_${TYPE}_0_20" >> $HISTLIST
+echo -e "hjetshape_final_${6}_${TYPE}_20_60" >> $HISTLIST
+echo -e "hjetshape_final_${6}_${TYPE}_60_100" >> $HISTLIST
+echo -e "hjetshape_final_${6}_${TYPE}_100_200" >> $HISTLIST
 
 ./calc_systematics $7 $SYSLIST $HISTLIST data_${1}_${3}_gxi${5}
 

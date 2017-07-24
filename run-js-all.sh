@@ -7,11 +7,11 @@ if [[ $# -lt 5 ]]; then
 fi
 
 echo "compiling macros..."
-g++ jetshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetshape || exit 1
-g++ draw_js.C $(root-config --cflags --libs) -Werror -Wall -O2 -o draw_js || exit 1
-g++ calc_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_systematics || exit 1
-g++ calc_ratio_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_ratio_systematics || exit 1
-g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results || exit 1
+# g++ jetshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetshape || exit 1
+# g++ draw_js.C $(root-config --cflags --libs) -Werror -Wall -O2 -o draw_js || exit 1
+# g++ calc_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_systematics || exit 1
+# g++ calc_ratio_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_ratio_systematics || exit 1
+# g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results || exit 1
 
 set -x
 
@@ -40,7 +40,7 @@ if [[ $6 -ne 1 ]]; then
     echo -e "data_${1}_${3}_gxi${5}-systematics.root" >> $SYSFILELIST
     echo -e "data_${1}_${3}_gxi${5}-systematics.root" >> $SYSFILELIST
 
-    ./calc_ratio_systematics js $SYSFILELIST $SYSHISTLIST data_${1}_${3}_gxi${5}
+    ./calc_ratio_systematics jetshape $SYSFILELIST $SYSHISTLIST data_${1}_${3}_gxi${5}
 
     rm $SYSHISTLIST
     rm $SYSFILELIST
@@ -68,15 +68,15 @@ fi
 touch $PLOTLIST
 
 echo -e "pp (smeared)" >> $PLOTLIST
-echo -e "hjs_final_ppdata_srecoreco_0_20" >> $PLOTLIST
-echo -e "hjs_final_ppdata_srecoreco_20_60" >> $PLOTLIST
-echo -e "hjs_final_ppdata_srecoreco_60_100" >> $PLOTLIST
-echo -e "hjs_final_ppdata_srecoreco_100_200" >> $PLOTLIST
+echo -e "hjetshape_final_ppdata_srecoreco_0_20" >> $PLOTLIST
+echo -e "hjetshape_final_ppdata_srecoreco_20_60" >> $PLOTLIST
+echo -e "hjetshape_final_ppdata_srecoreco_60_100" >> $PLOTLIST
+echo -e "hjetshape_final_ppdata_srecoreco_100_200" >> $PLOTLIST
 echo -e "PbPb" >> $PLOTLIST
-echo -e "hjs_final_pbpbdata_recoreco_0_20" >> $PLOTLIST
-echo -e "hjs_final_pbpbdata_recoreco_20_60" >> $PLOTLIST
-echo -e "hjs_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
-echo -e "hjs_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
+echo -e "hjetshape_final_pbpbdata_recoreco_0_20" >> $PLOTLIST
+echo -e "hjetshape_final_pbpbdata_recoreco_20_60" >> $PLOTLIST
+echo -e "hjetshape_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
+echo -e "hjetshape_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
 ./plot_results data_data_${1}_${3}_gxi${5}_js_final.root final_js_${1}_${3}_gxi${5} $PLOTLIST 1 $5 $1 $3 0 data_${1}_${3}_gxi${5}-systematics.root
 
