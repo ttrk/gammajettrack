@@ -29,7 +29,7 @@ void set_hist_style(TH1D* h1, int k);
 void set_data_style(TH1D* h1, int k);
 void set_axis_style(TH1D* h1, int i, int j, int option);
 void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option);
-void set_axis_range(TH1D* h1, bool isRatio, int option);
+void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option);
 void adjust_coordinates(box_t& box, float margin, float edge, int i, int j);
 void cover_axis(float margin, float edge, float column_scale_factor, float row_scale_factor);
 
@@ -37,7 +37,7 @@ enum OPTIONS {
     kJS_r_lt_1,     // js, 0 < r < 1
     kJS_r_lt_0p3,   // js, 0 < r < 0.3
     kFF_xi_gt_0,       // ff, 0 < xi < 5
-    kFF_xi_gt_0p5,     // ff, 0.5 < xi < 5
+    kFF_xi_gt_0p5_lt_4p5,     // ff, 0.5 < xi < 4.5
     kN_OPTIONS
 };
 
@@ -171,7 +171,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                 set_hist_style(h1[i][k], k);
 
             set_axis_style(h1[i][k], i, 0, option);
-            set_axis_range(h1[i][k], false, option);
+            set_axis_range(h1[i][k], gammaxi, false, option);
             set_axis_title(h1[i][k], gammaxi, false, option);
         }
         h1[i][0]->Draw(drawOptions[0].c_str());
@@ -223,7 +223,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                 legX1 = 0.35;
                 legWidth = 0.30;
             }
-            else if ((mode == k_data_sysvar || mode == k_mc_reco_gen) && (option == kFF_xi_gt_0p5 || option == kFF_xi_gt_0p5)) {
+            else if ((mode == k_data_sysvar || mode == k_mc_reco_gen) && (option == kFF_xi_gt_0p5_lt_4p5 || option == kFF_xi_gt_0p5_lt_4p5)) {
                 legX1 = 0.25;
                 legWidth = 0.30;
             }
@@ -254,7 +254,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                 hratio[i][r]->Divide(h1[i][0]);
 
                 set_axis_style(hratio[i][r], i, 1, option);
-                set_axis_range(hratio[i][r], true, option);
+                set_axis_range(hratio[i][r], gammaxi, true, option);
                 set_axis_title(hratio[i][r], gammaxi, true, option);
 
                 hratio[i][r]->Draw("same");
@@ -450,7 +450,7 @@ void set_axis_style(TH1D* h1, int i, int j, int option) {
             x_axis->SetTitleOffset(1.0);
         }
         else {
-            if (option == kFF_xi_gt_0 || option == kFF_xi_gt_0p5)  {
+            if (option == kFF_xi_gt_0 || option == kFF_xi_gt_0p5_lt_4p5)  {
                 x_axis->SetTitleOffset(3);
             }
             else
@@ -466,7 +466,7 @@ void set_axis_style(TH1D* h1, int i, int j, int option) {
             y_axis->SetTitleOffset(1.15);
         }
         else {
-            if (option == kFF_xi_gt_0 || option == kFF_xi_gt_0p5)  {
+            if (option == kFF_xi_gt_0 || option == kFF_xi_gt_0p5_lt_4p5)  {
                 y_axis->SetTitleOffset(2.8);
             }
             else
@@ -494,7 +494,7 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
             }
             h1->SetXTitle("r");
             break;
-        case kFF_xi_gt_0: case kFF_xi_gt_0p5:
+        case kFF_xi_gt_0: case kFF_xi_gt_0p5_lt_4p5:
             if (isRatio) {
                 if (mode == k_data_pp_pbpb)      h1->SetYTitle("PbPb/pp");
                 else if (mode == k_data_sysvar)  h1->SetYTitle("var / nominal");
@@ -516,7 +516,7 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
     }
 }
 
-void set_axis_range(TH1D* h1, bool isRatio, int option)
+void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
 {
     switch (option) {
         case kJS_r_lt_1:
@@ -544,10 +544,13 @@ void set_axis_range(TH1D* h1, bool isRatio, int option)
             }
             else         h1->SetAxisRange(0, 4, "Y");
             break;
-        case kFF_xi_gt_0p5:
-            h1->SetAxisRange(0.5, h1->GetBinLowEdge(h1->GetNbinsX()), "X");
+        case kFF_xi_gt_0p5_lt_4p5:
+            h1->SetAxisRange(0.5, h1->GetBinLowEdge(h1->FindBin(4.5)-1), "X");
             if (isRatio) {
-                if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 4.0, "Y");
+                if (mode == k_data_pp_pbpb) {
+                    if (gammaxi == 0)  h1->SetAxisRange(0, 2.6, "Y");
+                    else               h1->SetAxisRange(0, 3.0, "Y");
+                }
                 else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
