@@ -538,7 +538,7 @@ void set_axis_range(TH1D* h1, bool isRatio, int option)
             break;
         case kFF_xi_gt_0:
             if (isRatio) {
-                if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 3, "Y");
+                if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 4.0, "Y");
                 else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
@@ -547,7 +547,7 @@ void set_axis_range(TH1D* h1, bool isRatio, int option)
         case kFF_xi_gt_0p5:
             h1->SetAxisRange(0.5, h1->GetBinLowEdge(h1->GetNbinsX()), "X");
             if (isRatio) {
-                if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 3, "Y");
+                if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 4.0, "Y");
                 else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
