@@ -65,6 +65,22 @@ float th1_average_content(TH1F* h) {
     return sum / h->GetNbinsX();
 }
 
+float th1_average_content_FF(TH1F* h) {
+    float sum = 0;
+    int n = 0;
+    for (int i=1; i<=h->GetNbinsX(); ++i) {
+
+        if (!(h->GetBinLowEdge(i) >= 0.5)) continue;
+        if (h->GetBinLowEdge(i) >= 4.5) continue;
+
+        if (h->GetBinContent(i) < 3 && h->GetBinWidth(i) / h->GetBinWidth(1) < 5) {
+            sum += h->GetBinContent(i);
+            n++;
+        }
+    }
+    return sum / n;
+}
+
 class sys_var_t {
 friend class total_sys_var_t;
 
