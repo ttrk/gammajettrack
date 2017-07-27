@@ -10,6 +10,24 @@
 
 TRandom3 smear_rand(12345);
 
+enum JET_TRACK_SIGBKG{
+    k_rawJet,
+    k_rawJet_ueTrack,
+    k_bkgJet,
+    k_bkgJet_ueTrack,
+    kN_JET_TRACK_SIGBKG,
+};
+
+std::string jet_track_sigbkg_labels[kN_JET_TRACK_SIGBKG] = {"", "uemix", "jetmix", "jetmixue"};
+
+enum PHO_SIGBKG{
+    k_sigPho,
+    k_bkgPho,
+    kN_PHO_SIGBKG
+};
+
+std::string pho_sigbkg_labels[kN_PHO_SIGBKG] = {"", "sideband"};
+
 void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string gen, int checkjetid, float trkptmin, int gammaxi, int whichSys, float sysScaleFactor) {
   return;
 }
@@ -37,27 +55,26 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   TFile* fout = new TFile(Form("%s_%s_%s_%d_%d_%i_%d_%d_%d.root", label.data(), sample.data(), genlevel.data(), (int)phoetmin, (int)jetptcut, gammaxi, defnFF, abs(centmin), abs(centmax)), "recreate");
 
-  TH1D* hjetpt[2]; TH1D* hjetptjetmix[2];
-  hjetpt[0] = new TH1D(Form("hjetpt_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetpt[1] = new TH1D(Form("hjetptsideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetptjetmix[0] = new TH1D(Form("hjetptjetmix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetptjetmix[1] = new TH1D(Form("hjetptjetmixsideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  TH1D* hjetpt[kN_PHO_SIGBKG]; TH1D* hjetptjetmix[kN_PHO_SIGBKG];
+  for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
+      hjetpt[i] = new TH1D(Form("hjetpt%s_%s_%s_%d_%d", pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+      hjetptjetmix[i] = new TH1D(Form("hjetptjetmix%s_%s_%s_%d_%d", pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  }
 
-  TH1D* hgammaffxi[2]; TH1D* hgammaffxiue[2]; TH1D* hgammaffxijetmix[2]; TH1D* hgammaffxijetmixue[2];
   std::string xTitle = "xi";
   if (defnFF == 0 && gammaxi == 0) xTitle = "#xi_{jet,1}";
   else if (defnFF == 0 && gammaxi == 1) xTitle = "#xi_{#gamma,1}";
   else if (defnFF == 1 && gammaxi == 0) xTitle = "#xi_{jet,2}";
   else if (defnFF == 1 && gammaxi == 1) xTitle = "#xi_{#gamma,2}";
   std::string hTitle = Form(";%s;", xTitle.c_str());
-  hgammaffxi[0] = new TH1D(Form("hgammaffxi_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
-  hgammaffxi[1] = new TH1D(Form("hgammaffxisideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
-  hgammaffxiue[0] = new TH1D(Form("hgammaffxiuemix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
-  hgammaffxiue[1] = new TH1D(Form("hgammaffxiuemixsideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
-  hgammaffxijetmix[0] = new TH1D(Form("hgammaffxijetmix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
-  hgammaffxijetmix[1]= new TH1D(Form("hgammaffxijetmixsideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
-  hgammaffxijetmixue[0] = new TH1D(Form("hgammaffxijetmixue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
-  hgammaffxijetmixue[1] = new TH1D(Form("hgammaffxijetmixuesideband_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
+
+  TH1D* hgammaffxi[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG];
+  for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
+      for (int j = 0; j < kN_JET_TRACK_SIGBKG; ++j) {
+          hgammaffxi[i][j] = new TH1D(Form("hgammaffxi%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
+      }
+  }
 
   TF1* f_JES_Q[4] = {0};
   f_JES_Q[0] = new TF1("f_JES_Q_3", "0.011180+0.195313/sqrt(x)", 30, 300);
@@ -322,7 +339,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxi[background]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
+            hgammaffxi[background][k_rawJet]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
           }
         }
 
@@ -360,7 +377,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxiue[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue);
+            hgammaffxi[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue);
           }
         }
       }
@@ -466,7 +483,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxijetmix[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
+            hgammaffxi[background][k_bkgJet]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
           }
         }
 
@@ -503,7 +520,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxijetmixue[background]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
+            hgammaffxi[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
           }
         }
       }
@@ -512,7 +529,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   if (nsmear > 0 && nsmear != 1) {
       // Bin values were already corrected when filling the histograms.
       // Increase statistical bin error by sqrt(nsmear) to account for nsmear "fake" smearing
-      for (int i = 0; i < 2; ++i) {
+      for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
           for (int iBin = 1; iBin <= hjetpt[i]->GetNbinsX(); iBin++) {
               hjetpt[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hjetpt[i]->GetBinError(iBin));
           }
@@ -520,17 +537,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               hjetptjetmix[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hjetptjetmix[i]->GetBinError(iBin));
           }
 
-          for (int iBin = 1; iBin <= hgammaffxi[i]->GetNbinsX(); iBin++) {
-              hgammaffxi[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hgammaffxi[i]->GetBinError(iBin));
-          }
-          for (int iBin = 1; iBin <= hgammaffxiue[i]->GetNbinsX(); iBin++) {
-              hgammaffxiue[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hgammaffxiue[i]->GetBinError(iBin));
-          }
-          for (int iBin = 1; iBin <= hgammaffxijetmix[i]->GetNbinsX(); iBin++) {
-              hgammaffxijetmix[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hgammaffxijetmix[i]->GetBinError(iBin));
-          }
-          for (int iBin = 1; iBin <= hgammaffxijetmixue[i]->GetNbinsX(); iBin++) {
-              hgammaffxijetmixue[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hgammaffxijetmixue[i]->GetBinError(iBin));
+          for (int j = 0; j < kN_JET_TRACK_SIGBKG; ++j) {
+              for (int iBin = 1; iBin <= hjetpt[i]->GetNbinsX(); iBin++) {
+                  hgammaffxi[i][j]->SetBinError(iBin, TMath::Sqrt(nsmear)*hgammaffxi[i][j]->GetBinError(iBin));
+              }
           }
       }
   }
