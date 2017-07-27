@@ -56,9 +56,9 @@ std::vector<std::string> ffreco = {
     "recoreco", "srecoreco", "recoreco", "srecoreco"
 };
 
-int print_systematics(const char* filelist, const char* label = "");
+int print_systematics(const char* filelist, const char* label = "", int hiBinMin = 0, int hiBinMax = 20);
 
-int print_systematics(const char* filelist, const char* label) {
+int print_systematics(const char* filelist, const char* label, int hiBinMin, int hiBinMax) {
     std::string line;
 
     std::vector<std::string> file_list;
@@ -104,7 +104,7 @@ int print_systematics(const char* filelist, const char* label) {
         std::string sys_label = sys_labels[iSys];
         std::vector<float> sys_uncs(4);
         for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
-            std::string hist_name = Form("h%s_final_%s_%s_0_20_%s_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), sys_labels[iSys].c_str());
+            std::string hist_name = Form("h%s_final_%s_%s_%d_%d_%s_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax, sys_labels[iSys].c_str());
             h_ratio_abs = (TH1D*)fsys[iCol]->Get(hist_name.c_str());
             sys_uncs[iCol] = 100 * th1_average_content_FF((TH1F*)h_ratio_abs);
             sys_uncTot[iCol] += sys_uncs[iCol]*sys_uncs[iCol];
@@ -137,7 +137,9 @@ int print_systematics(const char* filelist, const char* label) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc == 3)
+    if (argc == 5)
+        return print_systematics(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]));
+    else if (argc == 3)
         return print_systematics(argv[1], argv[2]);
     else if (argc == 2)
         return print_systematics(argv[1]);
