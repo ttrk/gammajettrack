@@ -238,7 +238,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       // jet eta cut
       if (fabs(tmpjeteta) > 1.6) continue;
 
-      int nsmear = 1;
+      nsmear = 1;
       float res_pt = 0;
       float res_phi = 0;
 
