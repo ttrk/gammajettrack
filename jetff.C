@@ -43,6 +43,9 @@ void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, flo
 // 10: TRK_DOWN
 
 void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int defnFF) {
+
+  TH1::SetDefaultSumw2();
+
   bool isHI = (sample.find("pbpb") != std::string::npos);
   TFile* fweight = (isHI) ? TFile::Open("PbPb-weights.root") : TFile::Open("pp-weights.root");
   TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
