@@ -28,6 +28,8 @@ enum PHO_SIGBKG{
 
 std::string pho_sigbkg_labels[kN_PHO_SIGBKG] = {"", "sideband"};
 
+int sysLR = 20;
+
 void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string gen, int checkjetid, float trkptmin, int gammaxi, int whichSys, float sysScaleFactor) {
   return;
 }
@@ -72,10 +74,21 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   std::string hTitle = Form(";%s;", xTitle.c_str());
 
   TH1D* hgammaffxi[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG];
+  TH1D* hffxiLR[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG];
+  TH1D* hffxiLRAway[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG];
+
   for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
       for (int j = 0; j < kN_JET_TRACK_SIGBKG; ++j) {
           hgammaffxi[i][j] = new TH1D(Form("hgammaffxi%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
+
+          if (systematic == sysLR) {
+              // FF from long range correlation
+              hffxiLR[i][j] = new TH1D(Form("hffLR%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
+              hffxiLRAway[i][j] = new TH1D(Form("hffLRAway%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                                sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
+          }
       }
   }
 
@@ -158,6 +171,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   }
 
   int nsmear = 1;
+  float weight_LongRange = TMath::Pi()*0.3*0.3 / ((2.4-1.5)*2*0.3);
 
   float tracking_sys = isHI ? 0.05 : 0.04;
   if (systematic == 9) { tracking_sys = 1 + tracking_sys; }
@@ -344,6 +358,34 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             float xi = log(1.0 / z);
             hgammaffxi[background][k_rawJet]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
           }
+          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+              if (tmpjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
+                  TLorentzVector vtrack;
+                  float z = -1;
+                  if (defnFF == 0) {
+                      vtrack.SetPtEtaPhiM((*p_pt)[ip], tmpjeteta, (*p_phi)[ip], 0);
+                      float angle = vJet.Angle(vtrack.Vect());
+                      z = (*p_pt)[ip] * cos(angle) / refP;
+                  }
+                  else if (defnFF == 1 && gammaxi == 0) {
+                      vtrack.SetPtEtaPhiM((*p_pt)[ip], tmpjeteta, (*p_phi)[ip], 0);
+                      float angle = vJet.Angle(vtrack.Vect());
+                      z = vtrack.P() * cos(angle) / refP;
+                  }
+                  else if (defnFF == 1 && gammaxi == 1) {
+                      vtrack.SetPtEtaPhiM((*p_pt)[ip], 0, (*p_phi)[ip], 0);
+                      float angle = vPho.Angle(vtrack.Vect());
+                      z = vtrack.P() * fabs(cos(angle)) / refP;
+                  }
+                  float xi = log(1.0 / z);
+                  if (dphi < 0.3) {
+                      hffxiLR[background][k_rawJet]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weight_LongRange);
+                  }
+                  else if (dphi >= 0.3 && dphi < 0.6) {
+                      hffxiLRAway[background][k_rawJet]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weight_LongRange);
+                  }
+              }
+          }
         }
 
         if (isPP) continue;
@@ -381,6 +423,34 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             }
             float xi = log(1.0 / z);
             hgammaffxi[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue);
+          }
+          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+              if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
+                  TLorentzVector vtrack;
+                  float z = -1;
+                  if (defnFF == 0) {
+                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
+                      float angle = vJet.Angle(vtrack.Vect());
+                      z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
+                  }
+                  else if (defnFF == 1 && gammaxi == 0) {
+                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
+                      float angle = vJet.Angle(vtrack.Vect());
+                      z = vtrack.P() * cos(angle) / refP;
+                  }
+                  else if (defnFF == 1 && gammaxi == 1) {
+                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
+                      float angle = vPho.Angle(vtrack.Vect());
+                      z = vtrack.P() * fabs(cos(angle)) / refP;
+                  }
+                  float xi = log(1.0 / z);
+                  if (dphi < 0.3) {
+                      hffxiLR[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue * weight_LongRange);
+                  }
+                  else if (dphi >= 0.3 && dphi < 0.6) {
+                      hffxiLRAway[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue * weight_LongRange);
+                  }
+              }
           }
         }
       }
@@ -488,6 +558,34 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             float xi = log(1.0 / z);
             hgammaffxi[background][k_bkgJet]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
           }
+          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+              if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
+                  TLorentzVector vtrack;
+                  float z = -1;
+                  if (defnFF == 0) {
+                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
+                      float angle = vJet.Angle(vtrack.Vect());
+                      z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
+                  }
+                  else if (defnFF == 1 && gammaxi == 0) {
+                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
+                      float angle = vJet.Angle(vtrack.Vect());
+                      z = vtrack.P() * cos(angle) / refP;
+                  }
+                  else if (defnFF == 1 && gammaxi == 1) {
+                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
+                      float angle = vPho.Angle(vtrack.Vect());
+                      z = vtrack.P() * fabs(cos(angle)) / refP;
+                  }
+                  float xi = log(1.0 / z);
+                  if (dphi < 0.3) {
+                      hffxiLR[background][k_bkgJet]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weight_LongRange);
+                  }
+                  else if (dphi >= 0.3 && dphi < 0.6) {
+                      hffxiLRAway[background][k_bkgJet]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weight_LongRange);
+                  }
+              }
+          }
         }
 
         if (part_type_is("gen0", genlevel)) continue;
@@ -524,6 +622,34 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             }
             float xi = log(1.0 / z);
             hgammaffxi[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
+          }
+          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+              if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
+                  TLorentzVector vtrack;
+                  float z = -1;
+                  if (defnFF == 0) {
+                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
+                      float angle = vJet.Angle(vtrack.Vect());
+                      z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
+                  }
+                  else if (defnFF == 1 && gammaxi == 0) {
+                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
+                      float angle = vJet.Angle(vtrack.Vect());
+                      z = vtrack.P() * cos(angle) / refP;
+                  }
+                  else if (defnFF == 1 && gammaxi == 1) {
+                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
+                      float angle = vPho.Angle(vtrack.Vect());
+                      z = vtrack.P() * fabs(cos(angle)) / refP;
+                  }
+                  float xi = log(1.0 / z);
+                  if (dphi < 0.3) {
+                      hffxiLR[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1) * weight_LongRange);
+                  }
+                  else if (dphi >= 0.3 && dphi < 0.6) {
+                      hffxiLRAway[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1) * weight_LongRange);
+                  }
+              }
           }
         }
       }
