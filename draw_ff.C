@@ -203,8 +203,8 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
     float uescale[4] = {0.997, 0.99, 0.96, 0.85};
     //float uescale[4] = {1,1, 0.97, 0.87};   // alternative UE scale
 
-    std::vector<std::string> inputObs = {"hgammaffxi"};
-    std::vector<std::string> outputObs = {"hff"};
+    std::vector<std::string> inputObs = {"hgammaffxi", "hffLR", "hffLRAway"};
+    std::vector<std::string> outputObs = {"hff",       "hffLR", "hffLRAway"};
 
     if (inputObs.size() != outputObs.size()) {
         std::cout << "mismatching number of input and output observables" << std::endl;
@@ -247,7 +247,10 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
             hjetpt_sb[i] = (TH1D*)finput->Get(Form("hjetptsideband_%s", tag.c_str()));
             hjetpt_mix_sb[i] = (TH1D*)finput->Get(Form("hjetptjetmixsideband_%s", tag.c_str()));
 
+            hff[i] = 0;
             hff[i] = (TH1D*)finput->Get(Form("%s_%s", inputObs[iObs].c_str(), tag.c_str()));
+            if (hff[i] == 0)  continue;
+
             hff_ue[i] = (TH1D*)finput->Get(Form("%suemix_%s", inputObs[iObs].c_str(), tag.c_str()));
             hff_jet[i] = (TH1D*)finput->Get(Form("%sjetmix_%s", inputObs[iObs].c_str(), tag.c_str()));
             hff_jet_ue[i] = (TH1D*)finput->Get(Form("%sjetmixue_%s", inputObs[iObs].c_str(), tag.c_str()));
