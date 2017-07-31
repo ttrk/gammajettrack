@@ -671,6 +671,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   hgammaffxi[i][j]->SetBinError(iBin, TMath::Sqrt(nsmear)*hgammaffxi[i][j]->GetBinError(iBin));
               }
           }
+
+          if (systematic == sysLR) {
+              for (int j = 0; j < kN_JET_TRACK_SIGBKG; ++j) {
+                  for (int iBin = 1; iBin <= hffxiLR[i][j]->GetNbinsX(); iBin++) {
+                      hffxiLR[i][j]->SetBinError(iBin, TMath::Sqrt(nsmear)*hffxiLR[i][j]->GetBinError(iBin));
+                  }
+
+                  for (int iBin = 1; iBin <= hffxiLRAway[i][j]->GetNbinsX(); iBin++) {
+                      hffxiLRAway[i][j]->SetBinError(iBin, TMath::Sqrt(nsmear)*hffxiLRAway[i][j]->GetBinError(iBin));
+                  }
+              }
+          }
       }
   }
 
