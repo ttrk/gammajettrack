@@ -267,6 +267,17 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
         hff_final[i]->Add(hff_sideband[i], (purity[i] - 1.0)/purity[i]);
 
         hff_final[i]->Scale(1.0/hff_final[i]->GetBinWidth(1));
+
+        // write the objects explicitly
+        hff_sub[i]->Write("",TObject::kOverwrite);
+        hff_jet_sub[i]->Write("",TObject::kOverwrite);
+        hff_sb_sub[i]->Write("",TObject::kOverwrite);
+        hff_jet_sb_sub[i]->Write("",TObject::kOverwrite);
+
+        hff_signal[i]->Write("",TObject::kOverwrite);
+        hff_sideband[i]->Write("",TObject::kOverwrite);
+
+        hff_final[i]->Write("",TObject::kOverwrite);
     }
 
     fout->Write("", TObject::kOverwrite);
