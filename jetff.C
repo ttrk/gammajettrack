@@ -42,6 +42,8 @@ void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, flo
 double getDPHI(double phi1, double phi2);
 double getShiftedDPHI(double dphi);
 int getTrkPtBin(float trkPt);
+void correctBinError(TH1D* h, int nSmear);
+void correctBinError(TH2D* h, int nSmear);
 
 // systematic:
 // 1: JES_UP
@@ -762,52 +764,23 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       // Bin values were already corrected when filling the histograms.
       // Increase statistical bin error by sqrt(nsmear) to account for nsmear "fake" smearing
       for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
-          for (int iBin = 1; iBin <= hjetpt[i]->GetNbinsX(); iBin++) {
-              hjetpt[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hjetpt[i]->GetBinError(iBin));
-          }
-          for (int iBin = 1; iBin <= hjetptjetmix[i]->GetNbinsX(); iBin++) {
-              hjetptjetmix[i]->SetBinError(iBin, TMath::Sqrt(nsmear)*hjetptjetmix[i]->GetBinError(iBin));
-          }
+
+          correctBinError(hjetpt[i], nsmear);
+          correctBinError(hjetptjetmix[i], nsmear);
+
           for (int j = 0; j < kN_JET_TRACK_SIGBKG; ++j) {
-              for (int iBin = 1; iBin <= hjetpt[i]->GetNbinsX(); iBin++) {
-                  hgammaffxi[i][j]->SetBinError(iBin, TMath::Sqrt(nsmear)*hgammaffxi[i][j]->GetBinError(iBin));
+              correctBinError(hgammaffxi[i][j], nsmear);
+
+              if (systematic == sysLR) {
+                  correctBinError(hffxiLR[i][j], nsmear);
+                  correctBinError(hffxiLRAway[i][j], nsmear);
               }
-          }
-      }
 
-      if (systematic == sysLR) {
-          for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
-              for (int j = 0; j < kN_JET_TRACK_SIGBKG; ++j) {
-
-                  for (int iBin = 1; iBin <= hffxiLR[i][j]->GetNbinsX(); iBin++) {
-                      hffxiLR[i][j]->SetBinError(iBin, TMath::Sqrt(nsmear)*hffxiLR[i][j]->GetBinError(iBin));
-                  }
-
-                  for (int iBin = 1; iBin <= hffxiLRAway[i][j]->GetNbinsX(); iBin++) {
-                      hffxiLRAway[i][j]->SetBinError(iBin, TMath::Sqrt(nsmear)*hffxiLRAway[i][j]->GetBinError(iBin));
-                  }
-              }
-          }
-      }
-
-      if (systematic == sysDetaDphi) {
-          for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
-              for (int j = 0; j < kN_JET_TRACK_SIGBKG; ++j) {
-
-                  for (int iBinX = 1; iBinX <= h2Ddphideta[i][j]->GetNbinsX(); iBinX++) {
-                      for (int iBinY = 1; iBinY <= h2Ddphideta[i][j]->GetNbinsY(); iBinY++) {
-                          h2Ddphideta[i][j]->SetBinError(iBinX, iBinY,
-                                  TMath::Sqrt(nsmear)*h2Ddphideta[i][j]->GetBinError(iBinX, iBinY));
-                      }
-                  }
+              if (systematic == sysDetaDphi) {
+                  correctBinError(h2Ddphideta[i][j], nsmear);
 
                   for (int iPt = 0; iPt < 8; ++iPt) {
-                      for (int iBinX = 1; iBinX <= h2DdphidetaPtBin[i][j][iPt]->GetNbinsX(); iBinX++) {
-                          for (int iBinY = 1; iBinY <= h2DdphidetaPtBin[i][j][iPt]->GetNbinsY(); iBinY++) {
-                              h2DdphidetaPtBin[i][j][iPt]->SetBinError(iBinX, iBinY,
-                                      TMath::Sqrt(nsmear)*h2DdphidetaPtBin[i][j][iPt]->GetBinError(iBinX, iBinY));
-                          }
-                      }
+                      correctBinError(h2DdphidetaPtBin[i][j][iPt], nsmear);
                   }
               }
           }
@@ -884,3 +857,18 @@ int getTrkPtBin(float trkPt)
     return -1;
 }
 
+void correctBinError(TH1D* h, int nSmear)
+{
+    for (int iBin = 1; iBin <= h->GetNbinsX(); iBin++) {
+        h->SetBinError(iBin, TMath::Sqrt(nSmear)*h->GetBinError(iBin));
+    }
+}
+
+void correctBinError(TH2D* h, int nSmear)
+{
+    for (int iBinX = 1; iBinX <= h->GetNbinsX(); iBinX++) {
+        for (int iBinY = 1; iBinY <= h->GetNbinsY(); iBinY++) {
+            h->SetBinError(iBinX, iBinY, TMath::Sqrt(nSmear)*h->GetBinError(iBinX, iBinY));
+        }
+    }
+}
