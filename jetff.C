@@ -29,6 +29,8 @@ enum PHO_SIGBKG{
 std::string pho_sigbkg_labels[kN_PHO_SIGBKG] = {"", "sideband"};
 
 int sysLR = 20;
+int sysBkgEtagt0p3 = 21;
+int sysBkgEtaReflection = 22;
 
 void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string gen, int checkjetid, float trkptmin, int gammaxi, int whichSys, float sysScaleFactor) {
   return;
@@ -127,6 +129,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   std::vector<float>* p_eta_mix;
   std::vector<float>* p_phi_mix;
   std::vector<float>* p_weight_mix;
+
+  // tracks to be used for UE subtraction
+  // points to different vectors depending on bkg subtraction method
+  int nip_UE;
+  std::vector<int>* p_ev_UE;
+  std::vector<float>* p_pt_UE;
+  std::vector<float>* p_eta_UE;
+  std::vector<float>* p_phi_UE;
+  std::vector<float>* p_weight_UE;
+  std::vector<int>* p_chg_UE;
 
   std::vector<float> dummy_trkweight(125000, 1);
 
@@ -254,6 +266,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       // jet eta cut
       if (fabs(tmpjeteta) > 1.6) continue;
+      if ((systematic == sysBkgEtagt0p3 || systematic == sysBkgEtaReflection) && fabs(tmpjeteta) < 0.3) continue;
 
       nsmear = 1;
       float res_pt = 0;
@@ -393,62 +406,85 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         // raw jets - underlying event jetshape
         float nmixedevents_ue = (nmix + 2) / 3;
-        for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
-          if (((*p_ev_mix)[ip_mix]) % 3 != 0) continue;
-          if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
+        nip_UE = nip_mix;
+        p_ev_UE = p_ev_mix;
+        p_pt_UE = p_pt_mix;
+        p_eta_UE = p_eta_mix;
+        p_phi_UE = p_phi_mix;
+        p_weight_UE = p_weight_mix;
+        p_chg_UE = chg_mix;
+        if (systematic == sysBkgEtaReflection) {
+            // use particles from the same event
+            nmixedevents_ue = 1;
+            nip_UE = nip;
+            p_ev_UE = 0;
+            p_pt_UE = p_pt;
+            p_eta_UE = p_eta;
+            p_phi_UE = p_phi;
+            p_weight_UE = p_weight;
+            p_chg_UE = chg;
+        }
+        for (int ip_UE = 0; ip_UE < nip_UE; ++ip_UE) {
+          if(systematic != sysBkgEtaReflection) {
+              if (((*p_ev_UE)[ip_UE]) % 3 != 0) continue;
+          }
+          if ((*p_pt_UE)[ip_UE] < trkptmin) continue;
           if (part_type_is("gen", genlevel)) {
-            if ((*chg_mix)[ip_mix] == 0) continue;
+            if ((*p_chg_UE)[ip_UE] == 0) continue;
           }
 
-          float dphi = acos(cos(tmpjetphi - (*p_phi_mix)[ip_mix]));
-          float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
+          float tmp_p_eta = (*p_eta_UE)[ip_UE];
+          if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
+
+          float dphi = acos(cos(tmpjetphi - (*p_phi_UE)[ip_UE]));
+          float deta = tmpjeteta - tmp_p_eta;
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
             float z = -1;
             if (defnFF == 0) {
-                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
+                vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmp_p_eta, (*p_phi_UE)[ip_UE], 0);
                 float angle = vJet.Angle(vtrack.Vect());
-                z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
+                z = (*p_pt_UE)[ip_UE] * cos(angle) / refP;
             }
             else if (defnFF == 1 && gammaxi == 0) {
-                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
+                vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmp_p_eta, (*p_phi_UE)[ip_UE], 0);
                 float angle = vJet.Angle(vtrack.Vect());
                 z = vtrack.P() * cos(angle) / refP;
             }
             else if (defnFF == 1 && gammaxi == 1) {
-                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
+                vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], 0, (*p_phi_UE)[ip_UE], 0);
                 float angle = vPho.Angle(vtrack.Vect());
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxi[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue);
+            hgammaffxi[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
-              if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
+              if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
                   float z = -1;
                   if (defnFF == 0) {
-                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
+                      vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmpjeteta, (*p_phi_UE)[ip_UE], 0);
                       float angle = vJet.Angle(vtrack.Vect());
-                      z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
+                      z = (*p_pt_UE)[ip_UE] * cos(angle) / refP;
                   }
                   else if (defnFF == 1 && gammaxi == 0) {
-                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
+                      vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmpjeteta, (*p_phi_UE)[ip_UE], 0);
                       float angle = vJet.Angle(vtrack.Vect());
                       z = vtrack.P() * cos(angle) / refP;
                   }
                   else if (defnFF == 1 && gammaxi == 1) {
-                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
+                      vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], 0, (*p_phi_UE)[ip_UE], 0);
                       float angle = vPho.Angle(vtrack.Vect());
                       z = vtrack.P() * fabs(cos(angle)) / refP;
                   }
                   float xi = log(1.0 / z);
                   if (dphi < 0.3) {
-                      hffxiLR[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue * weight_LongRange);
+                      hffxiLR[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weight_LongRange);
                   }
                   else if (dphi >= 0.3 && dphi < 0.6) {
-                      hffxiLRAway[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue * weight_LongRange);
+                      hffxiLRAway[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weight_LongRange);
                   }
               }
           }
@@ -470,6 +506,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       // jet eta cut
       if (fabs(tmpjeteta) > 1.6) continue;
+      if ((systematic == sysBkgEtagt0p3 || systematic == sysBkgEtaReflection) && fabs(tmpjeteta) < 0.3) continue;
 
       nsmear = 1;
       float res_pt = 0;
@@ -591,63 +628,83 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         if (part_type_is("gen0", genlevel)) continue;
 
         // mix jets - underlying event jetshape
-        for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
-          if ((*p_ev_mix)[ip_mix] % 3 == 0) continue;
-          if ((*j_ev_mix)[ij_mix] == (*p_ev_mix)[ip_mix]) continue;
-          if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
+        float nmixedevents_jet_ue = nmixedevents_jet * (nmixedevents_jet - 1);
+        nip_UE = nip_mix;
+        p_ev_UE = p_ev_mix;
+        p_pt_UE = p_pt_mix;
+        p_eta_UE = p_eta_mix;
+        p_phi_UE = p_phi_mix;
+        p_weight_UE = p_weight_mix;
+        p_chg_UE = chg_mix;
+        if (systematic == sysBkgEtaReflection) {
+            nmixedevents_jet_ue = nmixedevents_jet;
+        }
+        for (int ip_UE = 0; ip_UE < nip_UE; ++ip_UE) {
+          if (systematic != sysBkgEtaReflection) {
+              if ((*p_ev_UE)[ip_UE] % 3 == 0) continue;
+              if ((*j_ev_mix)[ij_mix] == (*p_ev_UE)[ip_UE]) continue;
+          }
+          else if (systematic == sysBkgEtaReflection) {
+              // use particles from the same event
+              if ((*j_ev_mix)[ij_mix] != (*p_ev_UE)[ip_UE]) continue;
+          }
+          if ((*p_pt_UE)[ip_UE] < trkptmin) continue;
           if (part_type_is("gen", genlevel)) {
-            if ((*chg_mix)[ip_mix] == 0) continue;
+            if ((*p_chg_UE)[ip_UE] == 0) continue;
           }
 
-          float dphi = acos(cos(tmpjetphi - (*p_phi_mix)[ip_mix]));
-          float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
+          float tmp_p_eta = (*p_eta_UE)[ip_UE];
+          if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
+
+          float dphi = acos(cos(tmpjetphi - (*p_phi_UE)[ip_UE]));
+          float deta = tmpjeteta - tmp_p_eta;
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
             float z = -1;
             if (defnFF == 0) {
-                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
+                vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmp_p_eta, (*p_phi_UE)[ip_UE], 0);
                 float angle = vJet.Angle(vtrack.Vect());
-                z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
+                z = (*p_pt_UE)[ip_UE] * cos(angle) / refP;
             }
             else if (defnFF == 1 && gammaxi == 0) {
-                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
+                vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmp_p_eta, (*p_phi_UE)[ip_UE], 0);
                 float angle = vJet.Angle(vtrack.Vect());
                 z = vtrack.P() * cos(angle) / refP;
             }
             else if (defnFF == 1 && gammaxi == 1) {
-                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
+                vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], 0, (*p_phi_UE)[ip_UE], 0);
                 float angle = vPho.Angle(vtrack.Vect());
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxi[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
+            hgammaffxi[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
-              if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
+              if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
                   float z = -1;
                   if (defnFF == 0) {
-                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
+                      vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmpjeteta, (*p_phi_UE)[ip_UE], 0);
                       float angle = vJet.Angle(vtrack.Vect());
-                      z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
+                      z = (*p_pt_UE)[ip_UE] * cos(angle) / refP;
                   }
                   else if (defnFF == 1 && gammaxi == 0) {
-                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
+                      vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmpjeteta, (*p_phi_UE)[ip_UE], 0);
                       float angle = vJet.Angle(vtrack.Vect());
                       z = vtrack.P() * cos(angle) / refP;
                   }
                   else if (defnFF == 1 && gammaxi == 1) {
-                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
+                      vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], 0, (*p_phi_UE)[ip_UE], 0);
                       float angle = vPho.Angle(vtrack.Vect());
                       z = vtrack.P() * fabs(cos(angle)) / refP;
                   }
                   float xi = log(1.0 / z);
                   if (dphi < 0.3) {
-                      hffxiLR[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1) * weight_LongRange);
+                      hffxiLR[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weight_LongRange);
                   }
                   else if (dphi >= 0.3 && dphi < 0.6) {
-                      hffxiLRAway[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1) * weight_LongRange);
+                      hffxiLRAway[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weight_LongRange);
                   }
               }
           }
