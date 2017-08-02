@@ -316,11 +316,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
     int centBin = getCentralityBin(centmin);
 
-    bool signal = (phoSigmaIEtaIEta_2012 < 0.010);
-    bool background = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
-    if (!signal && !background) continue;
+    bool phoSig = (phoSigmaIEtaIEta_2012 < 0.010);
+    bool phoBkg = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
+    if (!phoSig && !phoBkg) continue;
 
-    hphopt[background]->Fill(phoEtCorrected, weight);
+    hphopt[phoBkg]->Fill(phoEtCorrected, weight);
 
     if (jet_type_is("reco", genlevel) || jet_type_is("sreco", genlevel)) {
       nij = njet;
@@ -410,14 +410,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         double dphijg = acos(cos(tmpjetphi - phoPhi));
         double detajg = tmpjeteta - phoEta;
         if (dphijg*dphijg + detajg*detajg > 0.64) {
-            hdphijg[background][k_rawJet]->Fill(dphijg, weight * smear_weight);
+            hdphijg[phoBkg][k_rawJet]->Fill(dphijg, weight * smear_weight);
         }
 
         // jet phi cut
         if (dphijg < 7 * pi / 8) continue;
 
-        hjetpt[background][k_rawJet]->Fill(tmpjetpt, weight * smear_weight);
-        hxjg[background][k_rawJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight);
+        hjetpt[phoBkg][k_rawJet]->Fill(tmpjetpt, weight * smear_weight);
+        hxjg[phoBkg][k_rawJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight);
 
         TLorentzVector vJet;
         vJet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
@@ -460,7 +460,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxi[background][k_rawJet_rawTrk]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
+            hgammaffxi[phoBkg][k_rawJet_rawTrk]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
@@ -483,37 +483,37 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
                   float xi = log(1.0 / z);
                   if (dphi < 0.3) {
-                      hffxiLR[background][k_rawJet_rawTrk]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
+                      hffxiLR[phoBkg][k_rawJet_rawTrk]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
                   }
                   else if (dphi >= 0.3 && dphi < 0.6) {
-                      hffxiLRAway[background][k_rawJet_rawTrk]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
+                      hffxiLRAway[phoBkg][k_rawJet_rawTrk]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
                   }
               }
           }
           if (systematic == sysDphiProjection) {
               int iTrkPt = getTrkPtBin((*p_pt)[ip]);
               if (fabs((*p_eta)[ip]) < fabs(tmpjeteta) && fabs(deta) < 1.0) { // trk is closer to eta = 0
-                  hdphiProjNR[background][k_rawJet_rawTrk]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightNR);
+                  hdphiProjNR[phoBkg][k_rawJet_rawTrk]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightNR);
                   if (iTrkPt >= 0)
-                      hdphiProjNRptBin[background][k_rawJet_rawTrk][iTrkPt]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightNR);
+                      hdphiProjNRptBin[phoBkg][k_rawJet_rawTrk][iTrkPt]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightNR);
               }
               else if (tmpjeteta * (*p_eta)[ip] < 0 && 1.5 < fabs(deta) && fabs(deta) < 2.4) {   // trk and jet are on the opposite sides of the detector
-                  hdphiProjLR[background][k_rawJet_rawTrk]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
+                  hdphiProjLR[phoBkg][k_rawJet_rawTrk]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
                   if (iTrkPt >= 0)
-                      hdphiProjLRptBin[background][k_rawJet_rawTrk][iTrkPt]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
+                      hdphiProjLRptBin[phoBkg][k_rawJet_rawTrk][iTrkPt]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
               }
           }
           if (systematic == sysDetaDphiPhoTrk) {
               float deta_phoTrk = phoEta - (*p_eta)[ip];
               float dphi_phoTrk = getShiftedDPHI(getDPHI(phoPhi, (*p_phi)[ip]));
-              h2DdphidetaPhoTrk[background][k_rawJet_rawTrk]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
+              h2DdphidetaPhoTrk[phoBkg][k_rawJet_rawTrk]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
               if (getTrkPtBin((*p_pt)[ip]) >= 0)
-                  h2DdphidetaPhoTrkptBin[background][k_rawJet_rawTrk][getTrkPtBin((*p_pt)[ip])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
+                  h2DdphidetaPhoTrkptBin[phoBkg][k_rawJet_rawTrk][getTrkPtBin((*p_pt)[ip])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
           }
           if (systematic == sysDetaDphiJetTrk) {
-              h2DdphidetaJetTrk[background][k_rawJet_rawTrk]->Fill(deta, dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
+              h2DdphidetaJetTrk[phoBkg][k_rawJet_rawTrk]->Fill(deta, dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
               if (getTrkPtBin((*p_pt)[ip]) >= 0)
-                  h2DdphidetaJetTrkptBin[background][k_rawJet_rawTrk][getTrkPtBin((*p_pt)[ip])]->Fill(deta, dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
+                  h2DdphidetaJetTrkptBin[phoBkg][k_rawJet_rawTrk][getTrkPtBin((*p_pt)[ip])]->Fill(deta, dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
           }
         }
 
@@ -574,7 +574,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxi[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
+            hgammaffxi[phoBkg][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
@@ -597,37 +597,37 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
                   float xi = log(1.0 / z);
                   if (dphi < 0.3) {
-                      hffxiLR[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
+                      hffxiLR[phoBkg][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
                   }
                   else if (dphi >= 0.3 && dphi < 0.6) {
-                      hffxiLRAway[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
+                      hffxiLRAway[phoBkg][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
                   }
               }
           }
           if (systematic == sysDphiProjection) {
               int iTrkPt = getTrkPtBin((*p_pt_UE)[ip_UE]);
               if (fabs((*p_eta_UE)[ip_UE]) < fabs(tmpjeteta) && fabs(deta) < 1.0) { // trk is closer to eta = 0
-                  hdphiProjNR[background][k_rawJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightNR);
+                  hdphiProjNR[phoBkg][k_rawJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightNR);
                   if (iTrkPt >= 0)
-                      hdphiProjNRptBin[background][k_rawJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightNR);
+                      hdphiProjNRptBin[phoBkg][k_rawJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightNR);
               }
               else if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0 && 1.5 < fabs(deta) && fabs(deta) < 2.4) {   // trk and jet are on the opposite sides of the detector
-                  hdphiProjLR[background][k_rawJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
+                  hdphiProjLR[phoBkg][k_rawJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
                   if (iTrkPt >= 0)
-                      hdphiProjLRptBin[background][k_rawJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
+                      hdphiProjLRptBin[phoBkg][k_rawJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
               }
           }
           if (systematic == sysDetaDphiPhoTrk) {
               float deta_phoTrk = phoEta - (*p_phi_UE)[ip_UE];
               float dphi_phoTrk = getShiftedDPHI(getDPHI(phoPhi, (*p_phi_UE)[ip_UE]));
-              h2DdphidetaPhoTrk[background][k_rawJet_ueTrack]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
+              h2DdphidetaPhoTrk[phoBkg][k_rawJet_ueTrack]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
               if (getTrkPtBin((*p_pt_UE)[ip_UE]) >= 0)
-                  h2DdphidetaPhoTrkptBin[background][k_rawJet_ueTrack][getTrkPtBin((*p_pt_UE)[ip_UE])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
+                  h2DdphidetaPhoTrkptBin[phoBkg][k_rawJet_ueTrack][getTrkPtBin((*p_pt_UE)[ip_UE])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
           }
           if (systematic == sysDetaDphiJetTrk) {
-              h2DdphidetaJetTrk[background][k_rawJet_ueTrack]->Fill(deta, dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
+              h2DdphidetaJetTrk[phoBkg][k_rawJet_ueTrack]->Fill(deta, dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
               if (getTrkPtBin((*p_pt_UE)[ip_UE]) >= 0)
-                  h2DdphidetaJetTrkptBin[background][k_rawJet_ueTrack][getTrkPtBin((*p_pt_UE)[ip_UE])]->Fill(deta, dphi, weight * (*p_weight_mix)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
+                  h2DdphidetaJetTrkptBin[phoBkg][k_rawJet_ueTrack][getTrkPtBin((*p_pt_UE)[ip_UE])]->Fill(deta, dphi, weight * (*p_weight_mix)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
           }
         }
       }
@@ -694,14 +694,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         double dphijg = acos(cos(tmpjetphi - phoPhi));
         double detajg = tmpjeteta - phoEta;
         if (dphijg*dphijg + detajg*detajg > 0.64) {
-            hdphijg[background][k_bkgJet]->Fill(dphijg, weight * smear_weight / nmixedevents_jet);
+            hdphijg[phoBkg][k_bkgJet]->Fill(dphijg, weight * smear_weight / nmixedevents_jet);
         }
 
         // jet phi cut
         if (dphijg < 7 * pi / 8) continue;
 
-        hjetpt[background][k_bkgJet]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
-        hxjg[background][k_bkgJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight / nmixedevents_jet);
+        hjetpt[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
+        hxjg[phoBkg][k_bkgJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight / nmixedevents_jet);
 
         TLorentzVector vJet;
         vJet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
@@ -741,7 +741,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxi[background][k_bkgJet_rawTrk]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
+            hgammaffxi[phoBkg][k_bkgJet_rawTrk]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
@@ -764,37 +764,37 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
                   float xi = log(1.0 / z);
                   if (dphi < 0.3) {
-                      hffxiLR[background][k_bkgJet_rawTrk]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
+                      hffxiLR[phoBkg][k_bkgJet_rawTrk]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
                   }
                   else if (dphi >= 0.3 && dphi < 0.6) {
-                      hffxiLRAway[background][k_bkgJet_rawTrk]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
+                      hffxiLRAway[phoBkg][k_bkgJet_rawTrk]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
                   }
               }
           }
           if (systematic == sysDphiProjection) {
               int iTrkPt = getTrkPtBin((*p_pt_mix)[ip_mix]);
               if (fabs((*p_eta_mix)[ip_mix]) < fabs(tmpjeteta) && fabs(deta) < 1.0) { // trk is closer to eta = 0
-                  hdphiProjNR[background][k_bkgJet_rawTrk]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightNR);
+                  hdphiProjNR[phoBkg][k_bkgJet_rawTrk]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightNR);
                   if (iTrkPt >= 0)
-                      hdphiProjNRptBin[background][k_bkgJet_rawTrk][iTrkPt]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightNR);
+                      hdphiProjNRptBin[phoBkg][k_bkgJet_rawTrk][iTrkPt]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightNR);
               }
               else if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0 && 1.5 < fabs(deta) && fabs(deta) < 2.4) {   // trk and jet are on the opposite sides of the detector
-                  hdphiProjLR[background][k_bkgJet_rawTrk]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
+                  hdphiProjLR[phoBkg][k_bkgJet_rawTrk]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
                   if (iTrkPt >= 0)
-                      hdphiProjLRptBin[background][k_bkgJet_rawTrk][iTrkPt]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
+                      hdphiProjLRptBin[phoBkg][k_bkgJet_rawTrk][iTrkPt]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
               }
           }
           if (systematic == sysDetaDphiPhoTrk) {
               float deta_phoTrk = phoEta - (*p_phi_mix)[ip_mix];
               float dphi_phoTrk = getShiftedDPHI(getDPHI(phoPhi, (*p_phi_mix)[ip_mix]));
-              h2DdphidetaPhoTrk[background][k_bkgJet_rawTrk]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
+              h2DdphidetaPhoTrk[phoBkg][k_bkgJet_rawTrk]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
               if (getTrkPtBin((*p_pt_mix)[ip_mix]) >= 0)
-                  h2DdphidetaPhoTrkptBin[background][k_bkgJet_rawTrk][getTrkPtBin((*p_pt_mix)[ip_mix])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
+                  h2DdphidetaPhoTrkptBin[phoBkg][k_bkgJet_rawTrk][getTrkPtBin((*p_pt_mix)[ip_mix])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
           }
           if (systematic == sysDetaDphiJetTrk) {
-              h2DdphidetaJetTrk[background][k_bkgJet_rawTrk]->Fill(deta, dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
+              h2DdphidetaJetTrk[phoBkg][k_bkgJet_rawTrk]->Fill(deta, dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
               if (getTrkPtBin((*p_pt_mix)[ip_mix]) >= 0)
-                  h2DdphidetaJetTrkptBin[background][k_bkgJet_rawTrk][getTrkPtBin((*p_pt_mix)[ip_mix])]->Fill(deta, dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
+                  h2DdphidetaJetTrkptBin[phoBkg][k_bkgJet_rawTrk][getTrkPtBin((*p_pt_mix)[ip_mix])]->Fill(deta, dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
           }
         }
 
@@ -851,7 +851,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 z = vtrack.P() * fabs(cos(angle)) / refP;
             }
             float xi = log(1.0 / z);
-            hgammaffxi[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
+            hgammaffxi[phoBkg][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
@@ -874,37 +874,37 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
                   float xi = log(1.0 / z);
                   if (dphi < 0.3) {
-                      hffxiLR[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
+                      hffxiLR[phoBkg][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
                   }
                   else if (dphi >= 0.3 && dphi < 0.6) {
-                      hffxiLRAway[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
+                      hffxiLRAway[phoBkg][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
                   }
               }
           }
           if (systematic == sysDphiProjection) {
               int iTrkPt = getTrkPtBin((*p_pt_UE)[ip_UE]);
               if (fabs((*p_eta_UE)[ip_UE]) < fabs(tmpjeteta) && fabs(deta) < 1.0) { // trk is closer to eta = 0
-                  hdphiProjNR[background][k_bkgJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightNR);
+                  hdphiProjNR[phoBkg][k_bkgJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightNR);
                   if (iTrkPt >= 0)
-                      hdphiProjNRptBin[background][k_bkgJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightNR);
+                      hdphiProjNRptBin[phoBkg][k_bkgJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightNR);
               }
               else if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0 && 1.5 < fabs(deta) && fabs(deta) < 2.4) {   // trk and jet are on the opposite sides of the detector
-                  hdphiProjLR[background][k_bkgJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
+                  hdphiProjLR[phoBkg][k_bkgJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
                   if (iTrkPt >= 0)
-                      hdphiProjLRptBin[background][k_bkgJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
+                      hdphiProjLRptBin[phoBkg][k_bkgJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
               }
           }
           if (systematic == sysDetaDphiPhoTrk) {
               float deta_phoTrk = phoEta - (*p_phi_UE)[ip_UE];
               float dphi_phoTrk = getShiftedDPHI(getDPHI(phoPhi, (*p_phi_UE)[ip_UE]));
-              h2DdphidetaPhoTrk[background][k_bkgJet_ueTrack]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
+              h2DdphidetaPhoTrk[phoBkg][k_bkgJet_ueTrack]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
               if (getTrkPtBin((*p_pt_UE)[ip_UE]) >= 0)
-                  h2DdphidetaPhoTrkptBin[background][k_bkgJet_ueTrack][getTrkPtBin((*p_pt_UE)[ip_UE])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
+                  h2DdphidetaPhoTrkptBin[phoBkg][k_bkgJet_ueTrack][getTrkPtBin((*p_pt_UE)[ip_UE])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
           }
           if (systematic == sysDetaDphiJetTrk) {
-              h2DdphidetaJetTrk[background][k_bkgJet_ueTrack]->Fill(deta, dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
+              h2DdphidetaJetTrk[phoBkg][k_bkgJet_ueTrack]->Fill(deta, dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
               if (getTrkPtBin((*p_pt_UE)[ip_UE]) >= 0)
-                  h2DdphidetaJetTrkptBin[background][k_bkgJet_ueTrack][getTrkPtBin((*p_weight_UE)[ip_UE])]->Fill(deta, dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
+                  h2DdphidetaJetTrkptBin[phoBkg][k_bkgJet_ueTrack][getTrkPtBin((*p_weight_UE)[ip_UE])]->Fill(deta, dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
           }
         }
       }
