@@ -203,8 +203,15 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
     float uescale[4] = {0.997, 0.99, 0.96, 0.85};
     //float uescale[4] = {1,1, 0.97, 0.87};   // alternative UE scale
 
-    std::vector<std::string> inputObs = {"hgammaffxi", "hffLR", "hffLRAway"};
-    std::vector<std::string> outputObs = {"hff",       "hffLR", "hffLRAway"};
+    std::vector<std::string> inputObs = {"hgammaffxi", "hffLR", "hffLRAway", "hdphiProjNR", "hdphiProjLR"};
+    std::vector<std::string> outputObs = {"hff",       "hffLR", "hffLRAway", "hdphiProjNR", "hdphiProjLR"};
+    for (int iPt = 0; iPt < 8; ++iPt) {
+        inputObs.push_back(Form("hdphiProjNRptBin%d", iPt));
+        outputObs.push_back(Form("hdphiProjNRptBin%d", iPt));
+
+        inputObs.push_back(Form("hdphiProjLRptBin%d", iPt));
+        outputObs.push_back(Form("hdphiProjLRptBin%d", iPt));
+    }
 
     if (inputObs.size() != outputObs.size()) {
         std::cout << "mismatching number of input and output observables" << std::endl;

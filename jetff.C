@@ -33,6 +33,7 @@ std::string pho_sigbkg_labels[kN_PHO_SIGBKG] = {"", "sideband"};
 int sysLR = 20;
 int sysBkgEtagt0p3 = 21;
 int sysBkgEtaReflection = 22;
+int sysDphiProjection = 30;
 int sysDetaDphi = 23;
 
 void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string gen, int checkjetid, float trkptmin, int gammaxi, int whichSys, float sysScaleFactor) {
@@ -88,8 +89,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hffxiLR[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG];
   TH1D* hffxiLRAway[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG];
 
+  TH1D* hdphiProjNR[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG];
+  TH1D* hdphiProjLR[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG];
+
+  TH1D* hdphiProjNRptBin[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG][8];
+  TH1D* hdphiProjLRptBin[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG][8];
+
   TH2D* h2Ddphideta[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG];
-  TH2D* h2DdphidetaPtBin[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG][8];
+  TH2D* h2DdphidetaptBin[kN_PHO_SIGBKG][kN_JET_TRACK_SIGBKG][8];
   for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
       for (int j = 0; j < kN_JET_TRACK_SIGBKG; ++j) {
           hgammaffxi[i][j] = new TH1D(Form("hgammaffxi%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
@@ -103,11 +110,24 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                                 sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
           }
 
+          if (systematic == sysDphiProjection) {
+              hdphiProjNR[i][j] = new TH1D(Form("hdphiProjNR%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";dphi;", 10, -1, 1);
+              hdphiProjLR[i][j] = new TH1D(Form("hdphiProjLR%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";dphi;", 10, -1, 1);
+              for (int iPtBin = 0; iPtBin < 8; ++iPtBin) {
+                  hdphiProjNRptBin[i][j][iPtBin] = new TH1D(Form("hdphiProjNRptBin%d%s%s_%s_%s_%d_%d", iPtBin, jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                          sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";dphi;", 10, -1, 1);
+                  hdphiProjLRptBin[i][j][iPtBin] = new TH1D(Form("hdphiProjLRptBin%d%s%s_%s_%s_%d_%d", iPtBin, jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                          sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";dphi;", 10, -1, 1);
+              }
+          }
+
           if (systematic == sysDetaDphi) {
               h2Ddphideta[i][j] = new TH2D(Form("h2Ddphideta%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                       sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#eta;#Delta#phi", 40, -2.5, 2.5, 40, -0.5*TMath::Pi(), 1.5*TMath::Pi());
               for (int iPtBin = 0; iPtBin < 8; ++iPtBin) {
-                  h2DdphidetaPtBin[i][j][iPtBin] = new TH2D(Form("h2DdphidetaPtBin%d%s%s_%s_%s_%d_%d", iPtBin, jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                  h2DdphidetaptBin[i][j][iPtBin] = new TH2D(Form("h2DdphidetaptBin%d%s%s_%s_%s_%d_%d", iPtBin, jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                           sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#eta;#Delta#phi", 40, -2.5, 2.5, 40, -0.5*TMath::Pi(), 1.5*TMath::Pi());
               }
           }
@@ -203,7 +223,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   }
 
   int nsmear = 1;
-  float weight_LongRange = TMath::Pi()*0.3*0.3 / ((2.4-1.5)*2*0.3);
+  float weightLR = TMath::Pi()*0.3*0.3 / ((2.4-1.5)*2*0.3);
+  float weightNR = TMath::Pi()*0.3*0.3 / (1*2*0.3);
 
   float tracking_sys = isHI ? 0.05 : 0.04;
   if (systematic == 9) { tracking_sys = 1 + tracking_sys; }
@@ -367,7 +388,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg)[ip] == 0) continue;
           }
 
-          float dphi = acos(cos(tmpjetphi - (*p_phi)[ip]));
+          float dphi = getDPHI(tmpjetphi, (*p_phi)[ip]);
           float deta = tmpjeteta - (*p_eta)[ip];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
@@ -412,11 +433,24 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
                   float xi = log(1.0 / z);
                   if (dphi < 0.3) {
-                      hffxiLR[background][k_rawJet]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weight_LongRange);
+                      hffxiLR[background][k_rawJet]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
                   }
                   else if (dphi >= 0.3 && dphi < 0.6) {
-                      hffxiLRAway[background][k_rawJet]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weight_LongRange);
+                      hffxiLRAway[background][k_rawJet]->Fill(xi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
                   }
+              }
+          }
+          if (systematic == sysDphiProjection) {
+              int iTrkPt = getTrkPtBin((*p_pt)[ip]);
+              if (fabs((*p_eta)[ip]) < fabs(tmpjeteta) && fabs(deta) < 1.0) { // trk is closer to eta = 0
+                  hdphiProjNR[background][k_rawJet]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightNR);
+                  if (iTrkPt >= 0)
+                      hdphiProjNRptBin[background][k_rawJet][iTrkPt]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightNR);
+              }
+              else if (tmpjeteta * (*p_eta)[ip] < 0 && 1.5 < fabs(deta) && fabs(deta) < 2.4) {   // trk and jet are on the opposite sides of the detector
+                  hdphiProjLR[background][k_rawJet]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
+                  if (iTrkPt >= 0)
+                      hdphiProjLRptBin[background][k_rawJet][iTrkPt]->Fill(dphi, weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
               }
           }
           if (systematic == sysDetaDphi) {
@@ -424,7 +458,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               float dphi_phoTrk = getShiftedDPHI(getDPHI(phoPhi, (*p_phi)[ip]));
               h2Ddphideta[background][k_rawJet]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
               if (getTrkPtBin((*p_pt)[ip]) >= 0)
-                  h2DdphidetaPtBin[background][k_rawJet][getTrkPtBin((*p_pt)[ip])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
+                  h2DdphidetaptBin[background][k_rawJet][getTrkPtBin((*p_pt)[ip])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight)[ip] * tracking_sys * smear_weight);
           }
         }
 
@@ -463,7 +497,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
-          float dphi = acos(cos(tmpjetphi - (*p_phi_UE)[ip_UE]));
+          float dphi = getDPHI(tmpjetphi, (*p_phi_UE)[ip_UE]);
           float deta = tmpjeteta - tmp_p_eta;
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
@@ -508,11 +542,24 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
                   float xi = log(1.0 / z);
                   if (dphi < 0.3) {
-                      hffxiLR[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weight_LongRange);
+                      hffxiLR[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
                   }
                   else if (dphi >= 0.3 && dphi < 0.6) {
-                      hffxiLRAway[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weight_LongRange);
+                      hffxiLRAway[background][k_rawJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
                   }
+              }
+          }
+          if (systematic == sysDphiProjection) {
+              int iTrkPt = getTrkPtBin((*p_pt_UE)[ip_UE]);
+              if (fabs((*p_eta_UE)[ip_UE]) < fabs(tmpjeteta) && fabs(deta) < 1.0) { // trk is closer to eta = 0
+                  hdphiProjNR[background][k_rawJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightNR);
+                  if (iTrkPt >= 0)
+                      hdphiProjNRptBin[background][k_rawJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightNR);
+              }
+              else if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0 && 1.5 < fabs(deta) && fabs(deta) < 2.4) {   // trk and jet are on the opposite sides of the detector
+                  hdphiProjLR[background][k_rawJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
+                  if (iTrkPt >= 0)
+                      hdphiProjLRptBin[background][k_rawJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
               }
           }
           if (systematic == sysDetaDphi) {
@@ -520,7 +567,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               float dphi_phoTrk = getShiftedDPHI(getDPHI(phoPhi, (*p_phi_UE)[ip_UE]));
               h2Ddphideta[background][k_rawJet_ueTrack]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
               if (getTrkPtBin((*p_pt_UE)[ip_UE]) >= 0)
-                  h2DdphidetaPtBin[background][k_rawJet_ueTrack][getTrkPtBin((*p_pt_UE)[ip_UE])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
+                  h2DdphidetaptBin[background][k_rawJet_ueTrack][getTrkPtBin((*p_pt_UE)[ip_UE])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
           }
         }
       }
@@ -605,7 +652,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
-          float dphi = acos(cos(tmpjetphi - (*p_phi_mix)[ip_mix]));
+          float dphi = getDPHI(tmpjetphi, (*p_phi_mix)[ip_mix]);
           float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
@@ -650,11 +697,24 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
                   float xi = log(1.0 / z);
                   if (dphi < 0.3) {
-                      hffxiLR[background][k_bkgJet]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weight_LongRange);
+                      hffxiLR[background][k_bkgJet]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
                   }
                   else if (dphi >= 0.3 && dphi < 0.6) {
-                      hffxiLRAway[background][k_bkgJet]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weight_LongRange);
+                      hffxiLRAway[background][k_bkgJet]->Fill(xi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
                   }
+              }
+          }
+          if (systematic == sysDphiProjection) {
+              int iTrkPt = getTrkPtBin((*p_pt_mix)[ip_mix]);
+              if (fabs((*p_eta_mix)[ip_mix]) < fabs(tmpjeteta) && fabs(deta) < 1.0) { // trk is closer to eta = 0
+                  hdphiProjNR[background][k_bkgJet]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightNR);
+                  if (iTrkPt >= 0)
+                      hdphiProjNRptBin[background][k_bkgJet][iTrkPt]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightNR);
+              }
+              else if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0 && 1.5 < fabs(deta) && fabs(deta) < 2.4) {   // trk and jet are on the opposite sides of the detector
+                  hdphiProjLR[background][k_bkgJet]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
+                  if (iTrkPt >= 0)
+                      hdphiProjLRptBin[background][k_bkgJet][iTrkPt]->Fill(dphi, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
               }
           }
           if (systematic == sysDetaDphi) {
@@ -662,7 +722,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               float dphi_phoTrk = getShiftedDPHI(getDPHI(phoPhi, (*p_phi_mix)[ip_mix]));
               h2Ddphideta[background][k_bkgJet]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
               if (getTrkPtBin((*p_pt_mix)[ip_mix]) >= 0)
-                  h2DdphidetaPtBin[background][k_bkgJet][getTrkPtBin((*p_pt_mix)[ip_mix])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
+                  h2DdphidetaptBin[background][k_bkgJet][getTrkPtBin((*p_pt_mix)[ip_mix])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
           }
         }
 
@@ -697,7 +757,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
-          float dphi = acos(cos(tmpjetphi - (*p_phi_UE)[ip_UE]));
+          float dphi = getDPHI(tmpjetphi, (*p_phi_UE)[ip_UE]);
           float deta = tmpjeteta - tmp_p_eta;
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
@@ -742,11 +802,24 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
                   float xi = log(1.0 / z);
                   if (dphi < 0.3) {
-                      hffxiLR[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weight_LongRange);
+                      hffxiLR[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
                   }
                   else if (dphi >= 0.3 && dphi < 0.6) {
-                      hffxiLRAway[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weight_LongRange);
+                      hffxiLRAway[background][k_bkgJet_ueTrack]->Fill(xi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
                   }
+              }
+          }
+          if (systematic == sysDphiProjection) {
+              int iTrkPt = getTrkPtBin((*p_pt_UE)[ip_UE]);
+              if (fabs((*p_eta_UE)[ip_UE]) < fabs(tmpjeteta) && fabs(deta) < 1.0) { // trk is closer to eta = 0
+                  hdphiProjNR[background][k_bkgJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightNR);
+                  if (iTrkPt >= 0)
+                      hdphiProjNRptBin[background][k_bkgJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightNR);
+              }
+              else if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0 && 1.5 < fabs(deta) && fabs(deta) < 2.4) {   // trk and jet are on the opposite sides of the detector
+                  hdphiProjLR[background][k_bkgJet_ueTrack]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
+                  if (iTrkPt >= 0)
+                      hdphiProjLRptBin[background][k_bkgJet_ueTrack][iTrkPt]->Fill(dphi, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
               }
           }
           if (systematic == sysDetaDphi) {
@@ -754,7 +827,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               float dphi_phoTrk = getShiftedDPHI(getDPHI(phoPhi, (*p_phi_UE)[ip_UE]));
               h2Ddphideta[background][k_bkgJet_ueTrack]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
               if (getTrkPtBin((*p_pt_UE)[ip_UE]) >= 0)
-                  h2DdphidetaPtBin[background][k_bkgJet_ueTrack][getTrkPtBin((*p_pt_UE)[ip_UE])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
+                  h2DdphidetaptBin[background][k_bkgJet_ueTrack][getTrkPtBin((*p_pt_UE)[ip_UE])]->Fill(deta_phoTrk, dphi_phoTrk, weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
           }
         }
       }
@@ -776,11 +849,20 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   correctBinError(hffxiLRAway[i][j], nsmear);
               }
 
+              if (systematic == sysDphiProjection) {
+                  correctBinError(hdphiProjNR[i][j], nsmear);
+                  correctBinError(hdphiProjLR[i][j], nsmear);
+                  for (int iPt = 0; iPt < 8; ++iPt) {
+                      correctBinError(hdphiProjNRptBin[i][j][iPt], nsmear);
+                      correctBinError(hdphiProjLRptBin[i][j][iPt], nsmear);
+                  }
+              }
+
               if (systematic == sysDetaDphi) {
                   correctBinError(h2Ddphideta[i][j], nsmear);
 
                   for (int iPt = 0; iPt < 8; ++iPt) {
-                      correctBinError(h2DdphidetaPtBin[i][j][iPt], nsmear);
+                      correctBinError(h2DdphidetaptBin[i][j][iPt], nsmear);
                   }
               }
           }
