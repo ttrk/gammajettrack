@@ -306,7 +306,7 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
 
     // photon+jet observables
     TH1D* hphopt[4] = {0};
-    //TH1D* hphopt_sb[4] = {0};
+    TH1D* hphopt_sb[4] = {0};
 
     TH1D* hgj[4] = {0};
     TH1D* hgj_jet[4] = {0};
@@ -338,7 +338,7 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
             std::string tag = Form("%s_%s_%i_%i", sample.c_str(), type.c_str(), min_hiBin[i], max_hiBin[i]);
 
             hphopt[i] = (TH1D*)finput->Get(Form("hphopt_%s", tag.c_str()));
-            //hphopt_sb[i] = (TH1D*)finput->Get(Form("hphoptsideband_%s", tag.c_str()));
+            hphopt_sb[i] = (TH1D*)finput->Get(Form("hphoptsideband_%s", tag.c_str()));
 
             hgj[i] = 0;
             hgj[i] = (TH1D*)finput->Get(Form("%s_%s", inputObsgj[iObs].c_str(), tag.c_str()));
@@ -360,7 +360,7 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
             hgj_sideband[i] = (TH1D*)hgj_sb_sub[i]->Clone(Form("%s_sideband_%s", outputObsgj[iObs].c_str(), tag.c_str()));
 
             hgj_signal[i]->Scale(1./hphopt[i]->Integral());
-            hgj_sideband[i]->Scale(1./hphopt[i]->Integral());
+            hgj_sideband[i]->Scale(1./hphopt_sb[i]->Integral());
 
             hgj_final[i] = (TH1D*)hgj_signal[i]->Clone(Form("%s_final_%s", outputObsgj[iObs].c_str(), tag.c_str()));
 
