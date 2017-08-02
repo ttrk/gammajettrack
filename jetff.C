@@ -30,6 +30,14 @@ enum PHO_SIGBKG{
 
 std::string pho_sigbkg_labels[kN_PHO_SIGBKG] = {"", "sideband"};
 
+enum JET_SIGBKG{
+    k_rawJet,
+    k_bkgJet,
+    kN_JET_SIGBKG,
+};
+
+std::string jet_sigbkg_labels[kN_JET_SIGBKG] = {"", "jetmix"};
+
 int sysLR = 20;
 int sysBkgEtagt0p3 = 21;
 int sysBkgEtaReflection = 22;
@@ -76,10 +84,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   TFile* fout = new TFile(Form("%s_%s_%s_%d_%d_%i_%d_%d_%d.root", label.data(), sample.data(), genlevel.data(), (int)phoetmin, (int)jetptcut, gammaxi, defnFF, abs(centmin), abs(centmax)), "recreate");
 
-  TH1D* hjetpt[kN_PHO_SIGBKG]; TH1D* hjetptjetmix[kN_PHO_SIGBKG];
+  TH1D* hjetpt[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
-      hjetpt[i] = new TH1D(Form("hjetpt%s_%s_%s_%d_%d", pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-      hjetptjetmix[i] = new TH1D(Form("hjetptjetmix%s_%s_%s_%d_%d", pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+      for (int j = 0; j < kN_JET_SIGBKG; ++j) {
+          hjetpt[i][j] = new TH1D(Form("hjetpt%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+      }
   }
 
   std::string xTitle = "xi";
@@ -397,7 +406,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         // jet pt cut
         if (tmpjetpt < jetptcut) continue;
 
-        hjetpt[background]->Fill(tmpjetpt, weight * smear_weight);
+        hjetpt[background][k_rawJet]->Fill(tmpjetpt, weight * smear_weight);
 
         float refP = -1;
         if (defnFF == 0)      refP = gammaxi ? phoEtCorrected : tmpjetpt;
@@ -674,7 +683,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         // jet pt cut
         if (tmpjetpt < jetptcut) continue;
 
-        hjetptjetmix[background]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
+        hjetpt[background][k_bkgJet]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
 
         float refP = gammaxi ? phoEtCorrected : tmpjetpt;
         if (defnFF == 1) refP = gammaxi ? phoEtCorrected : vJet.P();
@@ -883,8 +892,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       // Increase statistical bin error by sqrt(nsmear) to account for nsmear "fake" smearing
       for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
 
-          correctBinError(hjetpt[i], nsmear);
-          correctBinError(hjetptjetmix[i], nsmear);
+          for (int j = 0; j < kN_JET_SIGBKG; ++j) {
+              correctBinError(hjetpt[i][j], nsmear);
+              correctBinError(hjetpt[i][j], nsmear);
+          }
 
           for (int j = 0; j < kN_JET_TRACK_SIGBKG; ++j) {
               correctBinError(hgammaffxi[i][j], nsmear);
