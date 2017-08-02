@@ -409,7 +409,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         double dphijg = acos(cos(tmpjetphi - phoPhi));
         double detajg = tmpjeteta - phoEta;
-        if (dphijg*dphijg + detajg*detajg > 0.064) {
+        if (dphijg*dphijg + detajg*detajg > 0.64) {
             hdphijg[background][k_rawJet]->Fill(dphijg, weight * smear_weight);
         }
 
@@ -693,7 +693,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         double dphijg = acos(cos(tmpjetphi - phoPhi));
         double detajg = tmpjeteta - phoEta;
-        if (dphijg*dphijg + detajg*detajg > 0.064) {
+        if (dphijg*dphijg + detajg*detajg > 0.64) {
             hdphijg[background][k_bkgJet]->Fill(dphijg, weight * smear_weight / nmixedevents_jet);
         }
 
@@ -993,11 +993,11 @@ int main(int argc, char* argv[]) {
 double getDPHI(double phi1, double phi2)
 {
     double dphi = phi1 - phi2;
-    if (dphi > 3.14159265358979323846)
-        dphi -= 2*3.14159265358979323846;
-    if (dphi <= -1*3.14159265358979323846)
-        dphi += 2*3.14159265358979323846;
-    if (TMath::Abs(dphi) > 3.14159265358979323846) {
+    if (dphi > pi)
+        dphi -= 2*pi;
+    if (dphi <= -1*pi)
+        dphi += 2*pi;
+    if (TMath::Abs(dphi) > pi) {
         std::cout << "Error in dphi calculation : |dphi| > PI" << std::endl;
         std::cout << "dphi is set to -999." << std::endl;
         return -999;
@@ -1008,7 +1008,7 @@ double getDPHI(double phi1, double phi2)
 
 double getShiftedDPHI(double dphi)
 {
-    if (dphi <= -0.5*3.14159265358979323846)  return 2*3.14159265358979323846 - fabs(dphi);
+    if (dphi <= -0.5*pi)  return 2*pi - fabs(dphi);
     return dphi;
 }
 
