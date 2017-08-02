@@ -40,7 +40,7 @@ echo "directory for sys variations  : $sysDir"
 nomPrefix=$nomDir"data"
 sysPrefix=$sysDir
 
-SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down longrange)
 
 echo "compiling macros..."
 g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff.exe || exit 1

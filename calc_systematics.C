@@ -12,26 +12,26 @@
 #include "systematics.h"
 #include "error_bands.h"
 
-#define NSYS 10
+#define NSYS 11
 
 std::string sys_types[NSYS] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "longrange"
 };
 
 std::string fit_funcs[NSYS] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
+    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
 };
 
 int options[NSYS] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0
+    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0
 };
 
 int special[NSYS] = {
-    0, 1, 0, 0, 0, 2, 0, 1, 0, 1
+    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0
 };
 
 std::string sys_labels[NSYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "long-range correlations"
 };
 
 int calc_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label) {
