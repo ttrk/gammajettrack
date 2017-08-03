@@ -12,26 +12,26 @@
 #include "systematics.h"
 #include "error_bands.h"
 
-#define NSYS 11
+#define NSYS 12
 
 std::vector<std::string> sys_types = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "longrange"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "longrange", "bkgsub"
 };
 
 std::string fit_funcs[NSYS] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
+    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
 };
 
 int options[NSYS] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0
+    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0
 };
 
 int special[NSYS] = {
-    0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0
+    0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0
 };
 
 std::string sys_observables[NSYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "long-range correlations"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "long-range correlations", "background subtraction"
 };
 
 int calc_ratio_systematics(const char* observable, const char* filelist, const char* histlist, const char* label) {
