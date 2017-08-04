@@ -16,22 +16,24 @@ enum SYSVAR
     kSYS_JES,
     kSYS_JER,
     kSYS_Tracking,
+    kSYS_BKGSUB,
     kN_SYS
 };
 
 std::string sys_labels[kN_SYS] = {
      "pes", "iso", "purity_up_plus", "ele_rej",
-     "jes_up_plus", "jer", "tracking_up_plus"
+     "jes_up_plus", "jer", "tracking_up_plus", "longrange"
 };
 
 std::string sys_titles[kN_SYS] = {
-    "Photon energy scale    ",
-    "Photon isolation       ",
-    "Photon purity          ",
-    "Electron contamination ",
-    "Jet energy scale       ",
-    "Jet energy resolution  ",
-    "Tracking efficiency    "
+    "Photon energy scale     ",
+    "Photon isolation        ",
+    "Photon purity           ",
+    "Electron contamination  ",
+    "Jet energy scale        ",
+    "Jet energy resolution   ",
+    "Tracking efficiency     ",
+    "Background contribution "
 };
 
 std::string sys_title_tot = "Total                  ";
@@ -110,6 +112,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             sys_uncTot[iCol] += sys_uncs[iCol]*sys_uncs[iCol];
             if (sys_uncs[iCol] >= 10)        std::cout << Form("& %.1f\\%%    ", sys_uncs[iCol]);
             else if (sys_uncs[iCol] >= 0.1)  std::cout << Form("& %.1f\\%%     ", sys_uncs[iCol]);
+            //else if (sys_uncs[iCol] == 0)    std::cout << Form("& --\\%%      ");
             else                             std::cout <<      "& $<$0.1\\%    ";
         }
         std::cout << " \\\\" << std::endl;
@@ -120,6 +123,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
         double uncTotTmp = sqrt(sys_uncTot[iCol]);
         if (uncTotTmp >= 10)        std::cout << Form("& %.1f\\%%    ", uncTotTmp);
         else if (uncTotTmp >= 0.1)  std::cout << Form("& %.1f\\%%     ", uncTotTmp);
+        //else if (uncTotTmp == 0)    std::cout << Form("& --\\%%      ");
         else                        std::cout <<      "& $<$0.1\\%    ";
     }
     std::cout << " \\\\" << std::endl;
