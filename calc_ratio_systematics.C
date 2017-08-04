@@ -8,6 +8,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "systematics.h"
 #include "error_bands.h"
@@ -15,7 +16,7 @@
 #define NSYS 12
 
 std::vector<std::string> sys_types = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "longrange", "bkgsub"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "longrange", "xi_nonclosure"
 };
 
 std::string fit_funcs[NSYS] = {
@@ -31,7 +32,7 @@ int special[NSYS] = {
 };
 
 std::string sys_observables[NSYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "long-range correlations", "background subtraction"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "bkg subtraction", "xi nonclosure"
 };
 
 int calc_ratio_systematics(const char* observable, const char* filelist, const char* histlist, const char* label) {
@@ -73,12 +74,14 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
     TH1F* hratio_sys[nhists][nsys] = {0};
 
     for (std::size_t i=0; i<nhists; ++i) {
+
         hpbpb[i] = (TH1F*)fsys[0]->Get(Form("h%s_final_pbpbdata_recoreco_%s_jes_up_nominal", observable, hist_list[i].c_str()));
         hpp[i] = (TH1F*)fsys[1]->Get(Form("h%s_final_ppdata_srecoreco_%s_jes_up_nominal", observable, hist_list[i].c_str()));
         hnominals[i] = (TH1F*)hpbpb[i]->Clone(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()));
         hnominals[i]->Divide(hpp[i]);
 
         for (std::size_t j=0; j<nsys; ++j) {
+
             hpbpb_sys[i][j] = (TH1F*)fsys[0]->Get(Form("h%s_final_pbpbdata_recoreco_%s_%s_variation", observable, hist_list[i].c_str(), sys_types[j].c_str()));
             hpp_sys[i][j] = (TH1F*)fsys[1]->Get(Form("h%s_final_ppdata_srecoreco_%s_%s_variation", observable, hist_list[i].c_str(), sys_types[j].c_str()));
             hratio_sys[i][j] = (TH1F*)hpbpb_sys[i][j]->Clone(Form("h%s_final_ratio_%s_%s", observable, hist_list[i].c_str(), sys_types[j].c_str()));

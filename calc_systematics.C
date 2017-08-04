@@ -8,30 +8,31 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "systematics.h"
 #include "error_bands.h"
 
-#define NSYS 12
+#define NSYS 11
 
 std::string sys_types[NSYS] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "longrange", "bkgsub"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "longrange"
 };
 
 std::string fit_funcs[NSYS] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol1"
+    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
 };
 
 int options[NSYS] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 2
+    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0
 };
 
 int special[NSYS] = {
-    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 3
+    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0
 };
 
 std::string sys_labels[NSYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "long-range correlations", "background subtraction"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "long-range correlations"
 };
 
 int calc_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label) {
@@ -71,6 +72,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
     total_sys_var_t* total_sys_vars[nhists] = {0};
     sys_var_t* sys_vars[nhists][nfiles] = {0};
+    TH1F* hsys_xi_nonclosure[nhists] = {0};
     for (std::size_t i=0; i<nhists; ++i) {
         total_sys_vars[i] = new total_sys_var_t(hist_list[i], hnominals[i]);
 
@@ -89,16 +91,25 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 case 2:
                     sys_vars[i][j]->scale_sys(0.55);
                     break;
-                case 3:
-                    sys_vars[i][j]->scale_sys(0.5);
-                    sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2");
-                    break;
                 default:
                     break;
             }
 
             total_sys_vars[i]->add_sys_var(sys_vars[i][j], options[j]);
         }
+        // add systematics for non-closure in xi_jet < 1
+        hsys_xi_nonclosure[i] = (TH1F*)hnominals[i]->Clone(Form("%s_xi_nonclosure", hnominals[i]->GetName()));
+        if (std::string(nominal_file).find("gxi0") != std::string::npos &&
+            hist_list[i].find("pbpbdata") != std::string::npos) {
+
+            int iBin = hsys_xi_nonclosure[i]->FindBin(0.5);
+            hsys_xi_nonclosure[i]->SetBinContent(iBin, hsys_xi_nonclosure[i]->GetBinContent(iBin)*0.83);
+        }
+        sys_var_t* sysVar_xi = new sys_var_t(hist_list[i], "xi_nonclosure", hnominals[i], hsys_xi_nonclosure[i]);
+        sysVar_xi->fit_sys("pol2", "pol2");
+        sysVar_xi->write();
+        total_sys_vars[i]->add_sys_var(sysVar_xi, 0);
+
         total_sys_vars[i]->write();
     }
 
