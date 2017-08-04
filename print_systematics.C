@@ -16,13 +16,14 @@ enum SYSVAR
     kSYS_JES,
     kSYS_JER,
     kSYS_Tracking,
-    kSYS_BKGSUB,
+    kSYS_LongRange,
+    kSYS_BkgSub,
     kN_SYS
 };
 
 std::string sys_labels[kN_SYS] = {
      "pes", "iso", "purity_up_plus", "ele_rej",
-     "jes_up_plus", "jer", "tracking_up_plus", "longrange"
+     "jes_up_plus", "jer", "tracking_up_plus", "longrange", "bkgsub"
 };
 
 std::string sys_titles[kN_SYS] = {
@@ -33,7 +34,8 @@ std::string sys_titles[kN_SYS] = {
     "Jet energy scale        ",
     "Jet energy resolution   ",
     "Tracking efficiency     ",
-    "Background contribution "
+    "Long range contribution ",
+    "Background subtraction  "
 };
 
 std::string sys_title_tot = "Total                  ";
