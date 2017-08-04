@@ -72,6 +72,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
     total_sys_var_t* total_sys_vars[nhists] = {0};
     sys_var_t* sys_vars[nhists][nfiles] = {0};
+    TH1F* hsys_bkgsub[nhists] = {0};
     TH1F* hsys_xi_nonclosure[nhists] = {0};
     for (std::size_t i=0; i<nhists; ++i) {
         total_sys_vars[i] = new total_sys_var_t(hist_list[i], hnominals[i]);
@@ -97,6 +98,21 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
             total_sys_vars[i]->add_sys_var(sys_vars[i][j], options[j]);
         }
+        // add systematics for bkg subtraction
+        hsys_bkgsub[i] = (TH1F*)hnominals[i]->Clone(Form("%s_bkgsub", hnominals[i]->GetName()));
+        if (hist_list[i].find("pbpbdata") != std::string::npos) {
+            float uncTmp = 1;
+            if (hist_list[i].find("_0_20") != std::string::npos) uncTmp = 1.034;
+            else if (hist_list[i].find("_20_60") != std::string::npos) uncTmp = 1.028;
+            else uncTmp = 1.01;
+
+            hsys_bkgsub[i]->Scale(uncTmp);
+        }
+        sys_var_t* sysVar_bkgsub = new sys_var_t(hist_list[i], "bkgsub", hnominals[i], hsys_bkgsub[i]);
+        sysVar_bkgsub->fit_sys("pol2", "pol2");
+        sysVar_bkgsub->write();
+        total_sys_vars[i]->add_sys_var(sysVar_bkgsub, 0);
+
         // add systematics for non-closure in xi_jet < 1
         hsys_xi_nonclosure[i] = (TH1F*)hnominals[i]->Clone(Form("%s_xi_nonclosure", hnominals[i]->GetName()));
         if (std::string(nominal_file).find("gxi0") != std::string::npos &&

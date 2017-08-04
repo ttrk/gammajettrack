@@ -13,26 +13,26 @@
 #include "systematics.h"
 #include "error_bands.h"
 
-#define NSYS 12
+#define NSYS 13
 
 std::vector<std::string> sys_types = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "longrange", "xi_nonclosure"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "longrange", "xi_nonclosure", "bkgsub"
 };
 
 std::string fit_funcs[NSYS] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
+    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
 };
 
 int options[NSYS] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0
+    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0
 };
 
 int special[NSYS] = {
-    0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0
+    0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0
 };
 
 std::string sys_observables[NSYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "bkg subtraction", "xi nonclosure"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "long range", "xi nonclosure", "bkg subtraction"
 };
 
 int calc_ratio_systematics(const char* observable, const char* filelist, const char* histlist, const char* label) {
