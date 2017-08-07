@@ -37,9 +37,10 @@ if [[ $8 == "data" ]]; then
     echo "running $8"
     set -x
     outPrefix=$outDir"data"
-    hadd -f ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_ppdata_${1}_${3}_gxi${5}_defnFF${6}_srecoreco_ff.root ${outPrefix}_pbpbdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root
+    hadd -f ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_ppdata_${1}_${3}_gxi${5}_defnFF${6}_srecoreco_ff.root ${outPrefix}_ppdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root ${outPrefix}_pbpbdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root
     ./draw_ff.exe pbpbdata ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${1} 0 recoreco
     ./draw_ff.exe ppdata ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${1} 0 srecoreco
+    ./draw_ff.exe ppdata ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${1} 0 recoreco
 
     echo -e "pp (smeared)" >> $PLOTLIST
     echo -e "hff_final_ppdata_srecoreco_0_20" >> $PLOTLIST
