@@ -66,20 +66,33 @@ std::vector<double> CSN_HI_cent50100 = {0.059, 1.239, 0};
 std::vector<double> CSN_phi_HI_cent50100 = { -0.0073078, 0.168879, 0.798885};
 
 // CSN vectors
-std::vector<double>* CSN_vector[4] = {&CSN_HI_cent0010, &CSN_HI_cent1030, &CSN_HI_cent3050, &CSN_HI_cent50100};
-std::vector<double>* CSN_phi_vector[4] = {&CSN_phi_HI_cent0010, &CSN_phi_HI_cent1030, &CSN_phi_HI_cent3050, &CSN_phi_HI_cent50100};
+std::vector<double>* CSN_vector[6] = {&CSN_HI_cent0010, &CSN_HI_cent1030, &CSN_HI_cent3050, &CSN_HI_cent50100, &CSN_HI_cent0030, &CSN_HI_cent30100};
+std::vector<double>* CSN_phi_vector[6] = {&CSN_phi_HI_cent0010, &CSN_phi_HI_cent1030, &CSN_phi_HI_cent3050, &CSN_phi_HI_cent50100, &CSN_phi_HI_cent0030, &CSN_phi_HI_cent30100};
 
-int getCentralityBin(int centmin) {
-  if (centmin == 0)
-    return 0;
-  else if (centmin == 20)
-    return 1;
-  else if (centmin == 60)
-    return 2;
-  else if (centmin == 100)
-    return 3;
-  else
-    return 0;
+int getCentralityBin(int centmin, int centmax = 0) {
+    if (centmin == 0 && (centmax == 0 || centmax == 20))
+        return 0;
+    else if (centmin == 20 && (centmax == 0 || centmax == 60))
+        return 1;
+    else if (centmin == 60 && (centmax == 0 || centmax == 100))
+        return 2;
+    else if (centmin == 100 && (centmax == 0 || centmax == 200))
+        return 3;
+    else if (centmin == 0 && centmax == 60)
+        return 4;
+    else if (centmin == 60 && centmax == 200)
+        return 5;
+    else
+        return -1;
+}
+
+int getCentralityBin4JES(int hiBin) {
+
+    if (hiBin < 20) return 0;
+    else if (hiBin < 60) return 1;
+    else if (hiBin < 100) return 2;
+    else if (hiBin < 200) return 3;
+    return -1;
 }
 
 int getResolutionBin(int centmin) {
@@ -160,6 +173,15 @@ float getSigmaRelPt(int hiBin, float jetpt) {
     );
 }
 
+float getSigmaRelPt(int centMin, int centMax, float jetpt) {
+  int centBin = getCentralityBin(centMin, centMax);
+    return TMath::Sqrt(
+      (CSN_vector[centBin]->at(0) * CSN_vector[centBin]->at(0) - CSN_PP.at(0) * CSN_PP.at(0)) +
+      (CSN_vector[centBin]->at(1) * CSN_vector[centBin]->at(1) - CSN_PP.at(1) * CSN_PP.at(1)) / jetpt +
+      (CSN_vector[centBin]->at(2) * CSN_vector[centBin]->at(2) - CSN_PP.at(2) * CSN_PP.at(2)) / (jetpt * jetpt)
+    );
+}
+
 float getSigmaRelPhi(int hiBin, float jetpt) {
   if (hiBin < 20)
     return TMath::Sqrt(
@@ -184,6 +206,15 @@ float getSigmaRelPhi(int hiBin, float jetpt) {
       (CSN_phi_HI_cent50100.at(0) * CSN_phi_HI_cent50100.at(0) - CSN_phi_PP.at(0) * CSN_phi_PP.at(0)) +
       (CSN_phi_HI_cent50100.at(1) * CSN_phi_HI_cent50100.at(1) - CSN_phi_PP.at(1) * CSN_phi_PP.at(1)) / jetpt +
       (CSN_phi_HI_cent50100.at(2) * CSN_phi_HI_cent50100.at(2) - CSN_phi_PP.at(2) * CSN_phi_PP.at(2)) / (jetpt * jetpt)
+    );
+}
+
+float getSigmaRelPhi(int centMin, int centMax, float jetpt) {
+    int centBin = getCentralityBin(centMin, centMax);
+    return TMath::Sqrt(
+      (CSN_phi_vector[centBin]->at(0) * CSN_phi_vector[centBin]->at(0) - CSN_phi_PP.at(0) * CSN_phi_PP.at(0)) +
+      (CSN_phi_vector[centBin]->at(1) * CSN_phi_vector[centBin]->at(1) - CSN_phi_PP.at(1) * CSN_phi_PP.at(1)) / jetpt +
+      (CSN_phi_vector[centBin]->at(2) * CSN_phi_vector[centBin]->at(2) - CSN_phi_PP.at(2) * CSN_phi_PP.at(2)) / (jetpt * jetpt)
     );
 }
 

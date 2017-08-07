@@ -318,7 +318,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     if (isMC) weight = weight * hvzweight->GetBinContent(hvzweight->FindBin(vz));
     if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
 
-    int centBin = getCentralityBin(centmin);
+    int centBin = getCentralityBin(centmin, centmax);
+    int centBin4JES = getCentralityBin4JES(hiBin);
 
     bool phoSig = (phoSigmaIEtaIEta_2012 < 0.010);
     bool phoBkg = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
@@ -363,8 +364,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       // apply smearing
       if (isPP) {
         if (jet_type_is("sreco", genlevel)) {
-          res_pt = getSigmaRelPt(centmin, tmpjetpt);
-          res_phi = getSigmaRelPhi(centmin, tmpjetpt);
+          res_pt = getSigmaRelPt(centmin, centmax, tmpjetpt);
+          res_phi = getSigmaRelPhi(centmin, centmax, tmpjetpt);
           nsmear = _NSMEAR;
         } else if (jet_type_is("sgen", genlevel)) {
           res_pt = getResolutionPP(tmpjetpt);
@@ -389,13 +390,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         switch (systematic) {
           case 1: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_Q[centBin]->Eval(tmpjetpt); }
+            if (!isPP) { flavor_factor = f_JES_Q[centBin4JES]->Eval(tmpjetpt); }
             float jes_factor = 1 + TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
           case 2: {
             float flavor_factor = 0;
-            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin]->Eval(tmpjetpt); }
+            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin4JES]->Eval(tmpjetpt); }
             float jes_factor = 1 - TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
@@ -460,10 +461,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               }
             }
             if(haslowxi) hasmidxi = false;
-            int icent = 0;
-            if(hiBin > 20) icent  = 1;
-            if(hiBin > 60) icent  = 2;
-            if(hiBin > 100) icent = 3;
+            int icent = getCentralityBin4JES(hiBin);
             if(!isPP && haslowxi && jet_type_is("reco", genlevel)) {
                 jes_factor_ffDep = 1./lowxicorr[icent];
             } else if(!isPP && hasmidxi && jet_type_is("reco", genlevel)) {
@@ -741,13 +739,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         switch (systematic) {
           case 1: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_Q[centBin]->Eval(tmpjetpt); }
+            if (!isPP) { flavor_factor = f_JES_Q[centBin4JES]->Eval(tmpjetpt); }
             float jes_factor = 1 + TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
           case 2: {
             float flavor_factor = 0;
-            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin]->Eval(tmpjetpt); }
+            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin4JES]->Eval(tmpjetpt); }
             float jes_factor = 1 - TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
@@ -810,10 +808,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 }
             }
             if(haslowxi) hasmidxi = false;
-            int icent = 0;
-            if(hiBin > 20) icent  = 1;
-            if(hiBin > 60) icent  = 2;
-            if(hiBin > 100) icent = 3;
+            int icent = getCentralityBin4JES(hiBin);
             if(!isPP && haslowxi && jet_type_is("reco", genlevel)) {
                 jes_factor_ffDep = 1./lowxicorr[icent];
             } else if(!isPP && hasmidxi && jet_type_is("reco", genlevel)) {

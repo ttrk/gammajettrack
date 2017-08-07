@@ -6,8 +6,8 @@
 #include <string>
 #include <iostream>
 
-int min_hiBin[4] = {0, 20, 60, 100};
-int max_hiBin[4] = {20, 60, 100, 200};
+int min_hiBin[6] = {0, 20, 60, 100, 0, 60};
+int max_hiBin[6] = {20, 60, 100, 200, 60, 200};
 
 float purity_nominal[4][56] =
 {
@@ -193,14 +193,21 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
             return 1;
     }
 
-    float purity[4];
-    for (int i=0; i<4; ++i) {
-        purity[i] = (purity_up[purity_sample][purity_pt * 7 + 3 + i] * purity_factors[0] +
-                purity_nominal[purity_sample][purity_pt * 7 + 3 + i] * purity_factors[1] +
-                purity_down[purity_sample][purity_pt * 7 + 3 + i] * purity_factors[2]) / 2.;
+    float purity[6];
+    for (int i=0; i<6; ++i) {
+        if (i < 4) {
+            purity[i] = (purity_up[purity_sample][purity_pt * 7 + 3 + i] * purity_factors[0] +
+                    purity_nominal[purity_sample][purity_pt * 7 + 3 + i] * purity_factors[1] +
+                    purity_down[purity_sample][purity_pt * 7 + 3 + i] * purity_factors[2]) / 2.;
+        }
+        else {
+            purity[i] = (purity_up[purity_sample][purity_pt * 7 - 3 + i] * purity_factors[0] +
+                    purity_nominal[purity_sample][purity_pt * 7 - 3 + i] * purity_factors[1] +
+                    purity_down[purity_sample][purity_pt * 7 - 3 + i] * purity_factors[2]) / 2.;
+        }
     }
 
-    float uescale[4] = {0.997, 0.99, 0.96, 0.85};
+    float uescale[6] = {0.997, 0.99, 0.96, 0.85, 0.9935, 0.92};
     //float uescale[4] = {1,1, 0.97, 0.87};   // alternative UE scale
 
     std::vector<std::string> inputObs = {"hgammaffxi", "hffLR", "hffLRAway", "hdphiProjNR", "hdphiProjLR"};
@@ -220,33 +227,33 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
     }
     int nObs = inputObs.size();
 
-    TH1D* hjetpt[4] = {0};
-    TH1D* hjetpt_mix[4] = {0};
-    TH1D* hjetpt_sb[4] = {0};
-    TH1D* hjetpt_mix_sb[4] = {0};
+    TH1D* hjetpt[6] = {0};
+    TH1D* hjetpt_mix[6] = {0};
+    TH1D* hjetpt_sb[6] = {0};
+    TH1D* hjetpt_mix_sb[6] = {0};
 
-    TH1D* hff[4] = {0};
-    TH1D* hff_ue[4] = {0};
-    TH1D* hff_jet[4] = {0};
-    TH1D* hff_jet_ue[4] = {0};
-    TH1D* hff_sb[4] = {0};
-    TH1D* hff_ue_sb[4] = {0};
-    TH1D* hff_jet_sb[4] = {0};
-    TH1D* hff_jet_ue_sb[4] = {0};
+    TH1D* hff[6] = {0};
+    TH1D* hff_ue[6] = {0};
+    TH1D* hff_jet[6] = {0};
+    TH1D* hff_jet_ue[6] = {0};
+    TH1D* hff_sb[6] = {0};
+    TH1D* hff_ue_sb[6] = {0};
+    TH1D* hff_jet_sb[6] = {0};
+    TH1D* hff_jet_ue_sb[6] = {0};
 
-    TH1D* hff_sub[4] = {0};
-    TH1D* hff_jet_sub[4] = {0};
-    TH1D* hff_sb_sub[4] = {0};
-    TH1D* hff_jet_sb_sub[4] = {0};
+    TH1D* hff_sub[6] = {0};
+    TH1D* hff_jet_sub[6] = {0};
+    TH1D* hff_sb_sub[6] = {0};
+    TH1D* hff_jet_sb_sub[6] = {0};
 
-    TH1D* hff_signal[4] = {0};
-    TH1D* hff_sideband[4] = {0};
+    TH1D* hff_signal[6] = {0};
+    TH1D* hff_sideband[6] = {0};
 
-    TH1D* hff_final[4] = {0};
+    TH1D* hff_final[6] = {0};
 
     for (int iObs = 0; iObs < nObs; ++iObs) {
 
-        for (int i=0; i<4; ++i) {
+        for (int i=0; i<6; ++i) {
             std::string tag = Form("%s_%s_%i_%i", sample.c_str(), type.c_str(), min_hiBin[i], max_hiBin[i]);
 
             hjetpt[i] = (TH1D*)finput->Get(Form("hjetpt_%s", tag.c_str()));
@@ -305,23 +312,23 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
     }
 
     // photon+jet observables
-    TH1D* hphopt[4] = {0};
-    TH1D* hphopt_sb[4] = {0};
+    TH1D* hphopt[6] = {0};
+    TH1D* hphopt_sb[6] = {0};
 
-    TH1D* hgj[4] = {0};
-    TH1D* hgj_jet[4] = {0};
-    TH1D* hgj_sb[4] = {0};
-    TH1D* hgj_jet_sb[4] = {0};
+    TH1D* hgj[6] = {0};
+    TH1D* hgj_jet[6] = {0};
+    TH1D* hgj_sb[6] = {0};
+    TH1D* hgj_jet_sb[6] = {0};
 
-    TH1D* hgj_sub[4] = {0};
-    TH1D* hgj_jet_sub[4] = {0};
-    TH1D* hgj_sb_sub[4] = {0};
-    TH1D* hgj_jet_sb_sub[4] = {0};
+    TH1D* hgj_sub[6] = {0};
+    TH1D* hgj_jet_sub[6] = {0};
+    TH1D* hgj_sb_sub[6] = {0};
+    TH1D* hgj_jet_sb_sub[6] = {0};
 
-    TH1D* hgj_signal[4] = {0};
-    TH1D* hgj_sideband[4] = {0};
+    TH1D* hgj_signal[6] = {0};
+    TH1D* hgj_sideband[6] = {0};
 
-    TH1D* hgj_final[4] = {0};
+    TH1D* hgj_final[6] = {0};
 
     std::vector<std::string> inputObsgj = {"hjetpt", "hdphijg", "hxjg"};
     std::vector<std::string> outputObsgj = {"hjetpt", "hdphijg", "hxjg"};
@@ -334,7 +341,7 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
     int nObsgj = inputObsgj.size();
 
     for (int iObs = 0; iObs < nObsgj; ++iObs) {
-        for (int i=0; i<4; ++i) {
+        for (int i=0; i<6; ++i) {
             std::string tag = Form("%s_%s_%i_%i", sample.c_str(), type.c_str(), min_hiBin[i], max_hiBin[i]);
 
             hphopt[i] = (TH1D*)finput->Get(Form("hphopt_%s", tag.c_str()));
