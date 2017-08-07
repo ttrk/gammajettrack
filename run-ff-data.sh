@@ -29,6 +29,7 @@ outDir="/export/d00/scratch/"$USER"/GJT-out/results/"
 mkdir -p $outDir
 echo "outDir : $outDir"
 
+systematics=0
 set +x
 
 if [[ $7 == "pbpb" ]]; then
@@ -36,10 +37,12 @@ if [[ $7 == "pbpb" ]]; then
     echo "PBPBSKIM : $PBPBSKIM"
     set -x
     outPrefix=$outDir"data"
-    ./jetff.exe $PBPBSKIM pbpbdata 0 20 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
-    ./jetff.exe $PBPBSKIM pbpbdata 20 60 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
-    ./jetff.exe $PBPBSKIM pbpbdata 60 100 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
-    ./jetff.exe $PBPBSKIM pbpbdata 100 200 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PBPBSKIM pbpbdata 0 20 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PBPBSKIM pbpbdata 20 60 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PBPBSKIM pbpbdata 60 100 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PBPBSKIM pbpbdata 100 200 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PBPBSKIM pbpbdata 0 60 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PBPBSKIM pbpbdata 60 200 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
     wait
 
     hadd -f ${outPrefix}_pbpbdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root ${outPrefix}_pbpbdata_recoreco_${1}_${3}_${5}_${6}_*_*.root
@@ -53,14 +56,18 @@ if [[ $7 == "pp" ]]; then
     echo "PPSKIM : $PPSKIM"
     set -x
     outPrefix=$outDir"data"
-    ./jetff.exe $PPSKIM ppdata 0 20 $1 $2 $3 srecoreco $4 $5 $outPrefix 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 20 60 $1 $2 $3 srecoreco $4 $5 $outPrefix 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 60 100 $1 $2 $3 srecoreco $4 $5 $outPrefix 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 100 200 $1 $2 $3 srecoreco $4 $5 $outPrefix 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 0 20 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 20 60 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 60 100 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
-    ./jetff.exe $PPSKIM ppdata 100 200 $1 $2 $3 recoreco $4 $5 $outPrefix 0 $6 &
+    ./jetff.exe $PPSKIM ppdata 0 20 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdata 20 60 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdata 60 100 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdata 100 200 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdata 0 60 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdata 60 200 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdata 0 20 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdata 20 60 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdata 60 100 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdata 100 200 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdata 0 60 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdata 60 200 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
     wait
 
     hadd -f ${outPrefix}_ppdata_${1}_${3}_gxi${5}_defnFF${6}_srecoreco_ff.root ${outPrefix}_ppdata_srecoreco_${1}_${3}_${5}_${6}_*_*.root
