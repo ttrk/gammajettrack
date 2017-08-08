@@ -104,6 +104,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             float uncTmp = 1;
             if (hist_list[i].find("_0_20") != std::string::npos) uncTmp = 1.034;
             else if (hist_list[i].find("_20_60") != std::string::npos) uncTmp = 1.028;
+            else if (hist_list[i].find("_0_60") != std::string::npos) uncTmp = 1.031;
             else uncTmp = 1.01;
 
             hsys_bkgsub[i]->Scale(uncTmp);
