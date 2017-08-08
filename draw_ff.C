@@ -296,7 +296,7 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
             hff_final[i]->Scale(1.0/purity[i]);
             hff_final[i]->Add(hff_sideband[i], (purity[i] - 1.0)/purity[i]);
 
-            hff_final[i]->Scale(1.0/hff_final[i]->GetBinWidth(1));
+            hff_final[i]->Scale(1.0, "width");
 
             // write the objects explicitly
             hff_sub[i]->Write("",TObject::kOverwrite);
@@ -330,8 +330,8 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
 
     TH1D* hgj_final[6] = {0};
 
-    std::vector<std::string> inputObsgj = {"hjetpt", "hdphijg", "hxjg"};
-    std::vector<std::string> outputObsgj = {"hjetpt", "hdphijg", "hxjg"};
+    std::vector<std::string> inputObsgj = {"hjetpt", "hdphijg", "hxjg", "hjetptrebin"};
+    std::vector<std::string> outputObsgj = {"hjetpt", "hdphijg", "hxjg", "hjetptrebin"};
 
     if (inputObsgj.size() != outputObsgj.size()) {
         std::cout << "mismatching number of input and output gj observables" << std::endl;
