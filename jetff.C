@@ -93,10 +93,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hdphijg[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH1D* hxjg[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
-      hphopt[i] = new TH1D(Form("hphopt%s_%s_%s_%d_%d", pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{#gamma}_{T};", 20, 0, 500);
+      hphopt[i] = new TH1D(Form("hphopt%s_%s_%s_%d_%d", pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{#gamma}_{T};", 20, 0, 600);
 
       for (int j = 0; j < kN_JET_SIGBKG; ++j) {
-          hjetpt[i][j] = new TH1D(Form("hjetpt%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{jet}_{T};", 20, 0, 500);
+          hjetpt[i][j] = new TH1D(Form("hjetpt%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{jet}_{T};", 20, 0, 600);
           hdphijg[i][j] = new TH1D(Form("hdphijg%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#phi_{j#gamma};", 20, 0, TMath::Pi());
           hxjg[i][j] = new TH1D(Form("hxjg%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";x_{j#gamma} = p^{jet}_{T}/p^{#gamma}_{T};", 16, 0, 2);
       }
@@ -271,6 +271,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   float weightLR = TMath::Pi()*0.3*0.3 / ((2.4-1.5)*2*0.3);
   float weightNR = TMath::Pi()*0.3*0.3 / (1*2*0.3);
 
+  float uescale[4] = {0.997, 0.99, 0.96, 0.85};
+
   float tracking_sys = isHI ? 0.05 : 0.04;
   if (systematic == 9) { tracking_sys = 1 + tracking_sys; }
   else if (systematic == 10) { tracking_sys = 1 - tracking_sys; }
@@ -319,7 +321,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
 
     int centBin = getCentralityBin(centmin, centmax);
-    int centBin4JES = getCentralityBin4JES(hiBin);
+    int centBin4 = getCentralityBin4(hiBin);
 
     bool phoSig = (phoSigmaIEtaIEta_2012 < 0.010);
     bool phoBkg = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
@@ -390,13 +392,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         switch (systematic) {
           case 1: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_Q[centBin4JES]->Eval(tmpjetpt); }
+            if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(tmpjetpt); }
             float jes_factor = 1 + TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
           case 2: {
             float flavor_factor = 0;
-            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin4JES]->Eval(tmpjetpt); }
+            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
             float jes_factor = 1 - TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
@@ -461,7 +463,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               }
             }
             if(haslowxi) hasmidxi = false;
-            int icent = getCentralityBin4JES(hiBin);
+            int icent = getCentralityBin4(hiBin);
             if(!isPP && haslowxi && jet_type_is("reco", genlevel)) {
                 jes_factor_ffDep = 1./lowxicorr[icent];
             } else if(!isPP && hasmidxi && jet_type_is("reco", genlevel)) {
@@ -504,7 +506,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg)[ip] == 0) continue;
           }
 
-          float weight_rawJet_rawTrk = weight * (*p_weight)[ip] * tracking_sys * smear_weight;
+          double weight_rawJet_rawTrk = weight * (*p_weight)[ip] * tracking_sys * smear_weight;
 
           float dphi = getDPHI(tmpjetphi, (*p_phi)[ip]);
           float deta = tmpjeteta - (*p_eta)[ip];
@@ -550,10 +552,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                       z = vtrack.P() * fabs(cos(angle)) / refP;
                   }
                   float xi = log(1.0 / z);
-                  if (dphi < 0.3) {
+                  if (fabs(dphi) < 0.3) {
                       hffxiLR[phoBkg][k_rawJet_rawTrk]->Fill(xi, weight_rawJet_rawTrk * weightLR);
                   }
-                  else if (dphi >= 0.3 && dphi < 0.6) {
+                  else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
                       hffxiLRAway[phoBkg][k_rawJet_rawTrk]->Fill(xi, weight_rawJet_rawTrk * weightLR);
                   }
               }
@@ -620,7 +622,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
-          float weight_rawJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue;
+          double weight_rawJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * uescale[centBin4];
 
           float dphi = getDPHI(tmpjetphi, (*p_phi_UE)[ip_UE]);
           float deta = tmpjeteta - tmp_p_eta;
@@ -666,10 +668,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                       z = vtrack.P() * fabs(cos(angle)) / refP;
                   }
                   float xi = log(1.0 / z);
-                  if (dphi < 0.3) {
+                  if (fabs(dphi) < 0.3) {
                       hffxiLR[phoBkg][k_rawJet_ueTrk]->Fill(xi, weight_rawJet_ueTrk * weightLR);
                   }
-                  else if (dphi >= 0.3 && dphi < 0.6) {
+                  else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
                       hffxiLRAway[phoBkg][k_rawJet_ueTrk]->Fill(xi, weight_rawJet_ueTrk * weightLR);
                   }
               }
@@ -739,13 +741,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         switch (systematic) {
           case 1: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_Q[centBin4JES]->Eval(tmpjetpt); }
+            if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(tmpjetpt); }
             float jes_factor = 1 + TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
           case 2: {
             float flavor_factor = 0;
-            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin4JES]->Eval(tmpjetpt); }
+            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
             float jes_factor = 1 - TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
@@ -808,7 +810,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 }
             }
             if(haslowxi) hasmidxi = false;
-            int icent = getCentralityBin4JES(hiBin);
+            int icent = getCentralityBin4(hiBin);
             if(!isPP && haslowxi && jet_type_is("reco", genlevel)) {
                 jes_factor_ffDep = 1./lowxicorr[icent];
             } else if(!isPP && hasmidxi && jet_type_is("reco", genlevel)) {
@@ -848,7 +850,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
-          float weight_bkgJet_rawTrk = weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet;
+          double weight_bkgJet_rawTrk = weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet;
 
           float dphi = getDPHI(tmpjetphi, (*p_phi_mix)[ip_mix]);
           float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
@@ -894,10 +896,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                       z = vtrack.P() * fabs(cos(angle)) / refP;
                   }
                   float xi = log(1.0 / z);
-                  if (dphi < 0.3) {
+                  if (fabs(dphi) < 0.3) {
                       hffxiLR[phoBkg][k_bkgJet_rawTrk]->Fill(xi, weight_bkgJet_rawTrk * weightLR);
                   }
-                  else if (dphi >= 0.3 && dphi < 0.6) {
+                  else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
                       hffxiLRAway[phoBkg][k_bkgJet_rawTrk]->Fill(xi, weight_bkgJet_rawTrk * weightLR);
                   }
               }
@@ -960,7 +962,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
-          float weight_bkgJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue;
+          double weight_bkgJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * uescale[centBin4];
 
           float dphi = getDPHI(tmpjetphi, (*p_phi_UE)[ip_UE]);
           float deta = tmpjeteta - tmp_p_eta;
@@ -1006,10 +1008,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                       z = vtrack.P() * fabs(cos(angle)) / refP;
                   }
                   float xi = log(1.0 / z);
-                  if (dphi < 0.3) {
+                  if (fabs(dphi) < 0.3) {
                       hffxiLR[phoBkg][k_bkgJet_ueTrk]->Fill(xi, weight_bkgJet_ueTrk * weightLR);
                   }
-                  else if (dphi >= 0.3 && dphi < 0.6) {
+                  else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
                       hffxiLRAway[phoBkg][k_bkgJet_ueTrk]->Fill(xi, weight_bkgJet_ueTrk * weightLR);
                   }
               }
@@ -1050,7 +1052,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
           for (int j = 0; j < kN_JET_SIGBKG; ++j) {
               correctBinError(hjetpt[i][j], nsmear);
-              correctBinError(hjetpt[i][j], nsmear);
+              correctBinError(hdphijg[i][j], nsmear);
+              correctBinError(hxjg[i][j], nsmear);
           }
 
           for (int j = 0; j < kN_JET_TRK_SIGBKG; ++j) {

@@ -86,7 +86,7 @@ int getCentralityBin(int centmin, int centmax = 0) {
         return -1;
 }
 
-int getCentralityBin4JES(int hiBin) {
+int getCentralityBin4(int hiBin) {
 
     if (hiBin < 20) return 0;
     else if (hiBin < 60) return 1;

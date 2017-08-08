@@ -207,7 +207,7 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
         }
     }
 
-    float uescale[6] = {0.997, 0.99, 0.96, 0.85, 0.9935, 0.92};
+    //float uescale[4] = {0.997, 0.99, 0.96, 0.85};
     //float uescale[4] = {1,1, 0.97, 0.87};   // alternative UE scale
 
     std::vector<std::string> inputObs = {"hgammaffxi", "hffLR", "hffLRAway", "hdphiProjNR", "hdphiProjLR"};
@@ -278,9 +278,9 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
             hff_sb_sub[i] = (TH1D*)hff_sb[i]->Clone(Form("%s_sb_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
             hff_jet_sb_sub[i] = (TH1D*)hff_jet_sb[i]->Clone(Form("%s_jet_sb_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
 
-            hff_sub[i]->Add(hff_ue[i], -1 * uescale[i]);
+            hff_sub[i]->Add(hff_ue[i], -1);
             hff_jet_sub[i]->Add(hff_jet_ue[i], -1);
-            hff_sb_sub[i]->Add(hff_ue_sb[i], -1 * uescale[i]);
+            hff_sb_sub[i]->Add(hff_ue_sb[i], -1);
             hff_jet_sb_sub[i]->Add(hff_jet_ue_sb[i], -1);
 
             hff_signal[i] = (TH1D*)hff_sub[i]->Clone(Form("%s_signal_%s", outputObs[iObs].c_str(), tag.c_str()));
