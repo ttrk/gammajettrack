@@ -56,6 +56,7 @@ void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, flo
   return;
 }
 
+double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[]);
 double getDPHI(double phi1, double phi2);
 double getShiftedDPHI(double dphi);
 int getTrkPtBin(float trkPt);
@@ -82,6 +83,15 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hcentweight = (TH1D*)fweight->Get("hcent");
 
   bool isMC = (sample.find("mc") != std::string::npos);
+
+  TFile* file_reweightPP = 0;
+  TH1D* hReweightPP[kN_PHO_SIGBKG];
+  bool doReweightPP = (sample.find("pp") != std::string::npos && sample.find("reweight") != std::string::npos);
+  if (doReweightPP) {
+      file_reweightPP = TFile::Open("data_data_60_30_gxi0_defnFF1_ff_spectra_weights.root");
+      hReweightPP[k_sigPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_signal_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
+      hReweightPP[k_bkgPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_sideband_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
+  }
 
   if (fChain == 0) return;
   int64_t nentries = fChain->GetEntriesFast();
@@ -481,18 +491,21 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         // jet pt cut
         if (tmpjetpt < jetptcut) continue;
 
+        double reweightPP = 1;
+        if (doReweightPP) reweightPP *= getReweightPP(tmpjetpt, phoSig, hReweightPP);
+
         double dphijg = acos(cos(tmpjetphi - phoPhi));
         double detajg = tmpjeteta - phoEta;
         if (dphijg*dphijg + detajg*detajg > 0.64) {
-            hdphijg[phoBkg][k_rawJet]->Fill(dphijg, weight * smear_weight);
+            hdphijg[phoBkg][k_rawJet]->Fill(dphijg, weight * smear_weight * reweightPP);
         }
 
         // jet phi cut
         if (dphijg < 7 * pi / 8) continue;
 
-        hjetpt[phoBkg][k_rawJet]->Fill(tmpjetpt, weight * smear_weight);
-        hjetptrebin[phoBkg][k_rawJet]->Fill(tmpjetpt, weight * smear_weight);
-        hxjg[phoBkg][k_rawJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight);
+        hjetpt[phoBkg][k_rawJet]->Fill(tmpjetpt, weight * smear_weight * reweightPP);
+        hjetptrebin[phoBkg][k_rawJet]->Fill(tmpjetpt, weight * smear_weight * reweightPP);
+        hxjg[phoBkg][k_rawJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight * reweightPP);
 
         TLorentzVector vJet;
         vJet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
@@ -513,7 +526,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg)[ip] == 0) continue;
           }
 
-          double weight_rawJet_rawTrk = weight * (*p_weight)[ip] * tracking_sys * smear_weight;
+          double weight_rawJet_rawTrk = weight * (*p_weight)[ip] * tracking_sys * smear_weight * reweightPP;
 
           float dphi = getDPHI(tmpjetphi, (*p_phi)[ip]);
           float deta = tmpjeteta - (*p_eta)[ip];
@@ -629,7 +642,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
-          double weight_rawJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * uescale[centBin4];
+          double weight_rawJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight * reweightPP / nmixedevents_ue * uescale[centBin4];
 
           float dphi = getDPHI(tmpjetphi, (*p_phi_UE)[ip_UE]);
           float deta = tmpjeteta - tmp_p_eta;
@@ -829,18 +842,21 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         // jet pt cut
         if (tmpjetpt < jetptcut) continue;
 
+        double reweightPP = 1;
+        if (doReweightPP) reweightPP *= getReweightPP(tmpjetpt, phoSig, hReweightPP);
+
         double dphijg = acos(cos(tmpjetphi - phoPhi));
         double detajg = tmpjeteta - phoEta;
         if (dphijg*dphijg + detajg*detajg > 0.64) {
-            hdphijg[phoBkg][k_bkgJet]->Fill(dphijg, weight * smear_weight / nmixedevents_jet);
+            hdphijg[phoBkg][k_bkgJet]->Fill(dphijg, weight * smear_weight * reweightPP / nmixedevents_jet);
         }
 
         // jet phi cut
         if (dphijg < 7 * pi / 8) continue;
 
-        hjetpt[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
-        hjetptrebin[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight * smear_weight / nmixedevents_jet);
-        hxjg[phoBkg][k_bkgJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight / nmixedevents_jet);
+        hjetpt[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight * smear_weight * reweightPP / nmixedevents_jet);
+        hjetptrebin[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight * smear_weight * reweightPP / nmixedevents_jet);
+        hxjg[phoBkg][k_bkgJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight * reweightPP / nmixedevents_jet);
 
         TLorentzVector vJet;
         vJet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
@@ -858,7 +874,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
-          double weight_bkgJet_rawTrk = weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet;
+          double weight_bkgJet_rawTrk = weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight * reweightPP / nmixedevents_jet;
 
           float dphi = getDPHI(tmpjetphi, (*p_phi_mix)[ip_mix]);
           float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
@@ -970,7 +986,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
-          double weight_bkgJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * uescale[centBin4];
+          double weight_bkgJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight * reweightPP / nmixedevents_jet_ue * uescale[centBin4];
 
           float dphi = getDPHI(tmpjetphi, (*p_phi_UE)[ip_UE]);
           float deta = tmpjeteta - tmp_p_eta;
@@ -1133,6 +1149,16 @@ int main(int argc, char* argv[]) {
     t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]), argv[8], std::atof(argv[9]), std::atoi(argv[10]), argv[11], std::atoi(argv[12]), std::atoi(argv[13]));
 
   return 0;
+}
+
+double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[])
+{
+    int iHist = isPhoSig ? k_sigPho : k_bkgPho;
+    int iBin = h[iHist]->FindBin(jetpt);
+    if (iBin >= 1 && iBin <= h[iHist]->GetNbinsX())
+        return h[iHist]->GetBinContent(iBin);
+    else
+        return 1;
 }
 
 double getDPHI(double phi1, double phi2)
