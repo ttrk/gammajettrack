@@ -29,7 +29,7 @@ outDir="/export/d00/scratch/"$USER"/GJT-out/results/"
 mkdir -p $outDir
 echo "outDir : $outDir"
 
-systematics=0
+systematics=20
 set +x
 
 if [[ $7 == "pbpb" ]]; then
@@ -62,6 +62,14 @@ if [[ $7 == "pp" ]]; then
     ./jetff.exe $PPSKIM ppdata 100 200 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
     ./jetff.exe $PPSKIM ppdata 0 60 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
     ./jetff.exe $PPSKIM ppdata 60 200 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+
+    ./jetff.exe $PPSKIM ppdatareweight 0 20 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdatareweight 20 60 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdatareweight 60 100 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdatareweight 100 200 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdatareweight 0 60 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+    ./jetff.exe $PPSKIM ppdatareweight 60 200 $1 $2 $3 srecoreco $4 $5 $outPrefix $systematics $6 &
+
     ./jetff.exe $PPSKIM ppdata 0 20 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
     ./jetff.exe $PPSKIM ppdata 20 60 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
     ./jetff.exe $PPSKIM ppdata 60 100 $1 $2 $3 recoreco $4 $5 $outPrefix $systematics $6 &
@@ -71,12 +79,13 @@ if [[ $7 == "pp" ]]; then
     wait
 
     hadd -f ${outPrefix}_ppdata_${1}_${3}_gxi${5}_defnFF${6}_srecoreco_ff.root ${outPrefix}_ppdata_srecoreco_${1}_${3}_${5}_${6}_*_*.root
+    hadd -f ${outPrefix}_ppdatareweight_${1}_${3}_gxi${5}_defnFF${6}_srecoreco_ff.root ${outPrefix}_ppdatareweight_srecoreco_${1}_${3}_${5}_${6}_*_*.root
     hadd -f ${outPrefix}_ppdata_${1}_${3}_gxi${5}_defnFF${6}_recoreco_ff.root ${outPrefix}_ppdata_recoreco_${1}_${3}_${5}_${6}_*_*.root
     rm ${outPrefix}_ppdata_srecoreco_${1}_${3}_${5}_${6}_*_*.root
+    rm ${outPrefix}_ppdatareweight_srecoreco_${1}_${3}_${5}_${6}_*_*.root
     rm ${outPrefix}_ppdata_recoreco_${1}_${3}_${5}_${6}_*_*.root
 
-    ./run-ff-plot.sh $1 $2 $3 $4 $5 $6 ppdata data srecoreco
-    ./run-ff-plot.sh $1 $2 $3 $4 $5 $6 ppdata data recoreco
+    ./run-ff-plot.sh $1 $2 $3 $4 $5 $6 ppdata data 0
 fi
 
 set +x
