@@ -140,7 +140,7 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
         purity_sample = 0;
     else if (sample == "pbpbmc")
         purity_sample = 1;
-    else if (sample == "ppdata")
+    else if (sample == "ppdata" || sample == "ppdatareweight")
         purity_sample = 2;
     else if (sample == "ppmc")
         purity_sample = 3;
