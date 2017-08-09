@@ -88,7 +88,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hReweightPP[kN_PHO_SIGBKG];
   bool doReweightPP = (sample.find("pp") != std::string::npos && sample.find("reweight") != std::string::npos);
   if (doReweightPP) {
-      file_reweightPP = TFile::Open("data_data_60_30_gxi0_defnFF1_ff_spectra_weights.root");
+      file_reweightPP = TFile::Open("data_60_30_gxi0_defnFF1_ff_spectra_weights.root");
       hReweightPP[k_sigPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_signal_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
       hReweightPP[k_bkgPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_sideband_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
   }
