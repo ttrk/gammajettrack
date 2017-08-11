@@ -41,7 +41,7 @@ void float_to_int(float* p1 , int* p2 , int count) {
 
 // Smearing parameters
 // pp resolution
-std::vector<double> CSN_PP = {0.06, 0.91, 0};
+std::vector<double> CSN_PP = {0.06, 0.95, 0};
 std::vector<double> CSN_phi_PP = {7.72 / 100000000, 0.1222, 0.5818};
 
 // HI resolution
