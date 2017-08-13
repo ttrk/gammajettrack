@@ -14,8 +14,8 @@
 
 #include "error_bands.h"
 
-int min_hiBin[4] = {0, 20, 60, 100};
-int max_hiBin[4] = {20, 60, 100, 200};
+int min_hiBin[4] = {100, 60, 20, 0};
+int max_hiBin[4] = {200, 100, 60, 20};
 
 int rows = 1;
 int columns = 4;
