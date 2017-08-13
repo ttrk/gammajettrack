@@ -419,7 +419,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
           case 3: {
-            float jer_factor = 1.15;
+            float jer_factor = 1 + sqrt(0.15*0.15 + 0.07*0.07);
             float initial_res = getResolutionHI(tmpjetpt, centBin);
             tmpjetpt = tmpjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
             break; }
@@ -772,7 +772,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
           case 3: {
-            float jer_factor = 1.15;
+            float jer_factor = 1 + sqrt(0.15*0.15 + 0.07*0.07);
             float initial_res = getResolutionHI(tmpjetpt, centBin);
             tmpjetpt = tmpjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
             break; }
