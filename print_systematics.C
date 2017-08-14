@@ -18,15 +18,15 @@ enum SYSUNC
     kSYS_Tracking,
     kSYS_LongRange,
     kSYS_BkgSub,
-    kN_SYS
+    kN_SYSUNC
 };
 
-std::string sys_labels[kN_SYS] = {
+std::string sys_labels[kN_SYSUNC] = {
      "pes", "iso", "purity_up_plus", "ele_rej",
      "jes_up_plus", "jer", "tracking_up_plus", "longrange", "bkgsub"
 };
 
-std::string sys_titles[kN_SYS] = {
+std::string sys_titles[kN_SYSUNC] = {
     "Photon energy scale     ",
     "Photon isolation        ",
     "Photon purity           ",
@@ -102,7 +102,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     std::cout << "\\hline" << std::endl;
     std::cout << "\\hline" << std::endl;
 
-    for (int iSys=0; iSys<SYSUNC::kN_SYS; ++iSys) {
+    for (int iSys=0; iSys<SYSUNC::kN_SYSUNC; ++iSys) {
 
         std::cout << sys_titles[iSys];
         std::string sys_label = sys_labels[iSys];
