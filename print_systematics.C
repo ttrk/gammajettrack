@@ -7,7 +7,7 @@
 
 #include "systematics.h"
 
-enum SYSVAR
+enum SYSUNC
 {
     kSYS_PES,
     kSYS_PhoIso,
@@ -102,7 +102,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     std::cout << "\\hline" << std::endl;
     std::cout << "\\hline" << std::endl;
 
-    for (int iSys=0; iSys<SYSVAR::kN_SYS; ++iSys) {
+    for (int iSys=0; iSys<SYSUNC::kN_SYS; ++iSys) {
 
         std::cout << sys_titles[iSys];
         std::string sys_label = sys_labels[iSys];
