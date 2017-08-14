@@ -60,9 +60,9 @@ std::vector<std::string> ffreco = {
     "recoreco", "srecoreco", "recoreco", "srecoreco"
 };
 
-int print_systematics(const char* filelist, const char* label = "", int hiBinMin = 0, int hiBinMax = 20);
+int print_systematics(const char* filelist, const char* label = "", int hiBinMin = 0, int hiBinMax = 20, float xiBinMin = 0, float xiBinMax = -1);
 
-int print_systematics(const char* filelist, const char* label, int hiBinMin, int hiBinMax) {
+int print_systematics(const char* filelist, const char* label, int hiBinMin, int hiBinMax, float xiBinMin, float xiBinMax) {
     std::string line;
 
     std::vector<std::string> file_list;
@@ -110,11 +110,18 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
         for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
             std::string hist_name = Form("h%s_final_%s_%s_%d_%d_%s_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax, sys_labels[iSys].c_str());
             h_ratio_abs = (TH1D*)fsys[iCol]->Get(hist_name.c_str());
-            sys_uncs[iCol] = 100 * th1_average_content_FF((TH1F*)h_ratio_abs);
+            int binFirst = 1;
+            int binLast = 0;
+            if (xiBinMin <= xiBinMax) {
+                binFirst = h_ratio_abs->FindBin(xiBinMin);
+                binLast = h_ratio_abs->FindBin(xiBinMax) - 1;
+            }
+            sys_uncs[iCol] = 100 * th1_average_content_FF((TH1F*)h_ratio_abs, binFirst, binLast);
             sys_uncTot[iCol] += sys_uncs[iCol]*sys_uncs[iCol];
             if (sys_uncs[iCol] >= 10)        std::cout << Form("& %.1f\\%%    ", sys_uncs[iCol]);
             else if (sys_uncs[iCol] >= 0.1)  std::cout << Form("& %.1f\\%%     ", sys_uncs[iCol]);
-            //else if (sys_uncs[iCol] == 0)    std::cout << Form("& --\\%%      ");
+            else if (iSys == kSYS_BkgSub && (iCol == k_xijet_pp || iCol == k_xigamma_pp))
+                std::cout << Form("& $--$      ");
             else                             std::cout <<      "& $<$0.1\\%    ";
         }
         std::cout << " \\\\" << std::endl;
@@ -143,7 +150,9 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
 }
 
 int main(int argc, char* argv[]) {
-    if (argc == 5)
+    if (argc == 7)
+            return print_systematics(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), atof(argv[5]), atof(argv[6]));
+    else if (argc == 5)
         return print_systematics(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]));
     else if (argc == 3)
         return print_systematics(argv[1], argv[2]);
