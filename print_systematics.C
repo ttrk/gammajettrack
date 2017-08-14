@@ -9,15 +9,15 @@
 
 enum SYSUNC
 {
-    kSYS_PES,
-    kSYS_PhoIso,
-    kSYS_PhoPurity,
-    kSYS_EleRej,
-    kSYS_JES,
-    kSYS_JER,
-    kSYS_Tracking,
-    kSYS_LongRange,
-    kSYS_BkgSub,
+    k_PES,
+    k_PhoIso,
+    k_PhoPurity,
+    k_EleRej,
+    k_JES,
+    k_JER,
+    k_Tracking,
+    k_LongRange,
+    k_BkgSub,
     kN_SYSUNC
 };
 
@@ -120,7 +120,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             sys_uncTot[iCol] += sys_uncs[iCol]*sys_uncs[iCol];
             if (sys_uncs[iCol] >= 10)        std::cout << Form("& %.1f\\%%    ", sys_uncs[iCol]);
             else if (sys_uncs[iCol] >= 0.1)  std::cout << Form("& %.1f\\%%     ", sys_uncs[iCol]);
-            else if (iSys == kSYS_BkgSub && (iCol == k_xijet_pp || iCol == k_xigamma_pp))
+            else if (iSys == k_BkgSub && (iCol == k_xijet_pp || iCol == k_xigamma_pp))
                 std::cout << Form("& $--$      ");
             else                             std::cout <<      "& $<$0.1\\%    ";
         }
