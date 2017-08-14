@@ -405,13 +405,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         switch (systematic) {
           case 1: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(tmpjetpt); }
+            if (!isPP && phoEtCorrected < 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
             float jes_factor = 1 + TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
           case 2: {
             float flavor_factor = 0;
-            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
+            if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(tmpjetpt); }
             float jes_factor = 1 - TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
@@ -758,13 +758,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         switch (systematic) {
           case 1: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(tmpjetpt); }
+            if (!isPP && phoEtCorrected < 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
             float jes_factor = 1 + TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
           case 2: {
             float flavor_factor = 0;
-            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
+            if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(tmpjetpt); }
             float jes_factor = 1 - TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
             tmpjetpt = tmpjetpt * jes_factor;
             break; }
