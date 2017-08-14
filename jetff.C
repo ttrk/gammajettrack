@@ -38,7 +38,7 @@ enum JET_SIGBKG{
 
 std::string jet_sigbkg_labels[kN_JET_SIGBKG] = {"", "jetmix"};
 
-int sysLR = 20;
+int sysLR = 13;
 int sysBkgEtagt0p3 = 21;
 int sysBkgEtaReflection = 22;
 int sysDphiProjection = 30;
@@ -72,6 +72,7 @@ void correctBinError(TH2D* h, int nSmear);
 // 6: ELE_REJ
 // 9: TRK_UP
 // 10: TRK_DOWN
+// 13: LONGRANGE
 
 void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int defnFF) {
 

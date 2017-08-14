@@ -29,7 +29,7 @@ outDir="/export/d00/scratch/"$USER"/GJT-out/results/"
 mkdir -p $outDir
 echo "outDir : $outDir"
 
-systematics=20
+systematics=13
 set +x
 
 if [[ $7 == "pbpb" ]]; then
