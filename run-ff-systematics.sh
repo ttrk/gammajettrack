@@ -50,7 +50,7 @@ echo "directory for sys variations  : $sysDir"
 nomPrefix=$nomDir"data"
 sysPrefix=$sysDir
 
-SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down longrange)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange)
 
 echo "compiling macros..."
 g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff.exe || exit 1
@@ -62,7 +62,12 @@ g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o c
 
 set -x
 
-for SYS in 1 2 3 4 6 9 10
+sysIndices="1 2 3 4 6 9 10"
+if [ $6 = "pbpbdata" ] || [ $6 = "pbpbmc" ]; then
+  sysIndices="1 2 3 4 6 9 10 11 12"
+fi
+
+for SYS in ${sysIndices}
 do
     ./jetff.exe $SKIM $6 0 20 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
     ./jetff.exe $SKIM $6 20 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
@@ -109,7 +114,7 @@ hadd -f ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.roo
 ./calc_iso_systematics.exe ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root $7 $MCSAMPLE $6 $TYPE $1 $3 $5
 mv iso_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root $sysDir
 
-for SYS in 1 2 3 4 6 9 10
+for SYS in ${sysIndices}
 do
     hadd -f ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
     rm ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
