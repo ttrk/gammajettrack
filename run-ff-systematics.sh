@@ -21,8 +21,18 @@ if [ $6 = "pbpbdata" ]; then
     TYPE="recoreco"
     MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170712.root"
     MCSAMPLE="pbpbmc"
+elif [ $6 = "pbpbmc" ]; then
+    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170712.root"
+    TYPE="recoreco"
+    MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170712.root"
+    MCSAMPLE="pbpbmc"
 elif [ $6 = "ppdata" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/pp-Data-skim-170712.root"
+    TYPE="srecoreco"
+    MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170712.root"
+    MCSAMPLE="ppmc"
+elif [ $6 = "ppmc" ]; then
+    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170712.root"
     TYPE="srecoreco"
     MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170712.root"
     MCSAMPLE="ppmc"
@@ -63,8 +73,13 @@ do
 done
 wait
 
-./draw_ff.exe $6 ${nomPrefix}_data_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}purity_up_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 2 $TYPE
-./draw_ff.exe $6 ${nomPrefix}_data_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}purity_down_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} -2 $TYPE
+if [ $6 = "pbpbdata" ] || [ $6 = "ppdata" ]; then
+  ./draw_ff.exe $6 ${nomPrefix}_data_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}purity_up_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 2 $TYPE
+  ./draw_ff.exe $6 ${nomPrefix}_data_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}purity_down_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} -2 $TYPE
+elif [ $6 = "pbpbmc" ] || [ $6 = "ppmc" ]; then
+  ./draw_ff.exe $6 ${nomDir}"closure/ffclosure_"${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}purity_up_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 2 $TYPE
+  ./draw_ff.exe $6 ${nomDir}"closure/ffclosure_"${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}purity_down_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} -2 $TYPE
+fi
 
 # isolation systematics
 ./jetff.exe $MCSKIM $MCSAMPLE 0 20 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
