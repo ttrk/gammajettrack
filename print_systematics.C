@@ -92,7 +92,8 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     else
         reco = ffreco;
 
-    TH1D* h_ratio_abs = 0;
+    TH1F* h_ratio_abs = 0;
+    TH1F* hTmp = 0;
     std::vector<double> sys_uncTot = {0, 0, 0, 0};
     // print systematics in Latex format
     std::cout << "\\begin{tabular}{lcccc}" << std::endl;
@@ -105,11 +106,17 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     for (int iSys=0; iSys<SYSUNC::kN_SYSUNC; ++iSys) {
 
         std::cout << sys_titles[iSys];
-        std::string sys_label = sys_labels[iSys];
         std::vector<float> sys_uncs(4);
         for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
             std::string hist_name = Form("h%s_final_%s_%s_%d_%d_%s_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax, sys_labels[iSys].c_str());
-            h_ratio_abs = (TH1D*)fsys[iCol]->Get(hist_name.c_str());
+            h_ratio_abs = (TH1F*)fsys[iCol]->Get(hist_name.c_str());
+            if (iSys == k_JES) {
+                th1_sqrt_sum_squares(h_ratio_abs, h_ratio_abs); // 0.02^2 + 0.02^2
+
+                std::string hist_name_Tmp = Form("h%s_final_%s_%s_%d_%d_jes_qg_down_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+                hTmp = (TH1F*)fsys[iCol]->Get(hist_name_Tmp.c_str());
+                th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale
+            }
             int binFirst = 1;
             int binLast = 0;
             if (xiBinMin <= xiBinMax) {
