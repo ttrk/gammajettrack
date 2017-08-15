@@ -13,26 +13,46 @@
 #include "systematics.h"
 #include "error_bands.h"
 
-#define NSYS 11
-
-std::string sys_types[NSYS] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "longrange"
+enum SYSVAR
+{
+    k_jes_up,
+    k_jes_down,
+    k_jer,
+    k_pes,
+    k_iso,
+    k_ele_rej,
+    k_purity_up,
+    k_purity_down,
+    k_tracking_up,
+    k_tracking_down,
+    //k_jes_qg_up,
+    k_jes_qg_down,
+    k_longrange,
+    kN_SYSVAR
 };
 
-std::string fit_funcs[NSYS] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
+std::string sys_types[kN_SYSVAR] = {
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_qg_down", "longrange"
 };
 
-int options[NSYS] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0
+std::string fit_funcs[kN_SYSVAR] = {
+    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
 };
 
-int special[NSYS] = {
-    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0
+int options[kN_SYSVAR] = {
+    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0
 };
 
-std::string sys_labels[NSYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "long-range correlations"
+int special[kN_SYSVAR] = {
+    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0
+};
+
+int add2Total[kN_SYSVAR] = {
+    0, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1
+};
+
+std::string sys_labels[kN_SYSVAR] = {
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long-range correlations"
 };
 
 int calc_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label) {
@@ -49,6 +69,9 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
     std::size_t nhists = hist_list.size();
     if (!nhists) {printf("0 total hists!\n"); return 1;}
+
+    bool isPP    = (hist_list[0].find("ppdata") != std::string::npos || hist_list[0].find("ppmc") != std::string::npos);
+    bool isxijet = (std::string(nominal_file).find("gxi0") != std::string::npos);
 
     std::vector<std::string> file_list;
     std::ifstream file_stream(filelist);
@@ -78,6 +101,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         total_sys_vars[i] = new total_sys_var_t(hist_list[i], hnominals[i]);
 
         for (std::size_t j=0; j<nfiles; ++j) {
+
             sys_vars[i][j] = new sys_var_t(hist_list[i], sys_types[j], hnominals[i], (TH1F*)fsys[j]->Get(hist_list[i].c_str()));
             sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2");
             sys_vars[i][j]->write();
@@ -96,11 +120,13 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                     break;
             }
 
-            total_sys_vars[i]->add_sys_var(sys_vars[i][j], options[j]);
+            for (int k = 0; k < add2Total[j]; ++k) {
+                total_sys_vars[i]->add_sys_var(sys_vars[i][j], options[j]);
+            }
         }
         // add systematics for bkg subtraction
         hsys_bkgsub[i] = (TH1F*)hnominals[i]->Clone(Form("%s_bkgsub", hnominals[i]->GetName()));
-        if (hist_list[i].find("pbpbdata") != std::string::npos) {
+        if (!isPP) {
             float uncTmp = 1;
             if (hist_list[i].find("_0_20") != std::string::npos) uncTmp = 1.034;
             else if (hist_list[i].find("_20_60") != std::string::npos) uncTmp = 1.028;
@@ -116,9 +142,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
         // add systematics for non-closure in xi_jet < 1
         hsys_xi_nonclosure[i] = (TH1F*)hnominals[i]->Clone(Form("%s_xi_nonclosure", hnominals[i]->GetName()));
-        if (std::string(nominal_file).find("gxi0") != std::string::npos &&
-            hist_list[i].find("pbpbdata") != std::string::npos) {
-
+        if (!isPP && isxijet) {
             int iBin = hsys_xi_nonclosure[i]->FindBin(0.5);
             hsys_xi_nonclosure[i]->SetBinContent(iBin, hsys_xi_nonclosure[i]->GetBinContent(iBin)*0.83);
         }

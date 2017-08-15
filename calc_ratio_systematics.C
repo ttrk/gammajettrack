@@ -13,26 +13,48 @@
 #include "systematics.h"
 #include "error_bands.h"
 
-#define NSYS 13
-
-std::vector<std::string> sys_types = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "longrange", "xi_nonclosure", "bkgsub"
+enum SYS
+{
+    k_jes_up,
+    k_jes_down,
+    k_jer,
+    k_pes,
+    k_iso,
+    k_ele_rej,
+    k_purity_up,
+    k_purity_down,
+    k_tracking_up,
+    k_tracking_down,
+    //k_jes_qg_up,
+    k_jes_qg_down,
+    k_longrange,
+    k_xi_nonclosure,
+    k_bkgsub,
+    kN_SYS
 };
 
-std::string fit_funcs[NSYS] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
+std::string sys_types[kN_SYS] = {
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_qg_down", "longrange", "xi_nonclosure", "bkgsub"
 };
 
-int options[NSYS] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0
+std::string fit_funcs[kN_SYS] = {
+    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
 };
 
-int special[NSYS] = {
-    0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0
+int options[kN_SYS] = {
+    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0
 };
 
-std::string sys_observables[NSYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "long range", "xi nonclosure", "bkg subtraction"
+int special[kN_SYS] = {
+    0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0
+};
+
+int add2Total[kN_SYS] = {
+    0, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1
+};
+
+std::string sys_observables[kN_SYS] = {
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long range", "xi nonclosure", "bkg subtraction"
 };
 
 int calc_ratio_systematics(const char* observable, const char* filelist, const char* histlist, const char* label) {
@@ -63,15 +85,13 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
     for (std::size_t i=0; i<nfiles; ++i)
         fsys[i] = new TFile(file_list[i].c_str(), "read");
 
-    std::size_t nsys = sys_types.size();
-
     TH1F* hpbpb[nhists] = {0};
     TH1F* hpp[nhists] = {0};
     TH1F* hnominals[nhists] = {0};
 
-    TH1F* hpbpb_sys[nhists][nsys] = {0};
-    TH1F* hpp_sys[nhists][nsys] = {0};
-    TH1F* hratio_sys[nhists][nsys] = {0};
+    TH1F* hpbpb_sys[nhists][kN_SYS] = {0};
+    TH1F* hpp_sys[nhists][kN_SYS] = {0};
+    TH1F* hratio_sys[nhists][kN_SYS] = {0};
 
     for (std::size_t i=0; i<nhists; ++i) {
 
@@ -80,7 +100,7 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
         hnominals[i] = (TH1F*)hpbpb[i]->Clone(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()));
         hnominals[i]->Divide(hpp[i]);
 
-        for (std::size_t j=0; j<nsys; ++j) {
+        for (std::size_t j=0; j<kN_SYS; ++j) {
 
             hpbpb_sys[i][j] = (TH1F*)fsys[0]->Get(Form("h%s_final_pbpbdata_recoreco_%s_%s_variation", observable, hist_list[i].c_str(), sys_types[j].c_str()));
             hpp_sys[i][j] = (TH1F*)fsys[1]->Get(Form("h%s_final_ppdata_srecoreco_%s_%s_variation", observable, hist_list[i].c_str(), sys_types[j].c_str()));
@@ -92,11 +112,11 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
     TFile* fout = new TFile(Form("%s-systematics.root", label), "update");
 
     total_sys_var_t* total_sys_vars[nhists] = {0};
-    sys_var_t* sys_vars[nhists][nsys] = {0};
+    sys_var_t* sys_vars[nhists][kN_SYS] = {0};
     for (std::size_t i=0; i<nhists; ++i) {
         total_sys_vars[i] = new total_sys_var_t(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()), hnominals[i]);
 
-        for (std::size_t j=0; j<nsys; ++j) {
+        for (std::size_t j=0; j<kN_SYS; ++j) {
             sys_vars[i][j] = new sys_var_t(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()), sys_types[j], hnominals[i], hratio_sys[i][j]);
             sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2");
             sys_vars[i][j]->write();
@@ -108,7 +128,9 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
                 sys_vars[i][j]->write();
             }
 
-            total_sys_vars[i]->add_sys_var(sys_vars[i][j], options[j]);
+            for (int k = 0; k < add2Total[j]; ++k) {
+                total_sys_vars[i]->add_sys_var(sys_vars[i][j], options[j]);
+            }
         }
         total_sys_vars[i]->write();
     }
@@ -122,7 +144,7 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
 
         int p = 1;
         c1[i]->Divide(3, 3);
-        for (std::size_t j=0; j<nsys; ++j) {
+        for (std::size_t j=0; j<kN_SYS; ++j) {
             c1[i]->cd(p);
             if (options[j] != 4) {
                 sys_vars[i][j]->get_diff_abs()->SetStats(0);
