@@ -140,11 +140,87 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         sysVar_bkgsub->write();
         total_sys_vars[i]->add_sys_var(sysVar_bkgsub, 0);
 
-        // add systematics for non-closure in xi_jet < 1
+        // add systematics for non-closure in xi_jet < 1 and for some of the high xi_jet bins
         hsys_xi_nonclosure[i] = (TH1F*)hnominals[i]->Clone(Form("%s_xi_nonclosure", hnominals[i]->GetName()));
         if (!isPP && isxijet) {
-            int iBin = hsys_xi_nonclosure[i]->FindBin(0.5);
-            hsys_xi_nonclosure[i]->SetBinContent(iBin, hsys_xi_nonclosure[i]->GetBinContent(iBin)*0.83);
+            int lowxiBin = hsys_xi_nonclosure[i]->FindBin(0.5);
+            hsys_xi_nonclosure[i]->SetBinContent(lowxiBin, hsys_xi_nonclosure[i]->GetBinContent(lowxiBin)*1.17);
+
+            if (hist_list[i].find("_0_20") != std::string::npos) {
+                TF1 f1("f1Tmp", "0.9912+0.03016*x", 0, 4.5);
+                std::vector<double> highXis = {2.75, 3.25, 3.75, 4.25};
+                for (int iTmp = 0; iTmp < (int)highXis.size(); ++iTmp) {
+                    int highxiBin = hsys_xi_nonclosure[i]->FindBin(highXis[iTmp]);
+                    hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*f1.Eval(highXis[iTmp]));
+                }
+            }
+            else if (hist_list[i].find("_20_60") != std::string::npos) {
+                TF1 f1("f1Tmp", "0.8785+0.05606*x", 0, 4.5);
+                std::vector<double> highXis = {3.25, 3.75, 4.25};
+                for (int iTmp = 0; iTmp < (int)highXis.size(); ++iTmp) {
+                    int highxiBin = hsys_xi_nonclosure[i]->FindBin(highXis[iTmp]);
+                    hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*f1.Eval(highXis[iTmp]));
+                }
+            }
+            else if (hist_list[i].find("_0_60") != std::string::npos) {
+                // weight_0_20 = 4, weight_20_60 = 3
+                TF1 f1("f1Tmp", "0.9429+0.04126*x", 0, 4.5);
+                std::vector<double> highXis = {2.75, 3.25, 3.75, 4.25};
+                for (int iTmp = 0; iTmp < (int)highXis.size(); ++iTmp) {
+                    int highxiBin = hsys_xi_nonclosure[i]->FindBin(highXis[iTmp]);
+                    hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*f1.Eval(highXis[iTmp]));
+                }
+            }
+            else if (hist_list[i].find("_60_100") != std::string::npos) {
+                int highxiBin = hsys_xi_nonclosure[i]->FindBin(4.0);
+                hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*1.17);
+            }
+            else if (hist_list[i].find("_100_200") != std::string::npos) {
+                int highxiBin = hsys_xi_nonclosure[i]->FindBin(4.0);
+                hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*1.06);
+            }
+            else if (hist_list[i].find("_60_200") != std::string::npos) {
+                // weight_60_100 = 4, weight_100_200 = 1
+                int highxiBin = hsys_xi_nonclosure[i]->FindBin(4.0);
+                hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*1.15);
+            }
+        }
+        if (!isPP && !isxijet) {
+
+            if (hist_list[i].find("_0_20") != std::string::npos) {
+                TF1 f1("f1Tmp", "0.7791+0.09539*x", 0, 4.5);
+                std::vector<double> highXis = {2.75, 3.25, 3.75, 4.25};
+                for (int iTmp = 0; iTmp < (int)highXis.size(); ++iTmp) {
+                    int highxiBin = hsys_xi_nonclosure[i]->FindBin(highXis[iTmp]);
+                    hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*f1.Eval(highXis[iTmp]));
+                }
+            }
+            else if (hist_list[i].find("_20_60") != std::string::npos) {
+                TF1 f1("f1Tmp", "0.6855+0.1024*x", 0, 4.5);
+                std::vector<double> highXis = {3.25, 3.75, 4.25};
+                for (int iTmp = 0; iTmp < (int)highXis.size(); ++iTmp) {
+                    int highxiBin = hsys_xi_nonclosure[i]->FindBin(highXis[iTmp]);
+                    hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*f1.Eval(highXis[iTmp]));
+                }
+            }
+            else if (hist_list[i].find("_0_60") != std::string::npos) {
+                // weight_0_20 = 4, weight_20_60 = 3
+                TF1 f1("f1Tmp", "0.7390+0.09839*x", 0, 4.5);
+                std::vector<double> highXis = {2.75, 3.25, 3.75, 4.25};
+                for (int iTmp = 0; iTmp < (int)highXis.size(); ++iTmp) {
+                    int highxiBin = hsys_xi_nonclosure[i]->FindBin(highXis[iTmp]);
+                    hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*f1.Eval(highXis[iTmp]));
+                }
+            }
+            else if (hist_list[i].find("_60_100") != std::string::npos) {
+                int highxiBin = hsys_xi_nonclosure[i]->FindBin(4.0);
+                hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*1.09);
+            }
+            else if (hist_list[i].find("_60_200") != std::string::npos) {
+                // weight_60_100 = 4, weight_100_200 = 1
+                int highxiBin = hsys_xi_nonclosure[i]->FindBin(4.0);
+                hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*1.07);
+            }
         }
         sys_var_t* sysVar_xi = new sys_var_t(hist_list[i], "xi_nonclosure", hnominals[i], hsys_xi_nonclosure[i]);
         sysVar_xi->fit_sys("pol2", "pol2");
