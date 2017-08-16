@@ -8,7 +8,8 @@
 #include "photonjettrack.h"
 
 int _NSMEAR = 15;
-int _NSMEAR_JER = 64;
+int _NSMEAR_JER = 36;
+int _NSMEAR_JER_PbPb = 64;
 
 TRandom3 smear_rand(12345);
 
@@ -401,7 +402,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
       }
 
-      if (systematic == 3) nsmear *= _NSMEAR_JER;
+      if (systematic == 3) {
+          if (isPP) nsmear *= _NSMEAR_JER;
+          else      nsmear *= _NSMEAR_JER_PbPb;
+      }
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
@@ -759,7 +763,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         nsmear = _NSMEAR;
       }
 
-      if (systematic == 3) nsmear *= _NSMEAR_JER;
+      if (systematic == 3) {
+          if (isPP) nsmear *= _NSMEAR_JER;
+          else      nsmear *= _NSMEAR_JER_PbPb;
+      }
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
