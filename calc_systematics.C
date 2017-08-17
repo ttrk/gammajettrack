@@ -143,8 +143,10 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         // add systematics for non-closure in xi_jet < 1 and for some of the high xi_jet bins
         hsys_xi_nonclosure[i] = (TH1F*)hnominals[i]->Clone(Form("%s_xi_nonclosure", hnominals[i]->GetName()));
         if (!isPP) {
-            int lowxiBin = hsys_xi_nonclosure[i]->FindBin(0.5);
-            hsys_xi_nonclosure[i]->SetBinContent(lowxiBin, hsys_xi_nonclosure[i]->GetBinContent(lowxiBin)*1.17);
+            if (isxijet) {
+                int lowxiBin = hsys_xi_nonclosure[i]->FindBin(0.5);
+                hsys_xi_nonclosure[i]->SetBinContent(lowxiBin, hsys_xi_nonclosure[i]->GetBinContent(lowxiBin)*1.17);
+            }
 
             double const_nonClosure = 0;
             if (isxijet) {
