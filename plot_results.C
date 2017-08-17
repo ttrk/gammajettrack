@@ -52,6 +52,11 @@ enum MODES {
     kN_modes
 };
 int mode = -1;
+bool is_sysvar = false;
+bool is_ppmc = false;
+bool is_pbpbmc = false;
+bool is_ppdata = false;
+bool is_pbpbdata = false;
 
 int fillColors[2] = {38, 46};
 float fillAlpha = 0.7;
@@ -68,11 +73,6 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     if (hist_names.size() % 5 != 0) return 1;
 
     // set the plotting mode based on histogram names
-    bool is_sysvar = false;
-    bool is_ppmc = false;
-    bool is_pbpbmc = false;
-    bool is_ppdata = false;
-    bool is_pbpbdata = false;
     std::string mcSampleStr = "";
     for (int i = 1; i < (int)hist_names.size(); i+=5) {
         is_sysvar = is_sysvar || (hist_names[i].find("variation") != std::string::npos);
@@ -464,19 +464,19 @@ void set_hist_style(TH1D* h1, int k) {
         case 2:
             h1->SetLineColor(8);
             h1->SetMarkerSize(0.64);
-            h1->SetMarkerStyle(21);
+            h1->SetMarkerStyle(kFullTriangleDown);
             h1->SetMarkerColor(8);
             break;
         case 3:
             h1->SetLineColor(4);
             h1->SetMarkerSize(0.64);
-            h1->SetMarkerStyle(22);
+            h1->SetMarkerStyle(kFullTriangleUp);
             h1->SetMarkerColor(4);
             break;
         case 4:
             h1->SetLineColor(kOrange-3);
             h1->SetMarkerSize(0.64);
-            h1->SetMarkerStyle(23);
+            h1->SetMarkerStyle(kFullSquare);
             h1->SetMarkerColor(kOrange-3);
             break;
         case 5:
@@ -509,11 +509,17 @@ void set_hist_style(TH1D* h1, int k) {
             h1->SetMarkerStyle(kOpenCross);
             h1->SetMarkerColor(kYellow+3);
             break;
-        default:
+        case 10:
             h1->SetLineColor(kCyan);
             h1->SetMarkerSize(0.64);
-            h1->SetMarkerStyle(kFullSquare);
+            h1->SetMarkerStyle(kFullDiamond);
             h1->SetMarkerColor(kCyan);
+            break;
+        default:
+            h1->SetLineColor(kBlue-7);
+            h1->SetMarkerSize(0.64);
+            h1->SetMarkerStyle(kOpenDiamond);
+            h1->SetMarkerColor(kBlue-7);
             break;
     }
 
@@ -603,7 +609,7 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
                 if (mode == k_data_pp_pbpb)      h1->SetYTitle("PbPb/pp");
                 else if (mode == k_data_sysvar || mode == k_data_sysall
                                                || mode == k_data_sysalltot)  h1->SetYTitle("var / nominal");
-                else if (mode == k_data_sysalltotpercnt)  h1->SetYTitle("Systematic in %");
+                else if (mode == k_data_sysalltotpercnt)  h1->SetYTitle("Systematics in %");
                 else if (mode == k_mc_reco_gen)  h1->SetYTitle("reco / gen");
             }
             else {
@@ -617,7 +623,7 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
                 if (mode == k_data_pp_pbpb)      h1->SetYTitle("PbPb/pp");
                 else if (mode == k_data_sysvar || mode == k_data_sysall
                                                || mode == k_data_sysalltot)  h1->SetYTitle("var / nominal");
-                else if (mode == k_data_sysalltotpercnt)  h1->SetYTitle("Systematic in %");
+                else if (mode == k_data_sysalltotpercnt)  h1->SetYTitle("Systematics in %");
                 else if (mode == k_mc_reco_gen)  h1->SetYTitle("reco/gen");
             }
             else {
@@ -645,7 +651,10 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
-                else if (mode == k_data_sysalltotpercnt)  h1->SetAxisRange(0, 0.3, "Y");
+                else if (mode == k_data_sysalltotpercnt)  {
+                    h1->SetAxisRange(0, 0.3, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 0.14, "Y");
+                }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
             else         h1->SetAxisRange(0.05, 50, "Y");
@@ -657,7 +666,10 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
-                else if (mode == k_data_sysalltotpercnt)  h1->SetAxisRange(0, 0.3, "Y");
+                else if (mode == k_data_sysalltotpercnt)  {
+                    h1->SetAxisRange(0, 0.3, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 0.14, "Y");
+                }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
             else         h1->SetAxisRange(0.05, 50, "Y");
@@ -668,7 +680,10 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
-                else if (mode == k_data_sysalltotpercnt)  h1->SetAxisRange(0, 0.3, "Y");
+                else if (mode == k_data_sysalltotpercnt)  {
+                    h1->SetAxisRange(0, 0.3, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 0.14, "Y");
+                }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
             else         h1->SetAxisRange(0, 4, "Y");
@@ -683,13 +698,16 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
-                else if (mode == k_data_sysalltotpercnt)  h1->SetAxisRange(0, 0.3, "Y");
+                else if (mode == k_data_sysalltotpercnt)  {
+                    h1->SetAxisRange(0, 0.3, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 0.14, "Y");
+                }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
             else  {
-                if (mode == k_data_sysall)  h1->SetAxisRange(0, 5.4, "Y");
-                else if (mode == k_data_sysalltot)  h1->SetAxisRange(0, 5.4, "Y");
-                else if (mode == k_data_sysalltotpercnt)  h1->SetAxisRange(0, 5.4, "Y");
+                if (mode == k_data_sysall)  h1->SetAxisRange(0, 6, "Y");
+                else if (mode == k_data_sysalltot)  h1->SetAxisRange(0, 6, "Y");
+                else if (mode == k_data_sysalltotpercnt)  h1->SetAxisRange(0, 6, "Y");
                 else h1->SetAxisRange(0, 4, "Y");
             }
             break;
