@@ -18,12 +18,13 @@ enum SYSUNC
     k_Tracking,
     k_LongRange,
     k_BkgSub,
+    k_xi_nonclosure,
     kN_SYSUNC
 };
 
 std::string sys_labels[kN_SYSUNC] = {
      "pes", "iso", "purity_up_plus", "ele_rej",
-     "jes_up_plus", "jer", "tracking_up_plus", "longrange", "bkgsub"
+     "jes_up_plus", "jer", "tracking_up_plus", "longrange", "bkgsub", "xi_nonclosure"
 };
 
 std::string sys_titles[kN_SYSUNC] = {
@@ -35,7 +36,8 @@ std::string sys_titles[kN_SYSUNC] = {
     "Jet energy resolution   ",
     "Tracking efficiency     ",
     "Long range contribution ",
-    "Background subtraction  "
+    "Background subtraction  ",
+    "Non-closure in $\\xi$    ",
 };
 
 std::string sys_title_tot = "Total                  ";
@@ -127,7 +129,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             sys_uncTot[iCol] += sys_uncs[iCol]*sys_uncs[iCol];
             if (sys_uncs[iCol] >= 10)        std::cout << Form("& %.1f\\%%    ", sys_uncs[iCol]);
             else if (sys_uncs[iCol] >= 0.1)  std::cout << Form("& %.1f\\%%     ", sys_uncs[iCol]);
-            else if (iSys == k_BkgSub && (iCol == k_xijet_pp || iCol == k_xigamma_pp))
+            else if ((iSys == k_BkgSub || iSys == k_xi_nonclosure) && (iCol == k_xijet_pp || iCol == k_xigamma_pp))
                 std::cout << Form("& $--$      ");
             else                             std::cout <<      "& $<$0.1\\%    ";
         }
