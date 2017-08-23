@@ -330,8 +330,8 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
 
     TH1D* hgj_final[6] = {0};
 
-    std::vector<std::string> inputObsgj = {"hjetpt", "hdphijg", "hxjg", "hjetptrebin"};
-    std::vector<std::string> outputObsgj = {"hjetpt", "hdphijg", "hxjg", "hjetptrebin"};
+    std::vector<std::string> inputObsgj = {"hjetpt", "hdphijg", "hxjg", "hjetptrebin", "hjeteta"};
+    std::vector<std::string> outputObsgj = {"hjetpt", "hdphijg", "hxjg", "hjetptrebin", "hjeteta"};
 
     if (inputObsgj.size() != outputObsgj.size()) {
         std::cout << "mismatching number of input and output gj observables" << std::endl;
