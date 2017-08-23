@@ -225,6 +225,8 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     jetResidualFunction[0] = new TF1("f1_p", "(1+.5/x)", 5, 300);
   }
 
+  float jec_fix = isHI ? 0.98 : 0.99;
+
   TrkCorr* trkCorr;
   if (isHI)
 #ifdef UIC_TRK_CORR
@@ -266,16 +268,16 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     int centBin = 0;
     if (isHI) {
       int centBins[5] = {20, 60, 100, 140, 200};
-      for (; hiBin > centBins[centBin]; ++centBin);
+      for (; hiBin >= centBins[centBin]; ++centBin);
     }
 
     int maxPhoIndex = -1;
     float maxPhoEt = -1;
     for (int ipho = 0; ipho < pt.nPho; ++ipho) {
-      if (pt.phoEt->at(ipho) < 35) continue;
+      if (pt.phoEt->at(ipho) < 50) continue;
       if (fabs(pt.phoEta->at(ipho)) > 1.44) continue;
 
-      if (pt.phoSigmaIEtaIEta->at(ipho) < 0.002) continue;
+      if (pt.phoSigmaIEtaIEta_2012->at(ipho) < 0.002) continue;
       if (fabs(pt.pho_seedTime->at(ipho)) > 3.0) continue;
       if (pt.pho_swissCrx->at(ipho) > 0.9) continue;
 
@@ -310,9 +312,9 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     for (int iele = 0; iele < pt.nEle; ++iele) {
       if ((*pt.elePt)[iele] < 10)
         continue;
-      if (abs((*pt.eleEta)[iele] - (*pt.phoEta)[maxPhoIndex]) > 0.03) // deta
+      if (fabs((*pt.eleEta)[iele] - (*pt.phoEta)[maxPhoIndex]) > 0.03) // deta
         continue;
-      if (abs(acos(cos((*pt.elePhi)[iele] - (*pt.phoPhi)[maxPhoIndex]))) > 0.03) // dphi
+      if (fabs(acos(cos((*pt.elePhi)[iele] - (*pt.phoPhi)[maxPhoIndex]))) > 0.03) // dphi
         continue;
       if (eleEpTemp < (*pt.eleEoverP)[iele])
         continue;
@@ -403,6 +405,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
       jetResidualFunction[centBin]->GetRange(xmin, xmax);
       if (jetpt_corr > xmin && jetpt_corr < xmax) {
         jetpt_corr = jetpt_corr / jetResidualFunction[centBin]->Eval(jetpt_corr);
+        jetpt_corr = jetpt_corr * jec_fix;
       }
 
       jetpt_corr = jet_corr->get_corrected_pt(jetpt_corr, jt.jteta[ij]);
@@ -541,6 +544,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
           jetResidualFunction[centBin]->GetRange(xmin, xmax);
           if (jetpt_corr_mix > xmin && jetpt_corr_mix < xmax) {
             jetpt_corr_mix = jetpt_corr_mix / jetResidualFunction[centBin]->Eval(jetpt_corr_mix);
+            jetpt_corr_mix *= jec_fix;
           }
 
           jetpt_corr_mix = jet_corr->get_corrected_pt(jetpt_corr_mix, jt_mix.jteta[ijetmix]);
