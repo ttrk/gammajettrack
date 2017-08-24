@@ -40,7 +40,7 @@ when_to_transfer_output = ON_EXIT
 transfer_input_files = /tmp/$PROXYFILE,photon_jet_track_skim.exe,$4,$2
 #noop_job = !( stringListMember("\$(Process)","__FAILED__") )
 
-Queue 10
+Queue $JOBS
 EOF
 
 cat > skim.sh <<EOF
