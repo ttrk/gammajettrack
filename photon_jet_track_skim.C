@@ -145,18 +145,18 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   /* prevents a segfault in pp */
   if (nmbfiles == 0) nmbfiles = 1;
 
-  TFile* fmixing_all[nmbfiles] = {0};
-  TTree* event_tree_mix = 0;              TTree* event_tree_mix_all[nmbfiles] = {0};
-  TTree* skim_tree_mix = 0;               TTree* skim_tree_mix_all[nmbfiles] = {0};
-  TTree* jet_tree_mix = 0;                TTree* jet_tree_mix_all[nmbfiles] = {0};
-  TTree* jet_tree_for_trk_corr_mix = 0;   TTree* jet_tree_for_trk_corr_mix_all[nmbfiles] = {0};
-  TTree* track_tree_mix = 0;              TTree* track_tree_mix_all[nmbfiles] = {0};
-  TTree* genpart_tree_mix = 0;            TTree* genpart_tree_mix_all[nmbfiles] = {0};
+  TFile* fmixing[nmbfiles] = {0};
+  TTree* event_tree_mix[nmbfiles] = {0};
+  TTree* skim_tree_mix[nmbfiles] = {0};
+  TTree* jet_tree_mix[nmbfiles] = {0};
+  TTree* jet_tree_for_trk_corr_mix[nmbfiles] = {0};
+  TTree* track_tree_mix[nmbfiles] = {0};
+  TTree* genpart_tree_mix[nmbfiles] = {0};
 
-  jetTree jt_mix;                         jetTree jt_mix_all[nmbfiles];
-  jetTree jt_trkcorr_mix;                 jetTree jt_trkcorr_mix_all[nmbfiles];
-  trackTree tt_mix;                       trackTree tt_mix_all[nmbfiles];
-  genpartTree gpt_mix;                    genpartTree gpt_mix_all[nmbfiles];
+  jetTree jt_mix[nmbfiles];
+  jetTree jt_trkcorr_mix[nmbfiles];
+  trackTree tt_mix[nmbfiles];
+  genpartTree gpt_mix[nmbfiles];
 
   int hiBin_mix;
   float vz_mix;
@@ -170,43 +170,43 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   printf("checkpoint\n");
   if (!isPP && !mixing_file.empty() && mixing_file.compare("null") != 0) {
     for (int jmbfile = 0; jmbfile < nmbfiles; ++jmbfile) {
-      fmixing_all[jmbfile] = TFile::Open(mixing_list[jmbfile].c_str(), "read");
+      fmixing[jmbfile] = TFile::Open(mixing_list[jmbfile].c_str(), "read");
 
-      event_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("hiEvtAnalyzer/HiTree");
-      if (!event_tree_mix_all[jmbfile]) { printf("Could not access event tree!\n"); return 1; }
-      event_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
-      _SET_BRANCH_ADDRESS(event_tree_mix_all[jmbfile], hiBin, hiBin_mix);
-      _SET_BRANCH_ADDRESS(event_tree_mix_all[jmbfile], vz, vz_mix);
-      _SET_BRANCH_ADDRESS(event_tree_mix_all[jmbfile], hiEvtPlanes, hiEvtPlanes_mix);
+      event_tree_mix[jmbfile] = (TTree*)fmixing[jmbfile]->Get("hiEvtAnalyzer/HiTree");
+      if (!event_tree_mix[jmbfile]) { printf("Could not access event tree!\n"); return 1; }
+      event_tree_mix[jmbfile]->SetBranchStatus("*", 0);
+      _SET_BRANCH_ADDRESS(event_tree_mix[jmbfile], hiBin, hiBin_mix);
+      _SET_BRANCH_ADDRESS(event_tree_mix[jmbfile], vz, vz_mix);
+      _SET_BRANCH_ADDRESS(event_tree_mix[jmbfile], hiEvtPlanes, hiEvtPlanes_mix);
 
-      skim_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("skimanalysis/HltTree");
-      if (!skim_tree_mix_all[jmbfile]) { printf("Could not access skim tree!\n"); return 1; }
-      skim_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
-      _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], pcollisionEventSelection, pcollisionEventSelection_mix);
-      _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], HBHENoiseFilterResultRun2Loose, HBHENoiseFilterResultRun2Loose_mix);
-      _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], pPAprimaryVertexFilter, pPAprimaryVertexFilter_mix);
-      _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], pBeamScrapingFilter, pBeamScrapingFilter_mix);
+      skim_tree_mix[jmbfile] = (TTree*)fmixing[jmbfile]->Get("skimanalysis/HltTree");
+      if (!skim_tree_mix[jmbfile]) { printf("Could not access skim tree!\n"); return 1; }
+      skim_tree_mix[jmbfile]->SetBranchStatus("*", 0);
+      _SET_BRANCH_ADDRESS(skim_tree_mix[jmbfile], pcollisionEventSelection, pcollisionEventSelection_mix);
+      _SET_BRANCH_ADDRESS(skim_tree_mix[jmbfile], HBHENoiseFilterResultRun2Loose, HBHENoiseFilterResultRun2Loose_mix);
+      _SET_BRANCH_ADDRESS(skim_tree_mix[jmbfile], pPAprimaryVertexFilter, pPAprimaryVertexFilter_mix);
+      _SET_BRANCH_ADDRESS(skim_tree_mix[jmbfile], pBeamScrapingFilter, pBeamScrapingFilter_mix);
 
-      jet_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get(Form("%s/t", jet_algo.c_str()));
-      if (!jet_tree_mix_all[jmbfile]) { printf("Could not access jet tree!\n"); return 1; }
-      jet_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
-      jt_mix_all[jmbfile].read_tree(jet_tree_mix_all[jmbfile]);
+      jet_tree_mix[jmbfile] = (TTree*)fmixing[jmbfile]->Get(Form("%s/t", jet_algo.c_str()));
+      if (!jet_tree_mix[jmbfile]) { printf("Could not access jet tree!\n"); return 1; }
+      jet_tree_mix[jmbfile]->SetBranchStatus("*", 0);
+      jt_mix[jmbfile].read_tree(jet_tree_mix[jmbfile]);
 
-      jet_tree_for_trk_corr_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("akPu4CaloJetAnalyzer/t");
-      if (!jet_tree_for_trk_corr_mix_all[jmbfile]) { printf("Could not access jet tree for track corrections!\n"); return 1; }
-      jet_tree_for_trk_corr_mix_all[jmbfile]->SetBranchStatus("*", 0);
-      jt_trkcorr_mix_all[jmbfile].read_tree(jet_tree_for_trk_corr_mix_all[jmbfile]);
+      jet_tree_for_trk_corr_mix[jmbfile] = (TTree*)fmixing[jmbfile]->Get("akPu4CaloJetAnalyzer/t");
+      if (!jet_tree_for_trk_corr_mix[jmbfile]) { printf("Could not access jet tree for track corrections!\n"); return 1; }
+      jet_tree_for_trk_corr_mix[jmbfile]->SetBranchStatus("*", 0);
+      jt_trkcorr_mix[jmbfile].read_tree(jet_tree_for_trk_corr_mix[jmbfile]);
 
-      track_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("anaTrack/trackTree");
-      if (!track_tree_mix_all[jmbfile]) { printf("Could not access track tree!\n"); return 1; }
-      track_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
-      tt_mix_all[jmbfile].read_tree(track_tree_mix_all[jmbfile]);
+      track_tree_mix[jmbfile] = (TTree*)fmixing[jmbfile]->Get("anaTrack/trackTree");
+      if (!track_tree_mix[jmbfile]) { printf("Could not access track tree!\n"); return 1; }
+      track_tree_mix[jmbfile]->SetBranchStatus("*", 0);
+      tt_mix[jmbfile].read_tree(track_tree_mix[jmbfile]);
 
       if (isMC) {
-        genpart_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("HiGenParticleAna/hi");
-        if (!genpart_tree_mix_all[jmbfile]) { printf("Could not access track tree!\n"); return 1; }
-        genpart_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
-        gpt_mix.read_tree(genpart_tree_mix_all[jmbfile]);
+        genpart_tree_mix[jmbfile] = (TTree*)fmixing[jmbfile]->Get("HiGenParticleAna/hi");
+        if (!genpart_tree_mix[jmbfile]) { printf("Could not access track tree!\n"); return 1; }
+        genpart_tree_mix[jmbfile]->SetBranchStatus("*", 0);
+        gpt_mix[jmbfile].read_tree(genpart_tree_mix[jmbfile]);
       }
     }
   }
@@ -521,20 +521,8 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
         int minbias_end = minbias_start[imbfile];
         bool wraparound = false;
 
-        event_tree_mix = event_tree_mix_all[imbfile];
-        skim_tree_mix = skim_tree_mix_all[imbfile];
-        jet_tree_mix = jet_tree_mix_all[imbfile];
-        jet_tree_for_trk_corr_mix = jet_tree_for_trk_corr_mix_all[imbfile];
-        track_tree_mix = track_tree_mix_all[imbfile];
-        genpart_tree_mix = genpart_tree_mix_all[imbfile];
-
-        jt_mix = jt_mix_all[imbfile];
-        jt_trkcorr_mix = jt_trkcorr_mix_all[imbfile];
-        tt_mix = tt_mix_all[imbfile];
-        gpt_mix = gpt_mix_all[imbfile];
-
         // Start looping through the mixed event starting where we left off, so we don't always mix same events
-        const int nevent_mix = event_tree_mix->GetEntries();
+        const int nevent_mix = event_tree_mix[imbfile]->GetEntries();
         for (int iminbias = minbias_start[imbfile]; iminbias <= nevent_mix; ++iminbias) {
           // this part lets us wrap around to the beginning if we reach the last event
           if (iminbias == nevent_mix) {
@@ -546,9 +534,9 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
           if (wraparound && iminbias == minbias_start[imbfile]) break; // came back to start, done mixing
           nlooped++;
 
-          event_tree_mix->GetEntry(iminbias);
+          event_tree_mix[imbfile]->GetEntry(iminbias);
           if (fabs(vz_mix) > 15) continue;
-          skim_tree_mix->GetEntry(iminbias);
+          skim_tree_mix[imbfile]->GetEntry(iminbias);
           if (!isPP) { // HI event selection
             if ((pcollisionEventSelection_mix < 1))  continue;
             if (!isMC) {
@@ -565,22 +553,22 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
           if (dphi_evplane > TMath::Pi() / 16.0) continue;
           // now we are within 0.5% centrality, 5cm vz and pi/16 angle of the original event
 
-          jet_tree_for_trk_corr_mix->GetEntry(iminbias);
+          jet_tree_for_trk_corr_mix[imbfile]->GetEntry(iminbias);
 
           float maxJetPt_mix = -999;
-          for (int k = 0; k < jt_trkcorr_mix.nref; k++) {
-            if (TMath::Abs(jt_trkcorr_mix.jteta[k]) > 2) continue;
-            if (jt_trkcorr_mix.jtpt[k] > maxJetPt_mix) maxJetPt_mix = jt_trkcorr_mix.jtpt[k];
+          for (int k = 0; k < jt_trkcorr_mix[imbfile].nref; k++) {
+            if (TMath::Abs(jt_trkcorr_mix[imbfile].jteta[k]) > 2) continue;
+            if (jt_trkcorr_mix[imbfile].jtpt[k] > maxJetPt_mix) maxJetPt_mix = jt_trkcorr_mix[imbfile].jtpt[k];
           }
 
           //! (2.52) Jets from mixed events
-          jet_tree_mix->GetEntry(iminbias);
-          for (int ijetmix = 0; ijetmix < jt_mix.nref; ++ijetmix) {
-            if (jt_mix.jtpt[ijetmix] < jetptmin) continue;
-            if (fabs(jt_mix.jteta[ijetmix]) > 2) continue;
-            if (acos(cos(jt_mix.jtphi[ijetmix] - pjtt.phoPhi)) < 7 * pi / 8) continue;
+          jet_tree_mix[imbfile]->GetEntry(iminbias);
+          for (int ijetmix = 0; ijetmix < jt_mix[imbfile].nref; ++ijetmix) {
+            if (jt_mix[imbfile].jtpt[ijetmix] < jetptmin) continue;
+            if (fabs(jt_mix[imbfile].jteta[ijetmix]) > 2) continue;
+            if (acos(cos(jt_mix[imbfile].jtphi[ijetmix] - pjtt.phoPhi)) < 7 * pi / 8) continue;
 
-            float jetpt_corr_mix = jt_mix.jtpt[ijetmix];
+            float jetpt_corr_mix = jt_mix[imbfile].jtpt[ijetmix];
 
             // jet energy correction
             double xmin, xmax;
@@ -590,7 +578,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
               jetpt_corr_mix *= jec_fix;
             }
 
-            jetpt_corr_mix = jet_corr->get_corrected_pt(jetpt_corr_mix, jt_mix.jteta[ijetmix]);
+            jetpt_corr_mix = jet_corr->get_corrected_pt(jetpt_corr_mix, jt_mix[imbfile].jteta[ijetmix]);
             if (isPP) {
                 if (jetpt_corr_mix < 5) continue; // njet_mix is not incremented
             }
@@ -599,72 +587,72 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
             }
 
             pjtt.jetptCorr_mix.push_back(jetpt_corr_mix);
-            pjtt.jetpt_mix.push_back(jt_mix.jtpt[ijetmix]);
-            pjtt.jeteta_mix.push_back(jt_mix.jteta[ijetmix]);
-            pjtt.jetphi_mix.push_back(jt_mix.jtphi[ijetmix]);
-            pjtt.gjetpt_mix.push_back(jt_mix.refpt[ijetmix]);
-            pjtt.gjeteta_mix.push_back(jt_mix.refeta[ijetmix]);
-            pjtt.gjetphi_mix.push_back(jt_mix.refphi[ijetmix]);
-            pjtt.subid_mix.push_back(jt_mix.subid[ijetmix]);
+            pjtt.jetpt_mix.push_back(jt_mix[imbfile].jtpt[ijetmix]);
+            pjtt.jeteta_mix.push_back(jt_mix[imbfile].jteta[ijetmix]);
+            pjtt.jetphi_mix.push_back(jt_mix[imbfile].jtphi[ijetmix]);
+            pjtt.gjetpt_mix.push_back(jt_mix[imbfile].refpt[ijetmix]);
+            pjtt.gjeteta_mix.push_back(jt_mix[imbfile].refeta[ijetmix]);
+            pjtt.gjetphi_mix.push_back(jt_mix[imbfile].refphi[ijetmix]);
+            pjtt.subid_mix.push_back(jt_mix[imbfile].subid[ijetmix]);
             pjtt.nmixEv_mix.push_back(nmix);
             njet_mix++;
           }
           if (isMC) {
-            for (int igenj_mix = 0; igenj_mix < jt_mix.ngen; igenj_mix++) {
+            for (int igenj_mix = 0; igenj_mix < jt_mix[imbfile].ngen; igenj_mix++) {
               if (isPP) {
-                  if (jt_mix.genpt[igenj_mix] < 5) continue;
+                  if (jt_mix[imbfile].genpt[igenj_mix] < 5) continue;
               }
               else {
-                  if (jt_mix.genpt[igenj_mix] < 25) continue;
+                  if (jt_mix[imbfile].genpt[igenj_mix] < 25) continue;
               }
 
-              if (fabs(jt_mix.geneta[igenj_mix]) > 1.6) continue;
-              pjtt.genpt_mix.push_back(jt_mix.genpt[igenj_mix]);
-              pjtt.geneta_mix.push_back(jt_mix.geneta[igenj_mix]);
-              pjtt.genphi_mix.push_back(jt_mix.genphi[igenj_mix]);
-              pjtt.gensubid_mix.push_back(jt_mix.gensubid[igenj_mix]);
+              if (fabs(jt_mix[imbfile].geneta[igenj_mix]) > 1.6) continue;
+              pjtt.genpt_mix.push_back(jt_mix[imbfile].genpt[igenj_mix]);
+              pjtt.geneta_mix.push_back(jt_mix[imbfile].geneta[igenj_mix]);
+              pjtt.genphi_mix.push_back(jt_mix[imbfile].genphi[igenj_mix]);
+              pjtt.gensubid_mix.push_back(jt_mix[imbfile].gensubid[igenj_mix]);
               pjtt.genev_mix.push_back(nmix);
               ngen_mix++;
             }
           }
 
           //! (2.54) Tracks from jet and cones in mixed events
-          track_tree_mix->GetEntry(iminbias);
-          for (int itrkmix = 0; itrkmix < tt_mix.nTrk; ++itrkmix) {
-            if (tt_mix.trkPt[itrkmix] < 1 || tt_mix.trkPt[itrkmix] > 300 || fabs(tt_mix.trkEta[itrkmix]) > 2.4) continue;
+          track_tree_mix[imbfile]->GetEntry(iminbias);
+          for (int itrkmix = 0; itrkmix < tt_mix[imbfile].nTrk; ++itrkmix) {
+            if (tt_mix[imbfile].trkPt[itrkmix] < 1 || tt_mix[imbfile].trkPt[itrkmix] > 300 || fabs(tt_mix[imbfile].trkEta[itrkmix]) > 2.4) continue;
 
-            if (tt_mix.highPurity[itrkmix] != 1) continue;
-            if (tt_mix.trkPtError[itrkmix] / tt_mix.trkPt[itrkmix] > 0.1 || TMath::Abs(tt_mix.trkDz1[itrkmix] / tt_mix.trkDzError1[itrkmix]) > 3 || TMath::Abs(tt_mix.trkDxy1[itrkmix] / tt_mix.trkDxyError1[itrkmix]) > 3) continue;
-            if (tt_mix.trkChi2[itrkmix] / (float)tt_mix.trkNdof[itrkmix] / (float)tt_mix.trkNlayer[itrkmix] > 0.15) continue;
-            if (tt_mix.trkNHit[itrkmix] < 11 && tt_mix.trkPt[itrkmix] > 0.7) continue;
-            if ((maxJetPt_mix > 50 && tt_mix.trkPt[itrkmix] > maxJetPt_mix) || (maxJetPt_mix < 50 && tt_mix.trkPt[itrkmix] > 50)) continue;
+            if (tt_mix[imbfile].highPurity[itrkmix] != 1) continue;
+            if (tt_mix[imbfile].trkPtError[itrkmix] / tt_mix[imbfile].trkPt[itrkmix] > 0.1 || TMath::Abs(tt_mix[imbfile].trkDz1[itrkmix] / tt_mix[imbfile].trkDzError1[itrkmix]) > 3 || TMath::Abs(tt_mix[imbfile].trkDxy1[itrkmix] / tt_mix[imbfile].trkDxyError1[itrkmix]) > 3) continue;
+            if (tt_mix[imbfile].trkChi2[itrkmix] / (float)tt_mix[imbfile].trkNdof[itrkmix] / (float)tt_mix[imbfile].trkNlayer[itrkmix] > 0.15) continue;
+            if (tt_mix[imbfile].trkNHit[itrkmix] < 11 && tt_mix[imbfile].trkPt[itrkmix] > 0.7) continue;
+            if ((maxJetPt_mix > 50 && tt_mix[imbfile].trkPt[itrkmix] > maxJetPt_mix) || (maxJetPt_mix < 50 && tt_mix[imbfile].trkPt[itrkmix] > 50)) continue;
 
-            float Et = (tt_mix.pfHcal[itrkmix] + tt_mix.pfEcal[itrkmix]) / TMath::CosH(tt_mix.trkEta[itrkmix]);
-            if (!(tt_mix.trkPt[itrkmix] < 20 || (Et > 0.5 * tt_mix.trkPt[itrkmix]))) continue;
+            float Et = (tt_mix[imbfile].pfHcal[itrkmix] + tt_mix[imbfile].pfEcal[itrkmix]) / TMath::CosH(tt_mix[imbfile].trkEta[itrkmix]);
+            if (!(tt_mix[imbfile].trkPt[itrkmix] < 20 || (Et > 0.5 * tt_mix[imbfile].trkPt[itrkmix]))) continue;
 
             float trkweight_mix = 0;
-            if (isPP) trkweight_mix = getTrkWeight(trkCorr, itrkmix, 0, &jt_trkcorr_mix, &tt_mix);
-            else trkweight_mix = getTrkWeight(trkCorr, itrkmix, hiBin_mix, &jt_trkcorr_mix, &tt_mix);
+            if (isPP) trkweight_mix = getTrkWeight(trkCorr, itrkmix, 0, &jt_trkcorr_mix[imbfile], &tt_mix[imbfile]);
+            else trkweight_mix = getTrkWeight(trkCorr, itrkmix, hiBin_mix, &jt_trkcorr_mix[imbfile], &tt_mix[imbfile]);
 
             pjtt.trkFromEv_mix.push_back(nmix);
-            pjtt.trkPt_mix.push_back(tt_mix.trkPt[itrkmix]);
-            pjtt.trkEta_mix.push_back(tt_mix.trkEta[itrkmix]);
-            pjtt.trkPhi_mix.push_back(tt_mix.trkPhi[itrkmix]);
+            pjtt.trkPt_mix.push_back(tt_mix[imbfile].trkPt[itrkmix]);
+            pjtt.trkEta_mix.push_back(tt_mix[imbfile].trkEta[itrkmix]);
+            pjtt.trkPhi_mix.push_back(tt_mix[imbfile].trkPhi[itrkmix]);
             pjtt.trkWeight_mix.push_back(trkweight_mix);
             nTrk_mix++;
           }
 
           if (isMC) {
-            genpart_tree_mix->GetEntry(iminbias);
-            for (int igenp = 0; igenp < gpt_mix.mult; ++igenp) {
-              if ((*gpt_mix.pt)[igenp] < 1 || (*gpt_mix.pt)[igenp] > 300 || fabs((*gpt_mix.eta)[igenp]) > 2.4) continue;
-              if ((*gpt_mix.chg)[igenp] == 0) continue;
-              if ((*gpt_mix.pt)[igenp] < 1) continue;
+            genpart_tree_mix[imbfile]->GetEntry(iminbias);
+            for (int igenp = 0; igenp < gpt_mix[imbfile].mult; ++igenp) {
+              if ((*gpt_mix[imbfile].pt)[igenp] < 1 || (*gpt_mix[imbfile].pt)[igenp] > 300 || fabs((*gpt_mix[imbfile].eta)[igenp]) > 2.4) continue;
+              if ((*gpt_mix[imbfile].chg)[igenp] == 0) continue;
+              if ((*gpt_mix[imbfile].pt)[igenp] < 1) continue;
 
-              pjtt.pt_mix.push_back((*gpt_mix.pt)[igenp]);
-              pjtt.eta_mix.push_back((*gpt_mix.eta)[igenp]);
-              pjtt.phi_mix.push_back((*gpt_mix.phi)[igenp]);
-              pjtt.chg_mix.push_back((*gpt_mix.chg)[igenp]);
+              pjtt.pt_mix.push_back((*gpt_mix[imbfile].pt)[igenp]);
+              pjtt.eta_mix.push_back((*gpt_mix[imbfile].eta)[igenp]);
+              pjtt.phi_mix.push_back((*gpt_mix[imbfile].phi)[igenp]);
+              pjtt.chg_mix.push_back((*gpt_mix[imbfile].chg)[igenp]);
               pjtt.nev_mix.push_back(nmix);
               mult_mix++;
             }
