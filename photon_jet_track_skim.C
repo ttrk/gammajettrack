@@ -395,7 +395,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
     for (int ij = 0; ij < jt.nref; ij++) {
       if (jt.jtpt[ij] < jetptmin) continue;
-      if (fabs(jt.jteta[ij] > 2)) continue;
+      if (fabs(jt.jteta[ij]) > 2) continue;
       if (acos(cos(jt.jtphi[ij] - pjtt.phoPhi)) < 7 * pi / 8) continue;
 
       float jetpt_corr = jt.jtpt[ij];
