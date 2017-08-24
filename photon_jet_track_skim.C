@@ -140,7 +140,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   }
 
   int nmbfiles = (int)mixing_list.size();
-  printf("nmbfiles: %i\n", nmbfiles);
 
   /* prevents a segfault in pp */
   if (nmbfiles == 0) nmbfiles = 1;
@@ -167,7 +166,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   int pPAprimaryVertexFilter_mix;
   int pBeamScrapingFilter_mix;
 
-  printf("checkpoint\n");
   if (!isPP && !mixing_file.empty() && mixing_file.compare("null") != 0) {
     for (int jmbfile = 0; jmbfile < nmbfiles; ++jmbfile) {
       fmixing[jmbfile] = TFile::Open(mixing_list[jmbfile].c_str(), "read");
@@ -210,7 +208,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
       }
     }
   }
-  printf("checkpoint\n");
 
   /**********************************************************
   * OPEN CORRECTION FILES
@@ -271,8 +268,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     event_tree->GetEntry(j);
 
     hlt_tree->GetEntry(j);
-    // if (j % 500 == 0)
-    { printf("processing event: %i / %i\n", j, end); }
+    if (j % 500 == 0) { printf("processing event: %i / %i\n", j, end); }
     if (j == end) { printf("done: %i\n", end); break; }
 
     if (fabs(vz) > 15) continue;
@@ -517,7 +513,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     //! (2.5) Begin minbias mixing criteria machinery
     if (!isPP && !mixing_file.empty() && mixing_file.compare("null") != 0) {
       for (int imbfile = 0; imbfile < nmbfiles; ++imbfile) {
-        printf("opening mb file number: %i\n", imbfile);
         int minbias_end = minbias_start[imbfile];
         bool wraparound = false;
 
@@ -664,8 +659,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
           minbias_end = iminbias;
           nmix++;
-
-          printf("nmix: %i\n", nmix);
 
           if (nmix >= nEventsToMix) break; // done mixing
         }
