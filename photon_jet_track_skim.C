@@ -128,15 +128,22 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   /**********************************************************
   * OPEN MINBIAS MIXING FILE
   **********************************************************/
-  std::ifstream file_stream(mixing_file);
-  if (!file_stream) return 1;
-
-  std::string line;
   std::vector<std::string> mixing_list;
-  while (std::getline(file_stream, line))
-    mixing_list.push_back(line);
+
+  if (!isPP && !mixing_file.empty() && mixing_file.compare("null") != 0) {
+    std::ifstream file_stream(mixing_file);
+    if (!file_stream) return 1;
+
+    std::string line;
+    while (std::getline(file_stream, line))
+      mixing_list.push_back(line);
+  }
 
   int nmbfiles = (int)mixing_list.size();
+  printf("nmbfiles: %i\n", nmbfiles);
+
+  /* prevents a segfault in pp */
+  if (nmbfiles == 0) nmbfiles = 1;
 
   TFile* fmixing_all[nmbfiles] = {0};
   TTree* event_tree_mix = 0;              TTree* event_tree_mix_all[nmbfiles] = {0};
@@ -160,46 +167,50 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   int pPAprimaryVertexFilter_mix;
   int pBeamScrapingFilter_mix;
 
-  for (int jmbfile = 0; jmbfile < nmbfiles; ++jmbfile) {
-    fmixing_all[jmbfile] = TFile::Open(mixing_list[jmbfile].c_str(), "read");
+  printf("checkpoint\n");
+  if (!isPP && !mixing_file.empty() && mixing_file.compare("null") != 0) {
+    for (int jmbfile = 0; jmbfile < nmbfiles; ++jmbfile) {
+      fmixing_all[jmbfile] = TFile::Open(mixing_list[jmbfile].c_str(), "read");
 
-    event_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("hiEvtAnalyzer/HiTree");
-    if (!event_tree_mix_all[jmbfile]) { printf("Could not access event tree!\n"); return 1; }
-    event_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
-    _SET_BRANCH_ADDRESS(event_tree_mix_all[jmbfile], hiBin, hiBin_mix);
-    _SET_BRANCH_ADDRESS(event_tree_mix_all[jmbfile], vz, vz_mix);
-    _SET_BRANCH_ADDRESS(event_tree_mix_all[jmbfile], hiEvtPlanes, hiEvtPlanes_mix);
+      event_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("hiEvtAnalyzer/HiTree");
+      if (!event_tree_mix_all[jmbfile]) { printf("Could not access event tree!\n"); return 1; }
+      event_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
+      _SET_BRANCH_ADDRESS(event_tree_mix_all[jmbfile], hiBin, hiBin_mix);
+      _SET_BRANCH_ADDRESS(event_tree_mix_all[jmbfile], vz, vz_mix);
+      _SET_BRANCH_ADDRESS(event_tree_mix_all[jmbfile], hiEvtPlanes, hiEvtPlanes_mix);
 
-    skim_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("skimanalysis/HltTree");
-    if (!skim_tree_mix_all[jmbfile]) { printf("Could not access skim tree!\n"); return 1; }
-    skim_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
-    _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], pcollisionEventSelection, pcollisionEventSelection_mix);
-    _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], HBHENoiseFilterResultRun2Loose, HBHENoiseFilterResultRun2Loose_mix);
-    _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], pPAprimaryVertexFilter, pPAprimaryVertexFilter_mix);
-    _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], pBeamScrapingFilter, pBeamScrapingFilter_mix);
+      skim_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("skimanalysis/HltTree");
+      if (!skim_tree_mix_all[jmbfile]) { printf("Could not access skim tree!\n"); return 1; }
+      skim_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
+      _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], pcollisionEventSelection, pcollisionEventSelection_mix);
+      _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], HBHENoiseFilterResultRun2Loose, HBHENoiseFilterResultRun2Loose_mix);
+      _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], pPAprimaryVertexFilter, pPAprimaryVertexFilter_mix);
+      _SET_BRANCH_ADDRESS(skim_tree_mix_all[jmbfile], pBeamScrapingFilter, pBeamScrapingFilter_mix);
 
-    jet_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get(Form("%s/t", jet_algo.c_str()));
-    if (!jet_tree_mix_all[jmbfile]) { printf("Could not access jet tree!\n"); return 1; }
-    jet_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
-    jt_mix_all[jmbfile].read_tree(jet_tree_mix_all[jmbfile]);
+      jet_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get(Form("%s/t", jet_algo.c_str()));
+      if (!jet_tree_mix_all[jmbfile]) { printf("Could not access jet tree!\n"); return 1; }
+      jet_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
+      jt_mix_all[jmbfile].read_tree(jet_tree_mix_all[jmbfile]);
 
-    jet_tree_for_trk_corr_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("akPu4CaloJetAnalyzer/t");
-    if (!jet_tree_for_trk_corr_mix_all[jmbfile]) { printf("Could not access jet tree for track corrections!\n"); return 1; }
-    jet_tree_for_trk_corr_mix_all[jmbfile]->SetBranchStatus("*", 0);
-    jt_trkcorr_mix_all[jmbfile].read_tree(jet_tree_for_trk_corr_mix_all[jmbfile]);
+      jet_tree_for_trk_corr_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("akPu4CaloJetAnalyzer/t");
+      if (!jet_tree_for_trk_corr_mix_all[jmbfile]) { printf("Could not access jet tree for track corrections!\n"); return 1; }
+      jet_tree_for_trk_corr_mix_all[jmbfile]->SetBranchStatus("*", 0);
+      jt_trkcorr_mix_all[jmbfile].read_tree(jet_tree_for_trk_corr_mix_all[jmbfile]);
 
-    track_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("anaTrack/trackTree");
-    if (!track_tree_mix_all[jmbfile]) { printf("Could not access track tree!\n"); return 1; }
-    track_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
-    tt_mix_all[jmbfile].read_tree(track_tree_mix_all[jmbfile]);
+      track_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("anaTrack/trackTree");
+      if (!track_tree_mix_all[jmbfile]) { printf("Could not access track tree!\n"); return 1; }
+      track_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
+      tt_mix_all[jmbfile].read_tree(track_tree_mix_all[jmbfile]);
 
-    if (isMC) {
-      genpart_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("HiGenParticleAna/hi");
-      if (!genpart_tree_mix_all[jmbfile]) { printf("Could not access track tree!\n"); return 1; }
-      genpart_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
-      gpt_mix.read_tree(genpart_tree_mix_all[jmbfile]);
+      if (isMC) {
+        genpart_tree_mix_all[jmbfile] = (TTree*)fmixing_all[jmbfile]->Get("HiGenParticleAna/hi");
+        if (!genpart_tree_mix_all[jmbfile]) { printf("Could not access track tree!\n"); return 1; }
+        genpart_tree_mix_all[jmbfile]->SetBranchStatus("*", 0);
+        gpt_mix.read_tree(genpart_tree_mix_all[jmbfile]);
+      }
     }
   }
+  printf("checkpoint\n");
 
   /**********************************************************
   * OPEN CORRECTION FILES
@@ -247,6 +258,8 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   else
     trkCorr = new TrkCorr("Corrections/TrkCorr_July22_Iterative_pp_eta2p4/");
 
+  printf("number of MB files: %i\n", nmbfiles);
+
   /**********************************************************
   * BEGIN EVENT LOOP
   **********************************************************/
@@ -258,7 +271,8 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     event_tree->GetEntry(j);
 
     hlt_tree->GetEntry(j);
-    if (j % 500 == 0) { printf("processing event: %i / %i\n", j, end); }
+    // if (j % 500 == 0)
+    { printf("processing event: %i / %i\n", j, end); }
     if (j == end) { printf("done: %i\n", end); break; }
 
     if (fabs(vz) > 15) continue;
@@ -503,6 +517,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     //! (2.5) Begin minbias mixing criteria machinery
     if (!isPP && !mixing_file.empty() && mixing_file.compare("null") != 0) {
       for (int imbfile = 0; imbfile < nmbfiles; ++imbfile) {
+        printf("opening mb file number: %i\n", imbfile);
         int minbias_end = minbias_start[imbfile];
         bool wraparound = false;
 
@@ -661,6 +676,8 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
           minbias_end = iminbias;
           nmix++;
+
+          printf("nmix: %i\n", nmix);
 
           if (nmix >= nEventsToMix) break; // done mixing
         }
