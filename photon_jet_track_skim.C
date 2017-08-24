@@ -409,7 +409,12 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
       }
 
       jetpt_corr = jet_corr->get_corrected_pt(jetpt_corr, jt.jteta[ij]);
-      if (jetpt_corr < 30) continue; // njet is not incremented
+      if (isPP) {
+          if (jetpt_corr < 5) continue; // njet is not incremented
+      }
+      else {
+          if (jetpt_corr < 25) continue; // njet is not incremented
+      }
 
       pjtt.jetptCorr.push_back(jetpt_corr);
       pjtt.jetpt.push_back(jt.jtpt[ij]);
@@ -548,7 +553,12 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
           }
 
           jetpt_corr_mix = jet_corr->get_corrected_pt(jetpt_corr_mix, jt_mix.jteta[ijetmix]);
-          if (jetpt_corr_mix < 30) continue; // njet_mix is not incremented
+          if (isPP) {
+              if (jetpt_corr_mix < 5) continue; // njet_mix is not incremented
+          }
+          else {
+              if (jetpt_corr_mix < 25) continue; // njet_mix is not incremented
+          }
 
           pjtt.jetptCorr_mix.push_back(jetpt_corr_mix);
           pjtt.jetpt_mix.push_back(jt_mix.jtpt[ijetmix]);
@@ -563,7 +573,13 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
         }
         if (isMC) {
           for (int igenj_mix = 0; igenj_mix < jt_mix.ngen; igenj_mix++) {
-            if (jt_mix.genpt[igenj_mix] < 30) continue;
+            if (isPP) {
+                if (jt_mix.genpt[igenj_mix] < 5) continue;
+            }
+            else {
+                if (jt_mix.genpt[igenj_mix] < 25) continue;
+            }
+
             if (fabs(jt_mix.geneta[igenj_mix]) > 1.6) continue;
             pjtt.genpt_mix.push_back(jt_mix.genpt[igenj_mix]);
             pjtt.geneta_mix.push_back(jt_mix.geneta[igenj_mix]);
