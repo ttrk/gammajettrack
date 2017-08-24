@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [[ $# -ne 5 ]]; then
-    echo "usage: ./skim-condor-submit.sh [0/1/2/3] [input list] [output dir] [residuals] [mixing]"
+if [[ $# -ne 4 ]]; then
+    echo "usage: ./skim-condor-submit.sh [0/1/2/3] [input list] [output dir] [residuals]"
     echo "[0: PbPb Data, 1: PbPb MC, 2: pp Data, 3: pp MC]"
     exit 1
 fi
@@ -26,7 +26,7 @@ Universe     = vanilla
 Initialdir   = $PWD/
 Notification = Error
 Executable   = $PWD/skim.sh
-Arguments    = \$(Process) $1 $2 $3 $4 $5
+Arguments    = \$(Process) $1 $2 $3 $4
 GetEnv       = True
 Output       = $PWD/logs/\$(Process).out
 Error        = $PWD/logs/\$(Process).err
@@ -40,7 +40,7 @@ when_to_transfer_output = ON_EXIT
 transfer_input_files = /tmp/$PROXYFILE,photon_jet_track_skim.exe,$4,$2
 #noop_job = !( stringListMember("\$(Process)","__FAILED__") )
 
-Queue $JOBS
+Queue 10
 EOF
 
 cat > skim.sh <<EOF
@@ -67,12 +67,12 @@ case \$2 in
         ISPP=0
         NMIX=\$((\$1%4))
         NMIX=\$((\$NMIX+1))
-        MIXFILE=\$(head -n\${NMIX} \$6 | tail -n1)
+        MIXFILE=\$(head -n\${NMIX} PbPb_Data_MB.list | tail -n1)
         ;;
     1)
         JETALGO=akPu3PFJetAnalyzer
         ISPP=0
-        MIXFILE=/mnt/hadoop/cms/store/user/biran/photon-jet-track/PbPb-MB-Hydjet-Cymbal-170331.root
+        MIXFILE=PbPb_MC_MB.list
         ;;
     2)
         JETALGO=ak3PFJetAnalyzer
@@ -92,8 +92,8 @@ esac
 
 set -x
 
-echo ./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP 1 \$MIXFILE
-./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP 1 \$MIXFILE
+echo ./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP \$MIXFILE
+./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP \$MIXFILE
 
 if [[ \$? -eq 0 ]]; then
     mv \${1}.root \${4}
