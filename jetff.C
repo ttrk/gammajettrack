@@ -332,9 +332,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         continue;
     }
 
-    // apply fix to gamma-jet jec
-    float jec_fix = isPP ? 0.99 : 0.98;
-
     if (!isMC)  weight = 1;
     if (isMC) weight = weight * hvzweight->GetBinContent(hvzweight->FindBin(vz));
     if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
@@ -411,7 +408,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt) * jec_fix;
+        tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
         tmpjetphi = (*j_phi)[ij] + smear_rand.Gaus(0, res_phi);
 
         switch (systematic) {
@@ -773,7 +770,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt) * jec_fix;
+        tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
         tmpjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
 
         switch (systematic) {
