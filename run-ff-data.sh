@@ -18,13 +18,8 @@ echo "coll     = $7"
 g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff.exe || exit 1
 echo "g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff.exe || exit 1"
 
-PBPBSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170822.root"
-#PPSKIM="/export/d00/scratch/biran/photon-jet-track/pp-Data-skim-170822.root"
-PPSKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/pp_Data_skim_jetptCorr5/0.root"
-#if [[ "$(hostname)" == "hidsk0001.cmsaf.mit.edu" ]]; then
-#  PBPBSKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/skims/data_pbpb.root"
-#  PPSKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/skims/data_pp.root"
-#fi
+PBPBSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170824.root"
+PPSKIM="/export/d00/scratch/tatar/GJT-out/pp-Data-skim-170824.root"
 
 outDir="/export/d00/scratch/"$USER"/GJT-out/results/"
 mkdir -p $outDir
