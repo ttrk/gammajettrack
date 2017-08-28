@@ -56,9 +56,6 @@ echo "compiling macros..."
 g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff.exe || exit 1
 g++ draw_ff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o draw_ff.exe || exit 1
 g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results.exe || exit 1
-g++ calc_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_systematics.exe || exit 1
-g++ calc_ratio_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_ratio_systematics || exit 1
-g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_iso_systematics.exe || exit 1
 
 set -x
 
@@ -111,9 +108,6 @@ rm ${sysPrefix}iso_${MCSAMPLE}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
 hadd -f ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root
 ./draw_ff.exe $MCSAMPLE ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 0 ${TYPE}
 
-./calc_iso_systematics.exe ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root $7 $MCSAMPLE $6 $TYPE $1 $3 $5
-mv iso_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root $sysDir
-
 for SYS in ${sysIndices}
 do
     hadd -f ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
@@ -121,67 +115,4 @@ do
     hadd -f ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root
     ./draw_ff.exe $6 ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 0 ${TYPE}
 done
-
-# SYSLIST=systematics_${1}_${3}_${5}_${6}.list
-# if [ -f $SYSLIST ]; then
-#     rm $SYSLIST
-# fi
-# touch $SYSLIST
-
-# for SYS in 1 2 3 4 5 6 7 8 9 10
-# do
-#     echo -e "${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root" >> $SYSLIST
-# done
-
-# # placeholder for systematics yet to be implemented
-# # none
-
-# HISTLIST=hist_${1}_${3}_${5}_${6}.list
-# if [ -f $HISTLIST ]; then
-#     rm $HISTLIST
-# fi
-# touch $HISTLIST
-# echo -e "hff_final_${6}_${TYPE}_0_20" >> $HISTLIST
-# echo -e "hff_final_${6}_${TYPE}_20_60" >> $HISTLIST
-# echo -e "hff_final_${6}_${TYPE}_60_100" >> $HISTLIST
-# echo -e "hff_final_${6}_${TYPE}_100_200" >> $HISTLIST
-# echo -e "hff_final_${6}_${TYPE}_0_60" >> $HISTLIST
-# echo -e "hff_final_${6}_${TYPE}_60_200" >> $HISTLIST
-
-# cp $sysDir"/"data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root .
-# ./calc_systematics.exe $7 $SYSLIST $HISTLIST data_${1}_${3}_gxi${5}_defnFF${kFF}
-# mv sys_hff_final_${6}_${TYPE}_*_*-data_${1}_${3}_gxi${5}_defnFF${kFF}.png $sysDir
-# mv data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root $sysDir
-
-# rm $SYSLIST
-# rm $HISTLIST
-
-# echo "running ratio systematics"
-# SYSHISTLIST=syshist_${1}_${3}_${5}.list
-# if [ -f $SYSHISTLIST ]; then
-#   rm $SYSHISTLIST
-# fi
-# echo -e "0_20" >> $SYSHISTLIST
-# echo -e "20_60" >> $SYSHISTLIST
-# echo -e "60_100" >> $SYSHISTLIST
-# echo -e "100_200" >> $SYSHISTLIST
-# echo -e "0_60" >> $SYSHISTLIST
-# echo -e "60_200" >> $SYSHISTLIST
-
-# SYSFILELIST=sysfile_${1}_${3}_${5}.list
-# if [ -f $SYSFILELIST ]; then
-#   rm $SYSFILELIST
-# fi
-# echo -e "data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root" >> $SYSFILELIST
-# echo -e "data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root" >> $SYSFILELIST
-
-# cp $sysDir"/"data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root .
-# ./calc_ratio_systematics ff $SYSFILELIST $SYSHISTLIST data_${1}_${3}_gxi${5}_defnFF${kFF}
-# mv sys_hff_final_*_*_*-data_${1}_${3}_gxi${5}_defnFF${kFF}.png $sysDir
-# mv data_${1}_${3}_gxi${5}_defnFF${kFF}-systematics.root $sysDir
-
-# rm $SYSHISTLIST
-# rm $SYSFILELIST
-
-
 
