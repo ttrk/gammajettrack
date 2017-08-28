@@ -60,20 +60,39 @@ g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_resu
 set -x
 
 sysIndices="1 2 3 4 6 9 10"
+runSysIso=1
 if [ $6 = "pbpbdata" ] || [ $6 = "pbpbmc" ]; then
   sysIndices="1 2 3 4 6 9 10 11 12"
+  runSysIso=1
 fi
 
 for SYS in ${sysIndices}
 do
-    ./jetff.exe $SKIM $6 0 20 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
-    ./jetff.exe $SKIM $6 20 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
-    ./jetff.exe $SKIM $6 60 100 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
-    ./jetff.exe $SKIM $6 100 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
-    ./jetff.exe $SKIM $6 0 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
-    ./jetff.exe $SKIM $6 60 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
+  ./jetff.exe $SKIM $6 0 20 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
+  ./jetff.exe $SKIM $6 20 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
+  ./jetff.exe $SKIM $6 60 100 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
+  ./jetff.exe $SKIM $6 100 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
+  ./jetff.exe $SKIM $6 0 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
+  ./jetff.exe $SKIM $6 60 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}${SYSTEMATIC[SYS]} $SYS $kFF &
 done
 wait
+
+if [ $runSysIso == 1 ]; then
+  # isolation systematics
+  ./jetff.exe $MCSKIM $MCSAMPLE 0 20 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
+  ./jetff.exe $MCSKIM $MCSAMPLE 20 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
+  ./jetff.exe $MCSKIM $MCSAMPLE 60 100 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
+  ./jetff.exe $MCSKIM $MCSAMPLE 100 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
+  ./jetff.exe $MCSKIM $MCSAMPLE 0 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
+  ./jetff.exe $MCSKIM $MCSAMPLE 60 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
+  ./jetff.exe $MCSKIM $MCSAMPLE 0 20 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
+  ./jetff.exe $MCSKIM $MCSAMPLE 20 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
+  ./jetff.exe $MCSKIM $MCSAMPLE 60 100 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
+  ./jetff.exe $MCSKIM $MCSAMPLE 100 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
+  ./jetff.exe $MCSKIM $MCSAMPLE 0 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
+  ./jetff.exe $MCSKIM $MCSAMPLE 60 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
+  wait
+fi
 
 if [ $6 = "pbpbdata" ] || [ $6 = "ppdata" ]; then
   ./draw_ff.exe $6 ${nomPrefix}_data_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}purity_up_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 2 $TYPE
@@ -83,36 +102,23 @@ elif [ $6 = "pbpbmc" ] || [ $6 = "ppmc" ]; then
   ./draw_ff.exe $6 ${nomDir}"closure/ffclosure_"${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}purity_down_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} -2 $TYPE
 fi
 
-# isolation systematics
-./jetff.exe $MCSKIM $MCSAMPLE 0 20 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
-./jetff.exe $MCSKIM $MCSAMPLE 20 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
-./jetff.exe $MCSKIM $MCSAMPLE 60 100 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
-./jetff.exe $MCSKIM $MCSAMPLE 100 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
-./jetff.exe $MCSKIM $MCSAMPLE 0 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
-./jetff.exe $MCSKIM $MCSAMPLE 60 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}nominal_iso 0 $kFF &
-./jetff.exe $MCSKIM $MCSAMPLE 0 20 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
-./jetff.exe $MCSKIM $MCSAMPLE 20 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
-./jetff.exe $MCSKIM $MCSAMPLE 60 100 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
-./jetff.exe $MCSKIM $MCSAMPLE 100 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
-./jetff.exe $MCSKIM $MCSAMPLE 0 60 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
-./jetff.exe $MCSKIM $MCSAMPLE 60 200 $1 $2 $3 $TYPE $4 $5 ${sysPrefix}iso 5 $kFF &
-wait
-
-hadd -f ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root ${sysPrefix}nominal_iso_${MCSAMPLE}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
-rm ${sysPrefix}nominal_iso_${MCSAMPLE}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
-hadd -f ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root
-./draw_ff.exe $MCSAMPLE ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 0 ${TYPE}
-
-hadd -f ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root ${sysPrefix}iso_${MCSAMPLE}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
-rm ${sysPrefix}iso_${MCSAMPLE}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
-hadd -f ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root
-./draw_ff.exe $MCSAMPLE ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 0 ${TYPE}
-
 for SYS in ${sysIndices}
 do
-    hadd -f ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
-    rm ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
-    hadd -f ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root
-    ./draw_ff.exe $6 ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 0 ${TYPE}
+  hadd -f ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
+  rm ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
+  hadd -f ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root
+  ./draw_ff.exe $6 ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 0 ${TYPE}
 done
+
+if [ $runSysIso == 1 ]; then
+  hadd -f ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root ${sysPrefix}nominal_iso_${MCSAMPLE}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
+  rm ${sysPrefix}nominal_iso_${MCSAMPLE}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
+  hadd -f ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root
+  ./draw_ff.exe $MCSAMPLE ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 0 ${TYPE}
+
+  hadd -f ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root ${sysPrefix}iso_${MCSAMPLE}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
+  rm ${sysPrefix}iso_${MCSAMPLE}_${TYPE}_${1}_${3}_${5}_${kFF}_*_*.root
+  hadd -f ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_${TYPE}_ff.root
+  ./draw_ff.exe $MCSAMPLE ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_merged.root ${sysPrefix}iso_${MCSAMPLE}_${1}_${3}_gxi${5}_defnFF${kFF}_ff_final.root ${1} 0 ${TYPE}
+fi
 
