@@ -60,7 +60,7 @@ if [[ $8 == "data" ]]; then
     echo -e "hff_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
     echo -e "hff_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
-    ./plot_results.exe ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_data_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 2
+    # ./plot_results.exe ${outPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_data_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 2
 elif [[ $8 == "datamc" ]]; then
     echo "running $8"
     set -x
@@ -93,7 +93,7 @@ elif [[ $8 == "datamc" ]]; then
     echo -e "hff_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
     echo -e "hff_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
-    ./plot_results.exe ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_mc_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 0 $5 $1 $3 2
+    # ./plot_results.exe ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_mc_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 0 $5 $1 $3 2
     rm $PLOTLIST
 
     echo -e "pp MC" >> $PLOTLIST
@@ -107,7 +107,7 @@ elif [[ $8 == "datamc" ]]; then
     echo -e "hff_final_ppdata_recoreco_60_100" >> $PLOTLIST
     echo -e "hff_final_ppdata_recoreco_100_200" >> $PLOTLIST
 
-    ./plot_results.exe ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_mc_gxi${5}_defnFF${6}_${1}_${3}_pp $PLOTLIST 1 $5 $1 $3 2
+    # ./plot_results.exe ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_mc_gxi${5}_defnFF${6}_${1}_${3}_pp $PLOTLIST 1 $5 $1 $3 2
     rm $PLOTLIST
 
     echo -e "PbPb MC" >> $PLOTLIST
@@ -121,7 +121,7 @@ elif [[ $8 == "datamc" ]]; then
     echo -e "hff_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
     echo -e "hff_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
-    ./plot_results.exe ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_mc_gxi${5}_defnFF${6}_${1}_${3}_pbpb $PLOTLIST 1 $5 $1 $3 2
+    # ./plot_results.exe ${outPrefix}_mc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_mc_gxi${5}_defnFF${6}_${1}_${3}_pbpb $PLOTLIST 1 $5 $1 $3 2
 else
     echo "running $8"
     set -x
