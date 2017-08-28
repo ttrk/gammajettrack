@@ -198,7 +198,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             h1[i][1]->SetFillColorAlpha(fillColors[1], fillAlpha);
         }
         for (std::size_t l=1; l<layers; ++l) {
-            if ((mode == k_data_sysalltot || k_data_sysalltotpercnt) && l == layers-1)  continue;
+            if ((mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) && l == layers-1)  continue;
 
             h1[i][l]->Draw(Form("%s same", drawOptions[l].c_str()));
         }
