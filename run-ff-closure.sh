@@ -17,9 +17,9 @@ echo "label    = $8"
 echo "types    = $9"
 
 if [ $7 = "pbpbmc" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170712.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170824.root"
 elif [ $7 = "ppmc" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170712.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170824.root"
 else
     echo "invalid sample"
     exit 1
