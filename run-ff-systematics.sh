@@ -17,24 +17,24 @@ echo "nominal results = $7"
 kFF=1 # 0 : old definition, 1 : new definition
 
 if [ $6 = "pbpbdata" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170712.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170824.root"
     TYPE="recoreco"
-    MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170712.root"
+    MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170824.root"
     MCSAMPLE="pbpbmc"
 elif [ $6 = "pbpbmc" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170712.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170824.root"
     TYPE="recoreco"
-    MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170712.root"
+    MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170824.root"
     MCSAMPLE="pbpbmc"
 elif [ $6 = "ppdata" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-Data-skim-170712.root"
+    SKIM="/export/d00/scratch/tatar/GJT-out/pp-Data-skim-170824.root"
     TYPE="srecoreco"
-    MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170712.root"
+    MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170824.root"
     MCSAMPLE="ppmc"
 elif [ $6 = "ppmc" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170712.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170824.root"
     TYPE="srecoreco"
-    MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170712.root"
+    MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170824.root"
     MCSAMPLE="ppmc"
 else
     echo "invalid sample"
