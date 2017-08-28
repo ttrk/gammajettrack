@@ -345,6 +345,7 @@ public :
    Int_t           phoNoise;
    Int_t           phoisEle;
    Int_t           pho_genMatchedIndex;
+   Float_t         phoMCIsolation;
    Int_t           nMC;
    std::vector<int>     *mcPID;
    std::vector<float>   *mcCalIsoDR04;
@@ -478,6 +479,7 @@ public :
    TBranch        *b_phoNoise;   //!
    TBranch        *b_phoisEle;   //!
    TBranch        *b_pho_genMatchedIndex;   //!
+   TBranch        *b_phoMCIsolation;   //!
    TBranch        *b_nMC;   //!
    TBranch        *b_mcPID;   //!
    TBranch        *b_mcCalIsoDR04;   //!
@@ -779,6 +781,7 @@ void photonjettrack::Init(TTree* tree)
    fChain->SetBranchAddress("phoNoise", &phoNoise, &b_phoNoise);
    fChain->SetBranchAddress("phoisEle", &phoisEle, &b_phoisEle);
    fChain->SetBranchAddress("pho_genMatchedIndex", &pho_genMatchedIndex, &b_pho_genMatchedIndex);
+   fChain->SetBranchAddress("phoMCIsolation", &phoMCIsolation, &b_phoMCIsolation);
    fChain->SetBranchAddress("nMC", &nMC, &b_nMC);
    fChain->SetBranchAddress("mcPID", &mcPID, &b_mcPID);
    fChain->SetBranchAddress("mcCalIsoDR04", &mcCalIsoDR04, &b_mcCalIsoDR04);

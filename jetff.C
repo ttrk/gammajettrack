@@ -322,7 +322,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     // photon isolation systematics
     if (systematic == 5) {
       if (isMC)
-        if (pho_genMatchedIndex == -1 || (*mcCalIsoDR04)[pho_genMatchedIndex] > 5.0)
+        if (pho_genMatchedIndex == -1 || phoMCIsolation > 5.0)
           continue;
     }
 
