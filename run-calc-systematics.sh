@@ -23,12 +23,20 @@ sysDir=$7
 g++ calc_lr_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_lr_systematics.exe || exit 1
 g++ calc_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_systematics.exe || exit 1
 g++ calc_ratio_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_ratio_systematics.exe || exit 1
+g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_iso_systematics.exe || exit 1
 
 set -x
 
 ./calc_lr_systematics.exe $nomFile $varFileLR $4 $5 $1 $2 $3
 
 mv longrange_${sample}_${1}_${2}_gxi${3}_defnFF1_ff_final.root $sysDir
+
+mcsample="ppmc"
+if [[ $sample == "pbpbdata" ]]; then
+  mcsample="pbpbmc"
+fi
+./calc_iso_systematics.exe ${sysDir}nominal_iso_${mcsample}_${1}_${2}_gxi${3}_defnFF1_ff_final.root ${sysDir}iso_${mcsample}_${1}_${2}_gxi${3}_defnFF1_ff_final.root $nomFile $mcsample $sample $type $1 $2 $3
+mv iso_${sample}_${1}_${2}_gxi${3}_defnFF1_ff_final.root $sysDir
 
 ## for pp : nominal = jes_qg_down
 cp ${nomFile} ${sysDir}jes_qg_down_ppdata_${1}_${2}_gxi${3}_defnFF1_ff_final.root
