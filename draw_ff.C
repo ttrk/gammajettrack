@@ -355,6 +355,17 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
             hgj_sb[i] = (TH1D*)finput->Get(Form("%ssideband_%s", inputObsgj[iObs].c_str(), tag.c_str()));
             hgj_jet_sb[i] = (TH1D*)finput->Get(Form("%sjetmixsideband_%s", inputObsgj[iObs].c_str(), tag.c_str()));
 
+            // normalize by the number of photons
+            hgj[i]->Scale(1.0/hphopt[i]->Integral());
+            hgj_jet[i]->Scale(1.0/hphopt[i]->Integral());
+            hgj_sb[i]->Scale(1.0/hphopt_sb[i]->Integral());
+            hgj_jet_sb[i]->Scale(1.0/hphopt_sb[i]->Integral());
+
+            hgj[i]->Scale(1, "width");
+            hgj_jet[i]->Scale(1, "width");
+            hgj_sb[i]->Scale(1, "width");
+            hgj_jet_sb[i]->Scale(1, "width");
+
             hgj_sub[i] = (TH1D*)hgj[i]->Clone(Form("%s_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
             hgj_jet_sub[i] = (TH1D*)hgj_jet[i]->Clone(Form("%s_jet_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
             hgj_sb_sub[i] = (TH1D*)hgj_sb[i]->Clone(Form("%s_sb_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
@@ -366,9 +377,6 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
             hgj_signal[i] = (TH1D*)hgj_sub[i]->Clone(Form("%s_signal_%s", outputObsgj[iObs].c_str(), tag.c_str()));
             hgj_sideband[i] = (TH1D*)hgj_sb_sub[i]->Clone(Form("%s_sideband_%s", outputObsgj[iObs].c_str(), tag.c_str()));
 
-            hgj_signal[i]->Scale(1./hphopt[i]->Integral());
-            hgj_sideband[i]->Scale(1./hphopt_sb[i]->Integral());
-
             hgj_final[i] = (TH1D*)hgj_signal[i]->Clone(Form("%s_final_%s", outputObsgj[iObs].c_str(), tag.c_str()));
 
             hgj_final[i]->Scale(1.0/purity[i]);
@@ -376,12 +384,16 @@ int draw_ff(std::string sample, std::string type, const char* fname, const char*
 
             // dphi normalization
             if (inputObsgj[iObs] == "hdphijg") {
-                hgj_final[i]->Scale(1. / hgj_final[i]->Integral());
+                hgj_final[i]->Scale(1. / hgj_final[i]->Integral(), "width");
             }
 
-            hgj_final[i]->Scale(1.0, "width");
-
             // write the objects explicitly
+            // normalized versions of the histograms in "_merged.root" file.
+            hgj[i]->Write(Form("%s_norm", hgj[i]->GetName()),TObject::kOverwrite);
+            hgj_jet[i]->Write(Form("%s_norm", hgj_jet[i]->GetName()),TObject::kOverwrite);
+            hgj_sb[i]->Write(Form("%s_norm", hgj_sb[i]->GetName()),TObject::kOverwrite);
+            hgj_jet_sb[i]->Write(Form("%s_norm", hgj_jet_sb[i]->GetName()),TObject::kOverwrite);
+
             hgj_sub[i]->Write("",TObject::kOverwrite);
             hgj_jet_sub[i]->Write("",TObject::kOverwrite);
             hgj_sb_sub[i]->Write("",TObject::kOverwrite);
