@@ -19,7 +19,7 @@ g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff.exe || exi
 echo "g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff.exe || exit 1"
 
 PBPBSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170824.root"
-PPSKIM="/export/d00/scratch/tatar/GJT-out/pp-Data-skim-170824.root"
+PPSKIM="/export/d00/scratch/tatar/GJT-out/pp-Data-skim-170829.root"
 
 outDir="/export/d00/scratch/"$USER"/GJT-out/results/"
 mkdir -p $outDir

@@ -27,7 +27,7 @@ elif [ $6 = "pbpbmc" ]; then
     MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170824.root"
     MCSAMPLE="pbpbmc"
 elif [ $6 = "ppdata" ]; then
-    SKIM="/export/d00/scratch/tatar/GJT-out/pp-Data-skim-170824.root"
+    SKIM="/export/d00/scratch/tatar/GJT-out/pp-Data-skim-170829.root"
     TYPE="srecoreco"
     MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170824.root"
     MCSAMPLE="ppmc"
@@ -62,7 +62,7 @@ set -x
 sysIndices="1 2 3 4 6 9 10"
 runSysIso=1
 if [ $6 = "pbpbdata" ] || [ $6 = "pbpbmc" ]; then
-  sysIndices="1 2 3 4 6 9 10 11 12 14"
+  sysIndices="1 2 4 6 9 10 11 12 14"
   runSysIso=1
 fi
 
