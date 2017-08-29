@@ -40,6 +40,7 @@ enum JET_SIGBKG{
 std::string jet_sigbkg_labels[kN_JET_SIGBKG] = {"", "jetmix"};
 
 int sysLR = 13;
+int sysTrackingRatio = 14;
 int sysBkgEtagt0p3 = 21;
 int sysBkgEtaReflection = 22;
 int sysDphiProjection = 30;
@@ -50,6 +51,7 @@ int sysFFdepJEC = 25;
 int trkPtsLow[8] = {1, 2, 3, 4, 8, 12, 16, 20};
 int trkPtsUp[8] = {2, 3, 4, 8, 12, 16, 20, 9999};
 
+// corrections for FF dep. JEC
 float lowxicorr[4] = {1.073 , 1.079 , 1.083 , 1.074};
 float midxicorr[4] = {1.0514 , 1.0478 , 1.0483 , 1.0471};
 
@@ -63,6 +65,7 @@ double getShiftedDPHI(double dphi);
 int getTrkPtBin(float trkPt);
 void correctBinError(TH1D* h, int nSmear);
 void correctBinError(TH2D* h, int nSmear);
+float trackingDataMCDiffUncert(float trkPt = -1, int cent = -1, bool isRatio = 1, bool isPP = 0);
 
 // systematic:
 // 1: JES_UP
@@ -489,11 +492,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               }
             }
             if(haslowxi) hasmidxi = false;
-            int icent = getCentralityBin4(hiBin);
             if(!isPP && haslowxi && jet_type_is("reco", genlevel)) {
-                jes_factor_ffDep = 1./lowxicorr[icent];
+                jes_factor_ffDep = 1./lowxicorr[centBin4];
             } else if(!isPP && hasmidxi && jet_type_is("reco", genlevel)) {
-                jes_factor_ffDep = 1./midxicorr[icent];
+                jes_factor_ffDep = 1./midxicorr[centBin4];
             }
         }
         tmpjetpt *= jes_factor_ffDep;
@@ -537,6 +539,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg)[ip] == 0) continue;
           }
 
+          if (systematic == sysTrackingRatio) {
+              tracking_sys = 1 + trackingDataMCDiffUncert((*p_pt)[ip], hiBin/2, 1, 0);
+          }
           double weight_rawJet_rawTrk = weight * (*p_weight)[ip] * tracking_sys * smear_weight * reweightPP;
 
           float dphi = getDPHI(tmpjetphi, (*p_phi)[ip]);
@@ -653,6 +658,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
+          if (systematic == sysTrackingRatio) {
+              tracking_sys = 1 + trackingDataMCDiffUncert((*p_pt_UE)[ip_UE], hiBin/2, 1, 0);
+          }
           double weight_rawJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight * reweightPP / nmixedevents_ue * uescale[centBin4];
 
           float dphi = getDPHI(tmpjetphi, (*p_phi_UE)[ip_UE]);
@@ -849,11 +857,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 }
             }
             if(haslowxi) hasmidxi = false;
-            int icent = getCentralityBin4(hiBin);
             if(!isPP && haslowxi && jet_type_is("reco", genlevel)) {
-                jes_factor_ffDep = 1./lowxicorr[icent];
+                jes_factor_ffDep = 1./lowxicorr[centBin4];
             } else if(!isPP && hasmidxi && jet_type_is("reco", genlevel)) {
-                jes_factor_ffDep = 1./midxicorr[icent];
+                jes_factor_ffDep = 1./midxicorr[centBin4];
             }
         }
         tmpjetpt *= jes_factor_ffDep;
@@ -894,6 +901,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
+          if (systematic == sysTrackingRatio) {
+              tracking_sys = 1 + trackingDataMCDiffUncert((*p_pt_mix)[ip_mix], hiBin/2, 1, 0);
+          }
           double weight_bkgJet_rawTrk = weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight * reweightPP / nmixedevents_jet;
 
           float dphi = getDPHI(tmpjetphi, (*p_phi_mix)[ip_mix]);
@@ -1006,6 +1016,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
+          if (systematic == sysTrackingRatio) {
+              tracking_sys = 1 + trackingDataMCDiffUncert((*p_pt_UE)[ip_UE], hiBin/2 , 1, 0);
+          }
           double weight_bkgJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight * reweightPP / nmixedevents_jet_ue * uescale[centBin4];
 
           float dphi = getDPHI(tmpjetphi, (*p_phi_UE)[ip_UE]);
@@ -1227,4 +1240,47 @@ void correctBinError(TH2D* h, int nSmear)
             h->SetBinError(iBinX, iBinY, TMath::Sqrt(nSmear)*h->GetBinError(iBinX, iBinY));
         }
     }
+}
+
+/*
+ * https://twiki.cern.ch/twiki/pub/CMS/HiTrackingDocumentation/trackingDataMCDiffUncert.C
+ * Example usage : trackingDataMCDiffUncert(trkPt,centrality,1,0)
+ */
+
+//written by Austin Baty, same as what is used for 5 TeV charged particle RAA (HIN-15-015)
+//calculated by taking double-ratios of the same data and MC reconstructed in HI and pp reconstructions and comparing the two
+//returns the tracking relative uncertainty
+//give track pt and centrality
+//if doing a ratio of 2 observatbles, set isRatio to 1
+//otherwise set isRatio to 0 and set isPP to 1 or 0 depending on if you are using pp or PbPb
+float trackingDataMCDiffUncert(float trkPt, int cent, bool isRatio, bool isPP)
+{
+  if(trkPt<0){
+    std::cout << "Error in trackingDataMCDiffUncert()!  negative Pt!" << std::endl;
+    return -99;
+  }
+  if(cent<0 || cent>99){
+    std::cout << "Error in trackingDataMCDiffUncert()!  centrality not in the range of [0,99]!" << std::endl;
+    return -99;
+  }
+
+  if(!isRatio && isPP) return 0.04;
+  if(!isRatio && !isPP) return 0.05;
+
+  //low pt tracks seem pretty constant vs centrality
+  if(trkPt < 1.0) return 0.04;
+
+  //mid-pt tracks
+  if(trkPt<1.4){
+    if(cent<30) return 0.052;
+    if(cent<50) return 0.045;
+    if(cent<70) return 0.035;
+    return 0.03;
+  }
+
+  //high-pt tracks
+  if(cent<30) return 0.064;//no cancallation assumed
+  if(cent<50) return 0.05;
+  if(cent<70) return 0.03;
+  return 0.02;
 }

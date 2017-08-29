@@ -50,7 +50,7 @@ echo "directory for sys variations  : $sysDir"
 nomPrefix=$nomDir"data"
 sysPrefix=$sysDir
 
-SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange tracking_ratio)
 
 echo "compiling macros..."
 g++ jetff.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetff.exe || exit 1
@@ -62,7 +62,7 @@ set -x
 sysIndices="1 2 3 4 6 9 10"
 runSysIso=1
 if [ $6 = "pbpbdata" ] || [ $6 = "pbpbmc" ]; then
-  sysIndices="1 2 3 4 6 9 10 11 12"
+  sysIndices="1 2 3 4 6 9 10 11 12 14"
   runSysIso=1
 fi
 

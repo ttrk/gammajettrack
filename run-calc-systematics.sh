@@ -40,6 +40,7 @@ mv iso_${sample}_${1}_${2}_gxi${3}_defnFF1_ff_final.root $sysDir
 
 ## for pp : nominal = jes_qg_down
 cp ${nomFile} ${sysDir}jes_qg_down_ppdata_${1}_${2}_gxi${3}_defnFF1_ff_final.root
+cp ${nomFile} ${sysDir}tracking_ratio_ppdata_${1}_${2}_gxi${3}_defnFF1_ff_final.root
 #####
 SYSLIST=systematics_${1}_${2}_${3}_${sample}.list
 if [ -f $SYSLIST ]; then
@@ -47,9 +48,9 @@ if [ -f $SYSLIST ]; then
 fi
 touch $SYSLIST
 
-SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange tracking_ratio)
 
-sysIndices="1 2 3 4 5 6 7 8 9 10 12 13"
+sysIndices="1 2 3 4 5 6 7 8 9 10 12 13 14"
 
 for SYS in ${sysIndices}
 do

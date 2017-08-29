@@ -23,8 +23,7 @@ enum SYS
     k_ele_rej,
     k_purity_up,
     k_purity_down,
-    k_tracking_up,
-    k_tracking_down,
+    k_tracking_ratio,
     //k_jes_qg_up,
     k_jes_qg_down,
     k_longrange,
@@ -34,27 +33,27 @@ enum SYS
 };
 
 std::string sys_types[kN_SYS] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_qg_down", "longrange", "xi_nonclosure", "bkgsub"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_ratio", "jes_qg_down", "longrange", "xi_nonclosure", "bkgsub"
 };
 
 std::string fit_funcs[kN_SYS] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
+    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
 };
 
 int options[kN_SYS] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0
+    4, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0
 };
 
 int special[kN_SYS] = {
-    0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0
+    0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0
 };
 
 int add2Total[kN_SYS] = {
-    0, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1
+    0, 2, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1
 };
 
 std::string sys_observables[kN_SYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long range", "xi nonclosure", "bkg subtraction"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "JES Q/G", "long range", "xi nonclosure", "bkg subtraction"
 };
 
 int calc_ratio_systematics(const char* observable, const char* filelist, const char* histlist, const char* label) {
