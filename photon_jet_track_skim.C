@@ -332,9 +332,9 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     for (int iele = 0; iele < pt.nEle; ++iele) {
       if ((*pt.elePt)[iele] < 10)
         continue;
-      if (fabs((*pt.eleEta)[iele] - (*pt.phoEta)[maxPhoIndex]) > 0.03) // deta
+      if (fabs((*pt.eleEta)[iele] - (*pt.phoEta)[maxPhoIndex]) > 0.02) // deta
         continue;
-      if (fabs(acos(cos((*pt.elePhi)[iele] - (*pt.phoPhi)[maxPhoIndex]))) > 0.03) // dphi
+      if (fabs(acos(cos((*pt.elePhi)[iele] - (*pt.phoPhi)[maxPhoIndex]))) > 0.15) // dphi
         continue;
       if (eleEpTemp < (*pt.eleEoverP)[iele])
         continue;
