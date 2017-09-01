@@ -65,9 +65,7 @@ case \$2 in
     0)
         JETALGO=akPu3PFJetAnalyzer
         ISPP=0
-        NMIX=\$((\$1%4))
-        NMIX=\$((\$NMIX+1))
-        MIXFILE=\$(head -n\${NMIX} PbPb_Data_MB.list | tail -n1)
+        MIXFILE=PbPb_Data_MB.list
         ;;
     1)
         JETALGO=akPu3PFJetAnalyzer
