@@ -306,8 +306,10 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
         // rebin large deltar
         hjs_final[i] = (TH1D*)hjs_final_raw[i]->Rebin(8, Form("hjs_final_%s", tag.c_str()), rebinning);
 
+        // normalize to unity
+        hjs_final[i]->Scale(1./hjs_final[i]->Integral(), "width");
         // normalization done w.r.t. r < 0.3
-        hjs_final[i]->Scale(1/hjs_final[i]->Integral(hjs_final[i]->FindBin(0.01), hjs_final[i]->FindBin(0.29)), "width");
+        // hjs_final[i]->Scale(1./hjs_final[i]->Integral(hjs_final[i]->FindBin(0.01), hjs_final[i]->FindBin(0.29)), "width");
     }
 
     fout->Write("", TObject::kOverwrite);
