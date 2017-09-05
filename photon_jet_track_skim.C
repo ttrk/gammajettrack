@@ -28,16 +28,20 @@
 
 static const double pi = 3.141592653589793238462643383279502884;
 
+const int nHiBins = 200;
+const int nVzBins = 30;
+const int nEventPlaneBins = 16;
+
 double getAngleToEP(double angle);
 float getTrkWeight(TrkCorr* trkCorr, int itrk, int hiBin, jetTree* jt_trkcorr, trackTree* tt);
+int getVzBin(float vz);
+int getEventPlaneBin(double eventPlaneAngle);
 
 int photon_jet_track_skim(std::string input, std::string output, std::string jet_algo = "akPu3PFJetAnalyzer", bool isPP = 0, std::string mixing_file = "", float jetptmin = 10, int start = 0, int end = -1) {
   // start each file at a different index in the minbias mix tree
   // index is random but deterministic
   uint32_t filehash = std::hash<std::string>()(input) % UINT32_MAX;
   srand(filehash);
-
-  int minbias_start[4] = {0, 0, 0, 0};
 
   bool isHI = !isPP;
   bool isMC = true;
@@ -139,23 +143,34 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
       mixing_list.push_back(line);
   }
 
-  int nmbfiles = (int)mixing_list.size();
+  int startMixEvent[nHiBins][nVzBins][nEventPlaneBins] = {0};
+  int startMixFile[nHiBins][nVzBins][nEventPlaneBins] = {0};
+  for (int i1 = 0; i1 < nHiBins; ++i1) {
+      for (int i2 = 0; i2 < nVzBins; ++i2) {
+          for (int i3 = 0; i3 < nEventPlaneBins; ++i3) {
+              startMixEvent[i1][i2][i3] = 0;
+              startMixFile[i1][i2][i3] = 0;
+          }
+      }
+  }
+
+  int nMixFiles = (int)mixing_list.size();
 
   /* prevents a segfault in pp */
-  if (nmbfiles == 0) nmbfiles = 1;
+  if (nMixFiles == 0) nMixFiles = 1;
 
-  TFile* fmixing[nmbfiles] = {0};
-  TTree* event_tree_mix[nmbfiles] = {0};
-  TTree* skim_tree_mix[nmbfiles] = {0};
-  TTree* jet_tree_mix[nmbfiles] = {0};
-  TTree* jet_tree_for_trk_corr_mix[nmbfiles] = {0};
-  TTree* track_tree_mix[nmbfiles] = {0};
-  TTree* genpart_tree_mix[nmbfiles] = {0};
+  TFile* fmixing[nMixFiles] = {0};
+  TTree* event_tree_mix[nMixFiles] = {0};
+  TTree* skim_tree_mix[nMixFiles] = {0};
+  TTree* jet_tree_mix[nMixFiles] = {0};
+  TTree* jet_tree_for_trk_corr_mix[nMixFiles] = {0};
+  TTree* track_tree_mix[nMixFiles] = {0};
+  TTree* genpart_tree_mix[nMixFiles] = {0};
 
-  jetTree jt_mix[nmbfiles];
-  jetTree jt_trkcorr_mix[nmbfiles];
-  trackTree tt_mix[nmbfiles];
-  genpartTree gpt_mix[nmbfiles];
+  jetTree jt_mix[nMixFiles];
+  jetTree jt_trkcorr_mix[nMixFiles];
+  trackTree tt_mix[nMixFiles];
+  genpartTree gpt_mix[nMixFiles];
 
   int hiBin_mix;
   float vz_mix;
@@ -167,7 +182,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   int pBeamScrapingFilter_mix;
 
   if (!isPP && !mixing_file.empty() && mixing_file.compare("null") != 0) {
-    for (int jmbfile = 0; jmbfile < nmbfiles; ++jmbfile) {
+    for (int jmbfile = 0; jmbfile < nMixFiles; ++jmbfile) {
       fmixing[jmbfile] = TFile::Open(mixing_list[jmbfile].c_str(), "read");
 
       event_tree_mix[jmbfile] = (TTree*)fmixing[jmbfile]->Get("hiEvtAnalyzer/HiTree");
@@ -255,7 +270,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   else
     trkCorr = new TrkCorr("Corrections/TrkCorr_July22_Iterative_pp_eta2p4/");
 
-  printf("number of MB files: %i\n", nmbfiles);
+  printf("number of MB files: %i\n", nMixFiles);
 
   /**********************************************************
   * BEGIN EVENT LOOP
@@ -512,160 +527,174 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
     //! (2.5) Begin minbias mixing criteria machinery
     if (!isPP && !mixing_file.empty() && mixing_file.compare("null") != 0) {
-      for (int imbfile = 0; imbfile < nmbfiles; ++imbfile) {
-        int minbias_end = minbias_start[imbfile];
-        bool wraparound = false;
 
-        // Start looping through the mixed event starting where we left off, so we don't always mix same events
-        const int nevent_mix = event_tree_mix[imbfile]->GetEntries();
-        for (int iminbias = minbias_start[imbfile]; iminbias <= nevent_mix; ++iminbias) {
-          // this part lets us wrap around to the beginning if we reach the last event
-          if (iminbias == nevent_mix) {
-            wraparound = true;
-            iminbias = -1;
-            continue;
-          }
+        // extract the characteristic bins to be used for event mixing
+        int ivz = getVzBin(vz);
+        int iEventPlane = getEventPlaneBin(hiEvtPlanes[8]);
 
-          if (wraparound && iminbias == minbias_start[imbfile]) break; // came back to start, done mixing
-          nlooped++;
+        if (ivz < 0) continue;
+        if (iEventPlane < 0) continue;
 
-          event_tree_mix[imbfile]->GetEntry(iminbias);
-          if (fabs(vz_mix) > 15) continue;
-          skim_tree_mix[imbfile]->GetEntry(iminbias);
-          if (!isPP) { // HI event selection
-            if ((pcollisionEventSelection_mix < 1))  continue;
-            if (!isMC) {
-              if (HBHENoiseFilterResultRun2Loose_mix < 1) continue;
+        while (nmix < nEventsToMix) {
+
+            int minbias_end = startMixEvent[hiBin][ivz][iEventPlane];
+            int iMixFile = startMixFile[hiBin][ivz][iEventPlane];
+
+            // Start looping through the mixed event starting where we left off, so we don't always mix same events
+            int nevent_mix = event_tree_mix[iMixFile]->GetEntries();
+            for (int jMix = startMixEvent[hiBin][ivz][iEventPlane]; jMix < nevent_mix; ++jMix) {
+
+                event_tree_mix[iMixFile]->GetEntry(jMix);
+                if (fabs(vz_mix) > 15) continue;
+                skim_tree_mix[iMixFile]->GetEntry(jMix);
+
+                int ivz = getVzBin(vz);
+                int iEventPlane = getEventPlaneBin(hiEvtPlanes[8]);
+
+                if (hiBin != hiBin_mix) continue;
+                if (ivz != getVzBin(vz_mix)) continue;
+                if (iEventPlane != getEventPlaneBin(hiEvtPlanes_mix[8])) continue;
+
+                //! (2.51) HiBin, vz, eventplane selection
+                //          if (abs(hiBin - hiBin_mix) > 0) continue;
+                //          if (fabs(vz - vz_mix) > 1) continue;
+                //          float dphi_evplane = acos(cos(fabs(hiEvtPlanes[8] - hiEvtPlanes_mix[8])));
+                //          if (dphi_evplane > TMath::Pi() / 16.0) continue;
+                // now we are within 0.5% centrality, 5cm vz and pi/16 angle of the original event
+
+                if (!isPP) { // HI event selection
+                    if ((pcollisionEventSelection_mix < 1))  continue;
+                    if (!isMC) {
+                        if (HBHENoiseFilterResultRun2Loose_mix < 1) continue;
+                    }
+                } else { // pp event selection
+                    if (pPAprimaryVertexFilter_mix < 1 || pBeamScrapingFilter_mix < 1)  continue;
+                }
+
+                jet_tree_for_trk_corr_mix[iMixFile]->GetEntry(jMix);
+
+                float maxJetPt_mix = -999;
+                for (int k = 0; k < jt_trkcorr_mix[iMixFile].nref; k++) {
+                    if (TMath::Abs(jt_trkcorr_mix[iMixFile].jteta[k]) > 2) continue;
+                    if (jt_trkcorr_mix[iMixFile].jtpt[k] > maxJetPt_mix) maxJetPt_mix = jt_trkcorr_mix[iMixFile].jtpt[k];
+                }
+
+                //! (2.52) Jets from mixed events
+                jet_tree_mix[iMixFile]->GetEntry(jMix);
+                for (int ijetmix = 0; ijetmix < jt_mix[iMixFile].nref; ++ijetmix) {
+                    if (jt_mix[iMixFile].jtpt[ijetmix] < jetptmin) continue;
+                    if (fabs(jt_mix[iMixFile].jteta[ijetmix]) > 2) continue;
+                    if (acos(cos(jt_mix[iMixFile].jtphi[ijetmix] - pjtt.phoPhi)) < 5 * pi / 8) continue;
+
+                    float jetpt_corr_mix = jt_mix[iMixFile].jtpt[ijetmix];
+
+                    // jet energy correction
+                    double xmin, xmax;
+                    jetResidualFunction[centBin]->GetRange(xmin, xmax);
+                    if (jetpt_corr_mix > xmin && jetpt_corr_mix < xmax) {
+                        jetpt_corr_mix = jetpt_corr_mix / jetResidualFunction[centBin]->Eval(jetpt_corr_mix);
+                        jetpt_corr_mix *= jec_fix;
+                    }
+
+                    jetpt_corr_mix = jet_corr->get_corrected_pt(jetpt_corr_mix, jt_mix[iMixFile].jteta[ijetmix]);
+                    if (isPP) {
+                        if (jetpt_corr_mix < 5) continue; // njet_mix is not incremented
+                    }
+                    else {
+                        if (jetpt_corr_mix < 25) continue; // njet_mix is not incremented
+                    }
+
+                    pjtt.jetptCorr_mix.push_back(jetpt_corr_mix);
+                    pjtt.jetpt_mix.push_back(jt_mix[iMixFile].jtpt[ijetmix]);
+                    pjtt.jeteta_mix.push_back(jt_mix[iMixFile].jteta[ijetmix]);
+                    pjtt.jetphi_mix.push_back(jt_mix[iMixFile].jtphi[ijetmix]);
+                    pjtt.gjetpt_mix.push_back(jt_mix[iMixFile].refpt[ijetmix]);
+                    pjtt.gjeteta_mix.push_back(jt_mix[iMixFile].refeta[ijetmix]);
+                    pjtt.gjetphi_mix.push_back(jt_mix[iMixFile].refphi[ijetmix]);
+                    pjtt.subid_mix.push_back(jt_mix[iMixFile].subid[ijetmix]);
+                    pjtt.nmixEv_mix.push_back(nmix);
+                    njet_mix++;
+                }
+                if (isMC) {
+                    for (int igenj_mix = 0; igenj_mix < jt_mix[iMixFile].ngen; igenj_mix++) {
+                        if (isPP) {
+                            if (jt_mix[iMixFile].genpt[igenj_mix] < 5) continue;
+                        }
+                        else {
+                            if (jt_mix[iMixFile].genpt[igenj_mix] < 25) continue;
+                        }
+
+                        if (fabs(jt_mix[iMixFile].geneta[igenj_mix]) > 1.6) continue;
+                        pjtt.genpt_mix.push_back(jt_mix[iMixFile].genpt[igenj_mix]);
+                        pjtt.geneta_mix.push_back(jt_mix[iMixFile].geneta[igenj_mix]);
+                        pjtt.genphi_mix.push_back(jt_mix[iMixFile].genphi[igenj_mix]);
+                        pjtt.gensubid_mix.push_back(jt_mix[iMixFile].gensubid[igenj_mix]);
+                        pjtt.genev_mix.push_back(nmix);
+                        ngen_mix++;
+                    }
+                }
+
+                //! (2.54) Tracks from jet and cones in mixed events
+                track_tree_mix[iMixFile]->GetEntry(jMix);
+                for (int itrkmix = 0; itrkmix < tt_mix[iMixFile].nTrk; ++itrkmix) {
+                    if (tt_mix[iMixFile].trkPt[itrkmix] < 1 || tt_mix[iMixFile].trkPt[itrkmix] > 300 || fabs(tt_mix[iMixFile].trkEta[itrkmix]) > 2.4) continue;
+
+                    if (tt_mix[iMixFile].highPurity[itrkmix] != 1) continue;
+                    if (tt_mix[iMixFile].trkPtError[itrkmix] / tt_mix[iMixFile].trkPt[itrkmix] > 0.1 || TMath::Abs(tt_mix[iMixFile].trkDz1[itrkmix] / tt_mix[iMixFile].trkDzError1[itrkmix]) > 3 || TMath::Abs(tt_mix[iMixFile].trkDxy1[itrkmix] / tt_mix[iMixFile].trkDxyError1[itrkmix]) > 3) continue;
+                    if (tt_mix[iMixFile].trkChi2[itrkmix] / (float)tt_mix[iMixFile].trkNdof[itrkmix] / (float)tt_mix[iMixFile].trkNlayer[itrkmix] > 0.15) continue;
+                    if (tt_mix[iMixFile].trkNHit[itrkmix] < 11 && tt_mix[iMixFile].trkPt[itrkmix] > 0.7) continue;
+                    if ((maxJetPt_mix > 50 && tt_mix[iMixFile].trkPt[itrkmix] > maxJetPt_mix) || (maxJetPt_mix < 50 && tt_mix[iMixFile].trkPt[itrkmix] > 50)) continue;
+
+                    float Et = (tt_mix[iMixFile].pfHcal[itrkmix] + tt_mix[iMixFile].pfEcal[itrkmix]) / TMath::CosH(tt_mix[iMixFile].trkEta[itrkmix]);
+                    if (!(tt_mix[iMixFile].trkPt[itrkmix] < 20 || (Et > 0.5 * tt_mix[iMixFile].trkPt[itrkmix]))) continue;
+
+                    float trkweight_mix = 0;
+                    if (isPP) trkweight_mix = getTrkWeight(trkCorr, itrkmix, 0, &jt_trkcorr_mix[iMixFile], &tt_mix[iMixFile]);
+                    else trkweight_mix = getTrkWeight(trkCorr, itrkmix, hiBin_mix, &jt_trkcorr_mix[iMixFile], &tt_mix[iMixFile]);
+
+                    pjtt.trkFromEv_mix.push_back(nmix);
+                    pjtt.trkPt_mix.push_back(tt_mix[iMixFile].trkPt[itrkmix]);
+                    pjtt.trkEta_mix.push_back(tt_mix[iMixFile].trkEta[itrkmix]);
+                    pjtt.trkPhi_mix.push_back(tt_mix[iMixFile].trkPhi[itrkmix]);
+                    pjtt.trkWeight_mix.push_back(trkweight_mix);
+                    nTrk_mix++;
+                }
+
+                if (isMC) {
+                    genpart_tree_mix[iMixFile]->GetEntry(jMix);
+                    for (int igenp = 0; igenp < gpt_mix[iMixFile].mult; ++igenp) {
+                        if ((*gpt_mix[iMixFile].pt)[igenp] < 1 || (*gpt_mix[iMixFile].pt)[igenp] > 300 || fabs((*gpt_mix[iMixFile].eta)[igenp]) > 2.4) continue;
+                        if ((*gpt_mix[iMixFile].chg)[igenp] == 0) continue;
+                        if ((*gpt_mix[iMixFile].pt)[igenp] < 1) continue;
+
+                        pjtt.pt_mix.push_back((*gpt_mix[iMixFile].pt)[igenp]);
+                        pjtt.eta_mix.push_back((*gpt_mix[iMixFile].eta)[igenp]);
+                        pjtt.phi_mix.push_back((*gpt_mix[iMixFile].phi)[igenp]);
+                        pjtt.chg_mix.push_back((*gpt_mix[iMixFile].chg)[igenp]);
+                        pjtt.nev_mix.push_back(nmix);
+                        mult_mix++;
+                    }
+                }
+
+                pjtt.dvz_mix[nmix] = fabs(vz - vz_mix);
+                pjtt.dhiBin_mix[nmix] = abs(hiBin - hiBin_mix);
+                pjtt.dhiEvtPlanes_mix[nmix] = acos(cos(fabs(hiEvtPlanes[8] - hiEvtPlanes_mix[8])));
+
+                minbias_end = jMix;
+                nmix++;
+
+                if (nmix >= nEventsToMix) break; // done mixing
             }
-          } else { // pp event selection
-            if (pPAprimaryVertexFilter_mix < 1 || pBeamScrapingFilter_mix < 1)  continue;
-          }
+            startMixEvent[hiBin][ivz][iEventPlane] = minbias_end;
+            startMixFile[hiBin][ivz][iEventPlane] = iMixFile;
+            if (nmix < nEventsToMix) {  // did not collect enough events after this file, go to next file
+                startMixEvent[hiBin][ivz][iEventPlane] = 0;
+                startMixFile[hiBin][ivz][iEventPlane]++;
 
-          //! (2.51) HiBin, vz, eventplane selection
-          if (abs(hiBin - hiBin_mix) > 0) continue;
-          if (fabs(vz - vz_mix) > 1) continue;
-          float dphi_evplane = acos(cos(fabs(hiEvtPlanes[8] - hiEvtPlanes_mix[8])));
-          if (dphi_evplane > TMath::Pi() / 16.0) continue;
-          // now we are within 0.5% centrality, 5cm vz and pi/16 angle of the original event
-
-          jet_tree_for_trk_corr_mix[imbfile]->GetEntry(iminbias);
-
-          float maxJetPt_mix = -999;
-          for (int k = 0; k < jt_trkcorr_mix[imbfile].nref; k++) {
-            if (TMath::Abs(jt_trkcorr_mix[imbfile].jteta[k]) > 2) continue;
-            if (jt_trkcorr_mix[imbfile].jtpt[k] > maxJetPt_mix) maxJetPt_mix = jt_trkcorr_mix[imbfile].jtpt[k];
-          }
-
-          //! (2.52) Jets from mixed events
-          jet_tree_mix[imbfile]->GetEntry(iminbias);
-          for (int ijetmix = 0; ijetmix < jt_mix[imbfile].nref; ++ijetmix) {
-            if (jt_mix[imbfile].jtpt[ijetmix] < jetptmin) continue;
-            if (fabs(jt_mix[imbfile].jteta[ijetmix]) > 2) continue;
-            if (acos(cos(jt_mix[imbfile].jtphi[ijetmix] - pjtt.phoPhi)) < 5 * pi / 8) continue;
-
-            float jetpt_corr_mix = jt_mix[imbfile].jtpt[ijetmix];
-
-            // jet energy correction
-            double xmin, xmax;
-            jetResidualFunction[centBin]->GetRange(xmin, xmax);
-            if (jetpt_corr_mix > xmin && jetpt_corr_mix < xmax) {
-              jetpt_corr_mix = jetpt_corr_mix / jetResidualFunction[centBin]->Eval(jetpt_corr_mix);
-              jetpt_corr_mix *= jec_fix;
+                if (startMixFile[hiBin][ivz][iEventPlane] == nMixFiles) // roll back to the first file
+                    startMixFile[hiBin][ivz][iEventPlane] = 0;
             }
-
-            jetpt_corr_mix = jet_corr->get_corrected_pt(jetpt_corr_mix, jt_mix[imbfile].jteta[ijetmix]);
-            if (isPP) {
-                if (jetpt_corr_mix < 5) continue; // njet_mix is not incremented
-            }
-            else {
-                if (jetpt_corr_mix < 25) continue; // njet_mix is not incremented
-            }
-
-            pjtt.jetptCorr_mix.push_back(jetpt_corr_mix);
-            pjtt.jetpt_mix.push_back(jt_mix[imbfile].jtpt[ijetmix]);
-            pjtt.jeteta_mix.push_back(jt_mix[imbfile].jteta[ijetmix]);
-            pjtt.jetphi_mix.push_back(jt_mix[imbfile].jtphi[ijetmix]);
-            pjtt.gjetpt_mix.push_back(jt_mix[imbfile].refpt[ijetmix]);
-            pjtt.gjeteta_mix.push_back(jt_mix[imbfile].refeta[ijetmix]);
-            pjtt.gjetphi_mix.push_back(jt_mix[imbfile].refphi[ijetmix]);
-            pjtt.subid_mix.push_back(jt_mix[imbfile].subid[ijetmix]);
-            pjtt.nmixEv_mix.push_back(nmix);
-            njet_mix++;
-          }
-          if (isMC) {
-            for (int igenj_mix = 0; igenj_mix < jt_mix[imbfile].ngen; igenj_mix++) {
-              if (isPP) {
-                  if (jt_mix[imbfile].genpt[igenj_mix] < 5) continue;
-              }
-              else {
-                  if (jt_mix[imbfile].genpt[igenj_mix] < 25) continue;
-              }
-
-              if (fabs(jt_mix[imbfile].geneta[igenj_mix]) > 1.6) continue;
-              pjtt.genpt_mix.push_back(jt_mix[imbfile].genpt[igenj_mix]);
-              pjtt.geneta_mix.push_back(jt_mix[imbfile].geneta[igenj_mix]);
-              pjtt.genphi_mix.push_back(jt_mix[imbfile].genphi[igenj_mix]);
-              pjtt.gensubid_mix.push_back(jt_mix[imbfile].gensubid[igenj_mix]);
-              pjtt.genev_mix.push_back(nmix);
-              ngen_mix++;
-            }
-          }
-
-          //! (2.54) Tracks from jet and cones in mixed events
-          track_tree_mix[imbfile]->GetEntry(iminbias);
-          for (int itrkmix = 0; itrkmix < tt_mix[imbfile].nTrk; ++itrkmix) {
-            if (tt_mix[imbfile].trkPt[itrkmix] < 1 || tt_mix[imbfile].trkPt[itrkmix] > 300 || fabs(tt_mix[imbfile].trkEta[itrkmix]) > 2.4) continue;
-
-            if (tt_mix[imbfile].highPurity[itrkmix] != 1) continue;
-            if (tt_mix[imbfile].trkPtError[itrkmix] / tt_mix[imbfile].trkPt[itrkmix] > 0.1 || TMath::Abs(tt_mix[imbfile].trkDz1[itrkmix] / tt_mix[imbfile].trkDzError1[itrkmix]) > 3 || TMath::Abs(tt_mix[imbfile].trkDxy1[itrkmix] / tt_mix[imbfile].trkDxyError1[itrkmix]) > 3) continue;
-            if (tt_mix[imbfile].trkChi2[itrkmix] / (float)tt_mix[imbfile].trkNdof[itrkmix] / (float)tt_mix[imbfile].trkNlayer[itrkmix] > 0.15) continue;
-            if (tt_mix[imbfile].trkNHit[itrkmix] < 11 && tt_mix[imbfile].trkPt[itrkmix] > 0.7) continue;
-            if ((maxJetPt_mix > 50 && tt_mix[imbfile].trkPt[itrkmix] > maxJetPt_mix) || (maxJetPt_mix < 50 && tt_mix[imbfile].trkPt[itrkmix] > 50)) continue;
-
-            float Et = (tt_mix[imbfile].pfHcal[itrkmix] + tt_mix[imbfile].pfEcal[itrkmix]) / TMath::CosH(tt_mix[imbfile].trkEta[itrkmix]);
-            if (!(tt_mix[imbfile].trkPt[itrkmix] < 20 || (Et > 0.5 * tt_mix[imbfile].trkPt[itrkmix]))) continue;
-
-            float trkweight_mix = 0;
-            if (isPP) trkweight_mix = getTrkWeight(trkCorr, itrkmix, 0, &jt_trkcorr_mix[imbfile], &tt_mix[imbfile]);
-            else trkweight_mix = getTrkWeight(trkCorr, itrkmix, hiBin_mix, &jt_trkcorr_mix[imbfile], &tt_mix[imbfile]);
-
-            pjtt.trkFromEv_mix.push_back(nmix);
-            pjtt.trkPt_mix.push_back(tt_mix[imbfile].trkPt[itrkmix]);
-            pjtt.trkEta_mix.push_back(tt_mix[imbfile].trkEta[itrkmix]);
-            pjtt.trkPhi_mix.push_back(tt_mix[imbfile].trkPhi[itrkmix]);
-            pjtt.trkWeight_mix.push_back(trkweight_mix);
-            nTrk_mix++;
-          }
-
-          if (isMC) {
-            genpart_tree_mix[imbfile]->GetEntry(iminbias);
-            for (int igenp = 0; igenp < gpt_mix[imbfile].mult; ++igenp) {
-              if ((*gpt_mix[imbfile].pt)[igenp] < 1 || (*gpt_mix[imbfile].pt)[igenp] > 300 || fabs((*gpt_mix[imbfile].eta)[igenp]) > 2.4) continue;
-              if ((*gpt_mix[imbfile].chg)[igenp] == 0) continue;
-              if ((*gpt_mix[imbfile].pt)[igenp] < 1) continue;
-
-              pjtt.pt_mix.push_back((*gpt_mix[imbfile].pt)[igenp]);
-              pjtt.eta_mix.push_back((*gpt_mix[imbfile].eta)[igenp]);
-              pjtt.phi_mix.push_back((*gpt_mix[imbfile].phi)[igenp]);
-              pjtt.chg_mix.push_back((*gpt_mix[imbfile].chg)[igenp]);
-              pjtt.nev_mix.push_back(nmix);
-              mult_mix++;
-            }
-          }
-
-          pjtt.dvz_mix[nmix] = fabs(vz - vz_mix);
-          pjtt.dhiBin_mix[nmix] = abs(hiBin - hiBin_mix);
-          pjtt.dhiEvtPlanes_mix[nmix] = dphi_evplane;
-
-          minbias_end = iminbias;
-          nmix++;
-
-          if (nmix >= nEventsToMix) break; // done mixing
         }
-        minbias_start[imbfile] = minbias_end;
-
-        if (nmix >= nEventsToMix) break;
-      }
     }
     //! End minbias mixing
 
@@ -713,6 +742,24 @@ float getTrkWeight(TrkCorr* trkCorr, int itrk, int hiBin, jetTree* jt_trkcorr, t
 #else
   return trkCorr->getTrkCorr(tt->trkPt[itrk], tt->trkEta[itrk], tt->trkPhi[itrk], hiBin, rmin);
 #endif
+}
+
+int getVzBin(float vz)
+{
+    for (int i = 0; i < 30; ++i){
+        if ((i-15) <= vz && vz < (i-14)) return i;
+    }
+    if (vz == 15) return 29;
+    return -1;
+}
+
+int getEventPlaneBin(double eventPlaneAngle)
+{
+    for (int i = 0; i < 16; ++i){
+        if ((double)i*pi/16 <= eventPlaneAngle + 0.5*pi && eventPlaneAngle + 0.5*pi < (double)(i+1)*pi/16) return i;
+    }
+    if (eventPlaneAngle + 0.5*pi == (double)pi) return 15;
+    return -1;
 }
 
 int main(int argc, char* argv[]) {
