@@ -134,7 +134,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   **********************************************************/
   std::vector<std::string> mixing_list;
 
-  if (!isPP && !mixing_file.empty() && mixing_file.compare("null") != 0) {
+  if (!isPP && !mixing_file.empty() && mixing_file != "null") {
     std::ifstream file_stream(mixing_file);
     if (!file_stream) return 1;
 
@@ -181,7 +181,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   int pPAprimaryVertexFilter_mix;
   int pBeamScrapingFilter_mix;
 
-  if (!isPP && !mixing_file.empty() && mixing_file.compare("null") != 0) {
+  if (!isPP && !mixing_file.empty() && mixing_file != "null") {
     for (int jmbfile = 0; jmbfile < nMixFiles; ++jmbfile) {
       fmixing[jmbfile] = TFile::Open(mixing_list[jmbfile].c_str(), "read");
 
@@ -526,7 +526,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     int mult_mix = 0;
 
     //! (2.5) Begin minbias mixing criteria machinery
-    if (!isPP && !mixing_file.empty() && mixing_file.compare("null") != 0) {
+    if (!isPP && !mixing_file.empty() && mixing_file != "null") {
 
         // extract the characteristic bins to be used for event mixing
         int ivz = getVzBin(vz);

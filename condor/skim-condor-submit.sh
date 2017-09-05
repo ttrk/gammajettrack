@@ -75,12 +75,12 @@ case \$2 in
     2)
         JETALGO=ak3PFJetAnalyzer
         ISPP=1
-        MXIFILE=""
+        MXIFILE="null"
         ;;
     3)
         JETALGO=ak3PFJetAnalyzer
         ISPP=1
-        MIXFILE=""
+        MIXFILE="null"
         ;;
     *)
         echo "bad option"
