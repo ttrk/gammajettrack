@@ -7,14 +7,14 @@ if [ $# -lt 7 ]; then
 fi
 
 if [ $6 = "pbpbdata" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170712.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170831.root"
     TYPE="recoreco"
-    MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170712.root"
+    MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170824.root"
     MCSAMPLE="pbpbmc"
 elif [ $6 = "ppdata" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-Data-skim-170712.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-Data-skim-170822.root"
     TYPE="srecoreco"
-    MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170712.root"
+    MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170824.root"
     MCSAMPLE="ppmc"
 else
     echo "invalid sample"
