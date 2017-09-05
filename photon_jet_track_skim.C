@@ -416,7 +416,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     for (int ij = 0; ij < jt.nref; ij++) {
       if (jt.jtpt[ij] < jetptmin) continue;
       if (fabs(jt.jteta[ij]) > 2) continue;
-      if (acos(cos(jt.jtphi[ij] - pjtt.phoPhi)) < 6 * pi / 8) continue;
+      if (acos(cos(jt.jtphi[ij] - pjtt.phoPhi)) < 5 * pi / 8) continue;
 
       float jetpt_corr = jt.jtpt[ij];
 
@@ -561,7 +561,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
           for (int ijetmix = 0; ijetmix < jt_mix[imbfile].nref; ++ijetmix) {
             if (jt_mix[imbfile].jtpt[ijetmix] < jetptmin) continue;
             if (fabs(jt_mix[imbfile].jteta[ijetmix]) > 2) continue;
-            if (acos(cos(jt_mix[imbfile].jtphi[ijetmix] - pjtt.phoPhi)) < 6 * pi / 8) continue;
+            if (acos(cos(jt_mix[imbfile].jtphi[ijetmix] - pjtt.phoPhi)) < 5 * pi / 8) continue;
 
             float jetpt_corr_mix = jt_mix[imbfile].jtpt[ijetmix];
 
