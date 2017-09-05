@@ -55,10 +55,6 @@ int trkPtsUp[8] = {2, 3, 4, 8, 12, 16, 20, 9999};
 float lowxicorr[4] = {1.073 , 1.079 , 1.083 , 1.074};
 float midxicorr[4] = {1.0514 , 1.0478 , 1.0483 , 1.0471};
 
-void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string gen, int checkjetid, float trkptmin, int gammaxi, int whichSys, float sysScaleFactor) {
-  return;
-}
-
 double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[]);
 double getDPHI(double phi1, double phi2);
 double getShiftedDPHI(double dphi);
