@@ -37,7 +37,7 @@ float getTrkWeight(TrkCorr* trkCorr, int itrk, int hiBin, jetTree* jt_trkcorr, t
 int getVzBin(float vz);
 int getEventPlaneBin(double eventPlaneAngle);
 
-int photon_jet_track_skim(std::string input, std::string output, std::string jet_algo = "akPu3PFJetAnalyzer", bool isPP = 0, std::string mixing_file = "", float jetptmin = 10, int start = 0, int end = -1) {
+int photon_jet_track_skim(std::string input, std::string output, std::string jet_algo = "akPu3PFJetAnalyzer", bool isPP = 0, std::string mixing_file = "", float jetptmin = 10, int jobIndex = -1, int start = 0, int end = -1) {
   // start each file at a different index in the minbias mix tree
   // index is random but deterministic
   uint32_t filehash = std::hash<std::string>()(input) % UINT32_MAX;
@@ -143,17 +143,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
       mixing_list.push_back(line);
   }
 
-  int startMixEvent[nHiBins][nVzBins][nEventPlaneBins] = {0};
-  int startMixFile[nHiBins][nVzBins][nEventPlaneBins] = {0};
-  for (int i1 = 0; i1 < nHiBins; ++i1) {
-      for (int i2 = 0; i2 < nVzBins; ++i2) {
-          for (int i3 = 0; i3 < nEventPlaneBins; ++i3) {
-              startMixEvent[i1][i2][i3] = 0;
-              startMixFile[i1][i2][i3] = 0;
-          }
-      }
-  }
-
   int nMixFiles = (int)mixing_list.size();
 
   /* prevents a segfault in pp */
@@ -224,6 +213,24 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     }
   }
 
+
+  Long64_t startMixEvent[nHiBins][nVzBins][nEventPlaneBins];
+  int startMixFile[nHiBins][nVzBins][nEventPlaneBins];
+  for (int i1 = 0; i1 < nHiBins; ++i1) {
+      for (int i2 = 0; i2 < nVzBins; ++i2) {
+          for (int i3 = 0; i3 < nEventPlaneBins; ++i3) {
+              startMixEvent[i1][i2][i3] = 0;
+              startMixFile[i1][i2][i3] = 0;
+
+              if (jobIndex >= 0 && event_tree_mix[0] != 0) {
+                  TRandom3 rand(jobIndex); // random number seed should be fixed or reproducible
+                  Long64_t nEventMixTmp = event_tree_mix[0]->GetEntries();
+                  startMixEvent[i1][i2][i3] = rand.Integer(nEventMixTmp); // Integer(imax) Returns a random integer on [0, imax-1].
+              }
+          }
+      }
+  }
+
   /**********************************************************
   * OPEN CORRECTION FILES
   **********************************************************/
@@ -275,16 +282,21 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   /**********************************************************
   * BEGIN EVENT LOOP
   **********************************************************/
-  int nevents = event_tree->GetEntries();
-  for (int j = start; j < nevents; j++) {
+  Long64_t nevents = event_tree->GetEntries();
+  for (Long64_t j = start; j < nevents; j++) {
     pjtt.clear_vectors();
 
     skim_tree->GetEntry(j);
     event_tree->GetEntry(j);
 
     hlt_tree->GetEntry(j);
-    if (j % 500 == 0) { printf("processing event: %i / %i\n", j, end); }
-    if (j == end) { printf("done: %i\n", end); break; }
+    if (j % 500 == 0) {
+        std::cout << "processing event: " << j <<" / "<< end <<std::endl;
+    }
+    if (j == (Long64_t)end) {
+        std::cout << "done: " << end <<std::endl;
+        break;
+    }
 
     if (fabs(vz) > 15) continue;
     if (!(HLT_HISinglePhoton40_Eta1p5_v1 == 1 || HLT_HISinglePhoton40_Eta1p5_v2 == 1 || HLT_HISinglePhoton40_Eta1p5ForPPRef_v1 == 1)) continue;
@@ -537,12 +549,12 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
         while (nmix < nEventsToMix) {
 
-            int minbias_end = startMixEvent[hiBin][ivz][iEventPlane];
+            Long64_t minbias_end = startMixEvent[hiBin][ivz][iEventPlane];
             int iMixFile = startMixFile[hiBin][ivz][iEventPlane];
 
             // Start looping through the mixed event starting where we left off, so we don't always mix same events
-            int nevent_mix = event_tree_mix[iMixFile]->GetEntries();
-            for (int jMix = startMixEvent[hiBin][ivz][iEventPlane]; jMix < nevent_mix; ++jMix) {
+            Long64_t nevent_mix = event_tree_mix[iMixFile]->GetEntries();
+            for (Long64_t jMix = startMixEvent[hiBin][ivz][iEventPlane]; jMix < nevent_mix; ++jMix) {
 
                 event_tree_mix[iMixFile]->GetEntry(jMix);
                 if (fabs(vz_mix) > 15) continue;
@@ -778,11 +790,13 @@ int main(int argc, char* argv[]) {
     else if (argc == 6)
         return photon_jet_track_skim(argv[1], argv[2], argv[3], atoi(argv[4]), argv[5]);
     else if (argc == 7)
-        return photon_jet_track_skim(argv[1], argv[2], argv[3], atoi(argv[4]), argv[5], atoi(argv[6]));
+        return photon_jet_track_skim(argv[1], argv[2], argv[3], atoi(argv[4]), argv[5], atof(argv[6]));
     else if (argc == 8)
-        return photon_jet_track_skim(argv[1], argv[2], argv[3], atoi(argv[4]), argv[5], atoi(argv[6]), atoi(argv[7]));
+        return photon_jet_track_skim(argv[1], argv[2], argv[3], atoi(argv[4]), argv[5], atof(argv[6]), atoi(argv[7]));
     else if (argc == 9)
-        return photon_jet_track_skim(argv[1], argv[2], argv[3], atoi(argv[4]), argv[5], atoi(argv[6]), atoi(argv[7]), atoi(argv[8]));
+        return photon_jet_track_skim(argv[1], argv[2], argv[3], atoi(argv[4]), argv[5], atof(argv[6]), atoi(argv[7]), atoi(argv[8]));
+    else if (argc == 10)
+        return photon_jet_track_skim(argv[1], argv[2], argv[3], atoi(argv[4]), argv[5], atof(argv[6]), atoi(argv[7]), atoi(argv[8]), atoi(argv[9]));
     else
         return 1;
 }
