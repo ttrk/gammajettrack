@@ -90,8 +90,8 @@ esac
 
 set -x
 
-echo ./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP \$MIXFILE
-./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP \$MIXFILE
+echo ./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP \$MIXFILE 10 \${1}
+./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP \$MIXFILE 10 \${1}
 
 if [[ \$? -eq 0 ]]; then
     mv \${1}.root \${4}
