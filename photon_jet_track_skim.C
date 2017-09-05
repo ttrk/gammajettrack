@@ -213,20 +213,22 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     }
   }
 
+  Long64_t startRand = 0;
+  if (jobIndex >= 0 && event_tree_mix[0] != 0) {
+      TRandom3 rand(jobIndex); // random number seed should be fixed or reproducible
+      Long64_t nEventMixTmp = event_tree_mix[0]->GetEntries();
+      startRand = rand.Integer(nEventMixTmp); // Integer(imax) Returns a random integer on [0, imax-1].
+  }
 
   Long64_t startMixEvent[nHiBins][nVzBins][nEventPlaneBins];
+  bool usedAllMixEvents[nHiBins][nVzBins][nEventPlaneBins];
   int startMixFile[nHiBins][nVzBins][nEventPlaneBins];
   for (int i1 = 0; i1 < nHiBins; ++i1) {
       for (int i2 = 0; i2 < nVzBins; ++i2) {
           for (int i3 = 0; i3 < nEventPlaneBins; ++i3) {
-              startMixEvent[i1][i2][i3] = 0;
+              startMixEvent[i1][i2][i3] = startRand;
+              usedAllMixEvents[i1][i2][i3] = false;
               startMixFile[i1][i2][i3] = 0;
-
-              if (jobIndex >= 0 && event_tree_mix[0] != 0) {
-                  TRandom3 rand(jobIndex); // random number seed should be fixed or reproducible
-                  Long64_t nEventMixTmp = event_tree_mix[0]->GetEntries();
-                  startMixEvent[i1][i2][i3] = rand.Integer(nEventMixTmp); // Integer(imax) Returns a random integer on [0, imax-1].
-              }
           }
       }
   }
@@ -696,6 +698,11 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                 nmix++;
 
                 if (nmix >= nEventsToMix) break; // done mixing
+
+                if (iMixFile == 0 && jMix == startRand-1)   // The mix events for this bin are exhausted.
+                {
+                    usedAllMixEvents[hiBin][ivz][iEventPlane] = true;
+                }
             }
             startMixEvent[hiBin][ivz][iEventPlane] = minbias_end;
             startMixFile[hiBin][ivz][iEventPlane] = iMixFile;
@@ -706,6 +713,8 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                 if (startMixFile[hiBin][ivz][iEventPlane] == nMixFiles) // roll back to the first file
                     startMixFile[hiBin][ivz][iEventPlane] = 0;
             }
+
+            if (usedAllMixEvents[hiBin][ivz][iEventPlane]) break; // do not reuse the used mix events.
         }
     }
     //! End minbias mixing
