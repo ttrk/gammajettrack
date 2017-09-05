@@ -210,7 +210,7 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
     TH1D* hjetpt_mix[4] = {0};
     TH1D* hjetpt_mixsignal[4] = {0};
     TH1D* hjetpt_bkg[4] = {0};
-    TH1D* hjetpt_mix_bkg[4] = {0};
+    TH1D* hjetpt_mixjet_bkg[4] = {0};
     TH1D* hjetpt_mixsignal_bkg[4] = {0};
 
     TH1D* hjs[4] = {0};
@@ -244,7 +244,7 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
 
         // histograms for raw photon jetshapes
         hjetpt[i] = (TH1D*)finput->Get(Form("hjetpt_%s", tag.c_str()))->Clone();
-        hjetpt_mix[i] = (TH1D*)finput->Get(Form("hjetpt_mix_%s", tag.c_str()))->Clone();
+        hjetpt_mix[i] = (TH1D*)finput->Get(Form("hjetpt_mixjet_%s", tag.c_str()))->Clone();
         hjetpt_mixsignal[i] = (TH1D*)finput->Get(Form("hjetpt_mixsignal_%s", tag.c_str()))->Clone();
 
         hjs[i] = (TH1D*)finput->Get(Form("hjetshape_%s", tag.c_str()))->Clone();
@@ -272,7 +272,7 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
 
         // histograms for background photon jetshapes
         hjetpt_bkg[i] = (TH1D*)finput->Get(Form("hjetpt_bkg_%s", tag.c_str()));
-        hjetpt_mix_bkg[i] = (TH1D*)finput->Get(Form("hjetpt_mix_bkg_%s", tag.c_str()));
+        hjetpt_mixjet_bkg[i] = (TH1D*)finput->Get(Form("hjetpt_mixjet_bkg_%s", tag.c_str()));
         hjetpt_mixsignal_bkg[i] = (TH1D*)finput->Get(Form("hjetpt_mixsignal_bkg_%s", tag.c_str()));
 
         hjs_bkg[i] = (TH1D*)finput->Get(Form("hjetshape_bkg_%s", tag.c_str()))->Clone();
@@ -288,15 +288,15 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
         hjs_mixsignal_sub_bkg[i] = (TH1D*)hjs_mixsignal_bkg[i]->Clone(Form("hjs_mixsignal_sub_bkg_%s", tag.c_str()));
         hjs_sub_bkg[i]->Add(hjs_ue_bkg[i], -1 * uescale[i]);
         hjs_mixjet_sub_bkg[i]->Add(hjs_mixjet_ue_bkg[i], -1);
-        if (hjetpt_mix_bkg[i]->Integral() > 0)
-            hjs_mixsignal_ue_bkg[i]->Scale(hjetpt_mixsignal_bkg[i]->Integral() / hjetpt_mix_bkg[i]->Integral());
+        if (hjetpt_mixjet_bkg[i]->Integral() > 0)
+            hjs_mixsignal_ue_bkg[i]->Scale(hjetpt_mixsignal_bkg[i]->Integral() / hjetpt_mixjet_bkg[i]->Integral());
         hjs_mixsignal_sub_bkg[i]->Add(hjs_mixsignal_ue_bkg[i], -1 * uescale[i]);
 
         // mix jet subtraction for background photon jetshapes
         hjs_background[i] = (TH1D*)hjs_sub_bkg[i]->Clone(Form("hjs_background_%s", tag.c_str()));
         hjs_background[i]->Add(hjs_mixjet_sub_bkg[i], -1);
         hjs_background[i]->Add(hjs_mixsignal_sub_bkg[i], -1);
-        hjs_background[i]->Scale(1.0/(hjetpt_bkg[i]->Integral() - hjetpt_mix_bkg[i]->Integral()));
+        hjs_background[i]->Scale(1.0/(hjetpt_bkg[i]->Integral() - hjetpt_mixjet_bkg[i]->Integral()));
 
         // purity subtraction
         hjs_final_raw[i] = (TH1D*)hjs_signal[i]->Clone(Form("hjs_final_raw_%s", tag.c_str()));

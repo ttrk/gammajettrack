@@ -41,8 +41,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hjetpt[2]; TH1D* hjetpt_mix[2];
   hjetpt[0] = new TH1D(Form("hjetpt_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt[1] = new TH1D(Form("hjetpt_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetpt_mix[0] = new TH1D(Form("hjetpt_mix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetpt_mix[1] = new TH1D(Form("hjetpt_mix_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  hjetpt_mixjet[0] = new TH1D(Form("hjetpt_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  hjetpt_mixjet[1] = new TH1D(Form("hjetpt_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
 
   TH1D* hjetshape[2]; TH1D* hjetshape_ue[2]; TH1D* hjetshape_mixjet[2]; TH1D* hjetshape_mixjet_ue[2];
   hjetshape[0] = new TH1D(Form("hjetshape_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
@@ -65,8 +65,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   hjetshape_mixsignal_ue[1] = new TH1D(Form("hjetshape_mixsignal_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
   TH1D* hjetpt_mix_all[2]; TH1D* hjetpt_mixsignal_all[2];
-  hjetpt_mix_all[0] = new TH1D(Form("hjetpt_mix_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetpt_mix_all[1] = new TH1D(Form("hjetpt_mix_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  hjetpt_mixjet_all[0] = new TH1D(Form("hjetpt_mixjet_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  hjetpt_mixjet_all[1] = new TH1D(Form("hjetpt_mixjet_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt_mixsignal_all[0] = new TH1D(Form("hjetpt_mixsignal_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt_mixsignal_all[1] = new TH1D(Form("hjetpt_mixsignal_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
 
