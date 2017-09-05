@@ -551,6 +551,8 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
         while (nmix < nEventsToMix) {
 
+            if (usedAllMixEvents[hiBin][ivz][iEventPlane]) break; // do not reuse the used mix events.
+
             Long64_t minbias_end = startMixEvent[hiBin][ivz][iEventPlane];
             int iMixFile = startMixFile[hiBin][ivz][iEventPlane];
 
@@ -697,12 +699,12 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                 minbias_end = jMix;
                 nmix++;
 
-                if (nmix >= nEventsToMix) break; // done mixing
-
                 if (iMixFile == 0 && jMix == startRand-1)   // The mix events for this bin are exhausted.
                 {
                     usedAllMixEvents[hiBin][ivz][iEventPlane] = true;
                 }
+
+                if (nmix >= nEventsToMix) break; // done mixing
             }
             startMixEvent[hiBin][ivz][iEventPlane] = minbias_end;
             startMixFile[hiBin][ivz][iEventPlane] = iMixFile;
@@ -713,8 +715,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                 if (startMixFile[hiBin][ivz][iEventPlane] == nMixFiles) // roll back to the first file
                     startMixFile[hiBin][ivz][iEventPlane] = 0;
             }
-
-            if (usedAllMixEvents[hiBin][ivz][iEventPlane]) break; // do not reuse the used mix events.
         }
     }
     //! End minbias mixing
