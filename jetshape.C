@@ -13,10 +13,6 @@ TRandom3 smear_rand(12345);
 float lowxi_jec[4] = {1.073, 1.079, 1.083, 1.074};
 float midxi_jec[4] = {1.0514, 1.0478, 1.0483, 1.0471};
 
-void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string gen, int checkjetid, float trkptmin, int gammaxi, int whichSys, float sysScaleFactor) {
-  return;
-}
-
 // systematic:
 // 1: JES_UP
 // 2: JES_DOWN
@@ -26,6 +22,8 @@ void photonjettrack::ffgammajet(std::string label, int centmin, int centmax, flo
 // 6: ELE_REJ
 // 9: TRK_UP
 // 10: TRK_DOWN
+// 11: JES_GLUON
+// 12: JES_QUARK
 
 void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int dummy) {
   bool isHI = (sample.find("pbpb") != std::string::npos);
@@ -186,7 +184,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     // photon isolation systematics
     if (systematic == 5) {
       if (isMC)
-        if (pho_genMatchedIndex == -1 || (*mcCalIsoDR04)[pho_genMatchedIndex] > 5.0)
+        if (pho_genMatchedIndex == -1 || phoMCIsolation > 5.0)
           continue;
     }
 
@@ -195,9 +193,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       if (phoisEle)
         continue;
     }
-
-    // apply fix to gamma-jet jec
-    float jec_fix = isPP ? 0.99 : 0.98;
 
     if (isMC) weight = weight * hvzweight->GetBinContent(hvzweight->FindBin(vz));
     if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
@@ -264,27 +259,31 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        rawjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt) * jec_fix;
+        rawjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
         rawjetphi = (*j_phi)[ij] + smear_rand.Gaus(0, res_phi);
 
         // jet phi cut
         if (acos(cos(rawjetphi - phoPhi)) < 7 * pi / 8) continue;
 
         switch (systematic) {
-          case 1: {
+          case 1:
+            rawjetpt = rawjetpt * 1.02;
+            break;
+          case 2:
+            rawjetpt = rawjetpt * 0.98;
+            break;
+          case 11: {
+            float flavor_factor = 0;
+            if (!isPP) { flavor_factor = f_JES_G[centBin]->Eval(rawjetpt); }
+            rawjetpt = rawjetpt * (1 + flavor_factor);
+            break; }
+          case 12: {
             float flavor_factor = 0;
             if (!isPP) { flavor_factor = f_JES_Q[centBin]->Eval(rawjetpt); }
-            float jes_factor = 1 + TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
-            rawjetpt = rawjetpt * jes_factor;
-            break; }
-          case 2: {
-            float flavor_factor = 0;
-            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin]->Eval(rawjetpt); }
-            float jes_factor = 1 - TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
-            rawjetpt = rawjetpt * jes_factor;
+            rawjetpt = rawjetpt * (1 - flavor_factor);
             break; }
           case 3: {
-            float jer_factor = 1.15;
+            float jer_factor = 1 + sqrt(0.15 * 0.15 + 0.07 * 0.07);
             float initial_res = getResolutionHI(rawjetpt, centBin);
             rawjetpt = rawjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
             break; }
@@ -370,24 +369,28 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        mixjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt) * jec_fix;
+        mixjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
         mixjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
 
         switch (systematic) {
-          case 1: {
+          case 1:
+            mixjetpt = mixjetpt * 1.02;
+            break;
+          case 2:
+            mixjetpt = mixjetpt * 0.98;
+            break;
+          case 11: {
+            float flavor_factor = 0;
+            if (!isPP) { flavor_factor = f_JES_G[centBin]->Eval(mixjetpt); }
+            mixjetpt = mixjetpt * (1 + flavor_factor);
+            break; }
+          case 12: {
             float flavor_factor = 0;
             if (!isPP) { flavor_factor = f_JES_Q[centBin]->Eval(mixjetpt); }
-            float jes_factor = 1 + TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
-            mixjetpt = mixjetpt * jes_factor;
-            break; }
-          case 2: {
-            float flavor_factor = 0;
-            if (!isPP && phoEtCorrected > 60) { flavor_factor = f_JES_G[centBin]->Eval(mixjetpt); }
-            float jes_factor = 1 - TMath::Sqrt(0.028 * 0.028 + flavor_factor * flavor_factor);
-            mixjetpt = mixjetpt * jes_factor;
+            mixjetpt = mixjetpt * (1 - flavor_factor);
             break; }
           case 3: {
-            float jer_factor = 1.15;
+            float jer_factor = 1 + sqrt(0.15 * 0.15 + 0.07 * 0.07);
             float initial_res = getResolutionHI(mixjetpt, centBin);
             mixjetpt = mixjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
             break; }
