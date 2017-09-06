@@ -222,12 +222,14 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
   Long64_t startMixEvent[nHiBins][nVzBins][nEventPlaneBins];
   bool usedAllMixEvents[nHiBins][nVzBins][nEventPlaneBins];
+  bool rolledBack[nHiBins][nVzBins][nEventPlaneBins];
   int startMixFile[nHiBins][nVzBins][nEventPlaneBins];
   for (int i1 = 0; i1 < nHiBins; ++i1) {
       for (int i2 = 0; i2 < nVzBins; ++i2) {
           for (int i3 = 0; i3 < nEventPlaneBins; ++i3) {
               startMixEvent[i1][i2][i3] = startRand;
               usedAllMixEvents[i1][i2][i3] = false;
+              rolledBack[i1][i2][i3] = false;
               startMixFile[i1][i2][i3] = 0;
           }
       }
@@ -560,6 +562,12 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
             Long64_t nevent_mix = event_tree_mix[iMixFile]->GetEntries();
             for (Long64_t jMix = startMixEvent[hiBin][ivz][iEventPlane]; jMix < nevent_mix; ++jMix) {
 
+                if (rolledBack[hiBin][ivz][iEventPlane] && jMix == startRand)   // The mix events for this bin are exhausted.
+                {
+                    usedAllMixEvents[hiBin][ivz][iEventPlane] = true;
+                    break;
+                }
+
                 event_tree_mix[iMixFile]->GetEntry(jMix);
                 if (fabs(vz_mix) > 15) continue;
                 skim_tree_mix[iMixFile]->GetEntry(jMix);
@@ -699,11 +707,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                 minbias_end = jMix;
                 nmix++;
 
-                if (iMixFile == 0 && jMix == startRand-1)   // The mix events for this bin are exhausted.
-                {
-                    usedAllMixEvents[hiBin][ivz][iEventPlane] = true;
-                }
-
                 if (nmix >= nEventsToMix) break; // done mixing
             }
             startMixEvent[hiBin][ivz][iEventPlane] = minbias_end;
@@ -712,8 +715,10 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                 startMixEvent[hiBin][ivz][iEventPlane] = 0;
                 startMixFile[hiBin][ivz][iEventPlane]++;
 
-                if (startMixFile[hiBin][ivz][iEventPlane] == nMixFiles) // roll back to the first file
+                if (startMixFile[hiBin][ivz][iEventPlane] == nMixFiles) {  // roll back to the first file
                     startMixFile[hiBin][ivz][iEventPlane] = 0;
+                    rolledBack[hiBin][ivz][iEventPlane] = true;
+                }
             }
         }
     }
