@@ -38,7 +38,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   TFile* fout = new TFile(Form("%s_%s_%s_%d_%d_%i_%d_%d.root", label.data(), sample.data(), genlevel.data(), (int)phoetmin, (int)jetptcut, gammaxi, abs(centmin), abs(centmax)), "recreate");
 
-  TH1D* hjetpt[2]; TH1D* hjetpt_mix[2];
+  TH1D* hjetpt[2]; TH1D* hjetpt_mixjet[2];
   hjetpt[0] = new TH1D(Form("hjetpt_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt[1] = new TH1D(Form("hjetpt_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt_mixjet[0] = new TH1D(Form("hjetpt_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
@@ -64,7 +64,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   hjetshape_mixsignal_ue[0] = new TH1D(Form("hjetshape_mixsignal_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape_mixsignal_ue[1] = new TH1D(Form("hjetshape_mixsignal_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
-  TH1D* hjetpt_mix_all[2]; TH1D* hjetpt_mixsignal_all[2];
+  TH1D* hjetpt_mixjet_all[2]; TH1D* hjetpt_mixsignal_all[2];
   hjetpt_mixjet_all[0] = new TH1D(Form("hjetpt_mixjet_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt_mixjet_all[1] = new TH1D(Form("hjetpt_mixjet_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt_mixsignal_all[0] = new TH1D(Form("hjetpt_mixsignal_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
@@ -468,7 +468,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 after_mixsignal:
         // mix jets - jetshape
         if (acos(cos(mixjetphi - phoPhi)) < 7 * pi / 8) {
-          hjetpt_mix_all[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
+          hjetpt_mixjet_all[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
 
           for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
             // tracks and jet must come from same mixed event
@@ -487,8 +487,8 @@ after_mixsignal:
             }
           }
         } else {
-          hjetpt_mix[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
-          hjetpt_mix_all[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
+          hjetpt_mixjet[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
+          hjetpt_mixjet_all[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
 
           for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
             // tracks and jet must come from same mixed event
