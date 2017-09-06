@@ -113,7 +113,7 @@ public:
     ~sys_var_t();
 
     void scale_sys(float factor);
-    void fit_sys(std::string diff_fit_func, std::string ratio_fit_func);
+    void fit_sys(std::string diff_fit_func, std::string ratio_fit_func, double range_low = 0, double range_high = -1);
     void write();
 
     TH1F* get_diff_abs() {return hdiff_abs;}
@@ -171,9 +171,11 @@ void sys_var_t::scale_sys(float factor) {
     if (hratio_abs_fit) hratio_abs_fit->Scale(factor);
 }
 
-void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func) {
-    double range_low = hnominal->GetBinLowEdge(hnominal->FindFirstBinAbove(0.1));
-    double range_high = hnominal->GetBinLowEdge(hnominal->FindLastBinAbove(0.1) + 1);
+void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, double range_low, double range_high) {
+    if (range_low > range_high) {
+        range_low = hnominal->GetBinLowEdge(hnominal->FindFirstBinAbove(0.1));
+        range_high = hnominal->GetBinLowEdge(hnominal->FindLastBinAbove(0.1) + 1);
+    }
 
     hdiff_abs_fit = (TH1F*)hdiff_abs->Clone(Form("%s_diff_abs_fit", hist_name.c_str()));
     TF1* diff_fit = new TF1(Form("%s_diff_fit_function", hist_name.c_str()), diff_fit_func.c_str());
