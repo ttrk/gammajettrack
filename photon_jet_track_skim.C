@@ -164,6 +164,9 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
   int hiBin_mix;
   float vz_mix;
   float hiEvtPlanes_mix[29];
+  UInt_t run_mix;
+  ULong64_t evt_mix;
+  UInt_t lumi_mix;
 
   int pcollisionEventSelection_mix;
   int HBHENoiseFilterResultRun2Loose_mix;
@@ -180,6 +183,9 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
       _SET_BRANCH_ADDRESS(event_tree_mix[jmbfile], hiBin, hiBin_mix);
       _SET_BRANCH_ADDRESS(event_tree_mix[jmbfile], vz, vz_mix);
       _SET_BRANCH_ADDRESS(event_tree_mix[jmbfile], hiEvtPlanes, hiEvtPlanes_mix);
+      _SET_BRANCH_ADDRESS(event_tree_mix[jmbfile], run, run_mix);
+      _SET_BRANCH_ADDRESS(event_tree_mix[jmbfile], evt, evt_mix);
+      _SET_BRANCH_ADDRESS(event_tree_mix[jmbfile], lumi, lumi_mix);
 
       skim_tree_mix[jmbfile] = (TTree*)fmixing[jmbfile]->Get("skimanalysis/HltTree");
       if (!skim_tree_mix[jmbfile]) { printf("Could not access skim tree!\n"); return 1; }
@@ -702,6 +708,9 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                 pjtt.dvz_mix[nmix] = fabs(vz - vz_mix);
                 pjtt.dhiBin_mix[nmix] = abs(hiBin - hiBin_mix);
                 pjtt.dhiEvtPlanes_mix[nmix] = acos(cos(fabs(hiEvtPlanes[8] - hiEvtPlanes_mix[8])));
+                pjtt.run_mix[nmix] = run_mix;
+                pjtt.evt_mix[nmix] = evt_mix;
+                pjtt.lumi_mix[nmix] = lumi_mix;
 
                 nmix++;
 

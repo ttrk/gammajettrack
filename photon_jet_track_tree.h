@@ -24,7 +24,6 @@ class photonJetTrackTree {
         mult = 0;
 
         nmix = 0;
-        nlooped = 0;
 
         njet_mix = 0;
         ngen_mix = 0;
@@ -94,10 +93,12 @@ class photonJetTrackTree {
     std::vector<int> sube;
 
     int nmix;
-    int nlooped;
     float dvz_mix[nEventsToMix];
     int dhiBin_mix[nEventsToMix];
     float dhiEvtPlanes_mix[nEventsToMix];
+    UInt_t run_mix[nEventsToMix];
+    ULong64_t evt_mix[nEventsToMix];
+    UInt_t lumi_mix[nEventsToMix];
 
     int njet_mix;
     std::vector<float> jetptCorr_mix;
@@ -186,10 +187,12 @@ void photonJetTrackTree::create_tree(TTree* t) {
     t->Branch("sube", &sube);
 
     t->Branch("nmix", &nmix, "nmix/I");
-    t->Branch("nlooped", &nlooped, "nlooped/I");
     t->Branch("dvz_mix", dvz_mix, "dvz_mix[nmix]/F");
     t->Branch("dhiBin_mix", dhiBin_mix, "dhiBin_mix[nmix]/I");
     t->Branch("dhiEvtPlanes_mix", dhiEvtPlanes_mix, "dhiEvtPlanes_mix[nmix]/F");
+    t->Branch("run_mix", run_mix, "run_mix[nmix]/i");
+    t->Branch("evt_mix", evt_mix, "evt_mix[nmix]/l");
+    t->Branch("lumi_mix", lumi_mix, "lumi_mix[nmix]/i");
 
     t->Branch("njet_mix", &njet_mix, "njet_mix/I");
     t->Branch("jetptCorr_mix", &jetptCorr_mix);
