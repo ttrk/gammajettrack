@@ -213,24 +213,26 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     }
   }
 
-  Long64_t startRand = 0;
+  Long64_t initialMixFile = 0;
+  Long64_t initialMixEvent = 0;
   if (jobIndex >= 0 && event_tree_mix[0] != 0) {
       TRandom3 rand(jobIndex); // random number seed should be fixed or reproducible
-      Long64_t nEventMixTmp = event_tree_mix[0]->GetEntries();
-      startRand = rand.Integer(nEventMixTmp); // Integer(imax) Returns a random integer on [0, imax-1].
+      initialMixFile = rand.Integer(nMixFiles);
+      Long64_t nEventMixTmp = event_tree_mix[initialMixFile]->GetEntries();
+      initialMixEvent = rand.Integer(nEventMixTmp); // Integer(imax) Returns a random integer on [0, imax-1].
   }
 
+  int startMixFile[nHiBins][nVzBins][nEventPlaneBins];
   Long64_t startMixEvent[nHiBins][nVzBins][nEventPlaneBins];
   bool usedAllMixEvents[nHiBins][nVzBins][nEventPlaneBins];
   bool rolledBack[nHiBins][nVzBins][nEventPlaneBins];
-  int startMixFile[nHiBins][nVzBins][nEventPlaneBins];
   for (int i1 = 0; i1 < nHiBins; ++i1) {
       for (int i2 = 0; i2 < nVzBins; ++i2) {
           for (int i3 = 0; i3 < nEventPlaneBins; ++i3) {
-              startMixEvent[i1][i2][i3] = startRand;
+              startMixFile[i1][i2][i3] = initialMixFile;
+              startMixEvent[i1][i2][i3] = initialMixEvent;
               usedAllMixEvents[i1][i2][i3] = false;
               rolledBack[i1][i2][i3] = false;
-              startMixFile[i1][i2][i3] = 0;
           }
       }
   }
@@ -535,7 +537,6 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     }
 
     int nmix = 0;
-    int nlooped = 0;
     int njet_mix = 0;
     int ngen_mix = 0;
     int nTrk_mix = 0;
@@ -551,26 +552,24 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
         if (ivz < 0) continue;
         if (iEventPlane < 0) continue;
 
-        while (nmix < nEventsToMix) {
+        int iMixFile = startMixFile[hiBin][ivz][iEventPlane];
+        Long64_t iMixEvent = startMixEvent[hiBin][ivz][iEventPlane];
 
+        for (; iMixFile < nMixFiles; ++iMixFile) {
             if (usedAllMixEvents[hiBin][ivz][iEventPlane]) break; // do not reuse the used mix events.
 
-            Long64_t minbias_end = startMixEvent[hiBin][ivz][iEventPlane];
-            int iMixFile = startMixFile[hiBin][ivz][iEventPlane];
-
             // Start looping through the mixed event starting where we left off, so we don't always mix same events
-            Long64_t nevent_mix = event_tree_mix[iMixFile]->GetEntries();
-            for (Long64_t jMix = startMixEvent[hiBin][ivz][iEventPlane]; jMix < nevent_mix; ++jMix) {
-
-                if (rolledBack[hiBin][ivz][iEventPlane] && jMix == startRand)   // The mix events for this bin are exhausted.
-                {
+            Long64_t nMixEvents = event_tree_mix[iMixFile]->GetEntries();
+            for (; iMixEvent < nMixEvents; ++iMixEvent) {
+                // The mix events for this bin are exhausted.
+                if (rolledBack[hiBin][ivz][iEventPlane] && iMixFile == initialMixFile && iMixEvent == initialMixEvent) {
                     usedAllMixEvents[hiBin][ivz][iEventPlane] = true;
                     break;
                 }
 
-                event_tree_mix[iMixFile]->GetEntry(jMix);
+                event_tree_mix[iMixFile]->GetEntry(iMixEvent);
                 if (fabs(vz_mix) > 15) continue;
-                skim_tree_mix[iMixFile]->GetEntry(jMix);
+                skim_tree_mix[iMixFile]->GetEntry(iMixEvent);
 
                 int ivz = getVzBin(vz);
                 int iEventPlane = getEventPlaneBin(hiEvtPlanes[8]);
@@ -595,7 +594,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                     if (pPAprimaryVertexFilter_mix < 1 || pBeamScrapingFilter_mix < 1)  continue;
                 }
 
-                jet_tree_for_trk_corr_mix[iMixFile]->GetEntry(jMix);
+                jet_tree_for_trk_corr_mix[iMixFile]->GetEntry(iMixEvent);
 
                 float maxJetPt_mix = -999;
                 for (int k = 0; k < jt_trkcorr_mix[iMixFile].nref; k++) {
@@ -604,7 +603,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                 }
 
                 //! (2.52) Jets from mixed events
-                jet_tree_mix[iMixFile]->GetEntry(jMix);
+                jet_tree_mix[iMixFile]->GetEntry(iMixEvent);
                 for (int ijetmix = 0; ijetmix < jt_mix[iMixFile].nref; ++ijetmix) {
                     if (jt_mix[iMixFile].jtpt[ijetmix] < jetptmin) continue;
                     if (fabs(jt_mix[iMixFile].jteta[ijetmix]) > 2) continue;
@@ -659,7 +658,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                 }
 
                 //! (2.54) Tracks from jet and cones in mixed events
-                track_tree_mix[iMixFile]->GetEntry(jMix);
+                track_tree_mix[iMixFile]->GetEntry(iMixEvent);
                 for (int itrkmix = 0; itrkmix < tt_mix[iMixFile].nTrk; ++itrkmix) {
                     if (tt_mix[iMixFile].trkPt[itrkmix] < 1 || tt_mix[iMixFile].trkPt[itrkmix] > 300 || fabs(tt_mix[iMixFile].trkEta[itrkmix]) > 2.4) continue;
 
@@ -685,7 +684,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                 }
 
                 if (isMC) {
-                    genpart_tree_mix[iMixFile]->GetEntry(jMix);
+                    genpart_tree_mix[iMixFile]->GetEntry(iMixEvent);
                     for (int igenp = 0; igenp < gpt_mix[iMixFile].mult; ++igenp) {
                         if ((*gpt_mix[iMixFile].pt)[igenp] < 1 || (*gpt_mix[iMixFile].pt)[igenp] > 300 || fabs((*gpt_mix[iMixFile].eta)[igenp]) > 2.4) continue;
                         if ((*gpt_mix[iMixFile].chg)[igenp] == 0) continue;
@@ -704,28 +703,28 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                 pjtt.dhiBin_mix[nmix] = abs(hiBin - hiBin_mix);
                 pjtt.dhiEvtPlanes_mix[nmix] = acos(cos(fabs(hiEvtPlanes[8] - hiEvtPlanes_mix[8])));
 
-                minbias_end = jMix;
                 nmix++;
 
                 if (nmix >= nEventsToMix) break; // done mixing
             }
-            startMixEvent[hiBin][ivz][iEventPlane] = minbias_end;
-            startMixFile[hiBin][ivz][iEventPlane] = iMixFile;
-            if (nmix < nEventsToMix) {  // did not collect enough events after this file, go to next file
-                startMixEvent[hiBin][ivz][iEventPlane] = 0;
-                startMixFile[hiBin][ivz][iEventPlane]++;
 
-                if (startMixFile[hiBin][ivz][iEventPlane] == nMixFiles) {  // roll back to the first file
-                    startMixFile[hiBin][ivz][iEventPlane] = 0;
-                    rolledBack[hiBin][ivz][iEventPlane] = true;
-                }
+            if (nmix >= nEventsToMix) break; // done mixing
+
+            // did not collect enough events after this file, go to next file
+            iMixEvent = 0;
+            if (iMixFile == nMixFiles - 1) {
+                // roll back to the first file
+                iMixFile = -1;
+                rolledBack[hiBin][ivz][iEventPlane] = true;
             }
         }
+
+        startMixEvent[hiBin][ivz][iEventPlane] = iMixEvent + 1;
+        startMixFile[hiBin][ivz][iEventPlane] = iMixFile;
     }
     //! End minbias mixing
 
     pjtt.nmix = nmix;
-    pjtt.nlooped = nlooped;
     pjtt.njet_mix = njet_mix;
     pjtt.ngen_mix = ngen_mix;
     pjtt.nTrk_mix = nTrk_mix;
