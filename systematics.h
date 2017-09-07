@@ -190,24 +190,14 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
         range_high = hnominal->GetBinLowEdge(hnominal->FindLastBinAbove(0.1) + 1);
     }
 
-    hdiff_abs_fit = (TH1D*)hdiff_abs->Clone(Form("%s_diff_abs_fit", hist_name.c_str()));
-    TF1* diff_fit = new TF1(Form("%s_diff_abs_fit_function", hist_name.c_str()), diff_fit_func.c_str());
-    diff_fit->SetRange(range_low, range_high);
-
-    hdiff_abs->Fit(Form("%s_diff_abs_fit_function", hist_name.c_str()), "F Q", "", range_low, range_high);
-    hdiff_abs->Fit(Form("%s_diff_abs_fit_function", hist_name.c_str()), "F Q", "", range_low, range_high);
-    hdiff_abs->Fit(Form("%s_diff_abs_fit_function", hist_name.c_str()), "F M Q", "", range_low, range_high);
-    fdiff_abs = (TF1*)hdiff_abs->GetFunction(Form("%s_diff_abs_fit_function", hist_name.c_str()))->Clone(Form("%s_diff_abs_fit", hist_name.c_str()));
+    fdiff_abs = new TF1(Form("%s_fdiff_abs", hist_name.c_str()), diff_fit_func.c_str(), range_low, range_high);
+    hdiff_abs->Fit(fdiff_abs, "EM R N Q");
+    hdiff_abs_fit = (TH1D*)hdiff_abs->Clone(Form("%s_hdiff_abs_fit", hist_name.c_str()));
     th1_from_tf1(hdiff_abs_fit, fdiff_abs);
 
-    hratio_abs_fit = (TH1D*)hratio_abs->Clone(Form("%s_ratio_abs_fit", hist_name.c_str()));
-    TF1* ratio_fit = new TF1(Form("%s_ratio_abs_fit_function", hist_name.c_str()), ratio_fit_func.c_str());
-    ratio_fit->SetRange(range_low, range_high);
-
-    hratio_abs->Fit(Form("%s_ratio_abs_fit_function", hist_name.c_str()), "F Q", "", range_low, range_high);
-    hratio_abs->Fit(Form("%s_ratio_abs_fit_function", hist_name.c_str()), "F Q", "", range_low, range_high);
-    hratio_abs->Fit(Form("%s_ratio_abs_fit_function", hist_name.c_str()), "F M Q", "", range_low, range_high);
-    fratio_abs = (TF1*)hratio_abs->GetFunction(Form("%s_ratio_abs_fit_function", hist_name.c_str()))->Clone(Form("%s_ratio_abs_fit", hist_name.c_str()));
+    fratio_abs = new TF1(Form("%s_fratio_abs", hist_name.c_str()), ratio_fit_func.c_str(), range_low, range_high);
+    hratio_abs->Fit(fratio_abs, "EM R N Q");
+    hratio_abs_fit = (TH1D*)hratio_abs->Clone(Form("%s_hratio_abs_fit", hist_name.c_str()));
     th1_from_tf1(hratio_abs_fit, fratio_abs);
 }
 
