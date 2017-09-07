@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "error_bands.h"
+#include "plotUtil.h"
 
 int min_hiBin[4] = {100, 60, 20, 0};
 int max_hiBin[4] = {200, 100, 60, 20};
@@ -21,17 +22,11 @@ int max_hiBin[4] = {200, 100, 60, 20};
 int rows = 1;
 int columns = 4;
 
-typedef struct box_t {
-    float x1, y1, x2, y2;
-} box_t;
-
-void divide_canvas(TCanvas* c1, int rows, int columns, float margin, float edge, float row_scale_factor, float column_scale_factor);
 void set_hist_style(TH1D* h1, int k);
 void set_data_style(TH1D* h1, int k);
 void set_axis_style(TH1D* h1, int i, int j, int option);
 void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option);
 void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option);
-void adjust_coordinates(box_t& box, float margin, float edge, int i, int j);
 void cover_axis(float margin, float edge, float column_scale_factor, float row_scale_factor);
 
 enum OPTIONS {
@@ -215,7 +210,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         centInfo->SetTextSize(15);
         centInfo->SetTextAlign(31);
         box_t info_box = (box_t) {0, 0, 0.96, 0.9};
-        adjust_coordinates(info_box, margin, edge, i, 0);
+        adjust_coordinates(info_box, margin, edge, i, 0, rows, columns);
         centInfo->DrawLatexNDC(info_box.x2, info_box.y2, Form("%i - %i%%", min_hiBin[i]/2, max_hiBin[i]/2));
 
         if (i == 0 && mode == k_data_pp_pbpb) {
@@ -223,14 +218,14 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             latexCMS->SetTextFont(63);
             latexCMS->SetTextSize(15);
             box_t cms_box = (box_t) {0.15, 0.9, 1, 1};
-            adjust_coordinates(cms_box, margin, edge, 0, 0);
+            adjust_coordinates(cms_box, margin, edge, 0, 0, rows, columns);
             latexCMS->DrawLatexNDC(cms_box.x1, cms_box.y1, "CMS");
 
             TLatex* latexPrelim = new TLatex();
             latexPrelim->SetTextFont(53);
             latexPrelim->SetTextSize(12);
             box_t prelim_box = (box_t) {0.15, 0.84, 1, 1};
-            adjust_coordinates(prelim_box, margin, edge, 0, 0);
+            adjust_coordinates(prelim_box, margin, edge, 0, 0, rows, columns);
             latexPrelim->DrawLatexNDC(prelim_box.x1, prelim_box.y1, "Preliminary");
         }
 
@@ -393,56 +388,6 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     finput->Close();
 
     return 0;
-}
-
-void divide_canvas(TCanvas* c1, int rows, int columns, float margin, float edge, float row_scale_factor, float column_scale_factor) {
-    c1->Clear();
-
-    TPad* pads[rows][columns];
-
-    float pad_width = 1.0 / column_scale_factor;
-    float pad_height = 1.0 / row_scale_factor;
-
-    float x_min[columns], x_max[columns];
-    x_min[0] = 0;
-    x_max[0] = pad_width/(1.0-margin);
-    for (int i=1; i<columns; ++i) {
-        x_min[i] = x_max[i-1];
-        x_max[i] = x_max[i-1] + pad_width;
-    }
-    x_max[columns-1] = 1;
-
-    float y_min[rows], y_max[rows];
-    y_min[0] = 1.0-pad_height/(1.0-edge);
-    y_max[0] = 1;
-    for (int i=1; i<rows; ++i) {
-        y_min[i] = y_min[i-1] - pad_height;
-        y_max[i] = y_min[i-1];
-    }
-    y_min[rows-1] = 0;
-
-    for (int i=0; i<rows; i++) {
-        for (int j=0; j<columns; j++) {
-            c1->cd();
-            pads[i][j] = new TPad(Form("pad_%d_%d", i, j), Form("pad_%d_%d", i, j), x_min[j], y_min[i], x_max[j], y_max[i]);
-
-            if (i == 0) pads[i][j]->SetTopMargin(edge);
-            else pads[i][j]->SetTopMargin(0);
-            if (i == rows - 1) pads[i][j]->SetBottomMargin(margin);
-            else pads[i][j]->SetBottomMargin(0);
-            if (j == 0) pads[i][j]->SetLeftMargin(margin);
-            else pads[i][j]->SetLeftMargin(0);
-            if (j == columns - 1) pads[i][j]->SetRightMargin(edge);
-            else pads[i][j]->SetRightMargin(0);
-
-            pads[i][j]->Draw();
-            pads[i][j]->cd();
-            pads[i][j]->SetNumber(i*columns+j+1);
-
-            pads[i][j]->SetTickx();
-            pads[i][j]->SetTicky();
-        }
-    }
 }
 
 void set_hist_style(TH1D* h1, int k) {
@@ -713,30 +658,6 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
             break;
         default:
             break;
-    }
-}
-
-void adjust_coordinates(box_t& box, float margin, float edge, int i, int j) {
-    if (columns == 1) {
-        box.x1 = box.x1 * (1-margin-edge) + margin;
-        box.x2 = box.x2 * (1-margin-edge) + margin;
-    } else if (i == 0) {
-        box.x1 = box.x1 * (1-margin) + margin;
-        box.x2 = box.x2 * (1-margin) + margin;
-    } else if (i == columns - 1) {
-        box.x1 = box.x1 * (1-edge);
-        box.x2 = box.x2 * (1-edge);
-    }
-
-    if (rows == 1) {
-        box.y1 = box.y1 * (1-margin-edge) + margin;
-        box.y2 = box.y2 * (1-margin-edge) + margin;
-    } else if (j == 0) {
-        box.y1 = box.y1 * (1-edge);
-        box.y2 = box.y2 * (1-edge);
-    } else if (j == rows - 1) {
-        box.y1 = box.y1 * (1-margin) + margin;
-        box.y2 = box.y2 * (1-margin) + margin;
     }
 }
 
