@@ -247,13 +247,40 @@ void sys_var_t::calculate_h2D_fitBand_ratio(int nTrials, double range_low, doubl
     fratio->SetRange(range_low, range_high);
     TFitResultPtr FitResult = hratio->Fit(fratio, "E M R N Q 0 S");
     TMatrixDSym Matrix = FitResult->GetCovarianceMatrix();
+
+    int nParams = 0;
+    if (formula_ratio == "pol0") nParams = 1;
+    else if (formula_ratio == "pol1") nParams = 2;
+    else if (formula_ratio == "pol2") nParams = 3;
+
     double L[3][3] = {{0}};   // Cholesky decomposition:  find L such that L x L^T = M, where L is lower triangle
-    L[0][0] = sqrt(Matrix[0][0]);
-    L[1][0] = Matrix[1][0] / L[0][0];
-    L[1][1] = sqrt(Matrix[1][1] - L[1][0] * L[1][0]);
     double Mean[3] = {0};
-    Mean[0] = fratio->GetParameter(0);
-    Mean[1] = fratio->GetParameter(1);
+
+    if (nParams == 1) {
+        L[0][0] = sqrt(Matrix[0][0]);
+
+        Mean[0] = fratio->GetParameter(0);
+    }
+    else if (nParams == 2) {
+        L[0][0] = sqrt(Matrix[0][0]);
+        L[1][0] = Matrix[1][0] / L[0][0];
+        L[1][1] = sqrt(Matrix[1][1] - L[1][0] * L[1][0]);
+
+        Mean[0] = fratio->GetParameter(0);
+        Mean[1] = fratio->GetParameter(1);
+    }
+    else if (nParams == 3) {
+        L[0][0] = sqrt(Matrix[0][0]);
+        L[1][0] = Matrix[1][0] / L[0][0];
+        L[1][1] = sqrt(Matrix[1][1] - L[1][0] * L[1][0]);
+        L[2][0] = Matrix[2][0] / L[0][0];
+        L[2][1] = (Matrix[2][1] - L[2][0] * L[1][0]) / L[1][1];
+        L[2][2] = sqrt(Matrix[2][2] - L[2][0] * L[2][0] - L[2][1] * L[2][1]);
+
+        Mean[0] = fratio->GetParameter(0);
+        Mean[1] = fratio->GetParameter(1);
+        Mean[2] = fratio->GetParameter(2);
+    }
 
     int nBinsX = hnominal->GetNbinsX();
     double xLow = hnominal->GetBinLowEdge(1);
@@ -265,7 +292,15 @@ void sys_var_t::calculate_h2D_fitBand_ratio(int nTrials, double range_low, doubl
     TRandom3 rand(12345);
     for(int iTry = 0; iTry < nTrials; iTry++)
     {
-       double X[3] = {rand.Gaus(0, 1), rand.Gaus(0, 1), 0};
+       double X[3] = {rand.Gaus(0, 1), rand.Gaus(0, 1), rand.Gaus(0, 1)};
+
+       if (nParams == 1) {
+           X[1] = 0;
+           X[2] = 0;
+       }
+       else if (nParams == 2) {
+           X[2] = 0;
+       }
 
        double Y[3];
        Y[0] = L[0][0] * X[0] + L[0][1] * X[1] + L[0][2] * X[2] + Mean[0];
@@ -277,8 +312,16 @@ void sys_var_t::calculate_h2D_fitBand_ratio(int nTrials, double range_low, doubl
        for(int iBin = binFirst; iBin <= binLast; iBin++)
        {
           double x = h2D_fitBand_ratio->GetXaxis()->GetBinCenter(iBin);
-          double v;
-          v = Y[0] + Y[1] * x;
+          double v = 0;
+          if (nParams == 1) {
+              v = Y[0];
+          }
+          else if (nParams == 2) {
+              v = Y[0] + Y[1] * x;
+          }
+          else if (nParams == 3) {
+              v = Y[0] + Y[1] * x + Y[2] * x * x;
+          }
           h2D_fitBand_ratio->Fill(x, v);
        }
     }
