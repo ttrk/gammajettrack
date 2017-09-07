@@ -123,6 +123,7 @@ private:
     TH2D* h2D_fitBand_ratio = 0;
     TH1D* hratio_fitBand = 0;
     TH1D* hdiff_fitBand = 0;
+    TH1D* hdiff_abs_fitBand = 0;
 
     void calc_sys();
 
@@ -156,6 +157,7 @@ public:
     TH2D* get_h2D_fitBand_ratio() {return h2D_fitBand_ratio;}
     TH1D* get_hratio_fitBand() {return hratio_fitBand;}
     TH1D* get_hdiff_fitBand() {return hdiff_fitBand;}
+    TH1D* get_hdiff_abs_fitBand() {return hdiff_abs_fitBand;}
 };
 
 sys_var_t::sys_var_t(const sys_var_t& sys_var) {
@@ -370,8 +372,16 @@ void sys_var_t::calculate_hratio_fitBand(double bandFraction)
         hratio_fitBand->SetBinContent(iBinX, hBand->GetBinCenter(binTarget));
         hratio_fitBand->SetBinError(iBinX, hratio->GetBinError(iBinX));
     }
-
     if (hBand != 0) hBand->Delete();
+
+    hdiff_fitBand = (TH1D*)hnominal->Clone(Form("%s_hdiff_fitBand", hist_name.c_str()));
+    for (int iBin = 1; iBin <= hdiff_fitBand->GetNbinsX(); ++iBin) {
+        hdiff_fitBand->SetBinContent(iBin, (hratio_fitBand->GetBinContent(iBin)-1)*hnominal->GetBinContent(iBin));
+        hdiff_fitBand->SetBinContent(iBin, hnominal->GetBinError(iBin));
+    }
+
+    hdiff_abs_fitBand = (TH1D*)hdiff_fitBand->Clone(Form("%s_hdiff_abs_fitBand", hist_name.c_str()));
+    th1_abs(hdiff_abs_fitBand);
 }
 
 void sys_var_t::write() {
@@ -394,6 +404,9 @@ void sys_var_t::write() {
     if (hratio_abs_fit != 0)  hratio_abs_fit->Write("", TObject::kOverwrite);
 
     if (h2D_fitBand_ratio != 0)  h2D_fitBand_ratio->Write("", TObject::kOverwrite);
+    if (hratio_fitBand != 0)  hratio_fitBand->Write("", TObject::kOverwrite);
+    if (hdiff_fitBand != 0)  hdiff_fitBand->Write("", TObject::kOverwrite);
+    if (hdiff_abs_fitBand != 0)  hdiff_abs_fitBand->Write("", TObject::kOverwrite);
 }
 
 class total_sys_var_t {
