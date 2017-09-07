@@ -1,5 +1,5 @@
 #include "TFile.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TF1.h"
 #include "TCanvas.h"
 #include "TLegend.h"
@@ -84,9 +84,9 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     if (!nfiles) {printf("0 total files!\n"); return 1;}
 
     TFile* fnominal = new TFile(nominal_file, "read");
-    TH1F* hnominals[nhists] = {0};
+    TH1D* hnominals[nhists] = {0};
     for (std::size_t i=0; i<nhists; ++i)
-        hnominals[i] = (TH1F*)fnominal->Get(hist_list[i].c_str());
+        hnominals[i] = (TH1D*)fnominal->Get(hist_list[i].c_str());
 
     TFile* fsys[nfiles] = {0};
     for (std::size_t i=0; i<nfiles; ++i)
@@ -96,14 +96,14 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
     total_sys_var_t* total_sys_vars[nhists] = {0};
     sys_var_t* sys_vars[nhists][nfiles] = {0};
-    TH1F* hsys_bkgsub[nhists] = {0};
-    TH1F* hsys_xi_nonclosure[nhists] = {0};
+    TH1D* hsys_bkgsub[nhists] = {0};
+    TH1D* hsys_xi_nonclosure[nhists] = {0};
     for (std::size_t i=0; i<nhists; ++i) {
         total_sys_vars[i] = new total_sys_var_t(hist_list[i], hnominals[i]);
 
         for (std::size_t j=0; j<nfiles; ++j) {
 
-            sys_vars[i][j] = new sys_var_t(hist_list[i], sys_types[j], hnominals[i], (TH1F*)fsys[j]->Get(hist_list[i].c_str()));
+            sys_vars[i][j] = new sys_var_t(hist_list[i], sys_types[j], hnominals[i], (TH1D*)fsys[j]->Get(hist_list[i].c_str()));
             sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2");
             sys_vars[i][j]->write();
 
@@ -126,7 +126,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             }
         }
         // add systematics for bkg subtraction
-        hsys_bkgsub[i] = (TH1F*)hnominals[i]->Clone(Form("%s_bkgsub", hnominals[i]->GetName()));
+        hsys_bkgsub[i] = (TH1D*)hnominals[i]->Clone(Form("%s_bkgsub", hnominals[i]->GetName()));
         if (!isPP) {
             float uncTmp = 1;
             if (hist_list[i].find("_0_20") != std::string::npos) uncTmp = 1.034;
@@ -142,7 +142,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         total_sys_vars[i]->add_sys_var(sysVar_bkgsub, 0);
 
         // add systematics for non-closure in xi_jet < 1 and for some of the high xi_jet bins
-        hsys_xi_nonclosure[i] = (TH1F*)hnominals[i]->Clone(Form("%s_xi_nonclosure", hnominals[i]->GetName()));
+        hsys_xi_nonclosure[i] = (TH1D*)hnominals[i]->Clone(Form("%s_xi_nonclosure", hnominals[i]->GetName()));
         if (!isPP) {
             if (isxijet) {
                 int lowxiBin = hsys_xi_nonclosure[i]->FindBin(0.5);

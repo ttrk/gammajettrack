@@ -1,5 +1,5 @@
 #include "TFile.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TF1.h"
 #include "TH2D.h"
 #include "TCanvas.h"
@@ -73,8 +73,8 @@ int columns = 4;
 int calc_systematics_toy(std::string nominal_file, std::string filelist, std::string histlist, std::string label);
 void divide_canvas(TCanvas* c1, int rows, int columns, float margin, float edge, float row_scale_factor, float column_scale_factor);
 void adjust_coordinates(box_t& box, float margin, float edge, int i, int j);
-void set_axis_title(TH1F* h1, bool isxijet);
-void set_axis_style(TH1F* h1);
+void set_axis_title(TH1D* h1, bool isxijet);
+void set_axis_style(TH1D* h1);
 
 int calc_systematics_toy(std::string nominal_file, std::string filelist, std::string histlist, std::string label) {
     TH1::AddDirectory(kFALSE);
@@ -108,9 +108,9 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
     if (!nfiles) {printf("0 total files!\n"); return 1;}
 
     TFile* fnominal = new TFile(nominal_file.c_str(), "read");
-    std::vector<TH1F*> hnominals(nhists, 0);
+    std::vector<TH1D*> hnominals(nhists, 0);
     for (int i=0; i<nhists; ++i)
-        hnominals[i] = (TH1F*)fnominal->Get(hist_list[i].c_str());
+        hnominals[i] = (TH1D*)fnominal->Get(hist_list[i].c_str());
 
     std::vector<TFile*> fsys(nfiles, 0);
     for (int i=0; i<nfiles; ++i)
@@ -128,7 +128,7 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
         for (int j=0; j<nfiles; ++j) {
 
             sys_vars[i][j] = 0;
-            sys_vars[i][j] = new sys_var_t(hist_list[i], sys_types[j], hnominals[i], (TH1F*)fsys[j]->Get(hist_list[i].c_str()));
+            sys_vars[i][j] = new sys_var_t(hist_list[i], sys_types[j], hnominals[i], (TH1D*)fsys[j]->Get(hist_list[i].c_str()));
             sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2", range_low_fnc, range_high_fnc);
             sys_vars[i][j]->write();
 
@@ -361,7 +361,7 @@ void adjust_coordinates(box_t& box, float margin, float edge, int i, int j) {
     }
 }
 
-void set_axis_title(TH1F* h1, bool isxijet)
+void set_axis_title(TH1D* h1, bool isxijet)
 {
     if (isxijet) {
         h1->SetXTitle("#xi^{jet}");
@@ -373,7 +373,7 @@ void set_axis_title(TH1F* h1, bool isxijet)
     }
 }
 
-void set_axis_style(TH1F* h1) {
+void set_axis_style(TH1D* h1) {
     h1->SetNdivisions(609);
 
     TAxis* x_axis = h1->GetXaxis();

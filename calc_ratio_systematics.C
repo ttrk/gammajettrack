@@ -1,5 +1,5 @@
 #include "TFile.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TF1.h"
 #include "TCanvas.h"
 #include "TLegend.h"
@@ -84,26 +84,26 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
     for (std::size_t i=0; i<nfiles; ++i)
         fsys[i] = new TFile(file_list[i].c_str(), "read");
 
-    TH1F* hpbpb[nhists] = {0};
-    TH1F* hpp[nhists] = {0};
-    TH1F* hnominals[nhists] = {0};
+    TH1D* hpbpb[nhists] = {0};
+    TH1D* hpp[nhists] = {0};
+    TH1D* hnominals[nhists] = {0};
 
-    TH1F* hpbpb_sys[nhists][kN_SYS] = {0};
-    TH1F* hpp_sys[nhists][kN_SYS] = {0};
-    TH1F* hratio_sys[nhists][kN_SYS] = {0};
+    TH1D* hpbpb_sys[nhists][kN_SYS] = {0};
+    TH1D* hpp_sys[nhists][kN_SYS] = {0};
+    TH1D* hratio_sys[nhists][kN_SYS] = {0};
 
     for (std::size_t i=0; i<nhists; ++i) {
 
-        hpbpb[i] = (TH1F*)fsys[0]->Get(Form("h%s_final_pbpbdata_recoreco_%s_jes_up_nominal", observable, hist_list[i].c_str()));
-        hpp[i] = (TH1F*)fsys[1]->Get(Form("h%s_final_ppdata_srecoreco_%s_jes_up_nominal", observable, hist_list[i].c_str()));
-        hnominals[i] = (TH1F*)hpbpb[i]->Clone(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()));
+        hpbpb[i] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_recoreco_%s_jes_up_nominal", observable, hist_list[i].c_str()));
+        hpp[i] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_srecoreco_%s_jes_up_nominal", observable, hist_list[i].c_str()));
+        hnominals[i] = (TH1D*)hpbpb[i]->Clone(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()));
         hnominals[i]->Divide(hpp[i]);
 
         for (std::size_t j=0; j<kN_SYS; ++j) {
 
-            hpbpb_sys[i][j] = (TH1F*)fsys[0]->Get(Form("h%s_final_pbpbdata_recoreco_%s_%s_variation", observable, hist_list[i].c_str(), sys_types[j].c_str()));
-            hpp_sys[i][j] = (TH1F*)fsys[1]->Get(Form("h%s_final_ppdata_srecoreco_%s_%s_variation", observable, hist_list[i].c_str(), sys_types[j].c_str()));
-            hratio_sys[i][j] = (TH1F*)hpbpb_sys[i][j]->Clone(Form("h%s_final_ratio_%s_%s", observable, hist_list[i].c_str(), sys_types[j].c_str()));
+            hpbpb_sys[i][j] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_recoreco_%s_%s_variation", observable, hist_list[i].c_str(), sys_types[j].c_str()));
+            hpp_sys[i][j] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_srecoreco_%s_%s_variation", observable, hist_list[i].c_str(), sys_types[j].c_str()));
+            hratio_sys[i][j] = (TH1D*)hpbpb_sys[i][j]->Clone(Form("h%s_final_ratio_%s_%s", observable, hist_list[i].c_str(), sys_types[j].c_str()));
             hratio_sys[i][j]->Divide(hpp_sys[i][j]);
         }
     }
