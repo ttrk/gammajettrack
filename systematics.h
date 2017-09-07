@@ -122,6 +122,7 @@ private:
 
     TH2D* h2D_fitBand_ratio = 0;
     TH1D* hratio_fitBand = 0;
+    TH1D* hratio_abs_fitBand = 0;
     TH1D* hdiff_fitBand = 0;
     TH1D* hdiff_abs_fitBand = 0;
 
@@ -374,11 +375,12 @@ void sys_var_t::calculate_hratio_fitBand(double bandFraction)
     }
     if (hBand != 0) hBand->Delete();
 
+    hratio_abs_fitBand = (TH1D*)hratio_fitBand->Clone(Form("%s_hratio_abs_fitBand", hist_name.c_str()));
+    th1_ratio_abs(hratio_abs_fitBand);
+
     hdiff_fitBand = (TH1D*)hnominal->Clone(Form("%s_hdiff_fitBand", hist_name.c_str()));
-    for (int iBin = 1; iBin <= hdiff_fitBand->GetNbinsX(); ++iBin) {
-        hdiff_fitBand->SetBinContent(iBin, (hratio_fitBand->GetBinContent(iBin)-1)*hnominal->GetBinContent(iBin));
-        hdiff_fitBand->SetBinContent(iBin, hnominal->GetBinError(iBin));
-    }
+    hdiff_fitBand->Multiply(hratio_fitBand);
+    hdiff_fitBand->Add(hnominal, -1);
 
     hdiff_abs_fitBand = (TH1D*)hdiff_fitBand->Clone(Form("%s_hdiff_abs_fitBand", hist_name.c_str()));
     th1_abs(hdiff_abs_fitBand);
@@ -405,6 +407,7 @@ void sys_var_t::write() {
 
     if (h2D_fitBand_ratio != 0)  h2D_fitBand_ratio->Write("", TObject::kOverwrite);
     if (hratio_fitBand != 0)  hratio_fitBand->Write("", TObject::kOverwrite);
+    if (hratio_abs_fitBand != 0)  hratio_abs_fitBand->Write("", TObject::kOverwrite);
     if (hdiff_fitBand != 0)  hdiff_fitBand->Write("", TObject::kOverwrite);
     if (hdiff_abs_fitBand != 0)  hdiff_abs_fitBand->Write("", TObject::kOverwrite);
 }
@@ -415,8 +418,12 @@ private:
 
     TH1D* hnominal = 0;
     TH1D* hsystematics = 0;
+    TH1D* hsystematics_dataRatio = 0;
+    TH1D* hsystematics_fitBand = 0;
 
     void add_sqrt_sum_squares(TH1D* herr);
+    void add_sqrt_sum_squares_dataRatio(TH1D* herr);
+    void add_sqrt_sum_squares_fitBand(TH1D* herr);
 
 public:
     total_sys_var_t(const total_sys_var_t& total_sys_var);
@@ -424,9 +431,12 @@ public:
     ~total_sys_var_t();
 
     void add_sys_var(sys_var_t* sys_var, int option);
+    void set_sys_method(int methodIndex);
     void write();
 
     TH1D* get_total() {return hsystematics;}
+    TH1D* get_total_dataRatio() {return hsystematics_dataRatio;}
+    TH1D* get_total_fitBand() {return hsystematics_fitBand;}
 };
 
 total_sys_var_t::total_sys_var_t(const total_sys_var_t& total_sys_var) {
@@ -436,8 +446,11 @@ total_sys_var_t::total_sys_var_t(const total_sys_var_t& total_sys_var) {
 total_sys_var_t::total_sys_var_t(std::string label, TH1D* hnominal) {
     this->label = label;
     this->hnominal = (TH1D*)hnominal->Clone(Form("%s_nominal", label.c_str()));
-    this->hsystematics = (TH1D*)hnominal->Clone(Form("%s_systematics", label.c_str()));
-    this->hsystematics->Reset("ICES");
+
+    this->hsystematics_dataRatio = (TH1D*)hnominal->Clone(Form("%s_dataRatio", label.c_str()));
+    this->hsystematics_dataRatio->Reset("ICES");
+    this->hsystematics_fitBand = (TH1D*)hnominal->Clone(Form("%s_fitBand", label.c_str()));
+    this->hsystematics_fitBand->Reset("ICES");
 }
 
 total_sys_var_t::~total_sys_var_t() {};
@@ -446,27 +459,55 @@ void total_sys_var_t::add_sqrt_sum_squares(TH1D* herr) {
     th1_sqrt_sum_squares(hsystematics, herr);
 }
 
+void total_sys_var_t::add_sqrt_sum_squares_dataRatio(TH1D* herr) {
+    if (hsystematics_dataRatio == 0) return;
+    if (herr == 0) return;
+    th1_sqrt_sum_squares(hsystematics_dataRatio, herr);
+}
+
+void total_sys_var_t::add_sqrt_sum_squares_fitBand(TH1D* herr) {
+    if (hsystematics_fitBand == 0) return;
+    if (herr == 0) return;
+    th1_sqrt_sum_squares(hsystematics_fitBand, herr);
+}
+
 void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option) {
     switch (option) {
         case 0:
-            add_sqrt_sum_squares(sys_var->hdiff_abs);
+            add_sqrt_sum_squares_dataRatio(sys_var->hdiff_abs);
+            add_sqrt_sum_squares_fitBand(sys_var->hdiff_abs_fitBand);
             break;
         case 1: {
-            TH1D* htmp = (TH1D*)sys_var->hratio_abs->Clone("htmp");
+            TH1D* htmp = 0;
+
+            htmp = (TH1D*)sys_var->hratio_abs->Clone("htmp");
             htmp->Multiply(hnominal);
-            add_sqrt_sum_squares(htmp);
-            htmp->Delete();
+            add_sqrt_sum_squares_dataRatio(htmp);
+
+            htmp = (TH1D*)sys_var->hratio_abs_fitBand->Clone("htmp");
+            htmp->Multiply(hnominal);
+            add_sqrt_sum_squares_fitBand(htmp);
+
+            if (htmp != 0)  htmp->Delete();
             break; }
         case 2:
             if (!sys_var->hdiff_abs_fit) {printf("no fit found!\n"); return;}
-            add_sqrt_sum_squares(sys_var->hdiff_abs_fit);
+            add_sqrt_sum_squares_dataRatio(sys_var->hdiff_abs_fit);
+            add_sqrt_sum_squares_fitBand(sys_var->hdiff_abs_fitBand);
             break;
         case 3: {
             if (!sys_var->hratio_abs_fit) {printf("no fit found!\n"); return;}
-            TH1D* htmp = (TH1D*)sys_var->hratio_abs_fit->Clone("htmp");
+            TH1D* htmp = 0;
+
+            htmp = (TH1D*)sys_var->hratio_abs_fit->Clone("htmp");
             htmp->Multiply(hnominal);
-            add_sqrt_sum_squares(htmp);
-            htmp->Delete();
+            add_sqrt_sum_squares_dataRatio(htmp);
+
+            htmp = (TH1D*)sys_var->hratio_abs_fitBand->Clone("htmp");
+            htmp->Multiply(hnominal);
+            add_sqrt_sum_squares_fitBand(htmp);
+
+            if (htmp != 0)  htmp->Delete();
             break; }
         case 4:
             break;
@@ -475,9 +516,21 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option) {
     }
 }
 
+void total_sys_var_t::set_sys_method(int methodIndex)
+{
+    if (methodIndex == 0) {
+        this->hsystematics = (TH1D*)hsystematics_dataRatio->Clone(Form("%s_systematics", label.c_str()));
+    }
+    else if (methodIndex == 1) {
+        this->hsystematics = (TH1D*)hsystematics_fitBand->Clone(Form("%s_systematics", label.c_str()));
+    }
+}
+
 void total_sys_var_t::write() {
     hnominal->Write("", TObject::kOverwrite);
     hsystematics->Write("", TObject::kOverwrite);
+    hsystematics_dataRatio->Write("", TObject::kOverwrite);
+    hsystematics_fitBand->Write("", TObject::kOverwrite);
 }
 
 #endif

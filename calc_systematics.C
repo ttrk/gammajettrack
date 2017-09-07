@@ -177,6 +177,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         sysVar_xi->write();
         total_sys_vars[i]->add_sys_var(sysVar_xi, 0);
 
+        total_sys_vars[i]->set_sys_method(0);
         total_sys_vars[i]->write();
     }
 
