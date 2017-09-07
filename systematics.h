@@ -99,8 +99,8 @@ private:
     TH1F* hratio = 0;
     TH1F* hratio_abs = 0;
 
-    TF1* fdiff = 0;
-    TF1* fratio = 0;
+    TF1* fdiff_abs = 0;
+    TF1* fratio_abs = 0;
     TH1F* hdiff_abs_fit = 0;
     TH1F* hratio_abs_fit = 0;
 
@@ -122,11 +122,10 @@ public:
     TH1F* get_hdiff() {return hdiff;}
     TH1F* get_hratio() {return hratio;}
 
-    TF1* get_fdiff() {return fdiff;}
-    TF1* get_fratio() {return fratio;}
-
     TH1F* get_diff_abs() {return hdiff_abs;}
     TH1F* get_ratio_abs() {return hratio_abs;}
+    TF1* get_fdiff_abs() {return fdiff_abs;}
+    TF1* get_fratio_abs() {return fratio_abs;}
 };
 
 sys_var_t::sys_var_t(const sys_var_t& sys_var) {
@@ -193,8 +192,8 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
     hdiff_abs->Fit(Form("%s_diff_fit_function", hist_name.c_str()), "F Q", "", range_low, range_high);
     hdiff_abs->Fit(Form("%s_diff_fit_function", hist_name.c_str()), "F Q", "", range_low, range_high);
     hdiff_abs->Fit(Form("%s_diff_fit_function", hist_name.c_str()), "F M Q", "", range_low, range_high);
-    fdiff = (TF1*)hdiff_abs->GetFunction(Form("%s_diff_fit_function", hist_name.c_str()))->Clone(Form("%s_diff_fit", hist_name.c_str()));
-    th1_from_tf1(hdiff_abs_fit, fdiff);
+    fdiff_abs = (TF1*)hdiff_abs->GetFunction(Form("%s_diff_fit_function", hist_name.c_str()))->Clone(Form("%s_diff_fit", hist_name.c_str()));
+    th1_from_tf1(hdiff_abs_fit, fdiff_abs);
 
     hratio_abs_fit = (TH1F*)hratio_abs->Clone(Form("%s_ratio_abs_fit", hist_name.c_str()));
     TF1* ratio_fit = new TF1(Form("%s_ratio_fit_function", hist_name.c_str()), ratio_fit_func.c_str());
@@ -203,8 +202,8 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
     hratio_abs->Fit(Form("%s_ratio_fit_function", hist_name.c_str()), "F Q", "", range_low, range_high);
     hratio_abs->Fit(Form("%s_ratio_fit_function", hist_name.c_str()), "F Q", "", range_low, range_high);
     hratio_abs->Fit(Form("%s_ratio_fit_function", hist_name.c_str()), "F M Q", "", range_low, range_high);
-    fratio = (TF1*)hratio_abs->GetFunction(Form("%s_ratio_fit_function", hist_name.c_str()))->Clone(Form("%s_ratio_fit", hist_name.c_str()));
-    th1_from_tf1(hratio_abs_fit, fratio);
+    fratio_abs = (TF1*)hratio_abs->GetFunction(Form("%s_ratio_fit_function", hist_name.c_str()))->Clone(Form("%s_ratio_fit", hist_name.c_str()));
+    th1_from_tf1(hratio_abs_fit, fratio_abs);
 }
 
 void sys_var_t::write() {
@@ -216,8 +215,8 @@ void sys_var_t::write() {
     if (hratio) hratio->Write("", TObject::kOverwrite);
     hratio_abs->Write("", TObject::kOverwrite);
 
-    fdiff->Write("", TObject::kOverwrite);
-    fratio->Write("", TObject::kOverwrite);
+    fdiff_abs->Write("", TObject::kOverwrite);
+    fratio_abs->Write("", TObject::kOverwrite);
     hdiff_abs_fit->Write("", TObject::kOverwrite);
     hratio_abs_fit->Write("", TObject::kOverwrite);
 }
