@@ -12,6 +12,8 @@
 #include "TMatrixD.h"
 #include "TRandom3.h"
 
+#include "th1Util.h"
+
 #include <string>
 
 void th1_abs(TH1D* h) {
@@ -119,6 +121,8 @@ private:
     TH1D* hratio_abs_fit = 0;
 
     TH2D* h2D_fitBand_ratio = 0;
+    TH1D* hratio_fitBand = 0;
+    TH1D* hdiff_fitBand = 0;
 
     void calc_sys();
 
@@ -131,6 +135,7 @@ public:
     void scale_sys(float factor);
     void fit_sys(std::string diff_fit_func, std::string ratio_fit_func, double range_low = 0, double range_high = -1);
     void calculate_h2D_fitBand_ratio(int nTrials = 50000, double range_low = 0, double range_high = -1);
+    void calculate_hratio_fitBand(double bandFraction = 0.6827);
     void write();
 
     TH1D* get_hnominal() {return hnominal;}
@@ -149,6 +154,8 @@ public:
     TH1D* get_ratio_abs() {return hratio_abs;}
 
     TH2D* get_h2D_fitBand_ratio() {return h2D_fitBand_ratio;}
+    TH1D* get_hratio_fitBand() {return hratio_fitBand;}
+    TH1D* get_hdiff_fitBand() {return hdiff_fitBand;}
 };
 
 sys_var_t::sys_var_t(const sys_var_t& sys_var) {
@@ -236,8 +243,16 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
  */
 void sys_var_t::calculate_h2D_fitBand_ratio(int nTrials, double range_low, double range_high)
 {
-    if (hratio == 0)  return;
-    if (fratio == 0)  return;
+    if (hratio == 0) {
+        std::cout << "TH1D is null for functions calculate_h2D_fitBand_ratio()" <<std::endl;
+        std::cout << "exiting." <<std::endl;
+        return;
+    }
+    if (fratio == 0)  {
+        std::cout << "TF1 is null for functions calculate_h2D_fitBand_ratio()" <<std::endl;
+        std::cout << "exiting." <<std::endl;
+        return;
+    }
 
     if (range_low > range_high) {
         range_low = hnominal->GetBinLowEdge(1);
@@ -325,6 +340,38 @@ void sys_var_t::calculate_h2D_fitBand_ratio(int nTrials, double range_low, doubl
           h2D_fitBand_ratio->Fill(x, v);
        }
     }
+}
+
+void sys_var_t::calculate_hratio_fitBand(double bandFraction)
+{
+    if (h2D_fitBand_ratio == 0) {
+        std::cout << "TH2D is null for functions calculate_hratio_fitBand()" <<std::endl;
+        std::cout << "exiting." <<std::endl;
+        return;
+    }
+
+    hratio_fitBand = (TH1D*)h2D_fitBand_ratio->ProjectionX(Form("%s_hratio_fitBand", hist_name.c_str()));
+    hratio_fitBand->Reset();
+    hratio_fitBand->SetMarkerStyle(kOpenSquare);
+    hratio_fitBand->SetMarkerColor(kRed);
+
+    TH1D* hBand = 0;
+    for (int iBinX = 1; iBinX <= h2D_fitBand_ratio->GetXaxis()->GetNbins(); ++iBinX) {
+        TH1D* hBand = (TH1D*)h2D_fitBand_ratio->ProjectionY(Form("hBand_iBinX_%d", iBinX), iBinX, iBinX);
+        int binStart = hBand->GetYaxis()->FindBin(1);
+
+        std::vector<int> binRange4Fraction = getLeftRightBins4IntegralFraction(hBand, binStart, bandFraction);
+
+        // check which side contains the larger fraction.
+        int binTarget = binRange4Fraction[0];
+        if (hBand->Integral(binStart, binRange4Fraction[1]) > hBand->Integral(binRange4Fraction[1], binStart))
+            binTarget = binRange4Fraction[1];
+
+        hratio_fitBand->SetBinContent(iBinX, hBand->GetBinCenter(binTarget));
+        hratio_fitBand->SetBinError(iBinX, hratio->GetBinError(iBinX));
+    }
+
+    if (hBand != 0) hBand->Delete();
 }
 
 void sys_var_t::write() {

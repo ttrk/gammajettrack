@@ -24,33 +24,33 @@ enum SYSVAR
 {
     k_jes_up,
     k_jes_down,
-    //k_jer,
-    //k_jes_qg_down,
+    k_jer,
+    k_jes_qg_down,
     kN_SYSVAR
 };
 
 std::string sys_types[kN_SYSVAR] = {
-    "jes_up", "jes_down"//, "jer", "jes_qg_down"
+    "jes_up", "jes_down", "jer", "jes_qg_down"
 };
 
 std::string fit_funcs[kN_SYSVAR] = {
-    "pol1", "pol1"//, "pol1", "pol1"
+    "pol1", "pol1", "pol1", "pol1"
 };
 
 int options[kN_SYSVAR] = {
-    4, 0//, 0, 0
+    4, 0, 0, 0
 };
 
 int special[kN_SYSVAR] = {
-    0, 1//, 0, 0
+    0, 1, 0, 0
 };
 
 int add2Total[kN_SYSVAR] = {
-    0, 2//, 1, 1
+    0, 2, 1, 1
 };
 
 std::string sys_labels[kN_SYSVAR] = {
-    "JES", "JES"//, "JER", "JES Q/G"
+    "JES", "JES", "JER", "JES Q/G"
 };
 
 double xi_low = 0.5;
@@ -58,6 +58,8 @@ double xi_high = 4;
 
 int min_hiBin[4] = {100, 60, 20, 0};
 int max_hiBin[4] = {200, 100, 60, 20};
+
+double fractionToySys = 0.6827;
 
 typedef struct box_t {
     float x1, y1, x2, y2;
@@ -91,7 +93,7 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
         std::cout << "number of histograms should be 4" << std::endl;
     }
 
-    //bool isPP    = (hist_list[0].find("ppdata") != std::string::npos || hist_list[0].find("ppmc") != std::string::npos);
+    bool isPP    = (hist_list[0].find("ppdata") != std::string::npos || hist_list[0].find("ppmc") != std::string::npos);
     bool isxijet = (nominal_file.find("gxi0") != std::string::npos);
 
     std::vector<std::string> file_list;
@@ -128,6 +130,7 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
             sys_vars[i][j] = new sys_var_t(hist_list[i], sys_types[j], hnominals[i], (TH1D*)fsys[j]->Get(hist_list[i].c_str()));
             sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), fit_funcs[j].c_str(), range_low_fnc, range_high_fnc);
             sys_vars[i][j]->calculate_h2D_fitBand_ratio(50000, range_low_fnc, range_high_fnc);
+            sys_vars[i][j]->calculate_hratio_fitBand(fractionToySys);
             sys_vars[i][j]->write();
         }
 
@@ -140,7 +143,7 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
     TCanvas* c1 = 0;
     TLegend* leg = 0;
     TLatex* latexTmp = 0;
-    for (int iSys=0; iSys<kN_SYSVAR; ++iSys) {
+    for (int iSys=0; iSys<nfiles; ++iSys) {
         for (int iCnv = 0; iCnv < 2; ++iCnv) {
 
             float margin = 0.2; // left/bottom margins (with labels)
@@ -186,7 +189,8 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
                     leg->SetBorderSize(0);
                     leg->SetFillStyle(0);
 
-                    leg->AddEntry(sys_vars[iHist][iSys]->get_hnominal(), "nominal", "plf");
+                    if (isPP)  leg->AddEntry(sys_vars[iHist][iSys]->get_hnominal(), "pp nominal", "plf");
+                    else       leg->AddEntry(sys_vars[iHist][iSys]->get_hnominal(), "PbPb nominal", "plf");
                     leg->AddEntry(sys_vars[iHist][iSys]->get_hvariation(), sys_types[iSys].c_str(), "plf");
                     leg->Draw();
                 }
@@ -204,7 +208,7 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
                 set_axis_title(sys_vars[iHist][iSys]->get_hratio(), isxijet);
                 set_axis_style(sys_vars[iHist][iSys]->get_hratio());
                 sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(xi_low, xi_high, "X");
-                sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(0.2, 1.8, "Y");
+                sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(0.4, 1.6, "Y");
                 sys_vars[iHist][iSys]->get_hratio()->SetStats(false);
                 sys_vars[iHist][iSys]->get_hratio()->GetXaxis()->CenterTitle();
                 sys_vars[iHist][iSys]->get_hratio()->GetYaxis()->CenterTitle();
@@ -217,20 +221,32 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
                 if (iCnv == 1) {
                     sys_vars[iHist][iSys]->get_h2D_fitBand_ratio()->Draw("colz same");
                     sys_vars[iHist][iSys]->get_hratio()->Draw("e same");
+                    sys_vars[iHist][iSys]->get_hratio_fitBand()->Draw("e same");
+                    if (iHist == 0) {
+                        leg = new TLegend(0.44, 0.90, 0.72, 0.96);
+                        leg->SetTextFont(43);
+                        leg->SetTextSize(15);
+                        leg->SetBorderSize(0);
+                        leg->SetFillStyle(0);
+
+                        leg->AddEntry(sys_vars[iHist][iSys]->get_hratio_fitBand(), Form("width for %.0f%% fraction", fractionToySys*100), "lp");
+                        leg->Draw();
+                    }
                 }
+                else {
+                    sys_vars[iHist][iSys]->get_fratio()->SetLineColor(kRed);
+                    sys_vars[iHist][iSys]->get_fratio()->Draw("same");
+                    if (iHist == 0) {
+                        leg = new TLegend(0.44, 0.90, 0.72, 0.96);
+                        leg->SetTextFont(43);
+                        leg->SetTextSize(15);
+                        leg->SetBorderSize(0);
+                        leg->SetFillStyle(0);
 
-                sys_vars[iHist][iSys]->get_fratio()->SetLineColor(kRed);
-                sys_vars[iHist][iSys]->get_fratio()->Draw("same");
-                if (iHist == 0) {
-                    leg = new TLegend(0.44, 0.90, 0.72, 0.96);
-                    leg->SetTextFont(43);
-                    leg->SetTextSize(15);
-                    leg->SetBorderSize(0);
-                    leg->SetFillStyle(0);
-
-                    leg->AddEntry(sys_vars[iHist][iSys]->get_fratio(), Form("fit %s",
-                            sys_vars[iHist][iSys]->get_formula_ratio().c_str()), "l");
-                    leg->Draw();
+                        leg->AddEntry(sys_vars[iHist][iSys]->get_fratio(), Form("fit %s",
+                                sys_vars[iHist][iSys]->get_formula_ratio().c_str()), "l");
+                        leg->Draw();
+                    }
                 }
 
                 gPad->Update();
