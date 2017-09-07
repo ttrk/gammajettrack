@@ -116,6 +116,15 @@ public:
     void fit_sys(std::string diff_fit_func, std::string ratio_fit_func, double range_low = 0, double range_high = -1);
     void write();
 
+    TH1F* get_hnominal() {return hnominal;}
+    TH1F* get_hvariation() {return hvariation;}
+
+    TH1F* get_hdiff() {return hdiff;}
+    TH1F* get_hratio() {return hratio;}
+
+    TF1* get_fdiff() {return fdiff;}
+    TF1* get_fratio() {return fratio;}
+
     TH1F* get_diff_abs() {return hdiff_abs;}
     TH1F* get_ratio_abs() {return hratio_abs;}
 };
