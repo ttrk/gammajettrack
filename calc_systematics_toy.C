@@ -128,7 +128,7 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
             sys_vars[i][j] = 0;
             sys_vars[i][j] = new sys_var_t(hist_list[i], sys_types[j], hnominals[i], (TH1D*)fsys[j]->Get(hist_list[i].c_str()));
             sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol1", range_low_fnc, range_high_fnc);
-            sys_vars[i][j]->calculate_h2D_fitBand_ratio(range_low_fnc, range_high_fnc);
+            sys_vars[i][j]->calculate_h2D_fitBand_ratio(50000, range_low_fnc, range_high_fnc);
             sys_vars[i][j]->write();
         }
 

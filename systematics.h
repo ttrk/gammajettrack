@@ -128,7 +128,7 @@ public:
 
     void scale_sys(float factor);
     void fit_sys(std::string diff_fit_func, std::string ratio_fit_func, double range_low = 0, double range_high = -1);
-    void calculate_h2D_fitBand_ratio(double range_low = 0, double range_high = -1);
+    void calculate_h2D_fitBand_ratio(int nTrials = 50000, double range_low = 0, double range_high = -1);
     void write();
 
     TH1D* get_hnominal() {return hnominal;}
@@ -200,8 +200,8 @@ void sys_var_t::scale_sys(float factor) {
 
 void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, double range_low, double range_high) {
     if (range_low > range_high) {
-        range_low = hnominal->GetBinLowEdge(hnominal->FindFirstBinAbove(0.1));
-        range_high = hnominal->GetBinLowEdge(hnominal->FindLastBinAbove(0.1) + 1);
+        range_low = hnominal->GetBinLowEdge(1);
+        range_high = hnominal->GetBinLowEdge(hnominal->GetNbinsX() + 1);
     }
 
     fdiff = new TF1(Form("%s_fdiff", hist_name.c_str()), diff_fit_func.c_str(), range_low, range_high);
@@ -228,10 +228,15 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
 /*
  * sys_var_t::fit_sys should have been called before this function.
  */
-void sys_var_t::calculate_h2D_fitBand_ratio(double range_low, double range_high)
+void sys_var_t::calculate_h2D_fitBand_ratio(int nTrials, double range_low, double range_high)
 {
     if (hratio == 0)  return;
     if (fratio == 0)  return;
+
+    if (range_low > range_high) {
+        range_low = hnominal->GetBinLowEdge(1);
+        range_high = hnominal->GetBinLowEdge(hnominal->GetNbinsX() + 1);
+    }
 
     fratio->SetRange(range_low, range_high);
     TFitResultPtr FitResult = hratio->Fit(fratio, "E M R N Q 0 S");
@@ -252,7 +257,6 @@ void sys_var_t::calculate_h2D_fitBand_ratio(double range_low, double range_high)
     h2D_fitBand_ratio->SetStats(false);
 
     TRandom3 rand(12345);
-    int nTrials = 50000;
     for(int iTry = 0; iTry < nTrials; iTry++)
     {
        double X[3] = {rand.Gaus(0, 1), rand.Gaus(0, 1), 0};
