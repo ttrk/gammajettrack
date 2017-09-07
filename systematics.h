@@ -108,6 +108,8 @@ private:
 
     TF1* fdiff = 0;
     TF1* fratio = 0;
+    std::string formula_diff = "";
+    std::string formula_ratio = "";
     TH1D* hdiff_fit = 0;
     TH1D* hratio_fit = 0;
 
@@ -134,15 +136,17 @@ public:
     TH1D* get_hnominal() {return hnominal;}
     TH1D* get_hvariation() {return hvariation;}
 
-    TH1D* get_hdiff() {return hdiff;}
-    TH1D* get_hratio() {return hratio;}
     TF1* get_fdiff() {return fdiff;}
     TF1* get_fratio() {return fratio;}
+    std::string get_formula_diff() {return formula_diff;}
+    std::string get_formula_ratio() {return formula_ratio;}
+    TH1D* get_hdiff() {return hdiff;}
+    TH1D* get_hratio() {return hratio;}
 
-    TH1D* get_diff_abs() {return hdiff_abs;}
-    TH1D* get_ratio_abs() {return hratio_abs;}
     TF1* get_fdiff_abs() {return fdiff_abs;}
     TF1* get_fratio_abs() {return fratio_abs;}
+    TH1D* get_diff_abs() {return hdiff_abs;}
+    TH1D* get_ratio_abs() {return hratio_abs;}
 
     TH2D* get_h2D_fitBand_ratio() {return h2D_fitBand_ratio;}
 };
@@ -204,22 +208,24 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
         range_high = hnominal->GetBinLowEdge(hnominal->GetNbinsX() + 1);
     }
 
-    fdiff = new TF1(Form("%s_fdiff", hist_name.c_str()), diff_fit_func.c_str(), range_low, range_high);
+    formula_diff = diff_fit_func;
+    fdiff = new TF1(Form("%s_fdiff", hist_name.c_str()), formula_diff.c_str(), range_low, range_high);
     hdiff->Fit(fdiff, "E M R N Q 0");
     hdiff_fit = (TH1D*)hdiff->Clone(Form("%s_hdiff_fit", hist_name.c_str()));
     th1_from_tf1(hdiff_fit, fdiff);
 
-    fratio = new TF1(Form("%s_fratio", hist_name.c_str()), ratio_fit_func.c_str(), range_low, range_high);
+    formula_ratio = ratio_fit_func;
+    fratio = new TF1(Form("%s_fratio", hist_name.c_str()), formula_ratio.c_str(), range_low, range_high);
     hratio->Fit(fratio, "E M R N Q 0");
     hratio_fit = (TH1D*)hratio->Clone(Form("%s_hratio_fit", hist_name.c_str()));
     th1_from_tf1(hratio_fit, fratio);
 
-    fdiff_abs = new TF1(Form("%s_fdiff_abs", hist_name.c_str()), diff_fit_func.c_str(), range_low, range_high);
+    fdiff_abs = new TF1(Form("%s_fdiff_abs", hist_name.c_str()), formula_diff.c_str(), range_low, range_high);
     hdiff_abs->Fit(fdiff_abs, "E M R N Q 0");
     hdiff_abs_fit = (TH1D*)hdiff_abs->Clone(Form("%s_hdiff_abs_fit", hist_name.c_str()));
     th1_from_tf1(hdiff_abs_fit, fdiff_abs);
 
-    fratio_abs = new TF1(Form("%s_fratio_abs", hist_name.c_str()), ratio_fit_func.c_str(), range_low, range_high);
+    fratio_abs = new TF1(Form("%s_fratio_abs", hist_name.c_str()), formula_ratio.c_str(), range_low, range_high);
     hratio_abs->Fit(fratio_abs, "E M R N Q 0");
     hratio_abs_fit = (TH1D*)hratio_abs->Clone(Form("%s_hratio_abs_fit", hist_name.c_str()));
     th1_from_tf1(hratio_abs_fit, fratio_abs);
