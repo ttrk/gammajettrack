@@ -126,6 +126,8 @@ public:
 
     TH1D* get_hdiff() {return hdiff;}
     TH1D* get_hratio() {return hratio;}
+    TF1* get_fdiff() {return fdiff;}
+    TF1* get_fratio() {return fratio;}
 
     TH1D* get_diff_abs() {return hdiff_abs;}
     TH1D* get_ratio_abs() {return hratio_abs;}
@@ -189,6 +191,16 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
         range_low = hnominal->GetBinLowEdge(hnominal->FindFirstBinAbove(0.1));
         range_high = hnominal->GetBinLowEdge(hnominal->FindLastBinAbove(0.1) + 1);
     }
+
+    fdiff = new TF1(Form("%s_fdiff", hist_name.c_str()), diff_fit_func.c_str(), range_low, range_high);
+    hdiff->Fit(fdiff, "EM R N Q");
+    hdiff_fit = (TH1D*)hdiff->Clone(Form("%s_hdiff_fit", hist_name.c_str()));
+    th1_from_tf1(hdiff_fit, fdiff);
+
+    fratio = new TF1(Form("%s_fratio", hist_name.c_str()), ratio_fit_func.c_str(), range_low, range_high);
+    hratio->Fit(fratio, "EM R N Q");
+    hratio_fit = (TH1D*)hratio->Clone(Form("%s_hratio_fit", hist_name.c_str()));
+    th1_from_tf1(hratio_fit, fratio);
 
     fdiff_abs = new TF1(Form("%s_fdiff_abs", hist_name.c_str()), diff_fit_func.c_str(), range_low, range_high);
     hdiff_abs->Fit(fdiff_abs, "EM R N Q");
