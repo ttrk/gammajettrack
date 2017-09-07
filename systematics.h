@@ -2,8 +2,15 @@
 #define _SYSTEMATICS_H
 
 #include "TH1.h"
+#include "TH1D.h"
+#include "TH2D.h"
 #include "TF1.h"
 #include "TMath.h"
+
+#include "TFitResult.h"
+#include "TMatrixDSym.h"
+#include "TMatrixD.h"
+#include "TRandom3.h"
 
 #include <string>
 
@@ -109,6 +116,8 @@ private:
     TH1D* hdiff_abs_fit = 0;
     TH1D* hratio_abs_fit = 0;
 
+    TH2D* h2D_fitBand_ratio = 0;
+
     void calc_sys();
 
 public:
@@ -119,6 +128,7 @@ public:
 
     void scale_sys(float factor);
     void fit_sys(std::string diff_fit_func, std::string ratio_fit_func, double range_low = 0, double range_high = -1);
+    void calculate_h2D_fitBand_ratio(double range_low = 0, double range_high = -1);
     void write();
 
     TH1D* get_hnominal() {return hnominal;}
@@ -133,6 +143,8 @@ public:
     TH1D* get_ratio_abs() {return hratio_abs;}
     TF1* get_fdiff_abs() {return fdiff_abs;}
     TF1* get_fratio_abs() {return fratio_abs;}
+
+    TH2D* get_h2D_fitBand_ratio() {return h2D_fitBand_ratio;}
 };
 
 sys_var_t::sys_var_t(const sys_var_t& sys_var) {
@@ -193,39 +205,95 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
     }
 
     fdiff = new TF1(Form("%s_fdiff", hist_name.c_str()), diff_fit_func.c_str(), range_low, range_high);
-    hdiff->Fit(fdiff, "EM R N Q");
+    hdiff->Fit(fdiff, "E M R N Q 0");
     hdiff_fit = (TH1D*)hdiff->Clone(Form("%s_hdiff_fit", hist_name.c_str()));
     th1_from_tf1(hdiff_fit, fdiff);
 
     fratio = new TF1(Form("%s_fratio", hist_name.c_str()), ratio_fit_func.c_str(), range_low, range_high);
-    hratio->Fit(fratio, "EM R N Q");
+    hratio->Fit(fratio, "E M R N Q 0");
     hratio_fit = (TH1D*)hratio->Clone(Form("%s_hratio_fit", hist_name.c_str()));
     th1_from_tf1(hratio_fit, fratio);
 
     fdiff_abs = new TF1(Form("%s_fdiff_abs", hist_name.c_str()), diff_fit_func.c_str(), range_low, range_high);
-    hdiff_abs->Fit(fdiff_abs, "EM R N Q");
+    hdiff_abs->Fit(fdiff_abs, "E M R N Q 0");
     hdiff_abs_fit = (TH1D*)hdiff_abs->Clone(Form("%s_hdiff_abs_fit", hist_name.c_str()));
     th1_from_tf1(hdiff_abs_fit, fdiff_abs);
 
     fratio_abs = new TF1(Form("%s_fratio_abs", hist_name.c_str()), ratio_fit_func.c_str(), range_low, range_high);
-    hratio_abs->Fit(fratio_abs, "EM R N Q");
+    hratio_abs->Fit(fratio_abs, "E M R N Q 0");
     hratio_abs_fit = (TH1D*)hratio_abs->Clone(Form("%s_hratio_abs_fit", hist_name.c_str()));
     th1_from_tf1(hratio_abs_fit, fratio_abs);
 }
 
+/*
+ * sys_var_t::fit_sys should have been called before this function.
+ */
+void sys_var_t::calculate_h2D_fitBand_ratio(double range_low, double range_high)
+{
+    if (hratio == 0)  return;
+    if (fratio == 0)  return;
+
+    fratio->SetRange(range_low, range_high);
+    TFitResultPtr FitResult = hratio->Fit(fratio, "E M R N Q 0 S");
+    TMatrixDSym Matrix = FitResult->GetCovarianceMatrix();
+    double L[3][3] = {{0}};   // Cholesky decomposition:  find L such that L x L^T = M, where L is lower triangle
+    L[0][0] = sqrt(Matrix[0][0]);
+    L[1][0] = Matrix[1][0] / L[0][0];
+    L[1][1] = sqrt(Matrix[1][1] - L[1][0] * L[1][0]);
+    double Mean[3] = {0};
+    Mean[0] = fratio->GetParameter(0);
+    Mean[1] = fratio->GetParameter(1);
+
+    int nBinsX = hnominal->GetNbinsX();
+    double xLow = hnominal->GetBinLowEdge(1);
+    double xUp = hnominal->GetBinLowEdge(nBinsX+1);
+    std::string xTitle = hnominal->GetXaxis()->GetTitle();
+    h2D_fitBand_ratio = new TH2D(Form("%s_h2D_fitBand_ratio", hist_name.c_str()), Form(";%s;var / nominal", xTitle.c_str()), nBinsX, xLow, xUp, 500, 0, 2);
+    h2D_fitBand_ratio->SetStats(false);
+
+    TRandom3 rand(12345);
+    int nTrials = 50000;
+    for(int iTry = 0; iTry < nTrials; iTry++)
+    {
+       double X[3] = {rand.Gaus(0, 1), rand.Gaus(0, 1), 0};
+
+       double Y[3];
+       Y[0] = L[0][0] * X[0] + L[0][1] * X[1] + L[0][2] * X[2] + Mean[0];
+       Y[1] = L[1][0] * X[0] + L[1][1] * X[1] + L[1][2] * X[2] + Mean[1];
+       Y[2] = L[2][0] * X[0] + L[2][1] * X[1] + L[2][2] * X[2] + Mean[2];
+
+       int binFirst = hnominal->FindBin(range_low);
+       int binLast = hnominal->FindBin(range_high)-1;
+       for(int iBin = binFirst; iBin <= binLast; iBin++)
+       {
+          double x = h2D_fitBand_ratio->GetXaxis()->GetBinCenter(iBin);
+          double v;
+          v = Y[0] + Y[1] * x;
+          h2D_fitBand_ratio->Fill(x, v);
+       }
+    }
+}
+
 void sys_var_t::write() {
-    hnominal->Write("", TObject::kOverwrite);
-    if (hvariation) hvariation->Write("", TObject::kOverwrite);
+    if (hnominal != 0) hnominal->Write("", TObject::kOverwrite);
+    if (hvariation != 0) hvariation->Write("", TObject::kOverwrite);
 
-    if (hdiff) hdiff->Write("", TObject::kOverwrite);
-    hdiff_abs->Write("", TObject::kOverwrite);
-    if (hratio) hratio->Write("", TObject::kOverwrite);
-    hratio_abs->Write("", TObject::kOverwrite);
+    if (hdiff != 0) hdiff->Write("", TObject::kOverwrite);
+    if (hdiff_abs != 0)  hdiff_abs->Write("", TObject::kOverwrite);
+    if (hratio != 0) hratio->Write("", TObject::kOverwrite);
+    if (hratio_abs != 0) hratio_abs->Write("", TObject::kOverwrite);
 
-    fdiff_abs->Write("", TObject::kOverwrite);
-    fratio_abs->Write("", TObject::kOverwrite);
-    hdiff_abs_fit->Write("", TObject::kOverwrite);
-    hratio_abs_fit->Write("", TObject::kOverwrite);
+    if (fdiff != 0)  fdiff->Write("", TObject::kOverwrite);
+    if (fratio != 0)  fratio->Write("", TObject::kOverwrite);
+    if (hdiff_fit != 0)  hdiff_fit->Write("", TObject::kOverwrite);
+    if (hratio_fit != 0)  hratio_fit->Write("", TObject::kOverwrite);
+
+    if (fdiff_abs != 0)  fdiff_abs->Write("", TObject::kOverwrite);
+    if (fratio_abs != 0)  fratio_abs->Write("", TObject::kOverwrite);
+    if (hdiff_abs_fit != 0)  hdiff_abs_fit->Write("", TObject::kOverwrite);
+    if (hratio_abs_fit != 0)  hratio_abs_fit->Write("", TObject::kOverwrite);
+
+    if (h2D_fitBand_ratio != 0)  h2D_fitBand_ratio->Write("", TObject::kOverwrite);
 }
 
 class total_sys_var_t {

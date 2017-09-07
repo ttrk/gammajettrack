@@ -34,7 +34,7 @@ std::string sys_types[kN_SYSVAR] = {
 };
 
 std::string fit_funcs[kN_SYSVAR] = {
-    "pol2", "pol2"//, "pol2", "pol2"
+    "pol1", "pol1"//, "pol1", "pol1"
 };
 
 int options[kN_SYSVAR] = {
@@ -52,10 +52,6 @@ int add2Total[kN_SYSVAR] = {
 std::string sys_labels[kN_SYSVAR] = {
     "JES", "JES"//, "JER", "JES Q/G"
 };
-
-std::string fitFormula = "pol1";
-double range_low_fnc = 0.5;
-double range_high_fnc = 4.5;
 
 double xi_low = 0.5;
 double xi_high = 4;
@@ -120,56 +116,20 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
 
     std::vector<total_sys_var_t*> total_sys_vars(nhists, 0);
     sys_var_t* sys_vars[nhists][nfiles];
-    TF1* f1_ratio[nhists][nfiles];
-    TH2D* h2Dspread[nhists][nfiles];
     for (int i=0; i<nhists; ++i) {
         total_sys_vars[i] = new total_sys_var_t(hist_list[i], hnominals[i]);
 
         for (int j=0; j<nfiles; ++j) {
 
+            std::string fitFormula = "pol1";
+            double range_low_fnc = 0.5;
+            double range_high_fnc = 4.5;
+
             sys_vars[i][j] = 0;
             sys_vars[i][j] = new sys_var_t(hist_list[i], sys_types[j], hnominals[i], (TH1D*)fsys[j]->Get(hist_list[i].c_str()));
-            sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2", range_low_fnc, range_high_fnc);
+            sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol1", range_low_fnc, range_high_fnc);
+            sys_vars[i][j]->calculate_h2D_fitBand_ratio(range_low_fnc, range_high_fnc);
             sys_vars[i][j]->write();
-
-            f1_ratio[i][j] = new TF1(Form("%s_%s_f1_ratio", sys_types[j].c_str(), hist_list[i].c_str()), fitFormula.c_str(),
-                    range_low_fnc, range_high_fnc);
-
-            //sys_vars[i][j]->get_hratio()->Fit(f1_ratio[i][j], "EM R");
-
-            TFitResultPtr FitResult = sys_vars[i][j]->get_hratio()->Fit(f1_ratio[i][j], "EM R S");
-            TMatrixDSym Matrix = FitResult->GetCovarianceMatrix();
-            double L[3][3] = {{0}};   // Cholesky decomposition:  find L such that L x L^T = M, where L is lower triangle
-            L[0][0] = sqrt(Matrix[0][0]);
-            L[1][0] = Matrix[1][0] / L[0][0];
-            L[1][1] = sqrt(Matrix[1][1] - L[1][0] * L[1][0]);
-            double Mean[3] = {0};
-            Mean[0] = f1_ratio[i][j]->GetParameter(0);
-            Mean[1] = f1_ratio[i][j]->GetParameter(1);
-
-            int nBinsX = 8*1;
-            h2Dspread[i][j] = new TH2D(Form("h2Dspread_%s_%s", sys_types[j].c_str(), hist_list[i].c_str()), ";#xi;var / nominal", nBinsX, 0.5, 4.5, 500, 0, 2);
-            h2Dspread[i][j]->SetStats(false);
-
-            TRandom3 rand(12345);
-            int nTrials = 50000;
-            for(int iTry = 0; iTry < nTrials; iTry++)
-            {
-               double X[3] = {rand.Gaus(0, 1), rand.Gaus(0, 1), 0};
-
-               double Y[3];
-               Y[0] = L[0][0] * X[0] + L[0][1] * X[1] + L[0][2] * X[2] + Mean[0];
-               Y[1] = L[1][0] * X[0] + L[1][1] * X[1] + L[1][2] * X[2] + Mean[1];
-               Y[2] = L[2][0] * X[0] + L[2][1] * X[1] + L[2][2] * X[2] + Mean[2];
-               for(int iS = 1; iS <= nBinsX; iS++)
-               {
-                  double x = h2Dspread[i][j]->GetXaxis()->GetBinCenter(iS);
-                  double v;
-                  v = Y[0] + Y[1] * x;
-                  //BinResults[iS].push_back(fabs(v));
-                  h2Dspread[i][j]->Fill(x, v);
-               }
-            }
         }
 
         total_sys_vars[i]->write();
@@ -193,7 +153,10 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
             float pad_width = 250 * column_scale_factor;
             float pad_height = 250 * row_scale_factor;
 
-            c1 = new TCanvas(Form("sys_toy_%s", sys_types[iSys].c_str()), "", pad_width, pad_height);
+            std::string cnvName = Form("sys_toy_%s_%s", sys_types[iSys].c_str(), label.c_str());
+            if (iCnv == 1)  cnvName = Form("sys_toy_%s_%s_2D", sys_types[iSys].c_str(), label.c_str());
+
+            c1 = new TCanvas(cnvName.c_str(), "", pad_width, pad_height);
             divide_canvas(c1, rows, columns, margin, edge, row_scale_factor, column_scale_factor);
 
             for (int iHist = 0; iHist < nhists; ++iHist) {
@@ -242,7 +205,7 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
                 set_axis_title(sys_vars[iHist][iSys]->get_hratio(), isxijet);
                 set_axis_style(sys_vars[iHist][iSys]->get_hratio());
                 sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(xi_low, xi_high, "X");
-                sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(0.4, 1.6, "Y");
+                sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(0.2, 1.8, "Y");
                 sys_vars[iHist][iSys]->get_hratio()->SetStats(false);
                 sys_vars[iHist][iSys]->get_hratio()->GetXaxis()->CenterTitle();
                 sys_vars[iHist][iSys]->get_hratio()->GetYaxis()->CenterTitle();
@@ -253,22 +216,21 @@ int calc_systematics_toy(std::string nominal_file, std::string filelist, std::st
                 sys_vars[iHist][iSys]->get_hratio()->Draw("e");
 
                 if (iCnv == 1) {
-                    h2Dspread[iHist][iSys]->Draw("colz same");
+                    sys_vars[iHist][iSys]->get_h2D_fitBand_ratio()->Draw("colz same");
                     sys_vars[iHist][iSys]->get_hratio()->Draw("e same");
                 }
 
-                f1_ratio[iHist][iSys]->SetLineColor(kRed);
-                f1_ratio[iHist][iSys]->Draw("same");
+                sys_vars[iHist][iSys]->get_fratio()->SetLineColor(kRed);
+                sys_vars[iHist][iSys]->get_fratio()->Draw("same");
 
-                TLine lineTmp(xi_low, 1, xi_high, 1);
+                gPad->Update();
+                TLine lineTmp(gPad->GetUxmin(), 1, gPad->GetUxmax(), 1);
                 lineTmp.SetLineStyle(kDashed);
                 lineTmp.DrawClone();
             }
 
-            std::string cnvOutName = Form("sys_toy_%s-%s.pdf", sys_types[iSys].c_str(), label.c_str());
-            if (iCnv == 1)  cnvOutName = Form("sys_toy_%s-%s-2D.pdf", sys_types[iSys].c_str(), label.c_str());
-
-            c1->SaveAs(cnvOutName.c_str());
+            c1->SaveAs(Form("%s.pdf", c1->GetName()));
+            c1->Write("", TObject::kOverwrite);
             if (leg != 0)  leg->Delete();
             c1->Close();
         }
