@@ -397,14 +397,14 @@ void sys_var_t::calculate_hratio_fitBand(double bandFraction)
     }
     if (hBand != 0) hBand->Delete();
 
-    hratio_abs_fitBand = (TH1D*)hratio_fitBand->Clone(Form("%s_hratio_abs_fitBand", hist_name.c_str()));
+    hratio_abs_fitBand = (TH1D*)hratio_fitBand->Clone(Form("%s_ratio_abs_fitBand", hist_name.c_str()));
     th1_ratio_abs(hratio_abs_fitBand);
 
-    hdiff_fitBand = (TH1D*)hnominal->Clone(Form("%s_hdiff_fitBand", hist_name.c_str()));
+    hdiff_fitBand = (TH1D*)hnominal->Clone(Form("%s_diff_fitBand", hist_name.c_str()));
     hdiff_fitBand->Multiply(hratio_fitBand);
     hdiff_fitBand->Add(hnominal, -1);
 
-    hdiff_abs_fitBand = (TH1D*)hdiff_fitBand->Clone(Form("%s_hdiff_abs_fitBand", hist_name.c_str()));
+    hdiff_abs_fitBand = (TH1D*)hdiff_fitBand->Clone(Form("%s_diff_abs_fitBand", hist_name.c_str()));
     th1_abs(hdiff_abs_fitBand);
 }
 
