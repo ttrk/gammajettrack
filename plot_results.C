@@ -13,6 +13,7 @@
 #include <string>
 #include <iostream>
 
+#include "systematics.h"
 #include "error_bands.h"
 #include "plotUtil.h"
 
@@ -70,7 +71,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     // set the plotting mode based on histogram names
     std::string mcSampleStr = "";
     for (int i = 1; i < (int)hist_names.size(); i+=5) {
-        is_sysvar = is_sysvar || (hist_names[i].find("variation") != std::string::npos);
+        is_sysvar = is_sysvar || (hist_names[i].find("variation") != std::string::npos) || (hist_names[i].find("systematics") != std::string::npos);
         is_ppmc = is_ppmc || (hist_names[i].find("ppmc") != std::string::npos);
         is_pbpbmc = is_pbpbmc || (hist_names[i].find("pbpbmc") != std::string::npos);
         is_ppdata = is_ppdata || (hist_names[i].find("ppdata") != std::string::npos);
@@ -103,6 +104,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     TFile* fsys = 0;
     TH1D* hsys[4][2];
     TH1D* hsys_ratio[4];
+    TH1D* hTmp = 0;
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 2; ++j) {
             hsys[i][j] = 0;
@@ -195,7 +197,12 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         for (std::size_t l=1; l<layers; ++l) {
             if ((mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) && l == layers-1)  continue;
 
-            h1[i][l]->Draw(Form("%s same", drawOptions[l].c_str()));
+            hTmp = (TH1D*)h1[i][l]->Clone("hTmp");
+            if (mode == k_data_sysalltotpercnt) {
+                hTmp->Multiply(h1[i][0]);
+                th1_copy_bin_errors(hTmp, h1[i][0]);
+            }
+            hTmp->Draw(Form("%s same", drawOptions[l].c_str()));
         }
 
         gr->SetFillColorAlpha(fillColors[0], fillAlpha);
@@ -307,7 +314,6 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                 }
                 else if (mode == k_data_sysalltotpercnt && r < layers -1) {
                     hratio[i][r] = (TH1D*)h1[i][r]->Clone(Form("hratio_%i_%zu", i, r));
-                    hratio[i][r]->Divide(h1[i][0]);
 
                     for (int iBin = 1; iBin <= hratio[i][r]->GetNbinsX(); ++iBin) {
                         hratio[i][r]->SetBinContent(iBin, (TMath::Abs(hratio[i][r]->GetBinContent(iBin) -1)));
