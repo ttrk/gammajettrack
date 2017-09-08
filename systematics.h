@@ -375,7 +375,7 @@ void sys_var_t::calculate_hratio_fitBand(double bandFraction)
         return;
     }
 
-    hratio_fitBand = (TH1D*)h2D_fitBand_ratio->ProjectionX(Form("%s_hratio_fitBand", hist_name.c_str()));
+    hratio_fitBand = (TH1D*)h2D_fitBand_ratio->ProjectionX(Form("%s_ratio_fitBand", hist_name.c_str()));
     hratio_fitBand->Reset();
     hratio_fitBand->SetMarkerStyle(kOpenSquare);
     hratio_fitBand->SetMarkerColor(kRed);
