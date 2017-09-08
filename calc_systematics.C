@@ -170,25 +170,25 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         if (!isPP) {
             if (isxijet) {
                 int lowxiBin = hsys_xi_nonclosure[i]->FindBin(0.5);
-                hsys_xi_nonclosure[i]->SetBinContent(lowxiBin, hsys_xi_nonclosure[i]->GetBinContent(lowxiBin)*1.17);
+                hsys_xi_nonclosure[i]->SetBinContent(lowxiBin, hsys_xi_nonclosure[i]->GetBinContent(lowxiBin)*1.10);
             }
 
             double const_nonClosure = 0;
             if (isxijet) {
-                if (hist_list[i].find("_0_20") != std::string::npos) const_nonClosure = 0.097;
-                else if (hist_list[i].find("_20_60") != std::string::npos) const_nonClosure = 0.066;
-                else if (hist_list[i].find("_0_60") != std::string::npos) const_nonClosure = 0.084; // weight_0_20 = 4, weight_20_60 = 3
-                else if (hist_list[i].find("_60_100") != std::string::npos) const_nonClosure = 0.047;
-                else if (hist_list[i].find("_100_200") != std::string::npos) const_nonClosure = 0.015;
-                else if (hist_list[i].find("_60_200") != std::string::npos) const_nonClosure = 0.041; // weight_60_100 = 4, weight_100_200 = 1
+                if (hist_list[i].find("_0_20") != std::string::npos) const_nonClosure = 0.053;
+                else if (hist_list[i].find("_20_60") != std::string::npos) const_nonClosure = 0.039;
+                else if (hist_list[i].find("_0_60") != std::string::npos) const_nonClosure = 0.047; // weight_0_20 = 4, weight_20_60 = 3
+                else if (hist_list[i].find("_60_100") != std::string::npos) const_nonClosure = 0.034;
+                else if (hist_list[i].find("_100_200") != std::string::npos) const_nonClosure = 0.002;
+                else if (hist_list[i].find("_60_200") != std::string::npos) const_nonClosure = 0.028; // weight_60_100 = 4, weight_100_200 = 1
             }
             else {
-                if (hist_list[i].find("_0_20") != std::string::npos) const_nonClosure = 0.111;
-                else if (hist_list[i].find("_20_60") != std::string::npos) const_nonClosure = 0.049;
-                else if (hist_list[i].find("_0_60") != std::string::npos) const_nonClosure = 0.084; // weight_0_20 = 4, weight_20_60 = 3
-                else if (hist_list[i].find("_60_100") != std::string::npos) const_nonClosure = 0.027;
-                else if (hist_list[i].find("_100_200") != std::string::npos) const_nonClosure = 0.005;
-                else if (hist_list[i].find("_60_200") != std::string::npos) const_nonClosure = 0.023; // weight_60_100 = 4, weight_100_200 = 1
+                if (hist_list[i].find("_0_20") != std::string::npos) const_nonClosure = 0.076;
+                else if (hist_list[i].find("_20_60") != std::string::npos) const_nonClosure = 0.024;
+                else if (hist_list[i].find("_0_60") != std::string::npos) const_nonClosure = 0.054; // weight_0_20 = 4, weight_20_60 = 3
+                else if (hist_list[i].find("_60_100") != std::string::npos) const_nonClosure = 0.024;
+                else if (hist_list[i].find("_100_200") != std::string::npos) const_nonClosure = 0.007;
+                else if (hist_list[i].find("_60_200") != std::string::npos) const_nonClosure = 0.021; // weight_60_100 = 4, weight_100_200 = 1
             }
             std::vector<double> highXis = {2.75, 3.25, 3.75, 4.25};
             for (int iTmp = 0; iTmp < (int)highXis.size(); ++iTmp) {
