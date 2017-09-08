@@ -66,6 +66,18 @@ void th1_max_of_2_th1(TH1D* h1, TH1D* h2, TH1D* h) {
     }
 }
 
+void th1_copy_bin_errors(TH1D* h, TH1D* hRef) {
+    for (int i=1; i<=h->GetNbinsX(); ++i) {
+        h->SetBinError(i, hRef->GetBinError(i));
+    }
+}
+
+void th1_copy_bin_errors4ratio(TH1D* hRatio, TH1D* hDenom) {
+    for (int i=1; i<=hRatio->GetNbinsX(); ++i) {
+        hRatio->SetBinError(i, hRatio->GetBinContent(i)*hDenom->GetBinError(i)/hDenom->GetBinContent(i));
+    }
+}
+
 float th1_average_content(TH1D* h) {
     float sum = 0;
     for (int i=1; i<=h->GetNbinsX(); ++i)
@@ -201,11 +213,13 @@ sys_var_t::~sys_var_t() {};
 void sys_var_t::calc_sys() {
     hdiff = (TH1D*)hvariation->Clone(Form("%s_diff", hist_name.c_str()));
     hdiff->Add(hnominal, -1);
+    th1_copy_bin_errors(hdiff, hnominal);
     hdiff_abs = (TH1D*)hdiff->Clone(Form("%s_diff_abs", hist_name.c_str()));
     th1_abs(hdiff_abs);
 
     hratio = (TH1D*)hvariation->Clone(Form("%s_ratio", hist_name.c_str()));
-    hratio->Divide(hvariation, hnominal);
+    hratio->Divide(hnominal);
+    th1_copy_bin_errors4ratio(hratio, hnominal);
     hratio_abs = (TH1D*)hratio->Clone(Form("%s_ratio_abs", hist_name.c_str()));
     th1_ratio_abs(hratio_abs);
 }
@@ -227,6 +241,8 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
         range_low = hnominal->GetBinLowEdge(1);
         range_high = hnominal->GetBinLowEdge(hnominal->GetNbinsX() + 1);
     }
+
+    calc_sys();
 
     formula_diff = diff_fit_func;
     fdiff = new TF1(Form("%s_fdiff", hist_name.c_str()), formula_diff.c_str(), range_low, range_high);
@@ -377,7 +393,7 @@ void sys_var_t::calculate_hratio_fitBand(double bandFraction)
 
         // check which side contains the larger fraction.
         int binTarget = binRange4Fraction[0];
-        if (hBand->Integral(binStart, binRange4Fraction[1]) > hBand->Integral(binRange4Fraction[1], binStart))
+        if (hBand->Integral(binStart, binRange4Fraction[1]) > hBand->Integral(binRange4Fraction[0], binStart))
             binTarget = binRange4Fraction[1];
 
         hratio_fitBand->SetBinContent(iBinX, hBand->GetBinCenter(binTarget));
