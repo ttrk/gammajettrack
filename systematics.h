@@ -215,6 +215,11 @@ void sys_var_t::scale_sys(float factor) {
     hratio_abs->Scale(factor);
     if (hdiff_abs_fit) hdiff_abs_fit->Scale(factor);
     if (hratio_abs_fit) hratio_abs_fit->Scale(factor);
+
+    if (hdiff_fitBand)  hdiff_fitBand->Scale(factor);
+    if (hratio_fitBand)  hratio_fitBand->Scale(factor);
+    if (hdiff_abs_fitBand)  hdiff_abs_fitBand->Scale(factor);
+    if (hratio_abs_fitBand)  hratio_abs_fitBand->Scale(factor);
 }
 
 void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, double range_low, double range_high) {
@@ -426,8 +431,6 @@ private:
     TH1D* hsystematics_dataRatio = 0;
     TH1D* hsystematics_fitBand = 0;
 
-    int method = 0;
-
     void add_sqrt_sum_squares(TH1D* herr);
     void add_sqrt_sum_squares_dataRatio(TH1D* herr);
     void add_sqrt_sum_squares_fitBand(TH1D* herr);
@@ -437,8 +440,7 @@ public:
     total_sys_var_t(std::string label, TH1D* hnominal);
     ~total_sys_var_t();
 
-    void add_sys_var(sys_var_t* sys_var, int option);
-    void set_sys_method(int methodIndex);
+    void add_sys_var(sys_var_t* sys_var, int option, int method = 0);
     void write();
 
     TH1D* get_total() {return hsystematics;}
@@ -479,7 +481,7 @@ void total_sys_var_t::add_sqrt_sum_squares_fitBand(TH1D* herr) {
     th1_sqrt_sum_squares(hsystematics_fitBand, herr);
 }
 
-void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option) {
+void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option, int method) {
     switch (option) {
         case 0:
             add_sqrt_sum_squares_dataRatio(sys_var->hdiff_abs);
@@ -531,11 +533,6 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option) {
         default:
             return;
     }
-}
-
-void total_sys_var_t::set_sys_method(int methodIndex)
-{
-    method = methodIndex;
 }
 
 void total_sys_var_t::write() {
