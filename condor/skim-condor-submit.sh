@@ -129,4 +129,12 @@ done
 sed -i "s/\#noop/noop/g" skim.condor
 sed -i "s/__FAILED__/$RESUBMIT/g" skim.condor
 
-condor_submit skim.condor -name submit.mit.edu
+echo ""
+echo " # ## ### #### ### ## #"
+echo ""
+echo "please log on to submit.mit.edu, and submit the job there!"
+echo "cd $WORKDIR"
+echo "condor_submit skim.condor"
+echo ""
+echo " # ## ### #### ### ## #"
+# condor_submit skim.condor -name submit.mit.edu
