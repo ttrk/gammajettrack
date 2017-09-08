@@ -170,7 +170,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         if (!isPP) {
             if (isxijet) {
                 int lowxiBin = hsys_xi_nonclosure[i]->FindBin(0.5);
-                hsys_xi_nonclosure[i]->SetBinContent(lowxiBin, hsys_xi_nonclosure[i]->GetBinContent(lowxiBin)*1.10);
+                hsys_xi_nonclosure[i]->SetBinContent(lowxiBin, hsys_xi_nonclosure[i]->GetBinContent(lowxiBin)*1.11);
             }
 
             double const_nonClosure = 0;
