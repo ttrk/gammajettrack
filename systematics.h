@@ -453,10 +453,11 @@ total_sys_var_t::total_sys_var_t(const total_sys_var_t& total_sys_var) {
 total_sys_var_t::total_sys_var_t(std::string label, TH1D* hnominal) {
     this->label = label;
     this->hnominal = (TH1D*)hnominal->Clone(Form("%s_nominal", label.c_str()));
-
-    this->hsystematics_dataRatio = (TH1D*)hnominal->Clone(Form("%s_dataRatio", label.c_str()));
+    this->hsystematics = (TH1D*)hnominal->Clone(Form("%s_systematics", label.c_str()));
+    this->hsystematics->Reset("ICES");
+    this->hsystematics_dataRatio = (TH1D*)hnominal->Clone(Form("%s_totsys_dataRatio", label.c_str()));
     this->hsystematics_dataRatio->Reset("ICES");
-    this->hsystematics_fitBand = (TH1D*)hnominal->Clone(Form("%s_fitBand", label.c_str()));
+    this->hsystematics_fitBand = (TH1D*)hnominal->Clone(Form("%s_totsys_fitBand", label.c_str()));
     this->hsystematics_fitBand->Reset("ICES");
 }
 
@@ -483,6 +484,9 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option) {
         case 0:
             add_sqrt_sum_squares_dataRatio(sys_var->hdiff_abs);
             add_sqrt_sum_squares_fitBand(sys_var->hdiff_abs_fitBand);
+            if (method == 0)  add_sqrt_sum_squares(sys_var->hdiff_abs);
+            else              add_sqrt_sum_squares(sys_var->hdiff_abs_fitBand);
+
             break;
         case 1: {
             TH1D* htmp = 0;
@@ -490,10 +494,12 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option) {
             htmp = (TH1D*)sys_var->hratio_abs->Clone("htmp");
             htmp->Multiply(hnominal);
             add_sqrt_sum_squares_dataRatio(htmp);
+            if (method == 0)  add_sqrt_sum_squares(htmp);
 
             htmp = (TH1D*)sys_var->hratio_abs_fitBand->Clone("htmp");
             htmp->Multiply(hnominal);
             add_sqrt_sum_squares_fitBand(htmp);
+            if (method == 1)  add_sqrt_sum_squares(htmp);
 
             if (htmp != 0)  htmp->Delete();
             break; }
@@ -501,6 +507,8 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option) {
             if (!sys_var->hdiff_abs_fit) {printf("no fit found!\n"); return;}
             add_sqrt_sum_squares_dataRatio(sys_var->hdiff_abs_fit);
             add_sqrt_sum_squares_fitBand(sys_var->hdiff_abs_fitBand);
+            if (method == 0)  add_sqrt_sum_squares(sys_var->hdiff_abs_fit);
+            else              add_sqrt_sum_squares(sys_var->hdiff_abs_fitBand);
             break;
         case 3: {
             if (!sys_var->hratio_abs_fit) {printf("no fit found!\n"); return;}
@@ -509,10 +517,12 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option) {
             htmp = (TH1D*)sys_var->hratio_abs_fit->Clone("htmp");
             htmp->Multiply(hnominal);
             add_sqrt_sum_squares_dataRatio(htmp);
+            if (method == 0)  add_sqrt_sum_squares(htmp);
 
             htmp = (TH1D*)sys_var->hratio_abs_fitBand->Clone("htmp");
             htmp->Multiply(hnominal);
             add_sqrt_sum_squares_fitBand(htmp);
+            if (method == 1)  add_sqrt_sum_squares(htmp);
 
             if (htmp != 0)  htmp->Delete();
             break; }
@@ -531,16 +541,9 @@ void total_sys_var_t::set_sys_method(int methodIndex)
 void total_sys_var_t::write() {
     hnominal->Write("", TObject::kOverwrite);
 
+    hsystematics->Write("", TObject::kOverwrite);
     hsystematics_dataRatio->Write("", TObject::kOverwrite);
     hsystematics_fitBand->Write("", TObject::kOverwrite);
-
-    if (method == 0) {
-        this->hsystematics = (TH1D*)hsystematics_dataRatio->Clone(Form("%s_systematics", label.c_str()));
-    }
-    else if (method == 1) {
-        this->hsystematics = (TH1D*)hsystematics_fitBand->Clone(Form("%s_systematics", label.c_str()));
-    }
-    hsystematics->Write("", TObject::kOverwrite);
 }
 
 #endif
