@@ -101,14 +101,10 @@ echo ./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP \$MIXFILE 10
 ./photon_jet_track_skim.exe \$FILE \${1}.root \$JETALGO \$ISPP \$MIXFILE 10 \${1}
 
 if [[ \$? -eq 0 ]]; then
-    mv \${1}.root \${4}
+    gfal-copy file://\$PWD/\${1}.root gsiftp://se01.cmsaf.mit.edu:2811/\${SRM_PATH}/\${1}.root
 
     if [[ \$? -ne 0 ]]; then
-        gfal-copy file://\$PWD/\${1}.root gsiftp://se01.cmsaf.mit.edu:2811/\${SRM_PATH}/\${1}.root
-
-        if [[ \$? -ne 0 ]]; then
-            srmcp -2 \${1}.root gsiftp://se01.cmsaf.mit.edu:2811/\${SRM_PATH}/\${1}.root
-        fi
+        srmcp -2 \${1}.root gsiftp://se01.cmsaf.mit.edu:2811/\${SRM_PATH}/\${1}.root
     fi
 fi
 
