@@ -189,6 +189,11 @@ sys_var_t::sys_var_t(sys_var_t* sys_var1, sys_var_t* sys_var2) {
     th1_max_of_2_th1(sys_var1->hratio_abs, sys_var2->hratio_abs, this->hratio_abs);
 
     this->hvariation->Add(this->hdiff_abs);
+
+    this->hdiff_abs_fitBand = (TH1D*)sys_var1->hdiff_abs_fitBand->Clone(Form("%s_diff_abs_fitBand", this->hist_name.c_str()));
+    th1_max_of_2_th1(sys_var1->hdiff_abs_fitBand, sys_var2->hdiff_abs_fitBand, this->hdiff_abs_fitBand);
+    this->hratio_abs_fitBand = (TH1D*)sys_var1->hratio_abs_fitBand->Clone(Form("%s_ratio_abs_fitBand", this->hist_name.c_str()));
+    th1_max_of_2_th1(sys_var1->hratio_abs_fitBand, sys_var2->hratio_abs_fitBand, this->hratio_abs_fitBand);
 }
 
 sys_var_t::~sys_var_t() {};
