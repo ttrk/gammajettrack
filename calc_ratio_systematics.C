@@ -37,7 +37,7 @@ std::string sys_types[kN_SYS] = {
 };
 
 std::string fit_funcs[kN_SYS] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
+    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
 };
 
 int options[kN_SYS] = {
@@ -52,9 +52,20 @@ int add2Total[kN_SYS] = {
     0, 2, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1
 };
 
+int sysMethod[kN_SYS] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0
+        //1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0
+        //1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0
+};
+
 std::string sys_observables[kN_SYS] = {
     "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "JES Q/G", "long range", "xi nonclosure", "bkg subtraction"
 };
+
+double range_low_fnc = 0.5;
+double range_high_fnc = 4.5;
+
+double fractionToySys = 0.6827;
 
 int calc_ratio_systematics(const char* observable, const char* filelist, const char* histlist, const char* label) {
     TH1::AddDirectory(kFALSE);
@@ -116,19 +127,24 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
         total_sys_vars[i] = new total_sys_var_t(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()), hnominals[i]);
 
         for (std::size_t j=0; j<kN_SYS; ++j) {
+
             sys_vars[i][j] = new sys_var_t(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()), sys_types[j], hnominals[i], hratio_sys[i][j]);
-            sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2");
+            sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), fit_funcs[j].c_str(), range_low_fnc, range_high_fnc);
+            sys_vars[i][j]->calculate_h2D_fitBand_ratio(50000, range_low_fnc, range_high_fnc);
+            sys_vars[i][j]->calculate_hratio_fitBand(fractionToySys);
             sys_vars[i][j]->write();
 
             if (special[j]) {
                 sys_var_t* tmp_sys_var = sys_vars[i][j];
                 sys_vars[i][j] = new sys_var_t(sys_vars[i][j-1], tmp_sys_var);
-                sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2");
+                sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), fit_funcs[j].c_str(), range_low_fnc, range_high_fnc);
+                sys_vars[i][j]->calculate_h2D_fitBand_ratio(50000, range_low_fnc, range_high_fnc);
+                sys_vars[i][j]->calculate_hratio_fitBand(fractionToySys);
                 sys_vars[i][j]->write();
             }
 
             for (int k = 0; k < add2Total[j]; ++k) {
-                total_sys_vars[i]->add_sys_var(sys_vars[i][j], options[j]);
+                total_sys_vars[i]->add_sys_var(sys_vars[i][j], options[j], sysMethod[j]);
             }
         }
         total_sys_vars[i]->write();

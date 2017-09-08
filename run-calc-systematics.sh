@@ -62,12 +62,12 @@ if [ -f $HISTLIST ]; then
     rm $HISTLIST
 fi
 touch $HISTLIST
-echo -e "hff_final_${sample}_${type}_0_20" >> $HISTLIST
-echo -e "hff_final_${sample}_${type}_20_60" >> $HISTLIST
-echo -e "hff_final_${sample}_${type}_60_100" >> $HISTLIST
 echo -e "hff_final_${sample}_${type}_100_200" >> $HISTLIST
-echo -e "hff_final_${sample}_${type}_0_60" >> $HISTLIST
+echo -e "hff_final_${sample}_${type}_60_100" >> $HISTLIST
+echo -e "hff_final_${sample}_${type}_20_60" >> $HISTLIST
+echo -e "hff_final_${sample}_${type}_0_20" >> $HISTLIST
 echo -e "hff_final_${sample}_${type}_60_200" >> $HISTLIST
+echo -e "hff_final_${sample}_${type}_0_60" >> $HISTLIST
 
 cp $sysDir"/"data_${1}_${2}_gxi${3}_defnFF1-systematics.root .
 ./calc_systematics.exe $nomFile $SYSLIST $HISTLIST data_${1}_${2}_gxi${3}_defnFF1
@@ -82,12 +82,12 @@ SYSHISTLIST=syshist_${1}_${2}_${3}.list
 if [ -f $SYSHISTLIST ]; then
   rm $SYSHISTLIST
 fi
-echo -e "0_20" >> $SYSHISTLIST
-echo -e "20_60" >> $SYSHISTLIST
-echo -e "60_100" >> $SYSHISTLIST
 echo -e "100_200" >> $SYSHISTLIST
-echo -e "0_60" >> $SYSHISTLIST
+echo -e "60_100" >> $SYSHISTLIST
+echo -e "20_60" >> $SYSHISTLIST
+echo -e "0_20" >> $SYSHISTLIST
 echo -e "60_200" >> $SYSHISTLIST
+echo -e "0_60" >> $SYSHISTLIST
 
 SYSFILELIST=sysfile_${1}_${2}_${3}.list
 if [ -f $SYSFILELIST ]; then
