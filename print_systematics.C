@@ -94,8 +94,8 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     else
         reco = ffreco;
 
-    TH1F* h_ratio_abs = 0;
-    TH1F* hTmp = 0;
+    TH1D* h_ratio_abs = 0;
+    TH1D* hTmp = 0;
     std::vector<double> sys_uncTot = {0, 0, 0, 0};
     // print systematics in Latex format
     std::cout << "\\begin{tabular}{lcccc}" << std::endl;
@@ -111,12 +111,12 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
         std::vector<float> sys_uncs(4);
         for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
             std::string hist_name = Form("h%s_final_%s_%s_%d_%d_%s_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax, sys_labels[iSys].c_str());
-            h_ratio_abs = (TH1F*)fsys[iCol]->Get(hist_name.c_str());
+            h_ratio_abs = (TH1D*)fsys[iCol]->Get(hist_name.c_str());
             if (iSys == k_JES) {
                 th1_sqrt_sum_squares(h_ratio_abs, h_ratio_abs); // 0.02^2 + 0.02^2
 
                 std::string hist_name_Tmp = Form("h%s_final_%s_%s_%d_%d_jes_qg_down_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
-                hTmp = (TH1F*)fsys[iCol]->Get(hist_name_Tmp.c_str());
+                hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
                 th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale
             }
             int binFirst = 1;
@@ -125,7 +125,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
                 binFirst = h_ratio_abs->FindBin(xiBinMin);
                 binLast = h_ratio_abs->FindBin(xiBinMax) - 1;
             }
-            sys_uncs[iCol] = 100 * th1_average_content_FF((TH1F*)h_ratio_abs, binFirst, binLast);
+            sys_uncs[iCol] = 100 * th1_average_content_FF((TH1D*)h_ratio_abs, binFirst, binLast);
             sys_uncTot[iCol] += sys_uncs[iCol]*sys_uncs[iCol];
             if (sys_uncs[iCol] >= 10)        std::cout << Form("& %.1f\\%%    ", sys_uncs[iCol]);
             else if (sys_uncs[iCol] >= 0.1)  std::cout << Form("& %.1f\\%%     ", sys_uncs[iCol]);
