@@ -27,6 +27,11 @@ std::string sys_labels[kN_SYSUNC] = {
      "jes_up_plus", "jer", "tracking_up_plus", "longrange", "bkgsub", "xi_nonclosure"
 };
 
+int sysMethod[kN_SYSUNC] = {
+    1, 1, 1, 1,
+    1, 1, 0, 0, 0, 0
+};
+
 std::string sys_titles[kN_SYSUNC] = {
     "Photon energy scale     ",
     "Photon isolation        ",
@@ -110,12 +115,19 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
         std::cout << sys_titles[iSys];
         std::vector<float> sys_uncs(4);
         for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
-            std::string hist_name = Form("h%s_final_%s_%s_%d_%d_%s_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax, sys_labels[iSys].c_str());
+
+            std::string sysMethodStr = "";
+            if (sysMethod[iSys] == 0) sysMethodStr = "";
+            else if (sysMethod[iSys] == 1) sysMethodStr = "_fitBand";
+            std::string hist_name = Form("h%s_final_%s_%s_%d_%d_%s_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
+                    sys_labels[iSys].c_str(), sysMethodStr.c_str());
+
             h_ratio_abs = (TH1D*)fsys[iCol]->Get(hist_name.c_str());
             if (iSys == k_JES) {
                 th1_sqrt_sum_squares(h_ratio_abs, h_ratio_abs); // 0.02^2 + 0.02^2
 
-                std::string hist_name_Tmp = Form("h%s_final_%s_%s_%d_%d_jes_qg_down_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+                std::string hist_name_Tmp = Form("h%s_final_%s_%s_%d_%d_jes_qg_down_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
+                        sysMethodStr.c_str());
                 hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
                 th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale
             }
