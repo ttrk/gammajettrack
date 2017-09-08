@@ -421,6 +421,8 @@ private:
     TH1D* hsystematics_dataRatio = 0;
     TH1D* hsystematics_fitBand = 0;
 
+    int method = 0;
+
     void add_sqrt_sum_squares(TH1D* herr);
     void add_sqrt_sum_squares_dataRatio(TH1D* herr);
     void add_sqrt_sum_squares_fitBand(TH1D* herr);
@@ -518,19 +520,22 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option) {
 
 void total_sys_var_t::set_sys_method(int methodIndex)
 {
-    if (methodIndex == 0) {
-        this->hsystematics = (TH1D*)hsystematics_dataRatio->Clone(Form("%s_systematics", label.c_str()));
-    }
-    else if (methodIndex == 1) {
-        this->hsystematics = (TH1D*)hsystematics_fitBand->Clone(Form("%s_systematics", label.c_str()));
-    }
+    method = methodIndex;
 }
 
 void total_sys_var_t::write() {
     hnominal->Write("", TObject::kOverwrite);
-    hsystematics->Write("", TObject::kOverwrite);
+
     hsystematics_dataRatio->Write("", TObject::kOverwrite);
     hsystematics_fitBand->Write("", TObject::kOverwrite);
+
+    if (method == 0) {
+        this->hsystematics = (TH1D*)hsystematics_dataRatio->Clone(Form("%s_systematics", label.c_str()));
+    }
+    else if (method == 1) {
+        this->hsystematics = (TH1D*)hsystematics_fitBand->Clone(Form("%s_systematics", label.c_str()));
+    }
+    hsystematics->Write("", TObject::kOverwrite);
 }
 
 #endif
