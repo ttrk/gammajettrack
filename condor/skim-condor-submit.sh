@@ -16,10 +16,17 @@ SRM_PATH=${3#${SRM_PREFIX}}
 
 gfal-mkdir -p gsiftp://se01.cmsaf.mit.edu:2811/${SRM_PATH}
 
+JOBS=$(cat $2 | wc -l)
+
+WORKDIR="/work/$USER/pjt-skim-${1}-$(date +"%Y-%m-%d_%H_%M_%S")"
+mkdir -p $WORKDIR
+echo $WORKDIR
+
+cp photon_jet_track_skim.exe $2 $4 $WORKDIR
+cd $WORKDIR
+
 [ -d "logs" ] && rm -r logs
 mkdir -p logs/
-
-JOBS=$(cat $2 | wc -l)
 
 cat > skim.condor <<EOF
 Universe     = vanilla
@@ -126,4 +133,4 @@ done
 sed -i "s/\#noop/noop/g" skim.condor
 sed -i "s/__FAILED__/$RESUBMIT/g" skim.condor
 
-condor_submit skim.condor -pool submit.mit.edu:9615 -name submit.mit.edu -spool
+condor_submit skim.condor -name submit.mit.edu
