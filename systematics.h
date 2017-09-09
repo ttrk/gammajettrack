@@ -198,6 +198,11 @@ sys_var_t::sys_var_t(sys_var_t* sys_var1, sys_var_t* sys_var2) {
 
     this->hvariation->Add(this->hdiff_abs);
 
+    this->hdiff_abs_fit = (TH1D*)sys_var1->hdiff_abs_fit->Clone(Form("%s_diff_abs_fit", this->hist_name.c_str()));
+    th1_max_of_2_th1(sys_var1->hdiff_abs_fit, sys_var2->hdiff_abs_fit, this->hdiff_abs_fit);
+    this->hratio_abs_fit = (TH1D*)sys_var1->hratio_abs_fit->Clone(Form("%s_ratio_abs_fit", this->hist_name.c_str()));
+    th1_max_of_2_th1(sys_var1->hratio_abs_fit, sys_var2->hratio_abs_fit, this->hratio_abs_fit);
+
     this->hdiff_abs_fitBand = (TH1D*)sys_var1->hdiff_abs_fitBand->Clone(Form("%s_diff_abs_fitBand", this->hist_name.c_str()));
     th1_max_of_2_th1(sys_var1->hdiff_abs_fitBand, sys_var2->hdiff_abs_fitBand, this->hdiff_abs_fitBand);
     this->hratio_abs_fitBand = (TH1D*)sys_var1->hratio_abs_fitBand->Clone(Form("%s_ratio_abs_fitBand", this->hist_name.c_str()));
@@ -252,9 +257,10 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
     th1_from_tf1(hdiff_abs_fit, fdiff);
     th1_abs(hdiff_abs_fit);
 
-    hratio_abs_fit = (TH1D*)hratio_abs->Clone(Form("%s_hratio_abs_fit", hist_name.c_str()));
-    th1_from_tf1(hratio_abs_fit, fratio);
-    th1_ratio_abs(hratio_abs_fit);
+    hratio_abs_fit = (TH1D*)hnominal->Clone(Form("%s_hratio_abs_fit", hist_name.c_str()));
+    hratio_abs_fit->Multiply(hratio_fit);
+    hratio_abs_fit->Add(hnominal, -1);
+    th1_abs(hratio_abs_fit);
 }
 
 /*

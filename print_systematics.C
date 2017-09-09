@@ -28,8 +28,8 @@ std::string sys_labels[kN_SYSUNC] = {
 };
 
 int sysMethod[kN_SYSUNC] = {
-    1, 1, 1, 1,
-    1, 1, 0, 0, 0, 0
+    2, 2, 2, 2,
+    2, 2, 0, 0, 0, 0
 };
 
 std::string sys_titles[kN_SYSUNC] = {
