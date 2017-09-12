@@ -62,7 +62,7 @@ set -x
 sysIndices="1 2 3 4 6 9 10"
 runSysIso=1
 if [ $6 = "pbpbdata" ] || [ $6 = "pbpbmc" ]; then
-  sysIndices="1 2 4 6 9 10 11 12 14"
+  sysIndices="1 2 3 4 6 9 10 11 12 14"
   runSysIso=1
 fi
 
