@@ -12,8 +12,8 @@ echo "compiling macros..."
 # g++ draw_js.C $(root-config --cflags --libs) -Werror -Wall -O2 -o draw_js || exit 1
 # g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results || exit 1
 
-PBPBSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-Data-skim-170831.root"
-PPSKIM="/export/d00/scratch/biran/photon-jet-track/pp-Data-skim-170822.root"
+PBPBSKIM="/export/d00/scratch/tatar/GJT-out/PbPb-Data-skim-170911.root"
+PPSKIM="/export/d00/scratch/biran/photon-jet-track/pp-Data-skim-170911.root"
 
 set -x
 
