@@ -244,20 +244,20 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
     formula_diff = diff_fit_func;
     fdiff = new TF1(Form("%s_fdiff", hist_name.c_str()), formula_diff.c_str(), range_low, range_high);
     hdiff->Fit(fdiff, "E M R N Q 0");
-    hdiff_fit = (TH1D*)hdiff->Clone(Form("%s_hdiff_fit", hist_name.c_str()));
+    hdiff_fit = (TH1D*)hdiff->Clone(Form("%s_diff_fit", hist_name.c_str()));
     th1_from_tf1(hdiff_fit, fdiff);
 
     formula_ratio = ratio_fit_func;
     fratio = new TF1(Form("%s_fratio", hist_name.c_str()), formula_ratio.c_str(), range_low, range_high);
     hratio->Fit(fratio, "E M R N Q 0");
-    hratio_fit = (TH1D*)hratio->Clone(Form("%s_hratio_fit", hist_name.c_str()));
+    hratio_fit = (TH1D*)hratio->Clone(Form("%s_ratio_fit", hist_name.c_str()));
     th1_from_tf1(hratio_fit, fratio);
 
-    hdiff_abs_fit = (TH1D*)hdiff_abs->Clone(Form("%s_hdiff_abs_fit", hist_name.c_str()));
+    hdiff_abs_fit = (TH1D*)hdiff_abs->Clone(Form("%s_diff_abs_fit", hist_name.c_str()));
     th1_from_tf1(hdiff_abs_fit, fdiff);
     th1_abs(hdiff_abs_fit);
 
-    hratio_abs_fit = (TH1D*)hnominal->Clone(Form("%s_hratio_abs_fit", hist_name.c_str()));
+    hratio_abs_fit = (TH1D*)hnominal->Clone(Form("%s_ratio_abs_fit", hist_name.c_str()));
     hratio_abs_fit->Multiply(hratio_fit);
     hratio_abs_fit->Add(hnominal, -1);
     th1_abs(hratio_abs_fit);
