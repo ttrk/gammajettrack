@@ -27,6 +27,11 @@ std::string sys_labels[kN_SYSUNC] = {
      "jes_up_plus", "jer", "tracking_up_plus", "longrange", "bkgsub", "xi_nonclosure"
 };
 
+std::string sys_labels_ratio[kN_SYSUNC] = {
+     "pes", "iso", "purity_up_plus", "ele_rej",
+     "jes_up_plus", "jer", "tracking_ratio", "longrange", "bkgsub", "xi_nonclosure"
+};
+
 int sysMethod[kN_SYSUNC] = {
     2, 2, 2, 2,
     2, 2, 0, 0, 0, 0
@@ -50,26 +55,28 @@ std::string sys_title_tot = "Total                  ";
 enum SYSCOLUMNS {
     k_xijet_pbpb,
     k_xijet_pp,
+    k_xijet_ratio,
     k_xigamma_pbpb,
     k_xigamma_pp,
+    k_xigamma_ratio,
     kN_SYSCOLUMNS
 };
 
 std::string sample[kN_SYSCOLUMNS] = {
-    "pbpbdata", "ppdata", "pbpbdata", "ppdata"
+    "_pbpbdata", "_ppdata", "_ratio", "_pbpbdata", "_ppdata", "_ratio"
 };
 
-std::vector<std::string> jsreco = {
-    "recoreco", "srecoreco", "recoreco", "srecoreco"
+std::string jsreco[kN_SYSCOLUMNS] = {
+    "_recoreco", "_srecoreco", "", "_recoreco", "_srecoreco", ""
 };
 
-std::vector<std::string> ffreco = {
-    "recoreco", "srecoreco", "recoreco", "srecoreco"
+std::string ffreco[kN_SYSCOLUMNS] = {
+    "_recoreco", "_srecoreco", "", "_recoreco", "_srecoreco", ""
 };
 
-int print_systematics(const char* filelist, const char* label = "", int hiBinMin = 0, int hiBinMax = 20, float xiBinMin = 0, float xiBinMax = -1);
+int print_systematics(const char* filelist, const char* label = "", int hiBinMin = 0, int hiBinMax = 20, float xiBinMin = 0, float xiBinMax = -1, bool printRatio = false);
 
-int print_systematics(const char* filelist, const char* label, int hiBinMin, int hiBinMax, float xiBinMin, float xiBinMax) {
+int print_systematics(const char* filelist, const char* label, int hiBinMin, int hiBinMax, float xiBinMin, float xiBinMax, bool printRatio) {
     std::string line;
 
     std::vector<std::string> file_list;
@@ -93,7 +100,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
         fsys[i] = new TFile(file_list[i].c_str(), "read");
     }
 
-    std::vector<std::string> reco;
+    std::string *reco = new std::string[kN_SYSCOLUMNS];
     if (strcmp(label, "js") == 0)
         reco = jsreco;
     else
@@ -102,22 +109,34 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     TH1D* h_nom = 0;
     TH1D* h_ratio_abs = 0;
     TH1D* hTmp = 0;
-    std::vector<double> sys_uncTot = {0, 0, 0, 0};
+
+    std::vector<double> sys_uncTot(kN_SYSCOLUMNS, 0);
     // print systematics in Latex format
     std::cout << "\\begin{tabular}{lcccc}" << std::endl;
     std::cout << "\\hline" << std::endl;
-    std::cout << "Systematic             & \\multicolumn{2}{c}{\\xijet} & \\multicolumn{2}{c}{\\xigamma} \\\\" << std::endl;
-    std::cout << "uncertainty            & PbPb        & pp           & PbPb         & pp            \\\\" << std::endl;
+    if (!printRatio) {
+        std::cout << "Systematic             & \\multicolumn{2}{c}{\\xijet} & \\multicolumn{2}{c}{\\xigamma} \\\\" << std::endl;
+        std::cout << "uncertainty            & PbPb        & pp           & PbPb         & pp            \\\\" << std::endl;
+    }
+    else {
+        std::cout << "Systematic             & \\multicolumn{3}{c}{\\xijet} & \\multicolumn{3}{c}{\\xigamma} \\\\" << std::endl;
+        std::cout << "uncertainty            & PbPb   &  pp   & PbPb/pp   & PbPb &  pp  && PbPb/pp       \\\\" << std::endl;
+    }
     std::cout << "\\hline" << std::endl;
     std::cout << "\\hline" << std::endl;
 
     for (int iSys=0; iSys<SYSUNC::kN_SYSUNC; ++iSys) {
 
         std::cout << sys_titles[iSys];
-        std::vector<float> sys_uncs(4);
+        std::vector<float> sys_uncs(kN_SYSCOLUMNS);
         for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
 
-            std::string hist_name_nom = Form("h%s_final_%s_%s_%d_%d_nominal", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+            if (!printRatio) {
+                if (iCol == k_xijet_ratio) continue;
+                if (iCol == k_xigamma_ratio) continue;
+            }
+
+            std::string hist_name_nom = Form("h%s_final%s%s_%d_%d_nominal", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
             h_nom = (TH1D*)fsys[iCol]->Get(hist_name_nom.c_str());
 
             std::string sysMethodStr = "";
@@ -125,8 +144,11 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             else if (sysMethod[iSys] == 1) sysMethodStr = "_fitBand";
             else if (sysMethod[iSys] == 2) sysMethodStr = "_fit";
 
-            std::string hist_name_sys = Form("h%s_final_%s_%s_%d_%d_%s_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
-                    sys_labels[iSys].c_str(), sysMethodStr.c_str());
+            std::string sys_label = sys_labels[iSys];
+            if (iCol == k_xijet_ratio || iCol == k_xigamma_ratio)  sys_label = sys_labels_ratio[iSys];
+
+            std::string hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
+                    sys_label.c_str(), sysMethodStr.c_str());
             h_ratio_abs = (TH1D*)fsys[iCol]->Get(hist_name_sys.c_str());
 
             if (sysMethod[iSys] == 2) h_ratio_abs->Divide(h_nom);
@@ -134,7 +156,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             if (iSys == k_JES) {
                 th1_sqrt_sum_squares(h_ratio_abs, h_ratio_abs); // 0.02^2 + 0.02^2
 
-                std::string hist_name_Tmp = Form("h%s_final_%s_%s_%d_%d_jes_qg_down_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
+                std::string hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
                         sysMethodStr.c_str());
                 hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
 
@@ -160,6 +182,12 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     std::cout << "\\hline" << std::endl;
     std::cout << sys_title_tot.c_str();
     for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
+
+        if (!printRatio) {
+            if (iCol == k_xijet_ratio) continue;
+            if (iCol == k_xigamma_ratio) continue;
+        }
+
         double uncTotTmp = sqrt(sys_uncTot[iCol]);
         if (uncTotTmp >= 10)        std::cout << Form("& %.1f\\%%    ", uncTotTmp);
         else if (uncTotTmp >= 0.1)  std::cout << Form("& %.1f\\%%     ", uncTotTmp);
@@ -180,13 +208,19 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
 
         if (binFirst == binLast) {
             for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
+
+                if (!printRatio) {
+                    if (iCol == k_xijet_ratio) continue;
+                    if (iCol == k_xigamma_ratio) continue;
+                }
+
                 double uncTotTmp = sqrt(sys_uncTot[iCol]);
 
-                std::string hist_name_totalSys = Form("h%s_final_%s_%s_%d_%d_systematics", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+                std::string hist_name_totalSys = Form("h%s_final%s%s_%d_%d_systematics", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
                 hTmp = (TH1D*)fsys[iCol]->Get(hist_name_totalSys.c_str());
                 double diffTotTmp = hTmp->GetBinContent(binFirst);
 
-                std::string hist_name_nominal = Form("h%s_final_%s_%s_%d_%d_nominal", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+                std::string hist_name_nominal = Form("h%s_final%s%s_%d_%d_nominal", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
                 hTmp = (TH1D*)fsys[iCol]->Get(hist_name_nominal.c_str());
                 double nominalTmp = hTmp->GetBinContent(binFirst);
 
@@ -214,8 +248,10 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
 }
 
 int main(int argc, char* argv[]) {
-    if (argc == 7)
-            return print_systematics(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), atof(argv[5]), atof(argv[6]));
+    if (argc == 8)
+        return print_systematics(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), atof(argv[5]), atof(argv[6]), atoi(argv[7]));
+    else if (argc == 7)
+        return print_systematics(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), atof(argv[5]), atof(argv[6]));
     else if (argc == 5)
         return print_systematics(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]));
     else if (argc == 3)

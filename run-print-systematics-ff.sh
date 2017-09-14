@@ -16,6 +16,8 @@ if [ -f $SYSFILELIST ]; then
 fi
 echo "SYSFILELIST : $SYSFILELIST"
 
+printRatio=1
+
 hiBinMins=(0 20 60 100)
 hiBinMaxs=(20 60 100 200)
 
@@ -46,18 +48,22 @@ do
     touch $SYSFILELIST
     echo -e $sysDir"data_60_30_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
     echo -e $sysDir"data_60_30_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
+    echo -e $sysDir"data_60_30_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
     echo -e $sysDir"data_60_30_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
     echo -e $sysDir"data_60_30_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
-    ./print_systematics.exe $SYSFILELIST ff $hiBinMin $hiBinMax $xiBinMin $xiBinMax
+    echo -e $sysDir"data_60_30_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
+    ./print_systematics.exe $SYSFILELIST ff $hiBinMin $hiBinMax $xiBinMin $xiBinMax $printRatio
     rm $SYSFILELIST
 
 #    ## phoEt80, jetpt40
 #    touch $SYSFILELIST
 #    echo -e $sysDir"data_80_40_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
 #    echo -e $sysDir"data_80_40_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
-#    echo -e $sysDir"sys/data_80_40_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
+#    echo -e $sysDir"data_80_40_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
 #    echo -e $sysDir"data_80_40_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
-#    ./print_systematics.exe $SYSFILELIST ff $hiBinMin $hiBinMax $xiBinMin $xiBinMax
+#    echo -e $sysDir"data_80_40_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
+#    echo -e $sysDir"data_80_40_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
+#    ./print_systematics.exe $SYSFILELIST ff $hiBinMin $hiBinMax $xiBinMin $xiBinMax $printRatio
 #    rm $SYSFILELIST
   done
 done
