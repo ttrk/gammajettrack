@@ -318,6 +318,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                     for (int iBin = 1; iBin <= hratio[i][r]->GetNbinsX(); ++iBin) {
                         hratio[i][r]->SetBinContent(iBin, (TMath::Abs(hratio[i][r]->GetBinContent(iBin) -1)));
                     }
+                    hratio[i][r]->Scale(100);
                 }
                 else if (mode == k_data_sysalltotpercnt && r == layers -1) {
                     hratio[i][r] = (TH1D*)h1[i][r]->Clone(Form("hratio_%i_%zu", i, r));
@@ -328,6 +329,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                         double contentNominal = h1[i][0]->GetBinContent(iBin);
                         hratio[i][r]->SetBinContent(iBin, TMath::Abs((hratio[i][r]->GetBinContent(iBin)+contentNominal)/contentNominal - 1));
                     }
+                    hratio[i][r]->Scale(100);
 
                     if (l2 != 0)
                         l2->AddEntry(hratio[i][r], hist_names[5*r].c_str(), "l");
@@ -604,8 +606,8 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltotpercnt)  {
-                    h1->SetAxisRange(0, 0.3, "Y");
-                    if (is_ppdata)  h1->SetAxisRange(0, 0.14, "Y");
+                    h1->SetAxisRange(0, 30, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 14, "Y");
                 }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
@@ -619,8 +621,8 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltotpercnt)  {
-                    h1->SetAxisRange(0, 0.3, "Y");
-                    if (is_ppdata)  h1->SetAxisRange(0, 0.14, "Y");
+                    h1->SetAxisRange(0, 30, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 14, "Y");
                 }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
@@ -633,8 +635,8 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltotpercnt)  {
-                    h1->SetAxisRange(0, 0.3, "Y");
-                    if (is_ppdata)  h1->SetAxisRange(0, 0.14, "Y");
+                    h1->SetAxisRange(0, 30, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 14, "Y");
                 }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
@@ -651,8 +653,8 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltotpercnt)  {
-                    h1->SetAxisRange(0, 0.3, "Y");
-                    if (is_ppdata)  h1->SetAxisRange(0, 0.14, "Y");
+                    h1->SetAxisRange(0, 30, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 14, "Y");
                 }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
