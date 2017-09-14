@@ -182,7 +182,6 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
                 double uncTotTmp = sqrt(sys_uncTot[iCol]);
 
-                //std::string hist_name_totalSys = Form("h%s_final_%s_%s_%d_%d_totsys_dataRatio", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
                 std::string hist_name_totalSys = Form("h%s_final_%s_%s_%d_%d_systematics", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
                 hTmp = (TH1D*)fsys[iCol]->Get(hist_name_totalSys.c_str());
                 double diffTotTmp = hTmp->GetBinContent(binFirst);

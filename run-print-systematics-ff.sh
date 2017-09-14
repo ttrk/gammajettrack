@@ -22,6 +22,13 @@ hiBinMaxs=(20 60 100 200)
 xiBinMins=(1 0.5 1.5 3.5)
 xiBinMaxs=(0 1.5 3.5 4.5)
 
+doBinByBinCheck=0
+if (( $doBinByBinCheck > 0 )); then
+
+  xiBinMins=(0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0)
+  xiBinMaxs=(1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5)
+fi
+
 sysDir="/export/d00/scratch/tatar/GJT-out/results/sys/"
 
 for i1 in ${!hiBinMins[*]}
