@@ -231,6 +231,10 @@ void sys_var_t::scale_sys(float factor) {
 
     if (hdiff_fitBand)  hdiff_fitBand->Scale(factor);
     if (hdiff_abs_fitBand)  hdiff_abs_fitBand->Scale(factor);
+
+    if (hratio_abs) hratio_abs->Scale(factor);
+    if (hratio_abs_fit) hratio_abs_fit->Scale(factor);
+    if (hratio_abs_fitBand) hratio_abs_fitBand->Scale(factor);
 }
 
 void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, double range_low, double range_high) {
