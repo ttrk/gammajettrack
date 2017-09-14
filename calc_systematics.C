@@ -40,7 +40,7 @@ std::string sys_types[kN_SYSVAR] = {
 };
 
 std::string fit_funcs[kN_SYSVAR] = {
-    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
+    "pol1", "pol2", "pol2", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
 };
 
 int options[kN_SYSVAR] = {
