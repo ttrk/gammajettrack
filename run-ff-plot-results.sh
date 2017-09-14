@@ -438,8 +438,7 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       sysMethodIndices=(1 1 1 1 1 1 1 1 1 0 0)
       sysMethodSuffices=(
       "ratio" 
-      "hratio_fit"
-      "ratio_abs_fit"
+      "ratio_fit"
       )
 
       echo -e "PbPb - nominal" >> $PLOTLIST
