@@ -99,6 +99,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     else
         reco = ffreco;
 
+    TH1D* h_nom = 0;
     TH1D* h_ratio_abs = 0;
     TH1D* hTmp = 0;
     std::vector<double> sys_uncTot = {0, 0, 0, 0};
@@ -116,20 +117,28 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
         std::vector<float> sys_uncs(4);
         for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
 
+            std::string hist_name_nom = Form("h%s_final_%s_%s_%d_%d_nominal", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+            h_nom = (TH1D*)fsys[iCol]->Get(hist_name_nom.c_str());
+
             std::string sysMethodStr = "";
             if (sysMethod[iSys] == 0) sysMethodStr = "";
             else if (sysMethod[iSys] == 1) sysMethodStr = "_fitBand";
             else if (sysMethod[iSys] == 2) sysMethodStr = "_fit";
-            std::string hist_name = Form("h%s_final_%s_%s_%d_%d_%s_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
-                    sys_labels[iSys].c_str(), sysMethodStr.c_str());
 
-            h_ratio_abs = (TH1D*)fsys[iCol]->Get(hist_name.c_str());
+            std::string hist_name_sys = Form("h%s_final_%s_%s_%d_%d_%s_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
+                    sys_labels[iSys].c_str(), sysMethodStr.c_str());
+            h_ratio_abs = (TH1D*)fsys[iCol]->Get(hist_name_sys.c_str());
+
+            if (sysMethod[iSys] == 2) h_ratio_abs->Divide(h_nom);
+
             if (iSys == k_JES) {
                 th1_sqrt_sum_squares(h_ratio_abs, h_ratio_abs); // 0.02^2 + 0.02^2
 
                 std::string hist_name_Tmp = Form("h%s_final_%s_%s_%d_%d_jes_qg_down_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
                         sysMethodStr.c_str());
                 hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
+
+                if (sysMethod[iSys] == 2) hTmp->Divide(h_nom);
                 th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale
             }
             int binFirst = 1;
@@ -163,6 +172,40 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     std::cout << "\\end{tabular}" << std::endl;
     std::cout << "\\end{center}" << std::endl;
     std::cout << "\\end{table}" << std::endl;
+
+    // bin by bin cross-check with total systematics
+    if (xiBinMin <= xiBinMax) {
+        int binFirst = h_ratio_abs->FindBin(xiBinMin);
+        int binLast = h_ratio_abs->FindBin(xiBinMax) - 1;
+
+        if (binFirst == binLast) {
+            for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
+                double uncTotTmp = sqrt(sys_uncTot[iCol]);
+
+                //std::string hist_name_totalSys = Form("h%s_final_%s_%s_%d_%d_totsys_dataRatio", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+                std::string hist_name_totalSys = Form("h%s_final_%s_%s_%d_%d_systematics", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+                hTmp = (TH1D*)fsys[iCol]->Get(hist_name_totalSys.c_str());
+                double diffTotTmp = hTmp->GetBinContent(binFirst);
+
+                std::string hist_name_nominal = Form("h%s_final_%s_%s_%d_%d_nominal", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+                hTmp = (TH1D*)fsys[iCol]->Get(hist_name_nominal.c_str());
+                double nominalTmp = hTmp->GetBinContent(binFirst);
+
+                double uncTotHist = 100 * diffTotTmp / nominalTmp;
+
+                std::cout << "iCol = " << iCol << ", xiBinMin = " << xiBinMin << ", xiBinMax = " << xiBinMax;
+                std::cout << ", uncTotTmp = " << uncTotTmp << ", uncTotHist = " << uncTotHist;
+                std::cout << ", uncTotTmp - uncTotHist = " << uncTotTmp - uncTotHist << ". ";
+                if (std::fabs(uncTotTmp - uncTotHist) < 0.000001) {
+                    std::cout << "Total systematics agree.";
+                }
+                else {
+                    std::cout << "Warning : Total systematics do NOT match.";
+                }
+                std::cout << std::endl;
+            }
+        }
+    }
 
     for (int i=0; i<nfiles; ++i) {
         fsys[i]->Close();
