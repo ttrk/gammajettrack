@@ -10,7 +10,7 @@
 int min_hiBin[4] = {0, 20, 60, 100};
 int max_hiBin[4] = {20, 60, 100, 200};
 
-double rebinning[9] = {0, 0.05, 0.1, 0.15, 0.2, 0.3, 0.5, 0.7, 1.0};
+double rebinning[12] = {0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.7, 1.0};
 
 int draw_js(std::string sample, const char* type, const char* fname, const char* outfname, int phoetmin, int purity_group) {
     TFile* finput = new TFile(fname, "read");
