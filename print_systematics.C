@@ -119,6 +119,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             std::string sysMethodStr = "";
             if (sysMethod[iSys] == 0) sysMethodStr = "";
             else if (sysMethod[iSys] == 1) sysMethodStr = "_fitBand";
+            else if (sysMethod[iSys] == 2) sysMethodStr = "_fit";
             std::string hist_name = Form("h%s_final_%s_%s_%d_%d_%s_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
                     sys_labels[iSys].c_str(), sysMethodStr.c_str());
 
