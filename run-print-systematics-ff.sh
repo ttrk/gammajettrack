@@ -22,6 +22,8 @@ hiBinMaxs=(20 60 100 200)
 xiBinMins=(1 0.5 1.5 3.5)
 xiBinMaxs=(0 1.5 3.5 4.5)
 
+sysDir="/export/d00/scratch/tatar/GJT-out/results/sys/"
+
 for i1 in ${!hiBinMins[*]}
 do
   hiBinMin=${hiBinMins[i1]}
@@ -35,19 +37,19 @@ do
 
     ## phoEt60, jetpt30
     touch $SYSFILELIST
-    echo -e "/export/d00/scratch/tatar/GJT-out/results/sys/data_60_30_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
-    echo -e "/export/d00/scratch/tatar/GJT-out/results/sys/data_60_30_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
-    echo -e "/export/d00/scratch/tatar/GJT-out/results/sys/data_60_30_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
-    echo -e "/export/d00/scratch/tatar/GJT-out/results/sys/data_60_30_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
+    echo -e $sysDir"data_60_30_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
+    echo -e $sysDir"data_60_30_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
+    echo -e $sysDir"data_60_30_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
+    echo -e $sysDir"data_60_30_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
     ./print_systematics.exe $SYSFILELIST ff $hiBinMin $hiBinMax $xiBinMin $xiBinMax
     rm $SYSFILELIST
 
 #    ## phoEt80, jetpt40
 #    touch $SYSFILELIST
-#    echo -e "/export/d00/scratch/tatar/GJT-out/results/sys/data_80_40_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
-#    echo -e "/export/d00/scratch/tatar/GJT-out/results/sys/data_80_40_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
-#    echo -e "/export/d00/scratch/tatar/GJT-out/results/sys/data_80_40_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
-#    echo -e "/export/d00/scratch/tatar/GJT-out/results/sys/data_80_40_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
+#    echo -e $sysDir"data_80_40_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
+#    echo -e $sysDir"data_80_40_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
+#    echo -e $sysDir"sys/data_80_40_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
+#    echo -e $sysDir"data_80_40_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
 #    ./print_systematics.exe $SYSFILELIST ff $hiBinMin $hiBinMax $xiBinMin $xiBinMax
 #    rm $SYSFILELIST
   done
