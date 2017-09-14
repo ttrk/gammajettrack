@@ -21,6 +21,7 @@ echo "types    = ${10}"
 g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results.exe || exit 1
 echo "g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results.exe || exit 1"
 
+label=$8
 inDir=$9
 outDir=$inDir
 mkdir -p outDir
@@ -35,8 +36,8 @@ fi
 touch $PLOTLIST
 echo "PLOTLIST : $PLOTLIST"
 
-if [[ $8 == "data" ]]; then
-    echo "running $8"
+if [[ $label == "data" ]]; then
+    echo "running $label"
     set -x
     inPrefix=$inDir"data"
     outPrefix=$outDir"data"
@@ -57,8 +58,8 @@ if [[ $8 == "data" ]]; then
 
 
     ./plot_results.exe ${inPrefix}_data_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_data_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 $plotOption $sysFile
-elif [[ $8 == "closure" ]]; then
-    echo "running $8"
+elif [[ $label == "closure" ]]; then
+    echo "running $label"
     set -x
     inPrefix=$inDir"ffclosure"
     outPrefix=$outDir"ffclosure"
@@ -120,8 +121,8 @@ elif [[ $8 == "closure" ]]; then
       ./plot_results.exe ${inPrefix}_ppmc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_ppmc_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 $plotOption DUMMYSYS
       rm $PLOTLIST
     fi
-elif [[ $8 == "closure4" ]]; then
-    echo "running $8"
+elif [[ $label == "closure4" ]]; then
+    echo "running $label"
     set -x
     inPrefix=$inDir"ffclosure"
     outPrefix=$outDir"ffclosure"
@@ -165,8 +166,8 @@ elif [[ $8 == "closure4" ]]; then
       ./plot_results.exe ${inPrefix}_ppmc_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root ${outPrefix}_ppmc_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 $plotOption DUMMYSYS
       rm $PLOTLIST
     fi
-elif [[ $8 == "sysvar" ]]; then
-    echo "running $8"
+elif [[ $label == "sysvar" ]]; then
+    echo "running $label"
     set -x
     inPrefix=$inDir"data_sysvar"
     outPrefix=$outDir"data_sysvar"
@@ -242,8 +243,8 @@ elif [[ $8 == "sysvar" ]]; then
       fi
       rm $PLOTLIST
     done
-elif [[ $8 == "sysall" ]]; then
-    echo "running $8"
+elif [[ $label == "sysall" ]]; then
+    echo "running $label"
     set -x
     outPrefix=$outDir"data_sysvar"
 
@@ -320,8 +321,8 @@ elif [[ $8 == "sysall" ]]; then
     ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysall_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 $plotOption DUMMYSYS
     rm $PLOTLIST
     fi
-elif [[ $8 == "sysalltot" ]]; then
-    echo "running $8"
+elif [[ $label == "sysalltot" ]]; then
+    echo "running $label"
     set -x
     outPrefix=$outDir"data_sysvar"
 
@@ -410,8 +411,8 @@ elif [[ $8 == "sysalltot" ]]; then
       ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysalltot_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 $plotOption DUMMYSYS
       rm $PLOTLIST
     fi
-elif [[ $8 == "sysalltotpercnt" ]]; then
-    echo "running $8"
+elif [[ $label == "sysalltotpercnt" ]]; then
+    echo "running $label"
     set -x
     outPrefix=$outDir"data_sysvar"
 
@@ -516,7 +517,7 @@ elif [[ $8 == "sysalltotpercnt" ]]; then
       rm $PLOTLIST
     fi
 else
-    echo "running $8"
+    echo "running $label"
     set -x
 
     for i in ${@:10}
