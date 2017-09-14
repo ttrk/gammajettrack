@@ -416,6 +416,7 @@ void set_hist_style(TH1D* h1, int k) {
             h1->SetLineColor(8);
             h1->SetMarkerSize(0.64);
             h1->SetMarkerStyle(kFullTriangleDown);
+            if (mode == k_data_sysvar)  h1->SetMarkerStyle(kFullSquare);
             h1->SetMarkerColor(8);
             break;
         case 3:
@@ -579,12 +580,12 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
             }
             else {
                 if (gammaxi > 0) {
-                    h1->SetXTitle("#xi_{#gamma} = ln (- |#bf{p}_{T}^{#gamma}|^{2} / #bf{p}_{T}^{trk} #bf{p}_{T}^{#gamma})");
-                    h1->SetYTitle("#frac{1}{N_{jet}} #frac{dN_{trk}}{d#xi_{#gamma}}");
+                    h1->SetXTitle("#xi^{#gamma}_{T}");
+                    h1->SetYTitle("#frac{1}{N^{jet}} #frac{dN^{trk}}{d#xi^{#gamma}_{T}}");
                 }
                 else {
-                    h1->SetXTitle("#xi_{jet} = ln (p^{jet} / p_{||}^{trk})");
-                    h1->SetYTitle("#frac{1}{N_{jet}} #frac{dN_{trk}}{d#xi_{jet}}");
+                    h1->SetXTitle("#xi^{jet}");
+                    h1->SetYTitle("#frac{1}{N^{jet}} #frac{dN^{trk}}{d#xi^{jet}}");
                 }
             }
             break;
