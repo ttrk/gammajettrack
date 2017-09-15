@@ -36,6 +36,8 @@ inputDirClosure="/export/d00/scratch/"$USER"/GJT-out/results/closure/"
 ./run-ff-plot-results.sh 60 9999 30 1 1 1 pbpbdata sysalltotpercnt $inputDir recoreco
 ./run-ff-plot-results.sh 60 9999 30 1 0 1 ppdata sysalltotpercnt $inputDir recoreco
 ./run-ff-plot-results.sh 60 9999 30 1 1 1 ppdata sysalltotpercnt $inputDir recoreco
+./run-ff-plot-results.sh 60 9999 30 1 0 1 ratio sysalltotpercnt $inputDir recoreco
+./run-ff-plot-results.sh 60 9999 30 1 1 1 ratio sysalltotpercnt $inputDir recoreco
 
 ## closure plots
 ./run-ff-plot-results.sh 60 9999 30 1 0 1 pbpbmc closure $inputDirClosure DUMMY

@@ -589,6 +589,8 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
                     h1->SetXTitle("#xi^{jet}");
                     h1->SetYTitle("#frac{1}{N^{jet}} #frac{dN^{trk}}{d#xi^{jet}}");
                 }
+                if (std::string(h1->GetName()).find("final_ratio_") != std::string::npos)
+                    h1->SetYTitle("PbPb/pp");
             }
             break;
         default:

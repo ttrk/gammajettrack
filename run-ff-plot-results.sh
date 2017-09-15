@@ -485,7 +485,7 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       sysMethodIndices=(1 1 1 1 1 1 1 1 0)
       sysMethodSuffices=(
       "ratio" 
-      "hratio_fit"
+      "ratio_fit"
       )
 
       echo -e "pp - nominal" >> $PLOTLIST
@@ -513,6 +513,55 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       echo -e "hff_final_ppdata_srecoreco_0_20_systematics" >> $PLOTLIST
 
       ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysalltotpercnt_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 $plotOption DUMMYSYS
+      rm $PLOTLIST
+    elif [[ $7 == "ratio" ]]; then
+
+      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
+      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange xi_nonclosure)
+      sysVarTitles=(
+      "JES quark-jet"
+      "JES DOWN"
+      "JES UP"
+      "JER"
+      "PES"
+      "isolation"
+      "electron rejection"
+      "purity UP"
+      "purity DOWN"
+      "Long range"
+      "xi nonclosure"
+       )
+      sysMethodIndices=(1 1 1 1 1 1 1 1 1 0 0)
+      sysMethodSuffices=(
+      "ratio"
+      "ratio_fit"
+      )
+
+      echo -e "PbPb - nominal" >> $PLOTLIST
+      echo -e "hff_final_ratio_100_200_nominal" >> $PLOTLIST
+      echo -e "hff_final_ratio_60_100_nominal" >> $PLOTLIST
+      echo -e "hff_final_ratio_20_60_nominal" >> $PLOTLIST
+      echo -e "hff_final_ratio_0_20_nominal" >> $PLOTLIST
+      for i1 in ${!sysVarIndices[*]}
+      do
+        iSys=${sysVarIndices[i1]}
+        sysVarLabel=${sysVarLabels[iSys]}
+        sysVarTitle=${sysVarTitles[iSys]}
+        iSysMethod=${sysMethodIndices[i1]}
+        sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hff_final_ratio_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hff_final_ratio_60_100_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hff_final_ratio_20_60_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hff_final_ratio_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+      done
+      echo -e "total sys" >> $PLOTLIST
+      echo -e "hff_final_ratio_100_200_systematics" >> $PLOTLIST
+      echo -e "hff_final_ratio_60_100_systematics" >> $PLOTLIST
+      echo -e "hff_final_ratio_20_60_systematics" >> $PLOTLIST
+      echo -e "hff_final_ratio_0_20_systematics" >> $PLOTLIST
+
+      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysalltotpercnt_gxi${5}_defnFF${6}_${1}_${3} $PLOTLIST 1 $5 $1 $3 $plotOption DUMMYSYS
       rm $PLOTLIST
     fi
 else
