@@ -537,11 +537,13 @@ after_mixsignal:
     }
   }
 
-  for (int h=0; h<2; ++h) {
-    if (hjetpt_mixjet[h]->Integral())
-      hjetshape_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
-    else
-      printf("warning: for centmin: %i, hjetpt_mixjet[%i] has integral 0\n", centmin, h);
+  if (isHI) {
+    for (int h=0; h<2; ++h) {
+      if (hjetpt_mixjet[h]->Integral())
+        hjetshape_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
+      else
+        printf("warning: for centmin: %i, hjetpt_mixjet[%i] has integral 0\n", centmin, h);
+    }
   }
 
   fout->Write();
