@@ -38,32 +38,36 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   TFile* fout = new TFile(Form("%s_%s_%s_%d_%d_%i_%d_%d.root", label.data(), sample.data(), genlevel.data(), (int)phoetmin, (int)jetptcut, gammaxi, abs(centmin), abs(centmax)), "recreate");
 
-  TH1D* hjetpt[2]; TH1D* hjetpt_mixjet[2];
+  /* raw */
+  TH1D* hjetpt[2];
   hjetpt[0] = new TH1D(Form("hjetpt_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt[1] = new TH1D(Form("hjetpt_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetpt_mixjet[0] = new TH1D(Form("hjetpt_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetpt_mixjet[1] = new TH1D(Form("hjetpt_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
 
-  TH1D* hjetshape[2]; TH1D* hjetshape_ue[2]; TH1D* hjetshape_mixjet[2]; TH1D* hjetshape_mixjet_ue[2];
+  TH1D* hjetshape[2]; TH1D* hjetshape_ue[2];
   hjetshape[0] = new TH1D(Form("hjetshape_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape[1] = new TH1D(Form("hjetshape_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape_ue[0] = new TH1D(Form("hjetshape_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape_ue[1] = new TH1D(Form("hjetshape_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mixjet[0] = new TH1D(Form("hjetshape_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mixjet[1] = new TH1D(Form("hjetshape_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mixjet_ue[0] = new TH1D(Form("hjetshape_mixjet_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mixjet_ue[1] = new TH1D(Form("hjetshape_mixjet_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
-  TH1D* hjetpt_mixsignal[2];
+  /* mixjet/mixsignal with dphi cut */
+  TH1D* hjetpt_mixjet[2]; TH1D* hjetpt_mixsignal[2];
+  hjetpt_mixjet[0] = new TH1D(Form("hjetpt_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  hjetpt_mixjet[1] = new TH1D(Form("hjetpt_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt_mixsignal[0] = new TH1D(Form("hjetpt_mixsignal_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt_mixsignal[1] = new TH1D(Form("hjetpt_mixsignal_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
 
-  TH1D* hjetshape_mixsignal[2]; TH1D* hjetshape_mixsignal_ue[2];
+  TH1D* hjetshape_mixjet[2]; TH1D* hjetshape_mixsignal[2];
+  hjetshape_mixjet[0] = new TH1D(Form("hjetshape_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mixjet[1] = new TH1D(Form("hjetshape_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape_mixsignal[0] = new TH1D(Form("hjetshape_mixsignal_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape_mixsignal[1] = new TH1D(Form("hjetshape_mixsignal_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mixsignal_ue[0] = new TH1D(Form("hjetshape_mixsignal_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mixsignal_ue[1] = new TH1D(Form("hjetshape_mixsignal_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
+  /* mixjet/mixsignal ue */
+  TH1D* hjetshape_mix_ue[2];
+  hjetshape_mix_ue[0] = new TH1D(Form("hjetshape_mixjet_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mix_ue[1] = new TH1D(Form("hjetshape_mixjet_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+
+  /* mixjet/mixsignal without dphi cut */
   TH1D* hjetpt_mixjet_all[2]; TH1D* hjetpt_mixsignal_all[2];
   hjetpt_mixjet_all[0] = new TH1D(Form("hjetpt_mixjet_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt_mixjet_all[1] = new TH1D(Form("hjetpt_mixjet_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
@@ -76,6 +80,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   hjetshape_mixsignal_all[0] = new TH1D(Form("hjetshape_mixsignal_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape_mixsignal_all[1] = new TH1D(Form("hjetshape_mixsignal_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
+  /* Q/G JES */
   TF1* f_JES_Q[4] = {0};
   f_JES_Q[0] = new TF1("f_JES_Q_3", "0.011180+0.195313/sqrt(x)", 30, 300);
   f_JES_Q[1] = new TF1("f_JES_Q_4", "0.014200+0.127950/sqrt(x)", 30, 300);
@@ -166,9 +171,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     if (ientry < 0) break;
 
     fChain->GetEntry(jentry);
-
-    // check for number of mixed events
-    if (!isPP && nmix < 3) continue;
 
     // event selections
     if (!isPP) { if (hiBin < centmin || hiBin >= centmax) continue; }
@@ -528,12 +530,18 @@ after_mixsignal:
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_mixjet_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
-            hjetshape_mixsignal_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
+            hjetshape_mix_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
           }
         }
       }
     }
+  }
+
+  for (int h=0; h<2; ++h) {
+    if (hjetpt_mixjet[h]->Integral())
+      hjetshape_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
+    else
+      printf("warning: for centmin: %i, hjetpt_mixjet[%i] has integral 0\n", centmin, h);
   }
 
   fout->Write();
