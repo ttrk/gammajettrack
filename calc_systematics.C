@@ -73,8 +73,6 @@ double range_high_fnc = 4.5;
 double fractionToySys = 0.6827;
 
 int calc_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label);
-void set_axis_title(TH1D* h1, bool isxijet);
-void set_axis_style(TH1D* h1);
 
 int calc_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label) {
     TH1::AddDirectory(kFALSE);
@@ -378,40 +376,5 @@ int main(int argc, char* argv[]) {
        return calc_systematics(argv[1], argv[2], argv[3], argv[4]);
     else
         return 1;
-}
-
-void set_axis_title(TH1D* h1, bool isxijet)
-{
-    if (isxijet) {
-        h1->SetXTitle("#xi^{jet}");
-        h1->SetYTitle("#frac{1}{N^{jet}} #frac{dN^{trk}}{d#xi^{jet}}");
-    }
-    else {
-        h1->SetXTitle("#xi^{#gamma}_{T}");
-        h1->SetYTitle("#frac{1}{N^{jet}} #frac{dN^{trk}}{d#xi^{#gamma}_{T}}");
-    }
-}
-
-void set_axis_style(TH1D* h1) {
-    h1->SetNdivisions(609);
-
-    TAxis* x_axis = h1->GetXaxis();
-    TAxis* y_axis = h1->GetYaxis();
-
-    x_axis->SetLabelFont(43);
-    x_axis->SetLabelSize(16);
-    y_axis->SetLabelFont(43);
-    y_axis->SetLabelSize(16);
-
-    x_axis->SetLabelOffset(0.012);
-    y_axis->SetLabelOffset(0.012);
-
-    x_axis->SetTitleFont(43);
-    x_axis->SetTitleSize(16);
-    y_axis->SetTitleFont(43);
-    y_axis->SetTitleSize(16);
-
-    x_axis->SetTitleOffset(2.6);
-    y_axis->SetTitleOffset(3.0);
 }
 
