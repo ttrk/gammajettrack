@@ -25,7 +25,7 @@ float midxi_jec[4] = {1.0514, 1.0478, 1.0483, 1.0471};
 // 11: JES_GLUON
 // 12: JES_QUARK
 
-void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int dummy) {
+void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int) {
   bool isHI = (sample.find("pbpb") != std::string::npos);
   TFile* fweight = (isHI) ? TFile::Open("PbPb-weights.root") : TFile::Open("pp-weights.root");
   TH1D* hvzweight = (TH1D*)fweight->Get("hvz");

@@ -513,13 +513,11 @@ public :
    photonjettrack(std::string filename);
    virtual ~photonjettrack();
    virtual void     jetshape(std::string sample, int centmin, int centmax, float phoetmin = 80, float phoetmax = 1000, float jetptcut = 40, std::string genlevel = "recoreco", float trkptmin = 1, int gammaxi = 0, std::string label = "default", int systematic = 0, int defnFF = 0);
-   virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    // virtual void     Init(TTree* tree, TTree* pfctree);
    virtual void     Init(TTree* tree);
    virtual Bool_t   Notify();
-   virtual void     Show(Long64_t entry = -1);
 };
 
 photonjettrack::photonjettrack(std::string filename) : fChain(0)
@@ -813,22 +811,6 @@ Bool_t photonjettrack::Notify()
    // user if needed. The return value is currently not used.
 
    return kTRUE;
-}
-
-void photonjettrack::Show(Long64_t entry)
-{
-// Print contents of entry.
-// If entry is not specified, print current entry
-   if (!fChain) return;
-   fChain->Show(entry);
-}
-
-Int_t photonjettrack::Cut(Long64_t entry)
-{
-// This function may be called from Loop.
-// returns  1 if entry is accepted.
-// returns -1 otherwise.
-   return 1;
 }
 
 #endif
