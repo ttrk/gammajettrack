@@ -1,9 +1,9 @@
 #!/bin/bash
 
 if [ $# -lt 8 ]; then
-  echo "Usage: ./run-js-plot.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [sample] [label] [types...]"
-  echo "Example: ./run-js-plot.sh 60 1000 30 1 0 pbpbmc closure sgengen sgenreco recogen recoreco"
-  exit 1
+    echo "Usage: ./run-js-plot.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [sample] [label] [types...]"
+    echo "Example: ./run-js-plot.sh 60 1000 30 1 0 pbpbmc closure sgengen sgenreco recogen recoreco"
+    exit 1
 fi
 
 echo "compiling macros..."
@@ -35,6 +35,7 @@ if [ $8 = "data" ]; then
 
     ./plot_results data_data_${1}_${3}_gxi${5}_js_final.root data_data_gxi${5}_${1}_${3} $PLOTLIST 1 $5 $1 $3
 elif [ $8 = "pbpbpp" ]; then
+    echo -e "argument format: ./run-js-plot.sh 60 1000 30 1 0 [data/mc] [label] pbpbpp [pbpb reco/gen] [pp reco/gen]"
     hadd -f ${7}_pbpbpp${6}_${1}_${3}_gxi${5}_js_final.root ${7}_pbpb${6}_${1}_${3}_gxi${5}_js_final.root ${7}_pp${6}_${1}_${3}_gxi${5}_js_final.root
     echo -e "pp ${10}" >> $PLOTLIST
     echo -e "hjetshape_final_pp${6}_${10}_0_20" >> $PLOTLIST
@@ -49,7 +50,9 @@ elif [ $8 = "pbpbpp" ]; then
 
     ./plot_results ${7}_pbpbpp${6}_${1}_${3}_gxi${5}_js_final.root ${7}_${6}_pbpb_${9}_pp_${10}_gxi${5}_${1}_${3} $PLOTLIST 1 $5 $1 $3
 elif [ $8 = "datamc" ]; then
-    hadd -f datamc_${1}_${3}_gxi${5}_js_merged.root data_ppdata_${1}_${3}_gxi${5}_recoreco_js.root data_pbpbdata_${1}_${3}_gxi${5}_recoreco_js.root closure_ppmc_${1}_${3}_gxi${5}_recoreco_js.root closure_pbpbmc_${1}_${3}_gxi${5}_recoreco_js.root
+    echo -e "argument format: ./run-js-plot.sh 60 1000 30 1 0 [data label] [mc label] datamc"
+
+    hadd -f datamc_${1}_${3}_gxi${5}_js_merged.root ${6}_ppdata_${1}_${3}_gxi${5}_recoreco_js.root ${6}_pbpbdata_${1}_${3}_gxi${5}_recoreco_js.root ${7}_ppmc_${1}_${3}_gxi${5}_recoreco_js.root ${7}_pbpbmc_${1}_${3}_gxi${5}_recoreco_js.root
     ./draw_js pbpbdata datamc_${1}_${3}_gxi${5}_js_merged.root datamc_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
     ./draw_js ppdata datamc_${1}_${3}_gxi${5}_js_merged.root datamc_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
     ./draw_js pbpbmc datamc_${1}_${3}_gxi${5}_js_merged.root datamc_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
@@ -88,6 +91,9 @@ elif [ $8 = "datamc" ]; then
 
     rm ${PLOTLIST}_pp ${PLOTLIST}_pbpb
 elif [ $8 == "rename" ]; then
+    echo -e "creating merged/final files with label $9 from reco/gen files with label $7"
+    [ $# -gt 9 ] || exit 1
+
     hadd -f ${9}_${6}_${1}_${3}_gxi${5}_js_merged.root ${7}_${6}_${1}_${3}_gxi${5}_*_js.root
     ./draw_js ${6} ${9}_${6}_${1}_${3}_gxi${5}_js_merged.root ${9}_${6}_${1}_${3}_gxi${5}_js_final.root ${1} 0 ${@:10}
 
