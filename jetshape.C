@@ -248,6 +248,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           res_pt = getResolutionPP(rawjetpt);
           res_phi = getPhiResolutionPP(rawjetpt);
           nsmear = _NSMEAR_GEN;
+        } else if (jet_type_is("ssgen", genlevel)) {
+          res_pt = getResolutionHI(rawjetpt, centBin);
+          res_phi = getPhiResolutionHI(rawjetpt, centBin);
+          nsmear = _NSMEAR_GEN;
         }
       } else {
         if (jet_type_is("sgen", genlevel)) {
