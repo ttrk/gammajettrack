@@ -103,8 +103,11 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
             /* mix jet subtraction */
             hjetshape_sub_sub[i][j] = (TH1D*)hjetshape_sub[i][j]->Clone(Form("hjetshape_sub_sub%s_%s", photype[j].c_str(), tag.c_str()));
             hjetshape_sub_sub[i][j]->Add(hjetshape_mixjet_sub[i][j], -1);
-            hjetshape_sub_sub[i][j]->Add(hjetshape_mixsignal_sub[i][j], -1);
+            // hjetshape_sub_sub[i][j]->Add(hjetshape_mixsignal_sub[i][j], -1);
             hjetshape_sub_sub[i][j]->Scale(1. / (hjetpt[i][j]->Integral() - hjetpt_mixjet[i][j]->Integral()));
+            // hjetshape_sub_sub[i][j]->Add(hjetshape_mixjet_all_sub[i][j], -1);
+            // hjetshape_sub_sub[i][j]->Add(hjetshape_mixsignal_all_sub[i][j], -1);
+            // hjetshape_sub_sub[i][j]->Scale(1. / (hjetpt[i][j]->Integral() - hjetpt_mixjet_all[i][j]->Integral()));
         }
 
         /* purity subtraction */
@@ -116,9 +119,9 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
         hjetshape_final[i] = (TH1D*)hjetshape_final_raw[i]->Rebin(11, Form("hjetshape_final_%s", tag.c_str()), rebinning);
 
         /* normalize to unity */
-        hjetshape_final[i]->Scale(1. / hjetshape_final[i]->Integral(), "width");
+        // hjetshape_final[i]->Scale(1. / hjetshape_final[i]->Integral(), "width");
         /* normalization done w.r.t. r < 0.3 */
-        // hjetshape_final[i]->Scale(1./hjetshape_final[i]->Integral(hjetshape_final[i]->FindBin(0.01), hjetshape_final[i]->FindBin(0.29)), "width");
+        hjetshape_final[i]->Scale(1./hjetshape_final[i]->Integral(hjetshape_final[i]->FindBin(0.01), hjetshape_final[i]->FindBin(0.29)), "width");
     }
 
     fout->Write("", TObject::kOverwrite);
