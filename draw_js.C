@@ -85,14 +85,14 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
             hjetshape_mixsignal_all[i][j] = (TH1D*)finput->Get(Form("hjetshape_mixsignal_all%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
 
             /* underlying event for mixjet/mixsignal (scaled per jet) */
-            hjetshape_mix_ue[i][j] = (TH1D*)finput->Get(Form("hjetshape_mixjet_ue%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
+            hjetshape_mix_ue[i][j] = (TH1D*)finput->Get(Form("hjetshape_mix_ue%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
 
             /* ue subtraction */
             hjetshape_sub[i][j] = (TH1D*)hjetshape[i][j]->Clone(Form("hjetshape_sub%s_%s", photype[j].c_str(), tag.c_str()));
             hjetshape_sub[i][j]->Add(hjetshape_ue[i][j], -1 * uescale[i]);
 
             hjetshape_mixjet_sub[i][j] = (TH1D*)hjetshape_mixjet[i][j]->Clone(Form("hjetshape_mixjet_sub%s_%s", photype[j].c_str(), tag.c_str()));
-            hjetshape_mixjet_all_sub[i][j] = (TH1D*)hjetshape_mixjet_all[i][j]->Clone(Form("hjetshape_mixjet_sub%s_%s", photype[j].c_str(), tag.c_str()));
+            hjetshape_mixjet_all_sub[i][j] = (TH1D*)hjetshape_mixjet_all[i][j]->Clone(Form("hjetshape_mixjet_all_sub%s_%s", photype[j].c_str(), tag.c_str()));
             hjetshape_mixsignal_sub[i][j] = (TH1D*)hjetshape_mixsignal[i][j]->Clone(Form("hjetshape_mixsignal_sub%s_%s", photype[j].c_str(), tag.c_str()));
             hjetshape_mixsignal_all_sub[i][j] = (TH1D*)hjetshape_mixsignal_all[i][j]->Clone(Form("hjetshape_mixsignal_all_sub%s_%s", photype[j].c_str(), tag.c_str()));
             hjetshape_mixjet_sub[i][j]->Add(hjetshape_mix_ue[i][j], -1 * hjetpt_mixjet[i][j]->Integral());
@@ -102,12 +102,16 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
 
             /* mix jet subtraction */
             hjetshape_sub_sub[i][j] = (TH1D*)hjetshape_sub[i][j]->Clone(Form("hjetshape_sub_sub%s_%s", photype[j].c_str(), tag.c_str()));
+
             hjetshape_sub_sub[i][j]->Add(hjetshape_mixjet_sub[i][j], -1);
             // hjetshape_sub_sub[i][j]->Add(hjetshape_mixsignal_sub[i][j], -1);
+
+            if (hjetpt_mixjet_all[i][j]->Integral() != 0) {
+                // hjetshape_sub_sub[i][j]->Add(hjetshape_mixjet_all_sub[i][j], -1 * hjetpt_mixjet[i][j]->Integral() / hjetpt_mixjet_all[i][j]->Integral());
+                // hjetshape_sub_sub[i][j]->Add(hjetshape_mixsignal_all_sub[i][j], -1 * hjetpt_mixjet[i][j]->Integral() / hjetpt_mixjet_all[i][j]->Integral());
+            }
+
             hjetshape_sub_sub[i][j]->Scale(1. / (hjetpt[i][j]->Integral() - hjetpt_mixjet[i][j]->Integral()));
-            // hjetshape_sub_sub[i][j]->Add(hjetshape_mixjet_all_sub[i][j], -1);
-            // hjetshape_sub_sub[i][j]->Add(hjetshape_mixsignal_all_sub[i][j], -1);
-            // hjetshape_sub_sub[i][j]->Scale(1. / (hjetpt[i][j]->Integral() - hjetpt_mixjet_all[i][j]->Integral()));
         }
 
         /* purity subtraction */

@@ -64,8 +64,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   /* mixjet/mixsignal ue */
   TH1D* hjetshape_mix_ue[2];
-  hjetshape_mix_ue[0] = new TH1D(Form("hjetshape_mixjet_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mix_ue[1] = new TH1D(Form("hjetshape_mixjet_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mix_ue[0] = new TH1D(Form("hjetshape_mix_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mix_ue[1] = new TH1D(Form("hjetshape_mix_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
   /* mixjet/mixsignal without dphi cut */
   TH1D* hjetpt_mixjet_all[2]; TH1D* hjetpt_mixsignal_all[2];
