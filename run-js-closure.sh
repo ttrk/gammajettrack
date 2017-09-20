@@ -16,7 +16,7 @@ else
 fi
 
 echo "compiling macros..."
-g++ jetshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetshape || exit 1
+make jetshape
 
 set -x
 
