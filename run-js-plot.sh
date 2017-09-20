@@ -18,9 +18,9 @@ touch $PLOTLIST
 set -x
 
 if [ $8 = "data" ]; then
-    hadd -f data_data_${1}_${3}_gxi${5}_js_merged.root data_ppdata_${1}_${3}_gxi${5}_srecoreco_js.root data_pbpbdata_${1}_${3}_gxi${5}_recoreco_js.root
-    ./draw_js pbpbdata data_data_${1}_${3}_gxi${5}_js_merged.root data_data_${1}_${3}_gxi${5}_js_final.root ${1} 0 recoreco
-    ./draw_js ppdata data_data_${1}_${3}_gxi${5}_js_merged.root data_data_${1}_${3}_gxi${5}_js_final.root ${1} 0 srecoreco
+    hadd -f data_${7}_${1}_${3}_gxi${5}_js_merged.root data_ppdata_${1}_${3}_gxi${5}_srecoreco_js.root data_pbpbdata_${1}_${3}_gxi${5}_recoreco_js.root
+    ./draw_js pbpbdata data_${7}_${1}_${3}_gxi${5}_js_merged.root data_${7}_${1}_${3}_gxi${5}_js_final.root ${1} 0 recoreco
+    ./draw_js ppdata data_${7}_${1}_${3}_gxi${5}_js_merged.root data_${7}_${1}_${3}_gxi${5}_js_final.root ${1} 0 srecoreco
 
     echo -e "pp (smeared)" >> $PLOTLIST
     echo -e "hjetshape_final_ppdata_srecoreco_0_20" >> $PLOTLIST
@@ -33,7 +33,7 @@ if [ $8 = "data" ]; then
     echo -e "hjetshape_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
     echo -e "hjetshape_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
-    ./plot_results data_data_${1}_${3}_gxi${5}_js_final.root data_data_gxi${5}_${1}_${3} $PLOTLIST 1 $5 $1 $3
+    ./plot_results data_${7}_${1}_${3}_gxi${5}_js_final.root data_${7}_gxi${5}_${1}_${3} $PLOTLIST 1 $5 $1 $3
 elif [ $8 = "pbpbpp" ]; then
     echo -e "argument format: ./run-js-plot.sh 60 1000 30 1 0 [data/mc] [label] pbpbpp [pbpb reco/gen] [pp reco/gen]"
     hadd -f ${7}_pbpbpp${6}_${1}_${3}_gxi${5}_js_final.root ${7}_pbpb${6}_${1}_${3}_gxi${5}_js_final.root ${7}_pp${6}_${1}_${3}_gxi${5}_js_final.root
@@ -52,11 +52,11 @@ elif [ $8 = "pbpbpp" ]; then
 elif [ $8 = "datamc" ]; then
     echo -e "argument format: ./run-js-plot.sh 60 1000 30 1 0 [data label] [mc label] datamc"
 
-    hadd -f datamc_${1}_${3}_gxi${5}_js_merged.root ${6}_ppdata_${1}_${3}_gxi${5}_recoreco_js.root ${6}_pbpbdata_${1}_${3}_gxi${5}_recoreco_js.root ${7}_ppmc_${1}_${3}_gxi${5}_recoreco_js.root ${7}_pbpbmc_${1}_${3}_gxi${5}_recoreco_js.root
-    ./draw_js pbpbdata datamc_${1}_${3}_gxi${5}_js_merged.root datamc_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
-    ./draw_js ppdata datamc_${1}_${3}_gxi${5}_js_merged.root datamc_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
-    ./draw_js pbpbmc datamc_${1}_${3}_gxi${5}_js_merged.root datamc_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
-    ./draw_js ppmc datamc_${1}_${3}_gxi${5}_js_merged.root datamc_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
+    hadd -f datamc_${7}_${1}_${3}_gxi${5}_js_merged.root ${6}_ppdata_${1}_${3}_gxi${5}_recoreco_js.root ${6}_pbpbdata_${1}_${3}_gxi${5}_recoreco_js.root ${7}_ppmc_${1}_${3}_gxi${5}_recoreco_js.root ${7}_pbpbmc_${1}_${3}_gxi${5}_recoreco_js.root
+    ./draw_js pbpbdata datamc_${7}_${1}_${3}_gxi${5}_js_merged.root datamc_${7}_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
+    ./draw_js ppdata datamc_${7}_${1}_${3}_gxi${5}_js_merged.root datamc_${7}_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
+    ./draw_js pbpbmc datamc_${7}_${1}_${3}_gxi${5}_js_merged.root datamc_${7}_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
+    ./draw_js ppmc datamc_${7}_${1}_${3}_gxi${5}_js_merged.root datamc_${7}_${1}_${3}_gxi${5}_js_final.root $1 0 recoreco
 
     echo -e "pp MC" >> ${PLOTLIST}_pp
     echo -e "hjetshape_final_ppmc_recoreco_0_20" >> ${PLOTLIST}_pp
@@ -69,7 +69,7 @@ elif [ $8 = "datamc" ]; then
     echo -e "hjetshape_final_ppdata_recoreco_60_100" >> ${PLOTLIST}_pp
     echo -e "hjetshape_final_ppdata_recoreco_100_200" >> ${PLOTLIST}_pp
 
-    ./plot_results datamc_${1}_${3}_gxi${5}_js_final.root datamc_gxi${5}_${1}_${3}_pp ${PLOTLIST}_pp 1 $5 $1 $3
+    ./plot_results datamc_${7}_${1}_${3}_gxi${5}_js_final.root datamc_${7}_gxi${5}_${1}_${3}_pp ${PLOTLIST}_pp 1 $5 $1 $3
 
     echo -e "PbPb MC" >> ${PLOTLIST}_pbpb
     echo -e "hjetshape_final_pbpbmc_recoreco_0_20" >> ${PLOTLIST}_pbpb
@@ -82,12 +82,12 @@ elif [ $8 = "datamc" ]; then
     echo -e "hjetshape_final_pbpbdata_recoreco_60_100" >> ${PLOTLIST}_pbpb
     echo -e "hjetshape_final_pbpbdata_recoreco_100_200" >> ${PLOTLIST}_pbpb
 
-    ./plot_results datamc_${1}_${3}_gxi${5}_js_final.root datamc_gxi${5}_${1}_${3}_pbpb ${PLOTLIST}_pbpb 1 $5 $1 $3
+    ./plot_results datamc_${7}_${1}_${3}_gxi${5}_js_final.root datamc_${7}_gxi${5}_${1}_${3}_pbpb ${PLOTLIST}_pbpb 1 $5 $1 $3
 
     cat ${PLOTLIST}_pp >> $PLOTLIST
     cat ${PLOTLIST}_pbpb >> $PLOTLIST
 
-    ./plot_results datamc_${1}_${3}_gxi${5}_js_final.root datamc_gxi${5}_${1}_${3} $PLOTLIST 1 $5 $1 $3
+    ./plot_results datamc_${7}_${1}_${3}_gxi${5}_js_final.root datamc_${7}_gxi${5}_${1}_${3} $PLOTLIST 1 $5 $1 $3
 
     rm ${PLOTLIST}_pp ${PLOTLIST}_pbpb
 elif [ $8 == "rename" ]; then
