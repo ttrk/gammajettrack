@@ -50,17 +50,17 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   hjetshape_ue[1] = new TH1D(Form("hjetshape_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
   /* mixjet/mixsignal with dphi cut */
-  TH1D* hjetpt_mixjet[2]; TH1D* hjetpt_mixsignal[2];
+  TH1D* hjetpt_mixjet[2]; TH1D* hjetpt_mixsig[2];
   hjetpt_mixjet[0] = new TH1D(Form("hjetpt_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
   hjetpt_mixjet[1] = new TH1D(Form("hjetpt_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetpt_mixsignal[0] = new TH1D(Form("hjetpt_mixsignal_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetpt_mixsignal[1] = new TH1D(Form("hjetpt_mixsignal_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  hjetpt_mixsig[0] = new TH1D(Form("hjetpt_mixsig_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  hjetpt_mixsig[1] = new TH1D(Form("hjetpt_mixsig_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
 
-  TH1D* hjetshape_mixjet[2]; TH1D* hjetshape_mixsignal[2];
+  TH1D* hjetshape_mixjet[2]; TH1D* hjetshape_mixsig[2];
   hjetshape_mixjet[0] = new TH1D(Form("hjetshape_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape_mixjet[1] = new TH1D(Form("hjetshape_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mixsignal[0] = new TH1D(Form("hjetshape_mixsignal_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mixsignal[1] = new TH1D(Form("hjetshape_mixsignal_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mixsig[0] = new TH1D(Form("hjetshape_mixsig_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshape_mixsig[1] = new TH1D(Form("hjetshape_mixsig_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
   /* mixjet/mixsignal ue */
   TH1D* hjetshape_mix_ue[2];
@@ -68,17 +68,17 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   hjetshape_mix_ue[1] = new TH1D(Form("hjetshape_mix_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
   /* mixjet/mixsignal without dphi cut */
-  TH1D* hjetpt_mixjet_all[2]; TH1D* hjetpt_mixsignal_all[2];
-  hjetpt_mixjet_all[0] = new TH1D(Form("hjetpt_mixjet_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetpt_mixjet_all[1] = new TH1D(Form("hjetpt_mixjet_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetpt_mixsignal_all[0] = new TH1D(Form("hjetpt_mixsignal_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
-  hjetpt_mixsignal_all[1] = new TH1D(Form("hjetpt_mixsignal_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  // TH1D* hjetpt_mixjet_all[2]; TH1D* hjetpt_mixsignal_all[2];
+  // hjetpt_mixjet_all[0] = new TH1D(Form("hjetpt_mixjet_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  // hjetpt_mixjet_all[1] = new TH1D(Form("hjetpt_mixjet_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  // hjetpt_mixsignal_all[0] = new TH1D(Form("hjetpt_mixsignal_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
+  // hjetpt_mixsignal_all[1] = new TH1D(Form("hjetpt_mixsignal_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";jet p_{T};", 20, 0, 500);
 
-  TH1D* hjetshape_mixjet_all[2]; TH1D* hjetshape_mixsignal_all[2];
-  hjetshape_mixjet_all[0] = new TH1D(Form("hjetshape_mixjet_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mixjet_all[1] = new TH1D(Form("hjetshape_mixjet_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mixsignal_all[0] = new TH1D(Form("hjetshape_mixsignal_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  hjetshape_mixsignal_all[1] = new TH1D(Form("hjetshape_mixsignal_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  // TH1D* hjetshape_mixjet_all[2]; TH1D* hjetshape_mixsignal_all[2];
+  // hjetshape_mixjet_all[0] = new TH1D(Form("hjetshape_mixjet_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  // hjetshape_mixjet_all[1] = new TH1D(Form("hjetshape_mixjet_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  // hjetshape_mixsignal_all[0] = new TH1D(Form("hjetshape_mixsignal_all_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  // hjetshape_mixsignal_all[1] = new TH1D(Form("hjetshape_mixsignal_all_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
   /* Q/G JES */
   TF1* f_JES_Q[4] = {0};
@@ -378,6 +378,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         mixjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
         mixjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
 
+        // jet phi cut
+        if (acos(cos(mixjetphi - phoPhi)) < 7 * pi / 8) continue;
+
         switch (systematic) {
           case 1:
             mixjetpt = mixjetpt * 1.02;
@@ -423,100 +426,50 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deta = mixjeteta - sigjeteta;
           float deltar2 = (dphi * dphi) + (deta * deta);
 
-          if (deltar2 < 0.36)
+          if (deltar2 < 0.36 || deltar2 > 1.0)
             goto after_mixsignal;
         }
 
-        if (acos(cos(mixjetphi - phoPhi)) < 7 * pi / 8) {
-          hjetpt_mixsignal_all[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
+        hjetpt_mixsig[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
 
-          for (int ip = 0; ip < nip; ++ip) {
-            if ((*p_pt)[ip] < trkptmin) continue;
-            if (part_type_is("gen0", genlevel)) {
-              if ((*sube)[ip] != 0) continue;
-            }
-            if (part_type_is("gen", genlevel)) {
-              if ((*chg)[ip] == 0) continue;
-            }
-
-            float dphi = acos(cos(mixjetphi - (*p_pt)[ip]));
-            float deta = mixjeteta - (*p_eta)[ip];
-            float deltar2 = (dphi * dphi) + (deta * deta);
-            if (deltar2 < 1) {
-              float deltar = sqrt(deltar2);
-              hjetshape_mixsignal_all[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight / nmixedevents_jet);
-            }
+        for (int ip = 0; ip < nip; ++ip) {
+          if ((*p_pt)[ip] < trkptmin) continue;
+          if (part_type_is("gen0", genlevel)) {
+            if ((*sube)[ip] != 0) continue;
           }
-        } else {
-          hjetpt_mixsignal[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
-          hjetpt_mixsignal_all[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
+          if (part_type_is("gen", genlevel)) {
+            if ((*chg)[ip] == 0) continue;
+          }
 
-          for (int ip = 0; ip < nip; ++ip) {
-            if ((*p_pt)[ip] < trkptmin) continue;
-            if (part_type_is("gen0", genlevel)) {
-              if ((*sube)[ip] != 0) continue;
-            }
-            if (part_type_is("gen", genlevel)) {
-              if ((*chg)[ip] == 0) continue;
-            }
-
-            float dphi = acos(cos(mixjetphi - (*p_pt)[ip]));
-            float deta = mixjeteta - (*p_eta)[ip];
-            float deltar2 = (dphi * dphi) + (deta * deta);
-            if (deltar2 < 1) {
-              float deltar = sqrt(deltar2);
-              hjetshape_mixsignal[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight / nmixedevents_jet);
-              hjetshape_mixsignal_all[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight / nmixedevents_jet);
-            }
+          float dphi = acos(cos(mixjetphi - (*p_pt)[ip]));
+          float deta = mixjeteta - (*p_eta)[ip];
+          float deltar2 = (dphi * dphi) + (deta * deta);
+          if (deltar2 < 1) {
+            float deltar = sqrt(deltar2);
+            hjetshape_mixsig[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight / nmixedevents_jet);
           }
         }
 
 after_mixsignal:
         // mix jets - jetshape
-        if (acos(cos(mixjetphi - phoPhi)) < 7 * pi / 8) {
-          hjetpt_mixjet_all[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
+        hjetpt_mixjet[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
 
-          for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
-            // tracks and jet must come from same mixed event
-            if ((*j_ev_mix)[ij_mix] != (*p_ev_mix)[ip_mix]) continue;
-            if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
-            if (part_type_is("gen", genlevel)) {
-              if ((*chg_mix)[ip_mix] == 0) continue;
-            }
-
-            float dphi = acos(cos(mixjetphi - (*p_phi_mix)[ip_mix]));
-            float deta = mixjeteta - (*p_eta_mix)[ip_mix];
-            float deltar2 = (dphi * dphi) + (deta * deta);
-            if (deltar2 < 1) {
-              float deltar = sqrt(deltar2);
-              hjetshape_mixjet_all[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
-            }
+        for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
+          // tracks and jet must come from same mixed event
+          if ((*j_ev_mix)[ij_mix] != (*p_ev_mix)[ip_mix]) continue;
+          if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
+          if (part_type_is("gen", genlevel)) {
+            if ((*chg_mix)[ip_mix] == 0) continue;
           }
-        } else {
-          hjetpt_mixjet[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
-          hjetpt_mixjet_all[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
 
-          for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
-            // tracks and jet must come from same mixed event
-            if ((*j_ev_mix)[ij_mix] != (*p_ev_mix)[ip_mix]) continue;
-            if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
-            if (part_type_is("gen", genlevel)) {
-              if ((*chg_mix)[ip_mix] == 0) continue;
-            }
-
-            float dphi = acos(cos(mixjetphi - (*p_phi_mix)[ip_mix]));
-            float deta = mixjeteta - (*p_eta_mix)[ip_mix];
-            float deltar2 = (dphi * dphi) + (deta * deta);
-            if (deltar2 < 1) {
-              float deltar = sqrt(deltar2);
-              hjetshape_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
-              hjetshape_mixjet_all[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
-            }
+          float dphi = acos(cos(mixjetphi - (*p_phi_mix)[ip_mix]));
+          float deta = mixjeteta - (*p_eta_mix)[ip_mix];
+          float deltar2 = (dphi * dphi) + (deta * deta);
+          if (deltar2 < 1) {
+            float deltar = sqrt(deltar2);
+            hjetshape_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
           }
         }
-
-        if (acos(cos(mixjetphi - phoPhi)) < 7 * pi / 8)
-          continue;
 
         if (part_type_is("gen0", genlevel)) continue;
 

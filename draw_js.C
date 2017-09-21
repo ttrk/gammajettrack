@@ -42,24 +42,24 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
 
     TH1D* hjetpt[4][2] = {0};
     TH1D* hjetpt_mixjet[4][2] = {0};
-    TH1D* hjetpt_mixjet_all[4][2] = {0};
-    TH1D* hjetpt_mixsignal[4][2] = {0};
-    TH1D* hjetpt_mixsignal_all[4][2] = {0};
+    // TH1D* hjetpt_mixjet_all[4][2] = {0};
+    TH1D* hjetpt_mixsig[4][2] = {0};
+    // TH1D* hjetpt_mixsig_all[4][2] = {0};
 
     TH1D* hjetshape[4][2] = {0};
     TH1D* hjetshape_ue[4][2] = {0};
     TH1D* hjetshape_mixjet[4][2] = {0};
-    TH1D* hjetshape_mixjet_all[4][2] = {0};
-    TH1D* hjetshape_mixsignal[4][2] = {0};
-    TH1D* hjetshape_mixsignal_all[4][2] = {0};
+    // TH1D* hjetshape_mixjet_all[4][2] = {0};
+    TH1D* hjetshape_mixsig[4][2] = {0};
+    // TH1D* hjetshape_mixsig_all[4][2] = {0};
 
     TH1D* hjetshape_mix_ue[4][2] = {0};
 
     TH1D* hjetshape_sub[4][2] = {0};
     TH1D* hjetshape_mixjet_sub[4][2] = {0};
-    TH1D* hjetshape_mixjet_all_sub[4][2] = {0};
-    TH1D* hjetshape_mixsignal_sub[4][2] = {0};
-    TH1D* hjetshape_mixsignal_all_sub[4][2] = {0};
+    // TH1D* hjetshape_mixjet_all_sub[4][2] = {0};
+    TH1D* hjetshape_mixsig_sub[4][2] = {0};
+    // TH1D* hjetshape_mixsig_all_sub[4][2] = {0};
 
     TH1D* hjetshape_sub_sub[4][2] = {0};
 
@@ -73,16 +73,12 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
             /* histograms for raw photon jetshapes */
             hjetpt[i][j] = (TH1D*)finput->Get(Form("hjetpt%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
             hjetpt_mixjet[i][j] = (TH1D*)finput->Get(Form("hjetpt_mixjet%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
-            hjetpt_mixjet_all[i][j] = (TH1D*)finput->Get(Form("hjetpt_mixjet_all%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
-            hjetpt_mixsignal[i][j] = (TH1D*)finput->Get(Form("hjetpt_mixsignal%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
-            hjetpt_mixsignal_all[i][j] = (TH1D*)finput->Get(Form("hjetpt_mixsignal_all%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
+            hjetpt_mixsig[i][j] = (TH1D*)finput->Get(Form("hjetpt_mixsig%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
 
             hjetshape[i][j] = (TH1D*)finput->Get(Form("hjetshape%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
             hjetshape_ue[i][j] = (TH1D*)finput->Get(Form("hjetshape_ue%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
             hjetshape_mixjet[i][j] = (TH1D*)finput->Get(Form("hjetshape_mixjet%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
-            hjetshape_mixjet_all[i][j] = (TH1D*)finput->Get(Form("hjetshape_mixjet_all%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
-            hjetshape_mixsignal[i][j] = (TH1D*)finput->Get(Form("hjetshape_mixsignal%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
-            hjetshape_mixsignal_all[i][j] = (TH1D*)finput->Get(Form("hjetshape_mixsignal_all%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
+            hjetshape_mixsig[i][j] = (TH1D*)finput->Get(Form("hjetshape_mixsig%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
 
             /* underlying event for mixjet/mixsignal (scaled per jet) */
             hjetshape_mix_ue[i][j] = (TH1D*)finput->Get(Form("hjetshape_mix_ue%s_%s", photype[j].c_str(), tag.c_str()))->Clone();
@@ -92,24 +88,15 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
             hjetshape_sub[i][j]->Add(hjetshape_ue[i][j], -1 * uescale[i]);
 
             hjetshape_mixjet_sub[i][j] = (TH1D*)hjetshape_mixjet[i][j]->Clone(Form("hjetshape_mixjet_sub%s_%s", photype[j].c_str(), tag.c_str()));
-            hjetshape_mixjet_all_sub[i][j] = (TH1D*)hjetshape_mixjet_all[i][j]->Clone(Form("hjetshape_mixjet_all_sub%s_%s", photype[j].c_str(), tag.c_str()));
-            hjetshape_mixsignal_sub[i][j] = (TH1D*)hjetshape_mixsignal[i][j]->Clone(Form("hjetshape_mixsignal_sub%s_%s", photype[j].c_str(), tag.c_str()));
-            hjetshape_mixsignal_all_sub[i][j] = (TH1D*)hjetshape_mixsignal_all[i][j]->Clone(Form("hjetshape_mixsignal_all_sub%s_%s", photype[j].c_str(), tag.c_str()));
+            hjetshape_mixsig_sub[i][j] = (TH1D*)hjetshape_mixsig[i][j]->Clone(Form("hjetshape_mixsig_sub%s_%s", photype[j].c_str(), tag.c_str()));
             hjetshape_mixjet_sub[i][j]->Add(hjetshape_mix_ue[i][j], -1 * hjetpt_mixjet[i][j]->Integral());
-            hjetshape_mixjet_all_sub[i][j]->Add(hjetshape_mix_ue[i][j], -1 * hjetpt_mixjet_all[i][j]->Integral());
-            hjetshape_mixsignal_sub[i][j]->Add(hjetshape_mix_ue[i][j], -1 * hjetpt_mixsignal[i][j]->Integral() * uescale[i]);
-            hjetshape_mixsignal_all_sub[i][j]->Add(hjetshape_mix_ue[i][j], -1 * hjetpt_mixsignal_all[i][j]->Integral() * uescale[i]);
+            hjetshape_mixsig_sub[i][j]->Add(hjetshape_mix_ue[i][j], -1 * hjetpt_mixsig[i][j]->Integral() * uescale[i]);
 
             /* mix jet subtraction */
             hjetshape_sub_sub[i][j] = (TH1D*)hjetshape_sub[i][j]->Clone(Form("hjetshape_sub_sub%s_%s", photype[j].c_str(), tag.c_str()));
 
             hjetshape_sub_sub[i][j]->Add(hjetshape_mixjet_sub[i][j], -1);
-            // hjetshape_sub_sub[i][j]->Add(hjetshape_mixsignal_sub[i][j], -1);
-
-            if (hjetpt_mixjet_all[i][j]->Integral() != 0) {
-                // hjetshape_sub_sub[i][j]->Add(hjetshape_mixjet_all_sub[i][j], -1 * hjetpt_mixjet[i][j]->Integral() / hjetpt_mixjet_all[i][j]->Integral());
-                // hjetshape_sub_sub[i][j]->Add(hjetshape_mixsignal_all_sub[i][j], -1 * hjetpt_mixjet[i][j]->Integral() / hjetpt_mixjet_all[i][j]->Integral());
-            }
+            hjetshape_sub_sub[i][j]->Add(hjetshape_mixsig_sub[i][j], -1);
 
             hjetshape_sub_sub[i][j]->Scale(1. / (hjetpt[i][j]->Integral() - hjetpt_mixjet[i][j]->Integral()));
         }
