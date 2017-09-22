@@ -2,7 +2,7 @@
 
 if [ $# -lt 8 ]; then
   echo "Usage: ./run-js-closure.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [sample] [label] [types...]"
-  echo "Example: ./run-js-closure.sh 80 1000 40 1 0 pbpbmc jsclosure sgengen sgenreco recogen recoreco"
+  echo "Example: ./run-js-closure.sh 60 1000 30 1 0 pbpbmc closure sgengen sgenreco recogen recoreco"
   exit 1
 fi
 
@@ -38,4 +38,4 @@ for i in ${@:8}; do
   fi
 done
 
-./run-js-plot.sh $@
+./run-js-arithmetic.sh $@

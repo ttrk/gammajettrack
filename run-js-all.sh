@@ -2,7 +2,7 @@
 
 if [[ $# -lt 5 ]]; then
     echo "Usage: ./run-js-all.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [[final plots only]]"
-    echo "Example: ./run-js-all.sh 80 1000 40 1 0"
+    echo "Example: ./run-js-all.sh 60 1000 30 1 0"
     exit 1
 fi
 
