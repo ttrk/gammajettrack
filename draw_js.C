@@ -35,7 +35,16 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
     for (int i=0; i<4; ++i)
         purity[i] = get_purity(purity_group, purity_sample, min_hiBin[i], max_hiBin[i], phoetmin);
 
-    float uescale[4] = {0.997, 0.99, 0.96, 0.85};
+    float uescale[4];
+    float uescales[2][4] = {{0.9975, 0.994, 0.97, 0.884}, {0.997, 0.99, 0.96, 0.85}};
+    if (phoetmin == 60) {
+        for (int i=0; i<4; ++i)
+            uescale[i] = uescales[0][i];
+    } else {
+        for (int i=0; i<4; ++i)
+            uescale[i] = uescales[1][i];
+    }
+
     if (sample == "pbpbdata" || sample == "ppdata")
         for (int i=0; i<4; ++i)
             uescale[i] = 1.0;
