@@ -12,7 +12,8 @@ std::string photype[2] = {"", "_bkg"};
 int min_hiBin[4] = {0, 20, 60, 100};
 int max_hiBin[4] = {20, 60, 100, 200};
 
-double rebinning[12] = {0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.7, 1.0};
+const int nbins = 8;
+double rebinning[nbins + 1] = {0, 0.05, 0.1, 0.15, 0.2, 0.3, 0.5, 0.75, 1.0};
 
 int draw_js(std::string sample, const char* type, const char* fname, const char* outfname, int phoetmin, int purity_group) {
     TFile* finput = new TFile(fname, "read");
@@ -45,30 +46,20 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
             uescale[i] = uescales[1][i];
     }
 
-    if (sample == "pbpbdata" || sample == "ppdata")
-        for (int i=0; i<4; ++i)
-            uescale[i] = 1.0;
-
     TH1D* hjetpt[4][2] = {0};
     TH1D* hjetpt_mixjet[4][2] = {0};
-    // TH1D* hjetpt_mixjet_all[4][2] = {0};
     TH1D* hjetpt_mixsig[4][2] = {0};
-    // TH1D* hjetpt_mixsig_all[4][2] = {0};
 
     TH1D* hjetshape[4][2] = {0};
     TH1D* hjetshape_ue[4][2] = {0};
     TH1D* hjetshape_mixjet[4][2] = {0};
-    // TH1D* hjetshape_mixjet_all[4][2] = {0};
     TH1D* hjetshape_mixsig[4][2] = {0};
-    // TH1D* hjetshape_mixsig_all[4][2] = {0};
 
     TH1D* hjetshape_mix_ue[4][2] = {0};
 
     TH1D* hjetshape_sub[4][2] = {0};
     TH1D* hjetshape_mixjet_sub[4][2] = {0};
-    // TH1D* hjetshape_mixjet_all_sub[4][2] = {0};
     TH1D* hjetshape_mixsig_sub[4][2] = {0};
-    // TH1D* hjetshape_mixsig_all_sub[4][2] = {0};
 
     TH1D* hjetshape_sub_sub[4][2] = {0};
     TH1D* hjetshape_sub_sub_norm[4][2] = {0};
@@ -118,7 +109,7 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
         hjetshape_final_raw[i]->Add(hjetshape_sub_sub_norm[i][1], (purity[i] - 1.0) / purity[i]);
 
         /* rebin large deltar */
-        hjetshape_final[i] = (TH1D*)hjetshape_final_raw[i]->Rebin(11, Form("hjetshape_final_%s", tag.c_str()), rebinning);
+        hjetshape_final[i] = (TH1D*)hjetshape_final_raw[i]->Rebin(nbins, Form("hjetshape_final_%s", tag.c_str()), rebinning);
 
         /* normalize to unity */
         // hjetshape_final[i]->Scale(1. / hjetshape_final[i]->Integral(), "width");
