@@ -71,6 +71,7 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
     // TH1D* hjetshape_mixsig_all_sub[4][2] = {0};
 
     TH1D* hjetshape_sub_sub[4][2] = {0};
+    TH1D* hjetshape_sub_sub_norm[4][2] = {0};
 
     TH1D* hjetshape_final_raw[4] = {0};
     TH1D* hjetshape_final[4] = {0};
@@ -107,13 +108,14 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
             hjetshape_sub_sub[i][j]->Add(hjetshape_mixjet_sub[i][j], -1);
             hjetshape_sub_sub[i][j]->Add(hjetshape_mixsig_sub[i][j], -1);
 
-            hjetshape_sub_sub[i][j]->Scale(1. / (hjetpt[i][j]->Integral() - hjetpt_mixjet[i][j]->Integral()));
+            hjetshape_sub_sub_norm[i][j] = (TH1D*)hjetshape_sub_sub[i][j]->Clone(Form("hjetshape_sub_sub_norm%s_%s", photype[j].c_str(), tag.c_str()));
+            hjetshape_sub_sub_norm[i][j]->Scale(1. / (hjetpt[i][j]->Integral() - hjetpt_mixjet[i][j]->Integral()));
         }
 
         /* purity subtraction */
-        hjetshape_final_raw[i] = (TH1D*)hjetshape_sub_sub[i][0]->Clone(Form("hjetshape_final_raw_%s", tag.c_str()));
+        hjetshape_final_raw[i] = (TH1D*)hjetshape_sub_sub_norm[i][0]->Clone(Form("hjetshape_final_raw_%s", tag.c_str()));
         hjetshape_final_raw[i]->Scale(1. / purity[i]);
-        hjetshape_final_raw[i]->Add(hjetshape_sub_sub[i][1], (purity[i] - 1.0) / purity[i]);
+        hjetshape_final_raw[i]->Add(hjetshape_sub_sub_norm[i][1], (purity[i] - 1.0) / purity[i]);
 
         /* rebin large deltar */
         hjetshape_final[i] = (TH1D*)hjetshape_final_raw[i]->Rebin(11, Form("hjetshape_final_%s", tag.c_str()), rebinning);
