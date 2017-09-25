@@ -9,12 +9,6 @@ fi
 echo "compiling macros..."
 make draw_js plot_results
 
-PLOTLIST=jsplot_${1}_${3}_${5}_${9}_${8}.list
-if [ -f $PLOTLIST ]; then
-    rm $PLOTLIST
-fi
-touch $PLOTLIST
-
 set -x
 
 if [ $8 == "data" ]; then
@@ -52,5 +46,3 @@ else
 
     ./quick-js-plot.sh ${@:1:7} final ${@:8}
 fi
-
-rm $PLOTLIST
