@@ -22,7 +22,7 @@ WORKDIR="/work/$USER/pjt-skim-${1}-$(date +"%Y-%m-%d_%H_%M_%S")"
 mkdir -p $WORKDIR
 echo $WORKDIR
 
-cp photon_jet_track_skim.exe $2 $4 $WORKDIR
+cp /tmp/$PROXYFILE photon_jet_track_skim.exe $2 $4 $WORKDIR
 cd $WORKDIR
 
 [ -d "logs" ] && rm -r logs
@@ -44,7 +44,7 @@ requirements = GLIDEIN_Site == "MIT_CampusFactory" && BOSCOGroup == "bosco_cmshi
 job_lease_duration = 240
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = /tmp/$PROXYFILE,photon_jet_track_skim.exe,$4,$2
+transfer_input_files = $PROXYFILE,photon_jet_track_skim.exe,$4,$2
 #noop_job = !( stringListMember("\$(Process)","__FAILED__") )
 
 Queue $JOBS
@@ -129,12 +129,4 @@ done
 sed -i "s/\#noop/noop/g" skim.condor
 sed -i "s/__FAILED__/$RESUBMIT/g" skim.condor
 
-echo ""
-echo " # ## ### #### ### ## #"
-echo ""
-echo "please log on to submit.mit.edu, and submit the job there!"
-echo "cd $WORKDIR"
-echo "condor_submit skim.condor"
-echo ""
-echo " # ## ### #### ### ## #"
-# condor_submit skim.condor -name submit.mit.edu
+condor_submit skim.condor -name submit.mit.edu
