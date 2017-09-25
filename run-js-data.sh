@@ -52,5 +52,5 @@ if [[ $6 != "pbpb" ]]; then
 fi
 
 if [[ $6 == "both" ]]; then
-    ./run-js-arithmetic.sh ${@:1:5} ${7} ${7} data
+    ./run-js-arithmetic.sh ${@:1:5} ${7} ${7} data ${7}
 fi
