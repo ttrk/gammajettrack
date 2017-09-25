@@ -220,7 +220,7 @@ float getSigmaRelPhi(int centMin, int centMax, float jetpt) {
 
 class photonjettrack {
 public :
-   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+   TChain          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
@@ -493,42 +493,18 @@ public :
    TBranch        *b_mcMomPhi;   //!
    TBranch        *b_mcMomPID;   //!
 
-   // pf cand tree
-   // TTree* pfChain;
-
-   // int nPFpart;
-   // std::vector<int>* pfId;
-   // std::vector<float>* pfPt;
-   // std::vector<float>* pfEnergy;
-   // std::vector<float>* pfEta;
-   // std::vector<float>* pfPhi;
-
-   // TBranch* b_nPFpart;
-   // TBranch* b_pfId;
-   // TBranch* b_pfPt;
-   // TBranch* b_pfEnergy;
-   // TBranch* b_pfEta;
-   // TBranch* b_pfPhi;
-
-   photonjettrack(std::string filename);
+   photonjettrack(std::string allqcdfile, std::string emenrichedfile = "");
    virtual ~photonjettrack();
    virtual void     jetshape(std::string sample, int centmin, int centmax, float phoetmin = 80, float phoetmax = 1000, float jetptcut = 40, std::string genlevel = "recoreco", float trkptmin = 1, int gammaxi = 0, std::string label = "default", int systematic = 0, int defnFF = 0);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
-   // virtual void     Init(TTree* tree, TTree* pfctree);
-   virtual void     Init(TTree* tree);
+   virtual void     Init(std::string file, std::string bkg_file = "");
    virtual Bool_t   Notify();
 };
 
-photonjettrack::photonjettrack(std::string filename) : fChain(0)
+photonjettrack::photonjettrack(std::string allqcdfile, std::string emenrichedfile) : fChain(0)
 {
-// if parameter tree is not specified (or zero), connect the file
-// used to generate this class and read the Tree.
-   TFile* f = TFile::Open(filename.c_str());
-   TTree* t = (TTree*)f->Get("pjtt");
-   // TTree* pfct = (TTree*)f->Get("pfct");
-   // Init(t, pfct);
-   Init(t);
+   Init(allqcdfile, emenrichedfile);
 }
 
 photonjettrack::~photonjettrack()
@@ -557,8 +533,7 @@ Long64_t photonjettrack::LoadTree(Long64_t entry)
    return centry;
 }
 
-// void photonjettrack::Init(TTree* tree, TTree* pfctree)
-void photonjettrack::Init(TTree* tree)
+void photonjettrack::Init(std::string file, std::string bkg_file)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -642,22 +617,16 @@ void photonjettrack::Init(TTree* tree)
    mcMomPhi = 0;
    mcMomPID = 0;
 
-   // pfId = 0;
-   // pfPt = 0;
-   // pfEnergy = 0;
-   // pfEta = 0;
-   // pfPhi = 0;
-
    // Set branch addresses and branch pointers
-   // if (!tree || !pfctree) return;
-   if (!tree) return;
+   if (file.empty()) return;
    fCurrent = -1;
 
-   fChain = tree;
-   fChain->SetMakeClass(1);
+   fChain = new TChain("pjtt");
+   fChain->Add(file.c_str());
+   if (!bkg_file.empty())
+      fChain->Add(bkg_file.c_str());
 
-   // pfChain = pfctree;
-   // pfChain->SetMakeClass(1);
+   fChain->SetMakeClass(1);
 
    fChain->SetBranchAddress("isPP", &isPP, &b_isPP);
    fChain->SetBranchAddress("run", &run, &b_run);

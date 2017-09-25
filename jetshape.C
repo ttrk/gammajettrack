@@ -39,7 +39,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool isMC = (sample.find("mc") != std::string::npos);
 
   if (fChain == 0) return;
-  int64_t nentries = fChain->GetEntriesFast();
+  int64_t nentries = fChain->GetEntries();
 
   TFile* fout = new TFile(Form("%s_%s_%s_%d_%d_%i_%d_%d.root", label.data(), sample.data(), genlevel.data(), (int)phoetmin, (int)jetptcut, gammaxi, abs(centmin), abs(centmax)), "recreate");
 
@@ -512,30 +512,30 @@ after_mixsignal:
 }
 
 int main(int argc, char* argv[]) {
-  if (argc > 13 || argc < 5) {
-    printf("usage: ./jetshape [input] [sample] [centmin centmax] [phoetmin phoetmax] [jetptcut] [genlevel] [trkptmin] [gammaxi] [label] [systematic]\n");
+  if (argc > 14 || argc < 6) {
+    printf("usage: ./jetshape [inputs] [sample] [centmin centmax] [phoetmin phoetmax] [jetptcut] [genlevel] [trkptmin] [gammaxi] [label] [systematic]\n");
     return 1;
   }
 
-  photonjettrack* t = new photonjettrack(argv[1]);
-  if (argc == 5)
-    t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]));
-  else if (argc == 6)
-    t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]));
+  photonjettrack* t = new photonjettrack(argv[1], argv[2]);
+  if (argc == 6)
+    t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]));
   else if (argc == 7)
-    t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]));
+    t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]), std::atof(argv[6]));
   else if (argc == 8)
-    t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]));
+    t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]), std::atof(argv[6]), std::atof(argv[7]));
   else if (argc == 9)
-    t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]), argv[8]);
+    t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]), std::atof(argv[6]), std::atof(argv[7]), std::atof(argv[8]));
   else if (argc == 10)
-    t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]), argv[8], std::atof(argv[9]));
+    t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]), std::atof(argv[6]), std::atof(argv[7]), std::atof(argv[8]), argv[9]);
   else if (argc == 11)
-    t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]), argv[8], std::atof(argv[9]), std::atoi(argv[10]));
+    t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]), std::atof(argv[6]), std::atof(argv[7]), std::atof(argv[8]), argv[9], std::atof(argv[10]));
   else if (argc == 12)
-    t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]), argv[8], std::atof(argv[9]), std::atoi(argv[10]), argv[11]);
+    t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]), std::atof(argv[6]), std::atof(argv[7]), std::atof(argv[8]), argv[9], std::atof(argv[10]), std::atoi(argv[11]));
   else if (argc == 13)
-    t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]), argv[8], std::atof(argv[9]), std::atoi(argv[10]), argv[11], std::atoi(argv[12]));
+    t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]), std::atof(argv[6]), std::atof(argv[7]), std::atof(argv[8]), argv[9], std::atof(argv[10]), std::atoi(argv[11]), argv[12]);
+  else if (argc == 14)
+    t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]), std::atof(argv[6]), std::atof(argv[7]), std::atof(argv[8]), argv[9], std::atof(argv[10]), std::atoi(argv[11]), argv[12], std::atoi(argv[13]));
 
   return 0;
 }
