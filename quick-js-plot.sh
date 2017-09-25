@@ -2,7 +2,7 @@
 
 if [ $# -lt 9 ]; then
     echo "Usage: ./quick-js-plot.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [sample] [label] [hist label] [types...]"
-    echo "Example: ./quick-js-plot.sh 60 1000 30 1 0 pbpbmc closure sgengen sgenreco recogen recoreco"
+    echo "Example: ./quick-js-plot.sh 60 1000 30 1 0 pbpbmc closure final sgengen sgenreco recogen recoreco"
     exit 1
 fi
 
