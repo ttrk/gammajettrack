@@ -65,6 +65,7 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
     TH1D* hjetshape_sub_sub_norm[4][2] = {0};
 
     TH1D* hjetshape_final_raw[4] = {0};
+    TH1D* hjetshape_final_raw_norm[4] = {0};
     TH1D* hjetshape_final[4] = {0};
 
     for (int i=0; i<4; ++i) {
@@ -108,13 +109,17 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
         hjetshape_final_raw[i]->Scale(1. / purity[i]);
         hjetshape_final_raw[i]->Add(hjetshape_sub_sub_norm[i][1], (purity[i] - 1.0) / purity[i]);
 
+        hjetshape_final_raw_norm[i] = (TH1D*)hjetshape_final_raw[i]->Clone(Form("hjetshape_final_raw_norm_%s", tag.c_str()));
+
         /* rebin large deltar */
         hjetshape_final[i] = (TH1D*)hjetshape_final_raw[i]->Rebin(nbins, Form("hjetshape_final_%s", tag.c_str()), rebinning);
 
         /* normalize to unity */
         // hjetshape_final[i]->Scale(1. / hjetshape_final[i]->Integral(), "width");
+        // hjetshape_final_raw_norm[i]->Scale(1. / hjetshape_final_raw[i]->Integral(), "width");
         /* normalization done w.r.t. r < 0.3 */
-        hjetshape_final[i]->Scale(1./hjetshape_final[i]->Integral(hjetshape_final[i]->FindBin(0.01), hjetshape_final[i]->FindBin(0.29)), "width");
+        hjetshape_final[i]->Scale(1. / hjetshape_final[i]->Integral(hjetshape_final[i]->FindBin(0.01), hjetshape_final[i]->FindBin(0.29)), "width");
+        hjetshape_final_raw_norm[i]->Scale(1. / hjetshape_final_raw[i]->Integral(hjetshape_final[i]->FindBin(0.01), hjetshape_final[i]->FindBin(0.29)), "width");
     }
 
     fout->Write("", TObject::kOverwrite);
