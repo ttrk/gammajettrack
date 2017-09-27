@@ -8,7 +8,8 @@ fi
 
 if [ $6 = "pbpbmc" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170911.root"
-    BKGSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-EmEnrichedDijet-skim-170925.root"
+    # BKGSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-EmEnrichedDijet-skim-170925.root"
+    BKGSKIM=""
 elif [ $6 = "ppmc" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170911.root"
     BKGSKIM=""
