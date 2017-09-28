@@ -427,6 +427,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if ((*p_pt)[ip] < trkptmin) continue;
           if (part_type_is("gen0", genlevel)) {
             if ((*sube)[ip] != 0) continue;
+            if ((*chg)[ip] == 0) continue;
           }
           if (part_type_is("gen", genlevel)) {
             if ((*chg)[ip] == 0) continue;
@@ -442,6 +443,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
 
 after_mixsignal:
+        if (part_type_is("gen0", genlevel)) continue;
+
         // mix jets - jetshape
         hjetpt_mixjet[background]->Fill(mixjetpt, weight * smear_weight / nmixedevents_jet);
 
@@ -461,8 +464,6 @@ after_mixsignal:
             hjetshape_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
           }
         }
-
-        if (part_type_is("gen0", genlevel)) continue;
 
         // mix jets - underlying event jetshape
         for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
