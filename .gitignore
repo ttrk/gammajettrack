@@ -9,6 +9,12 @@
 *.err
 *.out
 
+# build directory
+build/
+
+# local directory
+local/
+
 # ROOT Specific
 TrkCorr_Jun7_Iterative_*
 TrkCorr_Mar15_Iterative_*
@@ -64,3 +70,4 @@ v2syst/
 # Temporary files
 *.swp
 .nfs*
+.__afs*
