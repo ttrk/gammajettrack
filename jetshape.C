@@ -417,7 +417,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deta = mixjeteta - sigjeteta;
           float deltar2 = (dphi * dphi) + (deta * deta);
 
-          if (sigjetpt > 40 && (deltar2 < 0.36 || deltar2 > 1.0))
+          if (deltar2 < 0.36 || deltar2 > 1.0)
             goto after_mixsignal;
         }
 
