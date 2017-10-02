@@ -68,6 +68,8 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
     TH1D* hjetshape_final_raw_norm[4] = {0};
     TH1D* hjetshape_final[4] = {0};
 
+    TH1D* hjetshape_jetdr[4][2] = {0};
+
     for (int i=0; i<4; ++i) {
         std::string tag = Form("%s_%s_%i_%i", sample.c_str(), type, min_hiBin[i], max_hiBin[i]);
 
@@ -120,6 +122,13 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
         /* normalization done w.r.t. r < 0.3 */
         hjetshape_final[i]->Scale(1. / hjetshape_final[i]->Integral(hjetshape_final[i]->FindBin(0.01), hjetshape_final[i]->FindBin(0.29)), "width");
         hjetshape_final_raw_norm[i]->Scale(1. / hjetshape_final_raw[i]->Integral(hjetshape_final[i]->FindBin(0.01), hjetshape_final[i]->FindBin(0.29)), "width");
+
+        /* jet distribution around jet axis */
+        hjetshape_jetdr[i][0] = (TH1D*)finput->Get(Form("hjetshape_jetdr_%s", tag.c_str()))->Clone();
+        hjetshape_jetdr[i][1] = (TH1D*)finput->Get(Form("hjetshape_jetdr_mix_%s", tag.c_str()))->Clone();
+
+        hjetshape_jetdr[i][0]->Scale(1. / hjetpt[i][0]->Integral());
+        hjetshape_jetdr[i][1]->Scale(1. / hjetpt_mixjet[i][0]->Integral());
     }
 
     fout->Write("", TObject::kOverwrite);
