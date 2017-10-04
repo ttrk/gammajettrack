@@ -30,6 +30,14 @@ void correct_bin_errors(TH1D* h1, int nsmear) {
     h1->SetBinError(i, h1->GetBinError(i) * sqrt(nsmear));
 }
 
+#define PI 3.141593f
+
+inline float dphi_2s1f1b(float phi1, float phi2) {
+  float dphi = fabs(phi1 - phi2);
+  if (dphi > PI) { dphi = 2 * PI - dphi; }
+  return dphi;
+}
+
 void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int) {
   bool isHI = (sample.find("pbpb") != std::string::npos);
   TFile* fweight = (isHI) ? TFile::Open("PbPb-weights.root") : TFile::Open("pp-weights.root");
@@ -269,7 +277,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         rawjetphi = (*j_phi)[ij] + smear_rand.Gaus(0, res_phi);
 
         // jet phi cut
-        if (acos(cos(rawjetphi - phoPhi)) < 7 * pi / 8) continue;
+        if (dphi_2s1f1b(rawjetphi, phoPhi) < 7 * pi / 8) continue;
 
         switch (systematic) {
           case 1:
@@ -313,7 +321,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float jjeteta = (*j_eta)[ijj];
           float jjetphi = (*j_phi)[ijj];
 
-          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && acos(cos(jjetphi - phoPhi)) < 7 * TMath::Pi() / 8)
+          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && dphi_2s1f1b(jjetphi, phoPhi) < 7 * pi / 8)
             njetdr++;
         }
 
@@ -326,8 +334,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float jjeteta = (*j_eta)[ijj];
           float jjetphi = (*j_phi)[ijj];
 
-          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && acos(cos(jjetphi - phoPhi)) < 7 * TMath::Pi() / 8) {
-            float dphi = acos(cos(rawjetphi - jjetphi));
+          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && dphi_2s1f1b(jjetphi, phoPhi) < 7 * pi / 8) {
+            float dphi = dphi_2s1f1b(rawjetphi, jjetphi);
             float deta = rawjeteta - jjeteta;
             float deltar2 = (dphi * dphi) + (deta * deta);
 
@@ -347,7 +355,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg)[ip] == 0) continue;
           }
 
-          float dphi = acos(cos(rawjetphi - (*p_phi)[ip]));
+          float dphi = dphi_2s1f1b(rawjetphi, (*p_phi)[ip]);
           float deta = rawjeteta - (*p_eta)[ip];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
@@ -368,7 +376,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
-          float dphi = acos(cos(rawjetphi - (*p_phi_mix)[ip_mix]));
+          float dphi = dphi_2s1f1b(rawjetphi, (*p_phi_mix)[ip_mix]);
           float deta = rawjeteta - (*p_eta_mix)[ip_mix];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
@@ -408,7 +416,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         mixjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
 
         // jet phi cut
-        if (acos(cos(mixjetphi - phoPhi)) < 7 * pi / 8) continue;
+        if (dphi_2s1f1b(mixjetphi, phoPhi) < 7 * pi / 8) continue;
 
         switch (systematic) {
           case 1:
@@ -446,7 +454,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float jjeteta = (*j_eta_mix)[ijj];
           float jjetphi = (*j_phi_mix)[ijj];
 
-          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && acos(cos(jjetphi - phoPhi)) < 7 * TMath::Pi() / 8)
+          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && dphi_2s1f1b(jjetphi, phoPhi) < 7 * pi / 8)
             njetdr_mix++;
         }
 
@@ -455,8 +463,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float jjeteta = (*j_eta_mix)[ijj];
           float jjetphi = (*j_phi_mix)[ijj];
 
-          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && acos(cos(jjetphi - phoPhi)) < 7 * TMath::Pi() / 8) {
-            float dphi = acos(cos(mixjetphi - jjetphi));
+          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && dphi_2s1f1b(jjetphi, phoPhi) < 7 * pi / 8) {
+            float dphi = dphi_2s1f1b(mixjetphi, jjetphi);
             float deta = mixjeteta - jjeteta;
             float deltar2 = (dphi * dphi) + (deta * deta);
 
@@ -476,7 +484,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (sigjetpt < jetptcut) continue;
           if (fabs(sigjeteta) > 1.6) continue;
 
-          float dphi = acos(cos(mixjetphi - sigjetphi));
+          float dphi = dphi_2s1f1b(mixjetphi, sigjetphi);
           float deta = mixjeteta - sigjeteta;
           float deltar2 = (dphi * dphi) + (deta * deta);
 
@@ -496,7 +504,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg)[ip] == 0) continue;
           }
 
-          float dphi = acos(cos(mixjetphi - (*p_pt)[ip]));
+          float dphi = dphi_2s1f1b(mixjetphi, (*p_pt)[ip]);
           float deta = mixjeteta - (*p_eta)[ip];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
@@ -519,7 +527,7 @@ after_mixsignal:
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
-          float dphi = acos(cos(mixjetphi - (*p_phi_mix)[ip_mix]));
+          float dphi = dphi_2s1f1b(mixjetphi, (*p_phi_mix)[ip_mix]);
           float deta = mixjeteta - (*p_eta_mix)[ip_mix];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
@@ -537,7 +545,7 @@ after_mixsignal:
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
-          float dphi = acos(cos(mixjetphi - (*p_phi_mix)[ip_mix]));
+          float dphi = dphi_2s1f1b(mixjetphi, (*p_phi_mix)[ip_mix]);
           float deta = mixjeteta - (*p_eta_mix)[ip_mix];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
