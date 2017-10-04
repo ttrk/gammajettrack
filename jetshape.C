@@ -214,7 +214,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     if (isMC) weight = weight * hvzweight->GetBinContent(hvzweight->FindBin(vz));
     if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
 
-    int centBin = getCentralityBin(centmin);
+    int centBin = getCentralityBin(centmin, centmax);
+    int centBin4 = getCentralityBin4(hiBin);
 
     bool signal = (phoSigmaIEtaIEta_2012 < 0.010);
     bool background = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
@@ -255,8 +256,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       // apply smearing
       if (isPP) {
         if (jet_type_is("sreco", genlevel)) {
-          res_pt = getSigmaRelPt(centmin, rawjetpt);
-          res_phi = getSigmaRelPhi(centmin, rawjetpt);
+          res_pt = getSigmaRelPt(centmin, centmax, rawjetpt);
+          res_phi = getSigmaRelPhi(centmin, centmax, rawjetpt);
         } else if (jet_type_is("sgen", genlevel)) {
           res_pt = getResolutionPP(rawjetpt);
           res_phi = getPhiResolutionPP(rawjetpt);
@@ -288,12 +289,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             break;
           case 11: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_G[centBin]->Eval(rawjetpt); }
+            if (!isPP) { flavor_factor = f_JES_G[centBin4]->Eval(rawjetpt); }
             rawjetpt = rawjetpt * (1 + flavor_factor);
             break; }
           case 12: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_Q[centBin]->Eval(rawjetpt); }
+            if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(rawjetpt); }
             rawjetpt = rawjetpt * (1 - flavor_factor);
             break; }
           case 3: {
@@ -427,12 +428,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             break;
           case 11: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_G[centBin]->Eval(mixjetpt); }
+            if (!isPP) { flavor_factor = f_JES_G[centBin4]->Eval(mixjetpt); }
             mixjetpt = mixjetpt * (1 + flavor_factor);
             break; }
           case 12: {
             float flavor_factor = 0;
-            if (!isPP) { flavor_factor = f_JES_Q[centBin]->Eval(mixjetpt); }
+            if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(mixjetpt); }
             mixjetpt = mixjetpt * (1 - flavor_factor);
             break; }
           case 3: {
@@ -575,7 +576,7 @@ after_mixsignal:
       if (hjetpt_mixjet[h]->Integral())
         hjetshape_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
       else
-        printf("warning: for centmin: %i, hjetpt_mixjet[%i] has integral 0\n", centmin, h);
+        printf("warning: for centmin: %i, centmax: %i, hjetpt_mixjet[%i] has integral 0\n", centmin, centmax, h);
     }
   }
 
