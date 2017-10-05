@@ -6,7 +6,7 @@ BUILDDIR = ./build
 
 SRCS = $(wildcard *.C)
 EXES = $(patsubst %.C,%.exe,$(SRCS))
-DEPS = $(patsubst %.C,$(BUILD_DIR)/%.d,$(SRCS))
+DEPS = $(patsubst %.C,$(BUILDDIR)/%.d,$(SRCS))
 
 .PHONY: all clean
 
