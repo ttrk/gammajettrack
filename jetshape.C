@@ -576,7 +576,7 @@ after_mixsignal:
       if (hjetpt_mixjet[h]->Integral())
         hjetshape_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
       else
-        printf("warning: for centmin: %i, centmax: %i, hjetpt_mixjet[%i] has integral 0\n", centmin, centmax, h);
+        printf("warning: for gen: %s, centmin: %i, centmax: %i, hjetpt_mixjet[%i] has integral 0\n", genlevel.c_str(), centmin, centmax, h);
     }
   }
 
