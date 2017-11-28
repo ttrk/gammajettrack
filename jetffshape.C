@@ -133,6 +133,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   else if (defnFF == k_jetShape) xTitle = "r";
   std::string hTitle = Form(";%s;", xTitle.c_str());
 
+  // max delta for jet shape
+  double js_rMax = 0.6;
+  double js_r2Max = js_rMax * js_rMax;
+
   TH1D* hgammaffjs[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH1D* hffjsLR[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH1D* hffjsLRAway[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
@@ -158,7 +162,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
           if (defnFF == k_jetShape) {
               binWidth = 0.3 / 6;
-              xMax = 1;
+              xMax = js_rMax;
               nBinsX = xMax / binWidth;
               histNamePrefix = "hjs";
           }
@@ -503,7 +507,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float dphi = getDPHI(tmpjetphi, (*p_phi)[ip]);
           float deta = tmpjeteta - (*p_eta)[ip];
           float deltar2 = (dphi * dphi) + (deta * deta);
-          if (deltar2 < 0.09) {
+          if ((defnFF == k_jetFF && deltar2 < 0.09) ||
+              (defnFF == k_jetShape && deltar2 < js_r2Max)) {
+
             TLorentzVector vtrack;
             float val = -1;
             if (defnFF == k_jetFF && gammaxi == 0) {
@@ -624,7 +630,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float dphi = getDPHI(tmpjetphi, (*p_phi_UE)[ip_UE]);
           float deta = tmpjeteta - tmp_p_eta;
           float deltar2 = (dphi * dphi) + (deta * deta);
-          if (deltar2 < 0.09) {
+          if ((defnFF == k_jetFF && deltar2 < 0.09) ||
+              (defnFF == k_jetShape && deltar2 < js_r2Max)) {
+
             TLorentzVector vtrack;
             float val = -1;
             if (defnFF == k_jetFF && gammaxi == 0) {
@@ -812,7 +820,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float dphi = getDPHI(tmpjetphi, (*p_phi_mix)[ip_mix]);
           float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
           float deltar2 = (dphi * dphi) + (deta * deta);
-          if (deltar2 < 0.09) {
+          if ((defnFF == k_jetFF && deltar2 < 0.09) ||
+              (defnFF == k_jetShape && deltar2 < js_r2Max)) {
+
             TLorentzVector vtrack;
             float val = -1;
             if (defnFF == k_jetFF && gammaxi == 0) {
@@ -929,7 +939,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float dphi = getDPHI(tmpjetphi, (*p_phi_UE)[ip_UE]);
           float deta = tmpjeteta - tmp_p_eta;
           float deltar2 = (dphi * dphi) + (deta * deta);
-          if (deltar2 < 0.09) {
+          if ((defnFF == k_jetFF && deltar2 < 0.09) ||
+              (defnFF == k_jetShape && deltar2 < js_r2Max)) {
+
             TLorentzVector vtrack;
             float val = -1;
             if (defnFF == k_jetFF && gammaxi == 0) {
