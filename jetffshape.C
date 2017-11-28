@@ -137,8 +137,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   std::string hTitle = Form(";%s;", xTitle.c_str());
 
   TH1D* hgammaffjs[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
-  TH1D* hffxiLR[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
-  TH1D* hffxiLRAway[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
+  TH1D* hffjsLR[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
+  TH1D* hffjsLRAway[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
 
   TH1D* hdphiProjNR[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH1D* hdphiProjLR[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
@@ -153,31 +153,38 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH2D* h2DdphidetaJetTrkptBin[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][8];
   for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
       for (int j = 0; j < kN_JET_TRK_SIGBKG; ++j) {
-          hgammaffjs[i][j] = new TH1D(Form("hgammaffxi%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
+
+          double binWidth = 5 / 10;
+          double xMax = 5;
+          int nBinsX = xMax / binWidth;
+          std::string histNamePrefix = "hff";
+
+          if (defnFF == k_jetShape) {
+              binWidth = 0.3 / 6;
+              xMax = 1;
+              nBinsX = xMax / binWidth;
+              histNamePrefix = "hjs";
+          }
+
+          // FF / jet shape histogram
+          hgammaffjs[i][j] = new TH1D(Form("%s%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX, 0, xMax);
 
           if (defnFF == k_jetFF_z) {
-              int nBinsX = 10;
-              std::vector<double> binsZ = calcBinsLogScale(0.01, 1, nBinsX);
-              double binsArr[nBinsX+1];
-              std::copy(binsZ.begin(), binsZ.end(), binsArr);
+              int nBins_FFz = 10;
+              std::vector<double> bins_FFz = calcBinsLogScale(0.01, 1, nBins_FFz);
+              double binsArr[nBins_FFz+1];
+              std::copy(bins_FFz.begin(), bins_FFz.end(), binsArr);
               hgammaffjs[i][j] = new TH1D(Form("hgammaffxi%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                       sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX, binsArr);
           }
-          else if (defnFF == k_jetShape) {
-              double binWidth = 0.3 / 6;
-              double xMax = 0.3;
-              int nBinsX = xMax / binWidth;
-              hgammaffjs[i][j] = new TH1D(Form("hgammajs%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX, 0, xMax);
-          }
 
           if (systematic == sysLR) {
-              // FF from long range correlation
-              hffxiLR[i][j] = new TH1D(Form("hffLR%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
-              hffxiLRAway[i][j] = new TH1D(Form("hffLRAway%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                                sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), 10, 0, 5);
+              // FF / jet shape from long range correlation
+              hffjsLR[i][j] = new TH1D(Form("%sLR%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX, 0, xMax);
+              hffjsLRAway[i][j] = new TH1D(Form("%sLRAway%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX, 0, xMax);
           }
 
           if (systematic == sysDphiProjection) {
@@ -557,10 +564,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
 
                   if (fabs(dphi) < 0.3) {
-                      hffxiLR[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk * weightLR);
+                      hffjsLR[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk * weightLR);
                   }
                   else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
-                      hffxiLRAway[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk * weightLR);
+                      hffjsLRAway[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk * weightLR);
                   }
               }
           }
@@ -681,10 +688,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
 
                   if (fabs(dphi) < 0.3) {
-                      hffxiLR[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk * weightLR);
+                      hffjsLR[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk * weightLR);
                   }
                   else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
-                      hffxiLRAway[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk * weightLR);
+                      hffjsLRAway[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk * weightLR);
                   }
               }
           }
@@ -874,10 +881,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
 
                   if (fabs(dphi) < 0.3) {
-                      hffxiLR[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk * weightLR);
+                      hffjsLR[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk * weightLR);
                   }
                   else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
-                      hffxiLRAway[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk * weightLR);
+                      hffjsLRAway[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk * weightLR);
                   }
               }
           }
@@ -994,10 +1001,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   }
 
                   if (fabs(dphi) < 0.3) {
-                      hffxiLR[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk * weightLR);
+                      hffjsLR[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk * weightLR);
                   }
                   else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
-                      hffxiLRAway[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk * weightLR);
+                      hffjsLRAway[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk * weightLR);
                   }
               }
           }
@@ -1047,8 +1054,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               correctBinError(hgammaffjs[i][j], nsmear);
 
               if (systematic == sysLR) {
-                  correctBinError(hffxiLR[i][j], nsmear);
-                  correctBinError(hffxiLRAway[i][j], nsmear);
+                  correctBinError(hffjsLR[i][j], nsmear);
+                  correctBinError(hffjsLRAway[i][j], nsmear);
               }
 
               if (systematic == sysDphiProjection) {
