@@ -126,8 +126,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
   }
 
-  std::string xTitle = "#xi_{jet}";
-  if (gammaxi == 1) xTitle = "#xi_{#gamma}";
+  std::string xTitle = "";
+  if (defnFF == k_jetFF && gammaxi == 0)
+      xTitle = "#xi_{jet}";
+  else if (defnFF == k_jetFF && gammaxi == 1) xTitle = "#xi_{#gamma}";
+  else if (defnFF == k_jetShape) xTitle = "r";
   std::string hTitle = Form(";%s;", xTitle.c_str());
 
   TH1D* hgammaffjs[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
