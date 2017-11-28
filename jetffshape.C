@@ -538,23 +538,29 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
-                  float z = -1;
+                  float val = -1;
                   if (defnFF == k_jetFF && gammaxi == 0) {
                       vtrack.SetPtEtaPhiM((*p_pt)[ip], tmpjeteta, (*p_phi)[ip], 0);
                       float angle = vJet.Angle(vtrack.Vect());
-                      z = vtrack.P() * cos(angle) / refP;
+                      float z = vtrack.P() * cos(angle) / refP;
+                      val = log(1.0 / z);
                   }
                   else if (defnFF == k_jetFF && gammaxi == 1) {
                       vtrack.SetPtEtaPhiM((*p_pt)[ip], 0, (*p_phi)[ip], 0);
                       float angle = vPho.Angle(vtrack.Vect());
-                      z = vtrack.P() * fabs(cos(angle)) / refP;
+                      float z = vtrack.P() * fabs(cos(angle)) / refP;
+                      val = log(1.0 / z);
                   }
-                  float xi = log(1.0 / z);
+                  else if (defnFF == k_jetShape) {
+                      val = sqrt(deltar2);
+                      weight_rawJet_rawTrk *= (*p_pt)[ip] / refP;
+                  }
+
                   if (fabs(dphi) < 0.3) {
-                      hffxiLR[phoBkg][k_rawJet_rawTrk]->Fill(xi, weight_rawJet_rawTrk * weightLR);
+                      hffxiLR[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk * weightLR);
                   }
                   else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
-                      hffxiLRAway[phoBkg][k_rawJet_rawTrk]->Fill(xi, weight_rawJet_rawTrk * weightLR);
+                      hffxiLRAway[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk * weightLR);
                   }
               }
           }
@@ -656,23 +662,29 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
-                  float z = -1;
+                  float val = -1;
                   if (defnFF == k_jetFF && gammaxi == 0) {
                       vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmpjeteta, (*p_phi_UE)[ip_UE], 0);
                       float angle = vJet.Angle(vtrack.Vect());
-                      z = vtrack.P() * cos(angle) / refP;
+                      float z = vtrack.P() * cos(angle) / refP;
+                      val = log(1.0 / z);
                   }
                   else if (defnFF == k_jetFF && gammaxi == 1) {
                       vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], 0, (*p_phi_UE)[ip_UE], 0);
                       float angle = vPho.Angle(vtrack.Vect());
-                      z = vtrack.P() * fabs(cos(angle)) / refP;
+                      float z = vtrack.P() * fabs(cos(angle)) / refP;
+                      val = log(1.0 / z);
                   }
-                  float xi = log(1.0 / z);
+                  else if (defnFF == k_jetShape) {
+                      val = sqrt(deltar2);
+                      weight_rawJet_ueTrk *= (*p_pt_UE)[ip_UE] / refP;
+                  }
+
                   if (fabs(dphi) < 0.3) {
-                      hffxiLR[phoBkg][k_rawJet_ueTrk]->Fill(xi, weight_rawJet_ueTrk * weightLR);
+                      hffxiLR[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk * weightLR);
                   }
                   else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
-                      hffxiLRAway[phoBkg][k_rawJet_ueTrk]->Fill(xi, weight_rawJet_ueTrk * weightLR);
+                      hffxiLRAway[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk * weightLR);
                   }
               }
           }
@@ -843,23 +855,29 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
-                  float z = -1;
+                  float val = -1;
                   if (defnFF == k_jetFF && gammaxi == 0) {
                       vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
                       float angle = vJet.Angle(vtrack.Vect());
-                      z = vtrack.P() * cos(angle) / refP;
+                      float z = vtrack.P() * cos(angle) / refP;
+                      val = log(1.0 / z);
                   }
                   else if (defnFF == k_jetFF && gammaxi == 1) {
                       vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
                       float angle = vPho.Angle(vtrack.Vect());
-                      z = vtrack.P() * fabs(cos(angle)) / refP;
+                      float z = vtrack.P() * fabs(cos(angle)) / refP;
+                      val = log(1.0 / z);
                   }
-                  float xi = log(1.0 / z);
+                  else if (defnFF == k_jetShape) {
+                      val = sqrt(deltar2);
+                      weight_bkgJet_rawTrk *= (*p_pt_mix)[ip_mix] / refP;
+                  }
+
                   if (fabs(dphi) < 0.3) {
-                      hffxiLR[phoBkg][k_bkgJet_rawTrk]->Fill(xi, weight_bkgJet_rawTrk * weightLR);
+                      hffxiLR[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk * weightLR);
                   }
                   else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
-                      hffxiLRAway[phoBkg][k_bkgJet_rawTrk]->Fill(xi, weight_bkgJet_rawTrk * weightLR);
+                      hffxiLRAway[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk * weightLR);
                   }
               }
           }
@@ -957,23 +975,29 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
-                  float z = -1;
+                  float val = -1;
                   if (defnFF == k_jetFF && gammaxi == 0) {
                       vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmpjeteta, (*p_phi_UE)[ip_UE], 0);
                       float angle = vJet.Angle(vtrack.Vect());
-                      z = vtrack.P() * cos(angle) / refP;
+                      float z = vtrack.P() * cos(angle) / refP;
+                      val = log(1.0 / z);
                   }
                   else if (defnFF == k_jetFF && gammaxi == 1) {
                       vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], 0, (*p_phi_UE)[ip_UE], 0);
                       float angle = vPho.Angle(vtrack.Vect());
-                      z = vtrack.P() * fabs(cos(angle)) / refP;
+                      float z = vtrack.P() * fabs(cos(angle)) / refP;
+                      val = log(1.0 / z);
                   }
-                  float xi = log(1.0 / z);
+                  else if (defnFF == k_jetShape) {
+                      val = sqrt(deltar2);
+                      weight_bkgJet_ueTrk *= (*p_pt_UE)[ip_UE] / refP;
+                  }
+
                   if (fabs(dphi) < 0.3) {
-                      hffxiLR[phoBkg][k_bkgJet_ueTrk]->Fill(xi, weight_bkgJet_ueTrk * weightLR);
+                      hffxiLR[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk * weightLR);
                   }
                   else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
-                      hffxiLRAway[phoBkg][k_bkgJet_ueTrk]->Fill(xi, weight_bkgJet_ueTrk * weightLR);
+                      hffxiLRAway[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk * weightLR);
                   }
               }
           }
