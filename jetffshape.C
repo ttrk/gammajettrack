@@ -489,8 +489,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         vPho.SetPtEtaPhiM(phoEtCorrected, 0, phoPhi, 0);
 
         float refP = -1;
-        if (defnFF == k_jetFF_Old) refP = gammaxi ? phoEtCorrected : tmpjetpt;
-        else if (defnFF == k_jetFF)  refP = gammaxi ? phoEtCorrected : vJet.P();
+        if (defnFF == k_jetFF)  refP = gammaxi ? phoEtCorrected : vJet.P();
         else if (defnFF == k_jetShape) refP = gammaxi ? phoEtCorrected : tmpjetpt;
         // raw jets - jetshape
         for (int ip = 0; ip < nip; ++ip) {
@@ -514,12 +513,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
             float z = -1;
-            if (defnFF == k_jetFF_Old) {
-                vtrack.SetPtEtaPhiM((*p_pt)[ip], (*p_eta)[ip], (*p_phi)[ip], 0);
-                float angle = vJet.Angle(vtrack.Vect());
-                z = (*p_pt)[ip] * cos(angle) / refP;
-            }
-            else if (defnFF == k_jetFF && gammaxi == 0) {
+            if (defnFF == k_jetFF && gammaxi == 0) {
                 vtrack.SetPtEtaPhiM((*p_pt)[ip], (*p_eta)[ip], (*p_phi)[ip], 0);
                 float angle = vJet.Angle(vtrack.Vect());
                 z = vtrack.P() * cos(angle) / refP;
@@ -546,12 +540,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               if (tmpjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
                   float z = -1;
-                  if (defnFF == k_jetFF_Old) {
-                      vtrack.SetPtEtaPhiM((*p_pt)[ip], tmpjeteta, (*p_phi)[ip], 0);
-                      float angle = vJet.Angle(vtrack.Vect());
-                      z = (*p_pt)[ip] * cos(angle) / refP;
-                  }
-                  else if (defnFF == k_jetFF && gammaxi == 0) {
+                  if (defnFF == k_jetFF && gammaxi == 0) {
                       vtrack.SetPtEtaPhiM((*p_pt)[ip], tmpjeteta, (*p_phi)[ip], 0);
                       float angle = vJet.Angle(vtrack.Vect());
                       z = vtrack.P() * cos(angle) / refP;
@@ -643,12 +632,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
             float z = -1;
-            if (defnFF == k_jetFF_Old) {
-                vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmp_p_eta, (*p_phi_UE)[ip_UE], 0);
-                float angle = vJet.Angle(vtrack.Vect());
-                z = (*p_pt_UE)[ip_UE] * cos(angle) / refP;
-            }
-            else if (defnFF == k_jetFF && gammaxi == 0) {
+            if (defnFF == k_jetFF && gammaxi == 0) {
                 vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmp_p_eta, (*p_phi_UE)[ip_UE], 0);
                 float angle = vJet.Angle(vtrack.Vect());
                 z = vtrack.P() * cos(angle) / refP;
@@ -675,12 +659,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
                   float z = -1;
-                  if (defnFF == k_jetFF_Old) {
-                      vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmpjeteta, (*p_phi_UE)[ip_UE], 0);
-                      float angle = vJet.Angle(vtrack.Vect());
-                      z = (*p_pt_UE)[ip_UE] * cos(angle) / refP;
-                  }
-                  else if (defnFF == k_jetFF && gammaxi == 0) {
+                  if (defnFF == k_jetFF && gammaxi == 0) {
                       vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmpjeteta, (*p_phi_UE)[ip_UE], 0);
                       float angle = vJet.Angle(vtrack.Vect());
                       z = vtrack.P() * cos(angle) / refP;
@@ -841,12 +820,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
             float z = -1;
-            if (defnFF == k_jetFF_Old) {
-                vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
-                float angle = vJet.Angle(vtrack.Vect());
-                z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
-            }
-            else if (defnFF == k_jetFF && gammaxi == 0) {
+            if (defnFF == k_jetFF && gammaxi == 0) {
                 vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
                 float angle = vJet.Angle(vtrack.Vect());
                 z = vtrack.P() * cos(angle) / refP;
@@ -873,12 +847,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
                   float z = -1;
-                  if (defnFF == k_jetFF_Old) {
-                      vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
-                      float angle = vJet.Angle(vtrack.Vect());
-                      z = (*p_pt_mix)[ip_mix] * cos(angle) / refP;
-                  }
-                  else if (defnFF == k_jetFF && gammaxi == 0) {
+                  if (defnFF == k_jetFF && gammaxi == 0) {
                       vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], tmpjeteta, (*p_phi_mix)[ip_mix], 0);
                       float angle = vJet.Angle(vtrack.Vect());
                       z = vtrack.P() * cos(angle) / refP;
@@ -966,12 +935,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
             float z = -1;
-            if (defnFF == k_jetFF_Old) {
-                vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmp_p_eta, (*p_phi_UE)[ip_UE], 0);
-                float angle = vJet.Angle(vtrack.Vect());
-                z = (*p_pt_UE)[ip_UE] * cos(angle) / refP;
-            }
-            else if (defnFF == k_jetFF && gammaxi == 0) {
+            if (defnFF == k_jetFF && gammaxi == 0) {
                 vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmp_p_eta, (*p_phi_UE)[ip_UE], 0);
                 float angle = vJet.Angle(vtrack.Vect());
                 z = vtrack.P() * cos(angle) / refP;
@@ -998,12 +962,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
                   float z = -1;
-                  if (defnFF == k_jetFF_Old) {
-                      vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmpjeteta, (*p_phi_UE)[ip_UE], 0);
-                      float angle = vJet.Angle(vtrack.Vect());
-                      z = (*p_pt_UE)[ip_UE] * cos(angle) / refP;
-                  }
-                  else if (defnFF == k_jetFF && gammaxi == 0) {
+                  if (defnFF == k_jetFF && gammaxi == 0) {
                       vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmpjeteta, (*p_phi_UE)[ip_UE], 0);
                       float angle = vJet.Angle(vtrack.Vect());
                       z = vtrack.P() * cos(angle) / refP;
