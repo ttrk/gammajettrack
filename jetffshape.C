@@ -55,7 +55,6 @@ int sysBkgEtaReflection = 22;
 int sysDphiProjection = 30;
 int sysDetaDphiPhoTrk = 23;
 int sysDetaDphiJetTrk = 24;
-int sysFFdepJEC = 25;
 
 int trkPtsLow[8] = {1, 2, 3, 4, 8, 12, 16, 20};
 int trkPtsUp[8] = {2, 3, 4, 8, 12, 16, 20, 9999};
@@ -462,66 +461,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             break;
         }
 
-        float jes_factor_ffDep = 1;
-        if (systematic == sysFFdepJEC) {
-            TLorentzVector vJetTmp;
-            vJetTmp.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
-            TLorentzVector vPhoTmp;
-            vPhoTmp.SetPtEtaPhiM(phoEtCorrected, 0, phoPhi, 0);
-
-            float refPTmp = -1;
-            if (defnFF == k_jetFF_Old)      refPTmp = gammaxi ? phoEtCorrected : tmpjetpt;
-            else if (defnFF == k_jetFF) refPTmp = gammaxi ? phoEtCorrected : vJetTmp.P();
-
-            bool haslowxi = false;
-            bool hasmidxi = false;
-            for(int ip = 0 ; ip < nip ; ++ip)
-            {
-                if ((*p_pt)[ip] < trkptmin) continue;
-                if (part_type_is("gen0", genlevel)) {
-                  if ((*sube)[ip] != 0) continue;
-                  if ((*chg)[ip] == 0) continue;
-                }
-                if (part_type_is("gen", genlevel)) {
-                  if ((*chg)[ip] == 0) continue;
-                }
-
-              float dphi = acos( cos(tmpjetphi - (*p_phi)[ip]));
-              float deta = fabs( tmpjeteta - (*p_eta)[ip]);
-              float deltar2 = (dphi * dphi) + (deta * deta);
-              if (deltar2 < 0.09)
-              {
-                TLorentzVector vtrack;
-                float z = -1;
-                if (defnFF == k_jetFF_Old) {
-                    vtrack.SetPtEtaPhiM((*p_pt)[ip], (*p_eta)[ip], (*p_phi)[ip], 0);
-                    float angle = vJetTmp.Angle(vtrack.Vect());
-                    z = (*p_pt)[ip] * cos(angle) / refPTmp;
-                }
-                else if (defnFF == k_jetFF && gammaxi == 0) {
-                    vtrack.SetPtEtaPhiM((*p_pt)[ip], (*p_eta)[ip], (*p_phi)[ip], 0);
-                    float angle = vJetTmp.Angle(vtrack.Vect());
-                    z = vtrack.P() * cos(angle) / refPTmp;
-                }
-                else if (defnFF == k_jetFF && gammaxi == 1) {
-                    vtrack.SetPtEtaPhiM((*p_pt)[ip], 0, (*p_phi)[ip], 0);
-                    float angle = vPhoTmp.Angle(vtrack.Vect());
-                    z = vtrack.P() * fabs(cos(angle)) / refPTmp;
-                }
-                float xi = log(1.0/z);
-                if(xi<1) haslowxi = true;
-                if(xi<2 && xi>1) hasmidxi = true;
-              }
-            }
-            if(haslowxi) hasmidxi = false;
-            if(!isPP && haslowxi && jet_type_is("reco", genlevel)) {
-                jes_factor_ffDep = 1./lowxicorr[centBin4];
-            } else if(!isPP && hasmidxi && jet_type_is("reco", genlevel)) {
-                jes_factor_ffDep = 1./midxicorr[centBin4];
-            }
-        }
-        tmpjetpt *= jes_factor_ffDep;
-
         // jet pt cut
         if (tmpjetpt < jetptcut) continue;
 
@@ -851,64 +790,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           default:
             break;
         }
-
-        float jes_factor_ffDep = 1;
-        if (systematic == sysFFdepJEC) {
-            TLorentzVector vJetTmp;
-            vJetTmp.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
-            TLorentzVector vPhoTmp;
-            vPhoTmp.SetPtEtaPhiM(phoEtCorrected, 0, phoPhi, 0);
-
-            float refPTmp = -1;
-            if (defnFF == k_jetFF_Old)      refPTmp = gammaxi ? phoEtCorrected : tmpjetpt;
-            else if (defnFF == k_jetFF) refPTmp = gammaxi ? phoEtCorrected : vJetTmp.P();
-
-            bool haslowxi = false;
-            bool hasmidxi = false;
-            for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix)
-            {
-                // tracks and jet must come from same mixed event
-                if ((*j_ev_mix)[ij_mix] != (*p_ev_mix)[ip_mix]) continue;
-                if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
-                if (part_type_is("gen0", genlevel) || part_type_is("gen", genlevel)) {
-                    if ((*chg_mix)[ip_mix] == 0) continue;
-                }
-
-                float dphi = getDPHI(tmpjetphi, (*p_phi_mix)[ip_mix]);
-                float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
-                float deltar2 = (dphi * dphi) + (deta * deta);
-                if (deltar2 < 0.09)
-                {
-                    TLorentzVector vtrack;
-                    float z = -1;
-                    if (defnFF == k_jetFF_Old) {
-                        vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta)[ip_mix], (*p_phi_mix)[ip_mix], 0);
-                        float angle = vJetTmp.Angle(vtrack.Vect());
-                        z = (*p_pt_mix)[ip_mix] * cos(angle) / refPTmp;
-                    }
-                    else if (defnFF == k_jetFF && gammaxi == 0) {
-                        vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta)[ip_mix], (*p_phi_mix)[ip_mix], 0);
-                        float angle = vJetTmp.Angle(vtrack.Vect());
-                        z = vtrack.P() * cos(angle) / refPTmp;
-                    }
-                    else if (defnFF == k_jetFF && gammaxi == 1) {
-                        vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
-                        float angle = vPhoTmp.Angle(vtrack.Vect());
-                        z = vtrack.P() * fabs(cos(angle)) / refPTmp;
-                    }
-                    float xi = log(1.0/z);
-                    if(xi<1) haslowxi = true;
-                    if(xi<2 && xi>1) hasmidxi = true;
-                }
-            }
-            if(haslowxi) hasmidxi = false;
-            if(!isPP && haslowxi && jet_type_is("reco", genlevel)) {
-                jes_factor_ffDep = 1./lowxicorr[centBin4];
-            } else if(!isPP && hasmidxi && jet_type_is("reco", genlevel)) {
-                jes_factor_ffDep = 1./midxicorr[centBin4];
-            }
-        }
-        tmpjetpt *= jes_factor_ffDep;
 
         // jet pt cut
         if (tmpjetpt < jetptcut) continue;
