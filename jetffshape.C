@@ -512,29 +512,28 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
-            float z = -1;
+            float val = -1;
             if (defnFF == k_jetFF && gammaxi == 0) {
                 vtrack.SetPtEtaPhiM((*p_pt)[ip], (*p_eta)[ip], (*p_phi)[ip], 0);
                 float angle = vJet.Angle(vtrack.Vect());
-                z = vtrack.P() * cos(angle) / refP;
+                float z = vtrack.P() * cos(angle) / refP;
+                val = log(1.0 / z);
             }
             else if (defnFF == k_jetFF && gammaxi == 1) {
                 vtrack.SetPtEtaPhiM((*p_pt)[ip], 0, (*p_phi)[ip], 0);
                 float angle = vPho.Angle(vtrack.Vect());
-                z = vtrack.P() * fabs(cos(angle)) / refP;
+                float z = vtrack.P() * fabs(cos(angle)) / refP;
+                val = log(1.0 / z);
             }
             else if (defnFF == k_jetFF_z) {
-                z = (*p_pt)[ip] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
+                val = (*p_pt)[ip] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
             }
             else if (defnFF == k_jetShape) {
-                z = sqrt(deltar2);
+                val = sqrt(deltar2);
                 weight_rawJet_rawTrk *= (*p_pt)[ip] / refP;
             }
-            float xi = log(1.0 / z);
-            if (defnFF == k_jetFF_z) xi = z;
-            else if (defnFF == k_jetShape) xi = z;
 
-            hgammaffjs[phoBkg][k_rawJet_rawTrk]->Fill(xi, weight_rawJet_rawTrk);
+            hgammaffjs[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
@@ -631,29 +630,28 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
-            float z = -1;
+            float val = -1;
             if (defnFF == k_jetFF && gammaxi == 0) {
                 vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmp_p_eta, (*p_phi_UE)[ip_UE], 0);
                 float angle = vJet.Angle(vtrack.Vect());
-                z = vtrack.P() * cos(angle) / refP;
+                float z = vtrack.P() * cos(angle) / refP;
+                val = log(1.0 / z);
             }
             else if (defnFF == k_jetFF && gammaxi == 1) {
                 vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], 0, (*p_phi_UE)[ip_UE], 0);
                 float angle = vPho.Angle(vtrack.Vect());
-                z = vtrack.P() * fabs(cos(angle)) / refP;
+                float z = vtrack.P() * fabs(cos(angle)) / refP;
+                val = log(1.0 / z);
             }
             else if (defnFF == k_jetFF_z) {
-                z = (*p_pt_UE)[ip_UE] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
+                val = (*p_pt_UE)[ip_UE] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
             }
             else if (defnFF == k_jetShape) {
-                z = sqrt(deltar2);
+                val = sqrt(deltar2);
                 weight_rawJet_ueTrk *= (*p_pt_UE)[ip_UE] / refP;
             }
-            float xi = log(1.0 / z);
-            if (defnFF == k_jetFF_z) xi = z;
-            else if (defnFF == k_jetShape) xi = z;
 
-            hgammaffjs[phoBkg][k_rawJet_ueTrk]->Fill(xi, weight_rawJet_ueTrk);
+            hgammaffjs[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
@@ -819,29 +817,28 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
-            float z = -1;
+            float val = -1;
             if (defnFF == k_jetFF && gammaxi == 0) {
                 vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], (*p_eta_mix)[ip_mix], (*p_phi_mix)[ip_mix], 0);
                 float angle = vJet.Angle(vtrack.Vect());
-                z = vtrack.P() * cos(angle) / refP;
+                float z = vtrack.P() * cos(angle) / refP;
+                val = log(1.0 / z);
             }
             else if (defnFF == k_jetFF && gammaxi == 1) {
                 vtrack.SetPtEtaPhiM((*p_pt_mix)[ip_mix], 0, (*p_phi_mix)[ip_mix], 0);
                 float angle = vPho.Angle(vtrack.Vect());
-                z = vtrack.P() * fabs(cos(angle)) / refP;
+                float z = vtrack.P() * fabs(cos(angle)) / refP;
+                val = log(1.0 / z);
             }
             else if (defnFF == k_jetFF_z) {
-                z = (*p_pt_mix)[ip_mix] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
+                val = (*p_pt_mix)[ip_mix] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
             }
             else if (defnFF == k_jetShape) {
-                z = sqrt(deltar2);
+                val = sqrt(deltar2);
                 weight_bkgJet_rawTrk *= (*p_pt_mix)[ip_mix] / refP;
             }
-            float xi = log(1.0 / z);
-            if (defnFF == k_jetFF_z) xi = z;
-            else if (defnFF == k_jetShape) xi = z;
 
-            hgammaffjs[phoBkg][k_bkgJet_rawTrk]->Fill(xi, weight_bkgJet_rawTrk);
+            hgammaffjs[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
@@ -934,29 +931,28 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 0.09) {
             TLorentzVector vtrack;
-            float z = -1;
+            float val = -1;
             if (defnFF == k_jetFF && gammaxi == 0) {
                 vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], tmp_p_eta, (*p_phi_UE)[ip_UE], 0);
                 float angle = vJet.Angle(vtrack.Vect());
-                z = vtrack.P() * cos(angle) / refP;
+                float z = vtrack.P() * cos(angle) / refP;
+                val = log(1.0 / z);
             }
             else if (defnFF == k_jetFF && gammaxi == 1) {
                 vtrack.SetPtEtaPhiM((*p_pt_UE)[ip_UE], 0, (*p_phi_UE)[ip_UE], 0);
                 float angle = vPho.Angle(vtrack.Vect());
-                z = vtrack.P() * fabs(cos(angle)) / refP;
+                float z = vtrack.P() * fabs(cos(angle)) / refP;
+                val = log(1.0 / z);
             }
             else if (defnFF == k_jetFF_z) {
-                z = (*p_pt_UE)[ip_UE] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
+                val = (*p_pt_UE)[ip_UE] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
             }
             else if (defnFF == k_jetShape) {
-                z = sqrt(deltar2);
+                val = sqrt(deltar2);
                 weight_bkgJet_ueTrk *= (*p_pt_UE)[ip_UE] / refP;
             }
-            float xi = log(1.0 / z);
-            if (defnFF == k_jetFF_z) xi = z;
-            else if (defnFF == k_jetShape) xi = z;
 
-            hgammaffjs[phoBkg][k_bkgJet_ueTrk]->Fill(xi, weight_bkgJet_ueTrk);
+            hgammaffjs[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
