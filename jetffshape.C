@@ -41,10 +41,9 @@ enum JET_SIGBKG{
 std::string jet_sigbkg_labels[kN_JET_SIGBKG] = {"", "jetmix"};
 
 enum DEFN_FF_SHAPE {
-    k_jetFF_Old,
+    k_jetFF_Old,        // current purpose is placeholder
     k_jetFF,
     k_jetShape,
-    k_jetFF_z,
     k_DEFN_FF_SHAPE
 };
 
@@ -129,7 +128,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   std::string xTitle = "#xi_{jet}";
   if (gammaxi == 1) xTitle = "#xi_{#gamma}";
-  if (defnFF == k_jetFF_z) xTitle = "z";
   std::string hTitle = Form(";%s;", xTitle.c_str());
 
   TH1D* hgammaffjs[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
@@ -165,15 +163,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           // FF / jet shape histogram
           hgammaffjs[i][j] = new TH1D(Form("%s%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX, 0, xMax);
-
-          if (defnFF == k_jetFF_z) {
-              int nBins_FFz = 10;
-              std::vector<double> bins_FFz = calcBinsLogScale(0.01, 1, nBins_FFz);
-              double binsArr[nBins_FFz+1];
-              std::copy(bins_FFz.begin(), bins_FFz.end(), binsArr);
-              hgammaffjs[i][j] = new TH1D(Form("hgammaffxi%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX, binsArr);
-          }
 
           if (systematic == sysLR) {
               // FF / jet shape from long range correlation
@@ -484,8 +473,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         hjeteta[phoBkg][k_rawJet]->Fill(fabs(tmpjeteta), weight * smear_weight * reweightPP);
         hxjg[phoBkg][k_rawJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight * reweightPP);
 
-        if (defnFF == k_jetFF_z && tmpjetpt > 144) continue;
-
         TLorentzVector vJet;
         vJet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
         TLorentzVector vPho;
@@ -527,9 +514,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 float angle = vPho.Angle(vtrack.Vect());
                 float z = vtrack.P() * fabs(cos(angle)) / refP;
                 val = log(1.0 / z);
-            }
-            else if (defnFF == k_jetFF_z) {
-                val = (*p_pt)[ip] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
             }
             else if (defnFF == k_jetShape) {
                 val = sqrt(deltar2);
@@ -651,9 +635,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 float angle = vPho.Angle(vtrack.Vect());
                 float z = vtrack.P() * fabs(cos(angle)) / refP;
                 val = log(1.0 / z);
-            }
-            else if (defnFF == k_jetFF_z) {
-                val = (*p_pt_UE)[ip_UE] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
             }
             else if (defnFF == k_jetShape) {
                 val = sqrt(deltar2);
@@ -803,8 +784,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         hjeteta[phoBkg][k_bkgJet]->Fill(fabs(tmpjeteta), weight * smear_weight * reweightPP / nmixedevents_jet);
         hxjg[phoBkg][k_bkgJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight * reweightPP / nmixedevents_jet);
 
-        if (defnFF == k_jetFF_z && tmpjetpt > 144) continue;
-
         TLorentzVector vJet;
         vJet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
         TLorentzVector vPho;
@@ -844,9 +823,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 float angle = vPho.Angle(vtrack.Vect());
                 float z = vtrack.P() * fabs(cos(angle)) / refP;
                 val = log(1.0 / z);
-            }
-            else if (defnFF == k_jetFF_z) {
-                val = (*p_pt_mix)[ip_mix] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
             }
             else if (defnFF == k_jetShape) {
                 val = sqrt(deltar2);
@@ -964,9 +940,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 float angle = vPho.Angle(vtrack.Vect());
                 float z = vtrack.P() * fabs(cos(angle)) / refP;
                 val = log(1.0 / z);
-            }
-            else if (defnFF == k_jetFF_z) {
-                val = (*p_pt_UE)[ip_UE] * cos(TMath::Sqrt(deltar2)) / tmpjetpt;
             }
             else if (defnFF == k_jetShape) {
                 val = sqrt(deltar2);
