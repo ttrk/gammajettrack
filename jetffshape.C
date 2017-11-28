@@ -59,10 +59,6 @@ int sysDetaDphiJetTrk = 24;
 int trkPtsLow[8] = {1, 2, 3, 4, 8, 12, 16, 20};
 int trkPtsUp[8] = {2, 3, 4, 8, 12, 16, 20, 9999};
 
-// corrections for FF dep. JEC
-float lowxicorr[4] = {1.073 , 1.079 , 1.083 , 1.074};
-float midxicorr[4] = {1.0514 , 1.0478 , 1.0483 , 1.0471};
-
 double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[]);
 double getDPHI(double phi1, double phi2);
 double getShiftedDPHI(double dphi);
