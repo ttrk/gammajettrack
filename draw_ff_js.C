@@ -224,108 +224,84 @@ int draw_ff_js(std::string sample, std::string type, const char* fname, const ch
     }
     int nObs = inputObs.size();
 
-    TH1D* hjetpt[6] = {0};
-    TH1D* hjetpt_mix[6] = {0};
-    TH1D* hjetpt_sb[6] = {0};
-    TH1D* hjetpt_mix_sb[6] = {0};
+    enum RBS {
+        r,     // raw
+        b,     // bkg
+        s,     // sig
+        kN_RBS
+    };
 
-    TH1D* h[6] = {0};
-    TH1D* h_bTrk[6] = {0};
-    TH1D* h_bJet[6] = {0};
-    TH1D* h_bJet_bTrk[6] = {0};
-    TH1D* h_bPho[6] = {0};
-    TH1D* h_bPho_bTrk[6] = {0};
-    TH1D* h_bPho_bJet[6] = {0};
-    TH1D* h_bPho_bJet_bTrk[6] = {0};
+    // raw, bkg, sig : photon, jet
+    TH1D* hjetpt[kN_RBS][kN_RBS] = {0};
 
-    TH1D* h_sTrk[6] = {0};
-    TH1D* h_bJet_sTrk[6] = {0};
-    TH1D* h_bPho_sTrk[6] = {0};
-    TH1D* h_bPho_bJet_sTrk[6] = {0};
-
-    TH1D* h_sJet_sTrk[6] = {0};
-    TH1D* h_bPho_sJet_sTrk[6] = {0};
-
-    TH1D* h_sPho_sJet_sTrk[6] = {0};
+    // photon+jet+track observables
+    // raw, bkg, sig : photon, jet, track
+    TH1D* hgjt[kN_RBS][kN_RBS][kN_RBS] = {0};
 
     for (int iObs = 0; iObs < nObs; ++iObs) {
 
         for (int i=0; i<6; ++i) {
             std::string tag = Form("%s_%s_%i_%i", sample.c_str(), type.c_str(), min_hiBin[i], max_hiBin[i]);
 
-            hjetpt[i] = (TH1D*)finput->Get(Form("hjetpt_%s", tag.c_str()));
-            hjetpt_mix[i] = (TH1D*)finput->Get(Form("hjetptjetmix_%s", tag.c_str()));
-            hjetpt_sb[i] = (TH1D*)finput->Get(Form("hjetptsideband_%s", tag.c_str()));
-            hjetpt_mix_sb[i] = (TH1D*)finput->Get(Form("hjetptjetmixsideband_%s", tag.c_str()));
+            hjetpt[r][r] = (TH1D*)finput->Get(Form("hjetpt_%s", tag.c_str()));
+            hjetpt[r][b] = (TH1D*)finput->Get(Form("hjetptjetmix_%s", tag.c_str()));
+            hjetpt[b][r] = (TH1D*)finput->Get(Form("hjetptsideband_%s", tag.c_str()));
+            hjetpt[b][b] = (TH1D*)finput->Get(Form("hjetptjetmixsideband_%s", tag.c_str()));
 
-            h[i] = 0;
-            h[i] = (TH1D*)finput->Get(Form("%s_%s", inputObs[iObs].c_str(), tag.c_str()));
-            if (h[i] == 0)  continue;
+            hgjt[r][r][r] = 0;
+            hgjt[r][r][r] = (TH1D*)finput->Get(Form("%s_%s", inputObs[iObs].c_str(), tag.c_str()));
+            if (hgjt[r][r][r] == 0)  continue;
 
-            h_bTrk[i] = (TH1D*)finput->Get(Form("%suemix_%s", inputObs[iObs].c_str(), tag.c_str()));
-            h_bJet[i] = (TH1D*)finput->Get(Form("%sjetmix_%s", inputObs[iObs].c_str(), tag.c_str()));
-            h_bJet_bTrk[i] = (TH1D*)finput->Get(Form("%sjetmixue_%s", inputObs[iObs].c_str(), tag.c_str()));
-            h_bPho[i] = (TH1D*)finput->Get(Form("%ssideband_%s", inputObs[iObs].c_str(), tag.c_str()));
-            h_bPho_bTrk[i] = (TH1D*)finput->Get(Form("%suemixsideband_%s", inputObs[iObs].c_str(), tag.c_str()));
-            h_bPho_bJet[i] = (TH1D*)finput->Get(Form("%sjetmixsideband_%s", inputObs[iObs].c_str(), tag.c_str()));
-            h_bPho_bJet_bTrk[i] = (TH1D*)finput->Get(Form("%sjetmixuesideband_%s", inputObs[iObs].c_str(), tag.c_str()));
+            hgjt[r][r][b] = (TH1D*)finput->Get(Form("%suemix_%s", inputObs[iObs].c_str(), tag.c_str()));
+            hgjt[r][b][r] = (TH1D*)finput->Get(Form("%sjetmix_%s", inputObs[iObs].c_str(), tag.c_str()));
+            hgjt[r][b][b] = (TH1D*)finput->Get(Form("%sjetmixue_%s", inputObs[iObs].c_str(), tag.c_str()));
+            hgjt[b][r][r] = (TH1D*)finput->Get(Form("%ssideband_%s", inputObs[iObs].c_str(), tag.c_str()));
+            hgjt[b][r][b] = (TH1D*)finput->Get(Form("%suemixsideband_%s", inputObs[iObs].c_str(), tag.c_str()));
+            hgjt[b][b][r] = (TH1D*)finput->Get(Form("%sjetmixsideband_%s", inputObs[iObs].c_str(), tag.c_str()));
+            hgjt[b][b][b] = (TH1D*)finput->Get(Form("%sjetmixuesideband_%s", inputObs[iObs].c_str(), tag.c_str()));
 
-            h_sTrk[i] = (TH1D*)h[i]->Clone(Form("%s_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
-            h_bJet_sTrk[i] = (TH1D*)h_bJet[i]->Clone(Form("%s_jet_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
-            h_bPho_sTrk[i] = (TH1D*)h_bPho[i]->Clone(Form("%s_sb_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
-            h_bPho_bJet_sTrk[i] = (TH1D*)h_bPho_bJet[i]->Clone(Form("%s_jet_sb_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
+            hgjt[r][r][s] = (TH1D*)hgjt[r][r][r]->Clone(Form("%s_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
+            hgjt[r][b][s] = (TH1D*)hgjt[r][b][r]->Clone(Form("%s_jet_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
+            hgjt[b][r][s] = (TH1D*)hgjt[b][r][r]->Clone(Form("%s_sb_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
+            hgjt[b][b][s] = (TH1D*)hgjt[b][b][r]->Clone(Form("%s_jet_sb_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
 
-            h_sTrk[i]->Add(h_bTrk[i], -1);
-            h_bJet_sTrk[i]->Add(h_bJet_bTrk[i], -1);
-            h_bPho_sTrk[i]->Add(h_bPho_bTrk[i], -1);
-            h_bPho_bJet_sTrk[i]->Add(h_bPho_bJet_bTrk[i], -1);
+            hgjt[r][r][s]->Add(hgjt[r][r][b], -1);
+            hgjt[r][b][s]->Add(hgjt[r][b][b], -1);
+            hgjt[b][r][s]->Add(hgjt[b][r][b], -1);
+            hgjt[b][b][s]->Add(hgjt[b][b][b], -1);
 
-            h_sJet_sTrk[i] = (TH1D*)h_sTrk[i]->Clone(Form("%s_signal_%s", outputObs[iObs].c_str(), tag.c_str()));
-            h_bPho_sJet_sTrk[i] = (TH1D*)h_bPho_sTrk[i]->Clone(Form("%s_sideband_%s", outputObs[iObs].c_str(), tag.c_str()));
+            hgjt[r][s][s] = (TH1D*)hgjt[r][r][s]->Clone(Form("%s_signal_%s", outputObs[iObs].c_str(), tag.c_str()));
+            hgjt[b][s][s] = (TH1D*)hgjt[b][r][s]->Clone(Form("%s_sideband_%s", outputObs[iObs].c_str(), tag.c_str()));
 
-            h_sJet_sTrk[i]->Add(h_bJet_sTrk[i], -1);
-            h_sJet_sTrk[i]->Scale(1.0/(hjetpt[i]->Integral() - hjetpt_mix[i]->Integral()));
-            h_bPho_sJet_sTrk[i]->Add(h_bPho_bJet_sTrk[i], -1);
-            h_bPho_sJet_sTrk[i]->Scale(1.0/(hjetpt_sb[i]->Integral() - hjetpt_mix_sb[i]->Integral()));
+            hgjt[r][s][s]->Add(hgjt[r][b][s], -1);
+            hgjt[r][s][s]->Scale(1.0/(hjetpt[r][r]->Integral() - hjetpt[r][b]->Integral()));
+            hgjt[b][s][s]->Add(hgjt[b][b][s], -1);
+            hgjt[b][s][s]->Scale(1.0/(hjetpt[b][r]->Integral() - hjetpt[b][b]->Integral()));
 
-            h_sPho_sJet_sTrk[i] = (TH1D*)h_sJet_sTrk[i]->Clone(Form("%s_final_%s", outputObs[iObs].c_str(), tag.c_str()));
+            hgjt[s][s][s] = (TH1D*)hgjt[r][s][s]->Clone(Form("%s_final_%s", outputObs[iObs].c_str(), tag.c_str()));
 
-            h_sPho_sJet_sTrk[i]->Scale(1.0/purity[i]);
-            h_sPho_sJet_sTrk[i]->Add(h_bPho_sJet_sTrk[i], (purity[i] - 1.0)/purity[i]);
+            hgjt[s][s][s]->Scale(1.0/purity[i]);
+            hgjt[s][s][s]->Add(hgjt[b][s][s], (purity[i] - 1.0)/purity[i]);
 
-            h_sPho_sJet_sTrk[i]->Scale(1.0, "width");
+            hgjt[s][s][s]->Scale(1.0, "width");
 
             // write the objects explicitly
-            h_sTrk[i]->Write("",TObject::kOverwrite);
-            h_bJet_sTrk[i]->Write("",TObject::kOverwrite);
-            h_bPho_sTrk[i]->Write("",TObject::kOverwrite);
-            h_bPho_bJet_sTrk[i]->Write("",TObject::kOverwrite);
+            hgjt[r][r][s]->Write("",TObject::kOverwrite);
+            hgjt[r][b][s]->Write("",TObject::kOverwrite);
+            hgjt[b][r][s]->Write("",TObject::kOverwrite);
+            hgjt[b][b][s]->Write("",TObject::kOverwrite);
 
-            h_sJet_sTrk[i]->Write("",TObject::kOverwrite);
-            h_bPho_sJet_sTrk[i]->Write("",TObject::kOverwrite);
+            hgjt[r][s][s]->Write("",TObject::kOverwrite);
+            hgjt[b][s][s]->Write("",TObject::kOverwrite);
 
-            h_sPho_sJet_sTrk[i]->Write("",TObject::kOverwrite);
+            hgjt[s][s][s]->Write("",TObject::kOverwrite);
         }
     }
 
     // photon+jet observables
-    TH1D* hphopt[6] = {0};
-    TH1D* hphopt_sb[6] = {0};
+    TH1D* hphopt[kN_RBS] = {0};
 
-    TH1D* hgj[6] = {0};
-    TH1D* hgj_jet[6] = {0};
-    TH1D* hgj_sb[6] = {0};
-    TH1D* hgj_jet_sb[6] = {0};
-
-    TH1D* hgj_sub[6] = {0};
-    TH1D* hgj_jet_sub[6] = {0};
-    TH1D* hgj_sb_sub[6] = {0};
-    TH1D* hgj_jet_sb_sub[6] = {0};
-
-    TH1D* hgj_signal[6] = {0};
-    TH1D* hgj_sideband[6] = {0};
-
-    TH1D* hgj_final[6] = {0};
+    TH1D* hgj[kN_RBS][kN_RBS] = {0};
 
     std::vector<std::string> inputObsgj = {"hjetpt", "hdphijg", "hxjg", "hjetptrebin", "hjeteta"};
     std::vector<std::string> outputObsgj = {"hjetpt", "hdphijg", "hxjg", "hjetptrebin", "hjeteta"};
@@ -341,68 +317,52 @@ int draw_ff_js(std::string sample, std::string type, const char* fname, const ch
         for (int i=0; i<6; ++i) {
             std::string tag = Form("%s_%s_%i_%i", sample.c_str(), type.c_str(), min_hiBin[i], max_hiBin[i]);
 
-            hphopt[i] = (TH1D*)finput->Get(Form("hphopt_%s", tag.c_str()));
-            hphopt_sb[i] = (TH1D*)finput->Get(Form("hphoptsideband_%s", tag.c_str()));
+            hphopt[r] = (TH1D*)finput->Get(Form("hphopt_%s", tag.c_str()));
+            hphopt[b] = (TH1D*)finput->Get(Form("hphoptsideband_%s", tag.c_str()));
 
-            hgj[i] = 0;
-            hgj[i] = (TH1D*)finput->Get(Form("%s_%s", inputObsgj[iObs].c_str(), tag.c_str()));
-            if (hgj[i] == 0)  continue;
+            hgj[r][r] = 0;
+            hgj[r][r] = (TH1D*)finput->Get(Form("%s_%s", inputObsgj[iObs].c_str(), tag.c_str()));
+            if (hgj[r][r] == 0)  continue;
 
-            hgj_jet[i] = (TH1D*)finput->Get(Form("%sjetmix_%s", inputObsgj[iObs].c_str(), tag.c_str()));
-            hgj_sb[i] = (TH1D*)finput->Get(Form("%ssideband_%s", inputObsgj[iObs].c_str(), tag.c_str()));
-            hgj_jet_sb[i] = (TH1D*)finput->Get(Form("%sjetmixsideband_%s", inputObsgj[iObs].c_str(), tag.c_str()));
+            hgj[r][b] = (TH1D*)finput->Get(Form("%sjetmix_%s", inputObsgj[iObs].c_str(), tag.c_str()));
+            hgj[b][r] = (TH1D*)finput->Get(Form("%ssideband_%s", inputObsgj[iObs].c_str(), tag.c_str()));
+            hgj[b][b] = (TH1D*)finput->Get(Form("%sjetmixsideband_%s", inputObsgj[iObs].c_str(), tag.c_str()));
 
             // normalize by the number of photons
-            hgj[i]->Scale(1.0/hphopt[i]->Integral());
-            hgj_jet[i]->Scale(1.0/hphopt[i]->Integral());
-            hgj_sb[i]->Scale(1.0/hphopt_sb[i]->Integral());
-            hgj_jet_sb[i]->Scale(1.0/hphopt_sb[i]->Integral());
+            hgj[r][r]->Scale(1.0/hphopt[r]->Integral(), "width");
+            hgj[r][b]->Scale(1.0/hphopt[r]->Integral(), "width");
+            hgj[b][r]->Scale(1.0/hphopt[b]->Integral(), "width");
+            hgj[b][b]->Scale(1.0/hphopt[b]->Integral(), "width");
 
-            hgj[i]->Scale(1, "width");
-            hgj_jet[i]->Scale(1, "width");
-            hgj_sb[i]->Scale(1, "width");
-            hgj_jet_sb[i]->Scale(1, "width");
+            hgj[r][s] = (TH1D*)hgj[r][r]->Clone(Form("%s_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
+            hgj[b][s] = (TH1D*)hgj[b][r]->Clone(Form("%s_sb_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
 
-            hgj_sub[i] = (TH1D*)hgj[i]->Clone(Form("%s_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
-            hgj_jet_sub[i] = (TH1D*)hgj_jet[i]->Clone(Form("%s_jet_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
-            hgj_sb_sub[i] = (TH1D*)hgj_sb[i]->Clone(Form("%s_sb_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
-            hgj_jet_sb_sub[i] = (TH1D*)hgj_jet_sb[i]->Clone(Form("%s_jet_sb_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
+            hgj[r][s]->Add(hgj[r][b], -1);
+            hgj[b][s]->Add(hgj[b][b], -1);
 
-            hgj_sub[i]->Add(hgj_jet_sub[i], -1);
-            hgj_sb_sub[i]->Add(hgj_jet_sb_sub[i], -1);
+            hgj[s][s] = (TH1D*)hgj[r][s]->Clone(Form("%s_final_%s", outputObsgj[iObs].c_str(), tag.c_str()));
 
-            hgj_signal[i] = (TH1D*)hgj_sub[i]->Clone(Form("%s_signal_%s", outputObsgj[iObs].c_str(), tag.c_str()));
-            hgj_sideband[i] = (TH1D*)hgj_sb_sub[i]->Clone(Form("%s_sideband_%s", outputObsgj[iObs].c_str(), tag.c_str()));
-
-            hgj_final[i] = (TH1D*)hgj_signal[i]->Clone(Form("%s_final_%s", outputObsgj[iObs].c_str(), tag.c_str()));
-
-            hgj_final[i]->Scale(1.0/purity[i]);
-            hgj_final[i]->Add(hgj_sideband[i], (purity[i] - 1.0)/purity[i]);
+            hgj[s][s]->Scale(1.0/purity[i]);
+            hgj[s][s]->Add(hgj[b][s], (purity[i] - 1.0)/purity[i]);
 
             // dphi normalization
             if (inputObsgj[iObs] == "hdphijg") {
-                hgj_final[i]->Scale(1. / hgj_final[i]->Integral(), "width");
+                hgj[s][s]->Scale(1. / hgj[s][s]->Integral(), "width");
             }
 
             // write the objects explicitly
             // normalized versions of the histograms in "_merged.root" file.
-            hgj[i]->Write(Form("%s_norm", hgj[i]->GetName()),TObject::kOverwrite);
-            hgj_jet[i]->Write(Form("%s_norm", hgj_jet[i]->GetName()),TObject::kOverwrite);
-            hgj_sb[i]->Write(Form("%s_norm", hgj_sb[i]->GetName()),TObject::kOverwrite);
-            hgj_jet_sb[i]->Write(Form("%s_norm", hgj_jet_sb[i]->GetName()),TObject::kOverwrite);
+            hgj[r][r]->Write(Form("%s_norm", hgj[r][r]->GetName()),TObject::kOverwrite);
+            hgj[r][b]->Write(Form("%s_norm", hgj[r][b]->GetName()),TObject::kOverwrite);
+            hgj[b][r]->Write(Form("%s_norm", hgj[b][r]->GetName()),TObject::kOverwrite);
+            hgj[b][b]->Write(Form("%s_norm", hgj[b][b]->GetName()),TObject::kOverwrite);
 
-            hgj_sub[i]->Write("",TObject::kOverwrite);
-            hgj_jet_sub[i]->Write("",TObject::kOverwrite);
-            hgj_sb_sub[i]->Write("",TObject::kOverwrite);
-            hgj_jet_sb_sub[i]->Write("",TObject::kOverwrite);
+            hgj[r][s]->Write("",TObject::kOverwrite);
+            hgj[b][s]->Write("",TObject::kOverwrite);
 
-            hgj_signal[i]->Write("",TObject::kOverwrite);
-            hgj_sideband[i]->Write("",TObject::kOverwrite);
-
-            hgj_final[i]->Write("",TObject::kOverwrite);
+            hgj[s][s]->Write("",TObject::kOverwrite);
         }
     }
-
 
     fout->Write("", TObject::kOverwrite);
     fout->Close();
