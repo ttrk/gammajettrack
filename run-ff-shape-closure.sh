@@ -14,7 +14,7 @@ gammaxi=$5
 obs=$6
 sample=$7
 label=$8
-recogenTypes=${@:9}
+recogenLevels=${@:9}
 
 echo "phoetMin = $phoetMin"
 echo "phoetMax = $phoetMax"
@@ -24,7 +24,7 @@ echo "gammaxi  = $gammaxi"
 echo "obs      = $obs"
 echo "sample   = $sample"
 echo "label    = $label"
-echo "recogenTypes = $recogenTypes"
+echo "recogenLevels = $recogenLevels"
 
 if [ $sample = "pbpbmc" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170911.root"
@@ -41,24 +41,24 @@ g++ jetffshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetffshape.
 set -x
 
 echo running closure histograms
-for recogen in $recogenTypes; do
-  if [ ! -f ${label}_${sample}_${phoetMin}_${phoetMax}_gxi${gammaxi}_obs${obs}_${recogen}_ffjs.root ]; then
+for rgLevel in $recogenLevels; do
+  if [ ! -f ${label}_${sample}_${phoetMin}_${phoetMax}_gxi${gammaxi}_obs${obs}_${rgLevel}_ffjs.root ]; then
     hiBinMins=(0  20 60  100)
     hiBinMaxs=(20 60 100 200)
     for i1 in ${!hiBinMins[*]}
     do
       hiBinMin=${hiBinMins[i1]}
       hiBinMax=${hiBinMaxs[i1]}
-     ./jetffshape.exe $SKIM $sample $hiBinMin $hiBinMax $phoetMin $phoetMax $jetptMin $recogen $trkptMin $gammaxi $label 0 $obs &
+     ./jetffshape.exe $SKIM $sample $hiBinMin $hiBinMax $phoetMin $phoetMax $jetptMin $rgLevel  $trkptMin $gammaxi $label 0 $obs &
     done
   fi
 done
 wait
 
-for recogen in $recogenTypes; do
-  if [ ! -f ${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_${recogen}_ffjs.root ]; then
-    hadd -f ${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_${recogen}_ffjs.root ${label}_${sample}_${recogen}_${phoetMin}_${jetptMin}_${gammaxi}_${obs}_*_*.root
-    rm ${label}_${sample}_${recogen}_${phoetMin}_${jetptMin}_${gammaxi}_${obs}_*_*.root
+for rgLevel in $recogenLevels; do
+  if [ ! -f ${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_${rgLevel}_ffjs.root ]; then
+    hadd -f ${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_${rgLevel}_ffjs.root ${label}_${sample}_${rgLevel}_${phoetMin}_${jetptMin}_${gammaxi}_${obs}_*_*.root
+    rm ${label}_${sample}_${rgLevel}_${phoetMin}_${jetptMin}_${gammaxi}_${obs}_*_*.root
   fi
 done
 
