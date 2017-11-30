@@ -207,8 +207,8 @@ int draw_ff_js(std::string sample, std::string type, const char* fname, const ch
         }
     }
 
-    std::vector<std::string> inputObs = {"hff", "hffLR", "hffLRAway", "hdphiProjNR", "hdphiProjLR"};
-    std::vector<std::string> outputObs = {"hff", "hffLR", "hffLRAway", "hdphiProjNR", "hdphiProjLR"};
+    std::vector<std::string> inputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsLR", "hjsLRAway", "hdphiProjNR", "hdphiProjLR"};
+    std::vector<std::string> outputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsLR", "hjsLRAway", "hdphiProjNR", "hdphiProjLR"};
     for (int iPt = 0; iPt < 8; ++iPt) {
         inputObs.push_back(Form("hdphiProjNRptBin%d", iPt));
         outputObs.push_back(Form("hdphiProjNRptBin%d", iPt));
@@ -284,6 +284,10 @@ int draw_ff_js(std::string sample, std::string type, const char* fname, const ch
             hgjt[s][s][s]->Add(hgjt[b][s][s], (purity[i] - 1.0)/purity[i]);
 
             hgjt[s][s][s]->Scale(1.0, "width");
+            bool isJetShape = (inputObs[i].find("hjs") != std::string::npos);
+            if (isJetShape) {
+                hgjt[s][s][s]->Scale(1.0 / hgjt[s][s][s]->Integral(1, hgjt[s][s][s]->FindBin(0.3)-1), "width");
+            }
 
             // write the objects explicitly
             hgjt[r][r][s]->Write("",TObject::kOverwrite);
