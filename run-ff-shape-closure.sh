@@ -26,9 +26,9 @@ echo "sample   = $sample"
 echo "label    = $label"
 echo "recogenTypes = $recogenTypes"
 
-if [ $7 = "pbpbmc" ]; then
+if [ $sample = "pbpbmc" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170911.root"
-elif [ $7 = "ppmc" ]; then
+elif [ $sample = "ppmc" ]; then
     SKIM="/export/d00/scratch/tatar/GJT-out/pp-MC-skim-170911.root"
 else
     echo "invalid sample"
@@ -49,7 +49,7 @@ for recogen in $recogenTypes; do
     do
       hiBinMin=${hiBinMins[i1]}
       hiBinMax=${hiBinMaxs[i1]}
-     ./jetffshape.exe $SKIM $7 $hiBinMin $hiBinMax $phoetMin $phoetMax $jetptMin $recogen $trkptMin $gammaxi $label 0 $obs &
+     ./jetffshape.exe $SKIM $sample $hiBinMin $hiBinMax $phoetMin $phoetMax $jetptMin $recogen $trkptMin $gammaxi $label 0 $obs &
     done
   fi
 done
