@@ -14,7 +14,7 @@ echo "gammaxi  = $5"
 echo "defnFF   = $6"
 echo "sample   = $7"
 echo "label    = $8"
-echo "types    = $9"
+echo "types    = ${@:9}"
 
 if [ $7 = "pbpbmc" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170911.root"
@@ -33,25 +33,29 @@ set -x
 echo running closure histograms
 for i in ${@:9}; do
   if [ ! -f ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_${i}_ff.root ]; then
-    ./jetffshape.exe $SKIM $7 0 20 $1 $2 $3 $i $4 $5 $8 0 $6 &
-    ./jetffshape.exe $SKIM $7 20 60 $1 $2 $3 $i $4 $5 $8 0 $6 &
-    ./jetffshape.exe $SKIM $7 60 100 $1 $2 $3 $i $4 $5 $8 0 $6 &
-    ./jetffshape.exe $SKIM $7 100 200 $1 $2 $3 $i $4 $5 $8 0 $6 &
+    hiBinMins=(0  20 60  100)
+    hiBinMaxs=(20 60 100 200)
+    for i1 in ${!hiBinMins[*]}
+    do
+      hiBinMin=${hiBinMins[i1]}
+      hiBinMax=${hiBinMaxs[i1]}
+     ./jetffshape.exe $SKIM $7 $hiBinMin $hiBinMax $1 $2 $3 $i $4 $5 $8 0 $6 &
+    done
   fi
 done
 wait
 
 for i in ${@:9}; do
-  if [ ! -f ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_${i}_ff.root ]; then
-    hadd -f ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_${i}_ff.root ${8}_${7}_${i}_${1}_${3}_${5}_${6}_*_*.root
+  if [ ! -f ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_${i}_ffjs.root ]; then
+    hadd -f ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_${i}_ffjs.root ${8}_${7}_${i}_${1}_${3}_${5}_${6}_*_*.root
     rm ${8}_${7}_${i}_${1}_${3}_${5}_${6}_*_*.root
   fi
 done
 
-./run-ff-shape-plot.sh $@
+#./run-ff-shape-plot.sh $@
 
 outDir="/export/d00/scratch/"$USER"/GJT-out/results/closure/"
 mkdir -p $outDir
-mv ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_*_ff.root $outDir
-mv ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_ff_merged.root $outDir
-mv ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_ff_final.root $outDir
+mv ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_*_ffjs.root $outDir
+mv ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_ffjs_merged.root $outDir
+mv ${8}_${7}_${1}_${3}_gxi${5}_defnFF${6}_ffjs_final.root $outDir
