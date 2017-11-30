@@ -1,37 +1,40 @@
 #!/bin/bash
 
-if [ $# -lt 9 ]; then
-  echo "Usage: ./run-ff-shape-closure-condor.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [obs] [sample] [label] [types...]"
-  echo "Example: ./run-ff-shape-closure-condor.sh 80 1000 40 1 0 1 pbpbmc ffclosure sgengen sgenreco recogen recoreco &> logFile &"
+if [ $# -lt 10 ]; then
+  echo "Usage: ./run-ff-shape-closure-condor.sh [outputDir] [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [obs] [sample] [label] [types...]"
+  echo "Example: ./run-ff-shape-closure-condor.sh /mnt/hadoop/cms/store/user/${USER}/GJT-out/results/closure/ 80 1000 40 1 0 1 pbpbmc ffclosure sgengen sgenreco recogen recoreco &> logFile &"
   exit 1
 fi
 
 # transfer the standard out to a log file and then grep the condor submission commands via
 # grep "condor_submit" <logfile>
 
-phoetMin=$1
-phoetMax=$2
-jetptMin=$3
-trkptMin=$4
-gammaxi=$5
-obs=$6
-sample=$7
-label=$8
-recogenLevels=${@:9}
+outputDir=$1
+phoetMin=$2
+phoetMax=$3
+jetptMin=$4
+trkptMin=$5
+gammaxi=$6
+obs=$7
+sample=$8
+label=$9
+recogenLevels=${@:10}
 
-#outputDir="/mnt/hadoop/cms/store/user/"$USER"/GJT-out/results/closure/"
-outputDir="/mnt/hadoop/cms/store/user/katatar/GJT-out/results/closure/"
-
-echo "phoetMin = $phoetMin"
-echo "phoetMax = $phoetMax"
-echo "jetptMin = $jetptMin"
-echo "trkptMin = $trkptMin"
-echo "gammaxi  = $gammaxi"
-echo "obs      = $obs"
-echo "sample   = $sample"
-echo "label    = $label"
-echo "recogenLevels = $recogenLevels"
 echo "outputDir = $outputDir"
+echo "phoetMin  = $phoetMin"
+echo "phoetMax  = $phoetMax"
+echo "jetptMin  = $jetptMin"
+echo "trkptMin  = $trkptMin"
+echo "gammaxi   = $gammaxi"
+echo "obs       = $obs"
+echo "sample    = $sample"
+echo "label     = $label"
+echo "recogenLevels = $recogenLevels"
+
+if [[ $outputDir != /mnt/hadoop/* ]]; then
+    echo "output directory must be under /mnt/hadoop/"
+    exit 1
+fi
 
 if [ $sample = "pbpbmc" ]; then
     SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/PbPb-MC-skim-170911.root"
