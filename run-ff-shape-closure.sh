@@ -6,15 +6,25 @@ if [ $# -lt 9 ]; then
   exit 1
 fi
 
-echo "phoetmin = $1"
-echo "phoetmax = $2"
-echo "jetptmin = $3"
-echo "trkptmin = $4"
-echo "gammaxi  = $5"
-echo "defnFFJS = $6"
-echo "sample   = $7"
-echo "label    = $8"
-echo "types    = ${@:9}"
+phoetMin=$1
+phoetMax=$2
+jetptMin=$3
+trkptMin=$4
+gammaxi=$5
+defnFFJS=$6
+sample=$7
+label=$8
+recogenTypes=${@:9}
+
+echo "phoetMin = $phoetMin"
+echo "phoetMax = $phoetMax"
+echo "jetptMin = $jetptMin"
+echo "trkptMin = $trkptMin"
+echo "gammaxi  = $gammaxi"
+echo "defnFFJS = $defnFFJS"
+echo "sample   = $sample"
+echo "label    = $label"
+echo "recogenTypes = $recogenTypes"
 
 if [ $7 = "pbpbmc" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170911.root"
@@ -31,24 +41,24 @@ g++ jetffshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetffshape.
 set -x
 
 echo running closure histograms
-for i in ${@:9}; do
-  if [ ! -f ${8}_${7}_${1}_${3}_gxi${5}_defnFFJS${6}_${i}_ff.root ]; then
+for recogen in $recogenTypes; do
+  if [ ! -f ${label}_${sample}_${phoetMin}_${phoetMax}_gxi${gammaxi}_defnFFJS${defnFFJS}_${recogen}_ffjs.root ]; then
     hiBinMins=(0  20 60  100)
     hiBinMaxs=(20 60 100 200)
     for i1 in ${!hiBinMins[*]}
     do
       hiBinMin=${hiBinMins[i1]}
       hiBinMax=${hiBinMaxs[i1]}
-     ./jetffshape.exe $SKIM $7 $hiBinMin $hiBinMax $1 $2 $3 $i $4 $5 $8 0 $6 &
+     ./jetffshape.exe $SKIM $7 $hiBinMin $hiBinMax $phoetMin $phoetMax $jetptMin $recogen $trkptMin $gammaxi $label 0 $defnFFJS &
     done
   fi
 done
 wait
 
-for i in ${@:9}; do
-  if [ ! -f ${8}_${7}_${1}_${3}_gxi${5}_defnFFJS${6}_${i}_ffjs.root ]; then
-    hadd -f ${8}_${7}_${1}_${3}_gxi${5}_defnFFJS${6}_${i}_ffjs.root ${8}_${7}_${i}_${1}_${3}_${5}_${6}_*_*.root
-    rm ${8}_${7}_${i}_${1}_${3}_${5}_${6}_*_*.root
+for recogen in $recogenTypes; do
+  if [ ! -f ${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_defnFFJS${defnFFJS}_${recogen}_ffjs.root ]; then
+    hadd -f ${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_defnFFJS${defnFFJS}_${recogen}_ffjs.root ${label}_${sample}_${recogen}_${phoetMin}_${jetptMin}_${gammaxi}_${defnFFJS}_*_*.root
+    rm ${label}_${sample}_${recogen}_${phoetMin}_${jetptMin}_${gammaxi}_${defnFFJS}_*_*.root
   fi
 done
 
@@ -56,6 +66,6 @@ done
 
 outDir="/export/d00/scratch/"$USER"/GJT-out/results/closure/"
 mkdir -p $outDir
-mv ${8}_${7}_${1}_${3}_gxi${5}_defnFFJS${6}_*_ffjs.root $outDir
-mv ${8}_${7}_${1}_${3}_gxi${5}_defnFFJS${6}_ffjs_merged.root $outDir
-mv ${8}_${7}_${1}_${3}_gxi${5}_defnFFJS${6}_ffjs_final.root $outDir
+mv ${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_defnFFJS${defnFFJS}_*_ffjs.root $outDir
+mv ${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_defnFFJS${defnFFJS}_ffjs_merged.root $outDir
+mv ${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_defnFFJS${defnFFJS}_ffjs_final.root $outDir
