@@ -251,6 +251,9 @@ int draw_ff_js(std::string sample, std::string type, const char* fname, const ch
             hgjt[r][r][r] = 0;
             hgjt[r][r][r] = (TH1D*)finput->Get(Form("%s_%s", inputObs[iObs].c_str(), tag.c_str()));
             if (hgjt[r][r][r] == 0)  continue;
+            else if (i == 0) {
+                std::cout << "working on gjt obs = " << inputObs[iObs].c_str() << std::endl;
+            }
 
             hgjt[r][r][b] = (TH1D*)finput->Get(Form("%suemix_%s", inputObs[iObs].c_str(), tag.c_str()));
             hgjt[r][b][r] = (TH1D*)finput->Get(Form("%sjetmix_%s", inputObs[iObs].c_str(), tag.c_str()));
@@ -302,9 +305,10 @@ int draw_ff_js(std::string sample, std::string type, const char* fname, const ch
         }
     }
 
-    // photon+jet observables
+    // raw, bkg, sig : photon
     TH1D* hphopt[kN_RBS] = {0};
 
+    // photon+jet observables
     TH1D* hgj[kN_RBS][kN_RBS] = {0};
 
     std::vector<std::string> inputObsgj = {"hjetpt", "hdphijg", "hxjg", "hjetptrebin", "hjeteta"};
@@ -318,6 +322,7 @@ int draw_ff_js(std::string sample, std::string type, const char* fname, const ch
     int nObsgj = inputObsgj.size();
 
     for (int iObs = 0; iObs < nObsgj; ++iObs) {
+
         for (int i=0; i<6; ++i) {
             std::string tag = Form("%s_%s_%i_%i", sample.c_str(), type.c_str(), min_hiBin[i], max_hiBin[i]);
 
@@ -327,6 +332,9 @@ int draw_ff_js(std::string sample, std::string type, const char* fname, const ch
             hgj[r][r] = 0;
             hgj[r][r] = (TH1D*)finput->Get(Form("%s_%s", inputObsgj[iObs].c_str(), tag.c_str()));
             if (hgj[r][r] == 0)  continue;
+            else if (i == 0) {
+                std::cout << "working on gj obs = " << inputObsgj[iObs].c_str() << std::endl;
+            }
 
             hgj[r][b] = (TH1D*)finput->Get(Form("%sjetmix_%s", inputObsgj[iObs].c_str(), tag.c_str()));
             hgj[b][r] = (TH1D*)finput->Get(Form("%ssideband_%s", inputObsgj[iObs].c_str(), tag.c_str()));
