@@ -100,11 +100,11 @@ int plot_js(const char* input, const char* plot_name, const char* hist_list, int
 
             set_axis_style(h1[i][k], i, 0);
             switch (option) {
-                case 0:
+                case 1:
                     h1[i][k]->SetAxisRange(0.05, 50, "Y");
                     break;
-                case 1:
-                    h1[i][k]->SetAxisRange(0, 0.3, "X");
+                case 0:
+                    h1[i][k]->SetAxisRange(0, 0.29, "X");
                     h1[i][k]->SetAxisRange(0.05, 50, "Y");
                     break;
                 case 2:
@@ -187,11 +187,11 @@ int plot_js(const char* input, const char* plot_name, const char* hist_list, int
 
                 set_axis_style(hratio[i][r], i, 1);
                 switch (option) {
-                    case 0:
+                    case 1:
                         hratio[i][r]->SetAxisRange(0, 3, "Y");
                         break;
-                    case 1:
-                        hratio[i][r]->SetAxisRange(0, 0.3, "X");
+                    case 0:
+                        hratio[i][r]->SetAxisRange(0, 0.29, "X");
                         hratio[i][r]->SetAxisRange(0, 3, "Y");
                         break;
                     case 2:
