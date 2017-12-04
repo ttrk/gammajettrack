@@ -10,6 +10,8 @@
 
 TRandom3 smear_rand(12345);
 
+int sysLR = 13;
+
 float lowxi_jec[4] = {1.073, 1.079, 1.083, 1.074};
 float midxi_jec[4] = {1.0514, 1.0478, 1.0483, 1.0471};
 
@@ -84,6 +86,42 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hjetshape_jetdr[2];
   hjetshape_jetdr[0] = new TH1D(Form("hjetshape_jetdr_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";dr;", 20, 0, 1);
   hjetshape_jetdr[1] = new TH1D(Form("hjetshape_jetdr_mix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";dr;", 20, 0, 1);
+
+  // long range correlation histograms
+  TH1D* hjetshapeLR[2]; TH1D* hjetshapeLR_ue[2];
+  TH1D* hjetshapeLRAway[2]; TH1D* hjetshapeLRAway_ue[2];
+  TH1D* hjetshapeLR_mixjet[2]; TH1D* hjetshapeLR_mixsig[2];
+  TH1D* hjetshapeLRAway_mixjet[2]; TH1D* hjetshapeLRAway_mixsig[2];
+  TH1D* hjetshapeLR_mix_ue[2];
+  TH1D* hjetshapeLRAway_mix_ue[2];
+
+  if (systematic == sysLR) {
+      hjetshapeLR[0] = new TH1D(Form("hjetshapeLR_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLR[1] = new TH1D(Form("hjetshapeLR_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLR_ue[0] = new TH1D(Form("hjetshapeLR_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLR_ue[1] = new TH1D(Form("hjetshapeLR_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+
+      hjetshapeLRAway[0] = new TH1D(Form("hjetshapeLRAway_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLRAway[1] = new TH1D(Form("hjetshapeLRAway_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLRAway_ue[0] = new TH1D(Form("hjetshapeLRAway_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLRAway_ue[1] = new TH1D(Form("hjetshapeLRAway_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+
+      hjetshapeLR_mixjet[0] = new TH1D(Form("hjetshapeLR_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLR_mixjet[1] = new TH1D(Form("hjetshapeLR_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLR_mixsig[0] = new TH1D(Form("hjetshapeLR_mixsig_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLR_mixsig[1] = new TH1D(Form("hjetshapeLR_mixsig_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+
+      hjetshapeLRAway_mixjet[0] = new TH1D(Form("hjetshapeLRAway_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLRAway_mixjet[1] = new TH1D(Form("hjetshapeLRAway_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLRAway_mixsig[0] = new TH1D(Form("hjetshapeLRAway_mixsig_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLRAway_mixsig[1] = new TH1D(Form("hjetshapeLRAway_mixsig_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+
+      hjetshapeLR_mix_ue[0] = new TH1D(Form("hjetshapeLR_mix_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLR_mix_ue[1] = new TH1D(Form("hjetshapeLR_mix_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+
+      hjetshapeLRAway_mix_ue[0] = new TH1D(Form("hjetshapeLRAway_mix_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+      hjetshapeLRAway_mix_ue[1] = new TH1D(Form("hjetshapeLRAway_mix_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  }
 
   /* Q/G JES */
   TF1* f_JES_Q[4] = {0};
@@ -165,6 +203,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   }
 
   int nsmear = 1;
+  float weightLR = TMath::Pi()*0.3*0.3 / ((2.4-1.5)*2*0.3);
 
   if (isPP && jet_type_is("sreco", genlevel))
     nsmear = _NSMEAR_PP;
@@ -180,7 +219,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   else { tracking_sys = 1; }
 
   // main loop
-  for (int64_t jentry = 0; jentry < nentries; jentry++) {
+  for (int64_t jentry = 0; jentry < 500; jentry++) {
     if (jentry % 10000 == 0) { printf("%li/%li\n", jentry, nentries); }
     int64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -363,6 +402,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             float deltar = sqrt(deltar2);
             hjetshape[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight);
           }
+          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+              if (rawjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
+                  float deltar = fabs(dphi);
+
+                  if (fabs(dphi) < 0.3) {
+                      hjetshapeLR[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
+                  }
+                  else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
+                      hjetshapeLRAway[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
+                  }
+              }
+          }
         }
 
         if (isPP) continue;
@@ -383,6 +434,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
             hjetshape_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue);
+          }
+          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+              if (rawjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
+                  float deltar = fabs(dphi);
+
+                  if (fabs(dphi) < 0.3) {
+                      hjetshapeLR_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
+                  }
+                  else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
+                      hjetshapeLRAway_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
+                  }
+              }
           }
         }
       }
@@ -512,6 +575,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             float deltar = sqrt(deltar2);
             hjetshape_mixsig[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight / nmixedevents_jet);
           }
+          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+              if (mixjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
+                  float deltar = fabs(dphi);
+
+                  if (fabs(dphi) < 0.3) {
+                      hjetshapeLR_mixsig[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
+                  }
+                  else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
+                      hjetshapeLRAway_mixsig[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
+                  }
+              }
+          }
         }
 
 after_mixsignal:
@@ -535,6 +610,18 @@ after_mixsignal:
             float deltar = sqrt(deltar2);
             hjetshape_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
           }
+          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+              if (mixjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
+                  float deltar = fabs(dphi);
+
+                  if (fabs(dphi) < 0.3) {
+                      hjetshapeLR_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
+                  }
+                  else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
+                      hjetshapeLRAway_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
+                  }
+              }
+          }
         }
 
         // mix jets - underlying event jetshape
@@ -553,6 +640,18 @@ after_mixsignal:
             float deltar = sqrt(deltar2);
             hjetshape_mix_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
           }
+          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+              if (mixjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
+                  float deltar = fabs(dphi);
+
+                  if (fabs(dphi) < 0.3) {
+                      hjetshapeLR_mix_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1) * weightLR);
+                  }
+                  else if (fabs(dphi) >= 0.3 && fabs(dphi) < 0.6) {
+                      hjetshapeLRAway_mix_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1) * weightLR);
+                  }
+              }
+          }
         }
       }
     }
@@ -568,13 +667,32 @@ after_mixsignal:
       correct_bin_errors(hjetshape_mixsig[r], nsmear);
       correct_bin_errors(hjetshape_ue[r], nsmear);
       correct_bin_errors(hjetshape_mix_ue[r], nsmear);
+
+      if (systematic == sysLR) {
+          correct_bin_errors(hjetshapeLR[r], nsmear);
+          correct_bin_errors(hjetshapeLR_ue[r], nsmear);
+          correct_bin_errors(hjetshapeLRAway[r], nsmear);
+          correct_bin_errors(hjetshapeLRAway_ue[r], nsmear);
+          correct_bin_errors(hjetshapeLR_mixjet[r], nsmear);
+          correct_bin_errors(hjetshapeLR_mixsig[r], nsmear);
+          correct_bin_errors(hjetshapeLRAway_mixjet[r], nsmear);
+          correct_bin_errors(hjetshapeLRAway_mixsig[r], nsmear);
+          correct_bin_errors(hjetshapeLR_mix_ue[r], nsmear);
+          correct_bin_errors(hjetshapeLRAway_mix_ue[r], nsmear);
+      }
     }
   }
 
   if (isHI) {
     for (int h=0; h<2; ++h) {
-      if (hjetpt_mixjet[h]->Integral())
-        hjetshape_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
+      if (hjetpt_mixjet[h]->Integral()) {
+          hjetshape_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
+
+          if (systematic == sysLR) {
+              hjetshapeLR_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
+              hjetshapeLRAway_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
+          }
+      }
       else
         printf("warning: for gen: %s, centmin: %i, centmax: %i, hjetpt_mixjet[%i] has integral 0\n", genlevel.c_str(), centmin, centmax, h);
     }
