@@ -12,11 +12,11 @@ make jetshape calc_systematics calc_ratio_systematics plot_js
 set -x
 
 echo "running data"
-./run-js-data.sh $@ both data
+./run-js-data.sh $@ both nominal
 
 echo "running systematics"
-./run-js-systematics.sh $@ pbpbdata data_pbpbdata_${1}_${3}_gxi${5}_js_final.root
-./run-js-systematics.sh $@ ppdata data_ppdata_${1}_${3}_gxi${5}_js_final.root
+./run-js-systematics.sh $@ pbpbdata nominal_pbpbdata_${1}_${3}_gxi${5}_js_final.root
+./run-js-systematics.sh $@ ppdata nominal_ppdata_${1}_${3}_gxi${5}_js_final.root
 
 echo "running ratio systematics"
 SYSHISTLIST=syshist_${1}_${3}_${5}.list
@@ -44,7 +44,7 @@ echo -e "data_${1}_${3}_gxi${5}-systematics.root" >> $SYSFILELIST
 rm $SYSHISTLIST
 rm $SYSFILELIST
 
-DATAFILE=data_data_${1}_${3}_gxi${5}_js_final.root
+DATAFILE=nominal_data_${1}_${3}_gxi${5}_js_final.root
 SYSFILE=data_${1}_${3}_gxi${5}-systematics.root
 
 echo "plotting final results"
@@ -65,6 +65,6 @@ echo -e "hjetshape_final_pbpbdata_recoreco_20_60" >> $PLOTLIST
 echo -e "hjetshape_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
 echo -e "hjetshape_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
-./plot_js data_data_${1}_${3}_gxi${5}_js_final.root final_js_${1}_${3}_gxi${5} $PLOTLIST 1 $5 $1 $3 0 data_${1}_${3}_gxi${5}-systematics.root
+./plot_js nominal_data_${1}_${3}_gxi${5}_js_final.root final_js_${1}_${3}_gxi${5} $PLOTLIST 1 $5 $1 $3 0 data_${1}_${3}_gxi${5}-systematics.root
 
 rm $PLOTLIST

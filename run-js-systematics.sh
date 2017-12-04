@@ -40,8 +40,8 @@ do
 done
 wait
 
-./draw_js $6 data_data_${1}_${3}_gxi${5}_js_merged.root purity_up_${6}_${1}_${3}_gxi${5}_js_final.root ${1} 2 $TYPE
-./draw_js $6 data_data_${1}_${3}_gxi${5}_js_merged.root purity_down_${6}_${1}_${3}_gxi${5}_js_final.root ${1} -2 $TYPE
+./draw_js $6 nominal_data_${1}_${3}_gxi${5}_js_merged.root purity_up_${6}_${1}_${3}_gxi${5}_js_final.root ${1} 2 $TYPE
+./draw_js $6 nominal_data_${1}_${3}_gxi${5}_js_merged.root purity_down_${6}_${1}_${3}_gxi${5}_js_final.root ${1} -2 $TYPE
 
 # isolation systematics
 ./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 0 20 $1 $2 $3 $TYPE $4 $5 nominal_iso 0 &
