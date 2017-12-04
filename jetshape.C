@@ -11,6 +11,7 @@
 TRandom3 smear_rand(12345);
 
 int sysLR = 13;
+int sysBkgEtaReflection = 22;
 
 float lowxi_jec[4] = {1.073, 1.079, 1.083, 1.074};
 float midxi_jec[4] = {1.0514, 1.0478, 1.0483, 1.0471};
@@ -144,6 +145,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   std::vector<float>* p_phi_mix;
   std::vector<float>* p_weight_mix;
 
+  // tracks to be used for UE subtraction
+  // points to different vectors depending on bkg subtraction method
+  int nip_UE;
+  std::vector<int>* p_ev_UE;
+  std::vector<float>* p_pt_UE;
+  std::vector<float>* p_eta_UE;
+  std::vector<float>* p_phi_UE;
+  std::vector<float>* p_weight_UE;
+  std::vector<int>* p_chg_UE;
+
   std::vector<float> dummy_trkweight(125000, 1);
 
   if (jet_type_is("reco", genlevel) || jet_type_is("sreco", genlevel)) {
@@ -272,6 +283,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       // jet eta cut
       if (fabs(rawjeteta) > 1.6) continue;
+      if (systematic == sysBkgEtaReflection && fabs(rawjeteta) < 0.3) continue;
 
       float res_pt = 0;
       float res_phi = 0;
@@ -400,25 +412,48 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         // raw jets - underlying event jetshape
         int nmixedevents_ue = (nmix + 2) / 3;
-        for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
-          if (((*p_ev_mix)[ip_mix]) % 3 != 0) continue;
-          if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
+        nip_UE = nip_mix;
+        p_ev_UE = p_ev_mix;
+        p_pt_UE = p_pt_mix;
+        p_eta_UE = p_eta_mix;
+        p_phi_UE = p_phi_mix;
+        p_weight_UE = p_weight_mix;
+        p_chg_UE = chg_mix;
+        if (systematic == sysBkgEtaReflection) {
+            // use particles from the same event
+            nmixedevents_ue = 1;
+            nip_UE = nip;
+            p_ev_UE = 0;
+            p_pt_UE = p_pt;
+            p_eta_UE = p_eta;
+            p_phi_UE = p_phi;
+            p_weight_UE = p_weight;
+            p_chg_UE = chg;
+        }
+        for (int ip_UE = 0; ip_UE < nip_UE; ++ip_UE) {
+          if(systematic != sysBkgEtaReflection) {
+            if (((*p_ev_UE)[ip_UE]) % 3 != 0) continue;
+          }
+          if ((*p_pt_UE)[ip_UE] < trkptmin) continue;
           if (part_type_is("gen", genlevel)) {
-            if ((*chg_mix)[ip_mix] == 0) continue;
+            if ((*p_chg_UE)[ip_UE] == 0) continue;
           }
 
-          float dphi = dphi_2s1f1b(rawjetphi, (*p_phi_mix)[ip_mix]);
-          float deta = rawjeteta - (*p_eta_mix)[ip_mix];
+          float tmp_p_eta = (*p_eta_UE)[ip_UE];
+          if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
+
+          float dphi = dphi_2s1f1b(rawjetphi, (*p_phi_UE)[ip_UE]);
+          float deta = rawjeteta - tmp_p_eta;
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue);
+            hjetshape_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
-              if (rawjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
+              if (rawjeteta * tmp_p_eta < 0)  { // trk and jet are on the opposite sides of the detector
                   float deltar = fabs(dphi);
 
-                  hjetshapeLR_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
+                  hjetshapeLR_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
               }
           }
         }
@@ -439,6 +474,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       // jet eta cut
       if (fabs(mixjeteta) > 1.6) continue;
+      if (systematic == sysBkgEtaReflection && fabs(mixjeteta) < 0.3) continue;
 
       float res_pt = 0;
       float res_phi = 0;
@@ -589,26 +625,46 @@ after_mixsignal:
         }
 
         // mix jets - underlying event jetshape
-        for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
-          if ((*p_ev_mix)[ip_mix] % 3 == 0) continue;
-          if ((*j_ev_mix)[ij_mix] == (*p_ev_mix)[ip_mix]) continue;
-          if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
+        float nmixedevents_jet_ue = nmixedevents_jet * (nmixedevents_jet - 1);
+        nip_UE = nip_mix;
+        p_ev_UE = p_ev_mix;
+        p_pt_UE = p_pt_mix;
+        p_eta_UE = p_eta_mix;
+        p_phi_UE = p_phi_mix;
+        p_weight_UE = p_weight_mix;
+        p_chg_UE = chg_mix;
+        if (systematic == sysBkgEtaReflection) {
+            nmixedevents_jet_ue = nmixedevents_jet;
+        }
+        for (int ip_UE = 0; ip_UE < nip_UE; ++ip_UE) {
+          if (systematic != sysBkgEtaReflection) {
+              if ((*p_ev_UE)[ip_UE] % 3 == 0) continue;
+              if ((*j_ev_mix)[ij_mix] == (*p_ev_UE)[ip_UE]) continue;
+          }
+          else if (systematic == sysBkgEtaReflection) {
+              // use particles from the same event
+              if ((*j_ev_mix)[ij_mix] != (*p_ev_UE)[ip_UE]) continue;
+          }
+          if ((*p_pt_UE)[ip_UE] < trkptmin) continue;
           if (part_type_is("gen", genlevel)) {
-            if ((*chg_mix)[ip_mix] == 0) continue;
+              if ((*p_chg_UE)[ip_UE] == 0) continue;
           }
 
-          float dphi = dphi_2s1f1b(mixjetphi, (*p_phi_mix)[ip_mix]);
-          float deta = mixjeteta - (*p_eta_mix)[ip_mix];
+          float tmp_p_eta = (*p_eta_UE)[ip_UE];
+          if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
+
+          float dphi = dphi_2s1f1b(mixjetphi, (*p_phi_UE)[ip_UE]);
+          float deta = mixjeteta - tmp_p_eta;
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_mix_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1));
+            hjetshape_mix_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
-              if (mixjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
+              if (mixjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
                   float deltar = fabs(dphi);
 
-                  hjetshapeLR_mix_ue[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet / (nmixedevents_jet - 1) * weightLR);
+                  hjetshapeLR_mix_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
               }
           }
         }
