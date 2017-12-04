@@ -7,7 +7,7 @@ if [ $# -lt 8 ]; then
 fi
 
 echo "compiling macros..."
-make draw_js plot_results
+make draw_js plot_js
 
 set -x
 

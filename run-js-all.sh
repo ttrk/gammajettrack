@@ -7,7 +7,7 @@ if [[ $# -ne 5 ]]; then
 fi
 
 echo "compiling macros..."
-make jetshape calc_systematics calc_ratio_systematics plot_results
+make jetshape calc_systematics calc_ratio_systematics plot_js
 
 set -x
 
@@ -65,6 +65,6 @@ echo -e "hjetshape_final_pbpbdata_recoreco_20_60" >> $PLOTLIST
 echo -e "hjetshape_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
 echo -e "hjetshape_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
-./plot_results data_data_${1}_${3}_gxi${5}_js_final.root final_js_${1}_${3}_gxi${5} $PLOTLIST 1 $5 $1 $3 0 data_${1}_${3}_gxi${5}-systematics.root
+./plot_js data_data_${1}_${3}_gxi${5}_js_final.root final_js_${1}_${3}_gxi${5} $PLOTLIST 1 $5 $1 $3 0 data_${1}_${3}_gxi${5}-systematics.root
 
 rm $PLOTLIST

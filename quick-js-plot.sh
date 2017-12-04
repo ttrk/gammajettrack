@@ -7,7 +7,7 @@ if [ $# -lt 9 ]; then
 fi
 
 echo "compiling macros..."
-make plot_results
+make plot_js
 
 arglist=""
 for i in ${@:9}; do
@@ -35,7 +35,7 @@ if [ $9 = "data" ]; then
     echo -e "hjetshape_${8}_pbpbdata_recoreco_60_100" >> $PLOTLIST
     echo -e "hjetshape_${8}_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
-    ./plot_results ${7}_data_${1}_${3}_gxi${5}_js_final.root ${7}_data_gxi${5}_${1}_${3}_${8} $PLOTLIST 1 $5 $1 $3
+    ./plot_js ${7}_data_${1}_${3}_gxi${5}_js_final.root ${7}_data_gxi${5}_${1}_${3}_${8} $PLOTLIST 1 $5 $1 $3
 elif [ $9 = "datamc" ]; then
     echo -e "pp MC" >> ${PLOTLIST}
     echo -e "hjetshape_${8}_ppmc_recoreco_0_20" >> ${PLOTLIST}
@@ -48,7 +48,7 @@ elif [ $9 = "datamc" ]; then
     echo -e "hjetshape_${8}_ppdata_recoreco_60_100" >> ${PLOTLIST}
     echo -e "hjetshape_${8}_ppdata_recoreco_100_200" >> ${PLOTLIST}
 
-    ./plot_results ${7}_datamc_${1}_${3}_gxi${5}_js_final.root ${7}_datamc_gxi${5}_${1}_${3}_${8} ${PLOTLIST} 1 $5 $1 $3
+    ./plot_js ${7}_datamc_${1}_${3}_gxi${5}_js_final.root ${7}_datamc_gxi${5}_${1}_${3}_${8} ${PLOTLIST} 1 $5 $1 $3
     rm $PLOTLIST
 
     echo -e "PbPb MC" >> ${PLOTLIST}
@@ -62,7 +62,7 @@ elif [ $9 = "datamc" ]; then
     echo -e "hjetshape_${8}_pbpbdata_recoreco_60_100" >> ${PLOTLIST}
     echo -e "hjetshape_${8}_pbpbdata_recoreco_100_200" >> ${PLOTLIST}
 
-    ./plot_results ${7}_datamc_${1}_${3}_gxi${5}_js_final.root ${7}_datamc_gxi${5}_${1}_${3}_${8} ${PLOTLIST} 1 $5 $1 $3
+    ./plot_js ${7}_datamc_${1}_${3}_gxi${5}_js_final.root ${7}_datamc_gxi${5}_${1}_${3}_${8} ${PLOTLIST} 1 $5 $1 $3
 elif [ $9 = "pbpbpp" ]; then
     hadd -f ${7}_pbpbpp${6}_${1}_${3}_gxi${5}_js_final.root ${7}_pbpb${6}_${1}_${3}_gxi${5}_js_final.root ${7}_pp${6}_${1}_${3}_gxi${5}_js_final.root
 
@@ -77,7 +77,7 @@ elif [ $9 = "pbpbpp" ]; then
     echo -e "hjetshape_${8}_pbpb${6}_${10}_60_100" >> $PLOTLIST
     echo -e "hjetshape_${8}_pbpb${6}_${10}_100_200" >> $PLOTLIST
 
-    ./plot_results ${7}_pbpbpp${6}_${1}_${3}_gxi${5}_js_final.root ${7}_${6}_pbpb_${10}_pp_${11}_gxi${5}_${1}_${3}_${8} $PLOTLIST 1 $5 $1 $3
+    ./plot_js ${7}_pbpbpp${6}_${1}_${3}_gxi${5}_js_final.root ${7}_${6}_pbpb_${10}_pp_${11}_gxi${5}_${1}_${3}_${8} $PLOTLIST 1 $5 $1 $3
 else
     for i in ${@:9}; do
         echo -e "$i" >> $PLOTLIST
@@ -87,7 +87,7 @@ else
         echo -e "hjetshape_${8}_${6}_${i}_100_200" >> $PLOTLIST
     done
 
-    ./plot_results ${7}_${6}_${1}_${3}_gxi${5}_js_final.root ${7}_${6}_gxi${5}_${1}_${3}_${8}${arglist} $PLOTLIST 1 $5 $1 $3
+    ./plot_js ${7}_${6}_${1}_${3}_gxi${5}_js_final.root ${7}_${6}_gxi${5}_${1}_${3}_${8}${arglist} $PLOTLIST 1 $5 $1 $3
 fi
 
 rm $PLOTLIST
