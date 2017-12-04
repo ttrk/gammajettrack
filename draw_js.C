@@ -100,7 +100,7 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
             hjetshape_sub_sub[i][j] = (TH1D*)hjetshape_sub[i][j]->Clone(Form("hjetshape_sub_sub%s_%s", photype[j].c_str(), tag.c_str()));
 
             hjetshape_sub_sub[i][j]->Add(hjetshape_mixjet_sub[i][j], -1);
-            hjetshape_sub_sub[i][j]->Add(hjetshape_mixsig_sub[i][j], -1);
+            // hjetshape_sub_sub[i][j]->Add(hjetshape_mixsig_sub[i][j], -1);
 
             hjetshape_sub_sub_norm[i][j] = (TH1D*)hjetshape_sub_sub[i][j]->Clone(Form("hjetshape_sub_sub_norm%s_%s", photype[j].c_str(), tag.c_str()));
             hjetshape_sub_sub_norm[i][j]->Scale(1. / (hjetpt[i][j]->Integral() - hjetpt_mixjet[i][j]->Integral()));
