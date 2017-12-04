@@ -27,7 +27,7 @@ fi
 SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_gluon jes_quark)
 
 echo "compiling macros..."
-make jetshape draw_js calc_iso_systematics calc_systematics
+make jetshape draw_js calc_iso_systematics calc_js_systematics
 
 set -x
 
@@ -98,7 +98,7 @@ echo -e "hjetshape_final_${6}_${TYPE}_20_60" >> $HISTLIST
 echo -e "hjetshape_final_${6}_${TYPE}_60_100" >> $HISTLIST
 echo -e "hjetshape_final_${6}_${TYPE}_100_200" >> $HISTLIST
 
-./calc_systematics $7 $SYSLIST $HISTLIST data_${1}_${3}_gxi${5}
+./calc_js_systematics $7 $SYSLIST $HISTLIST data_${1}_${3}_gxi${5}
 
 rm $SYSLIST
 rm $HISTLIST
