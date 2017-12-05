@@ -89,20 +89,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hjetshapeLR_mixjet[2]; TH1D* hjetshapeLR_mixsig[2];
   TH1D* hjetshapeLR_mix_ue[2];
 
-  if (systematic == sysLR) {
-      hjetshapeLR[0] = new TH1D(Form("hjetshapeLR_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-      hjetshapeLR[1] = new TH1D(Form("hjetshapeLR_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-      hjetshapeLR_ue[0] = new TH1D(Form("hjetshapeLR_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-      hjetshapeLR_ue[1] = new TH1D(Form("hjetshapeLR_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshapeLR[0] = new TH1D(Form("hjetshapeLR_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshapeLR[1] = new TH1D(Form("hjetshapeLR_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshapeLR_ue[0] = new TH1D(Form("hjetshapeLR_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshapeLR_ue[1] = new TH1D(Form("hjetshapeLR_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
-      hjetshapeLR_mixjet[0] = new TH1D(Form("hjetshapeLR_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-      hjetshapeLR_mixjet[1] = new TH1D(Form("hjetshapeLR_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-      hjetshapeLR_mixsig[0] = new TH1D(Form("hjetshapeLR_mixsig_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-      hjetshapeLR_mixsig[1] = new TH1D(Form("hjetshapeLR_mixsig_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshapeLR_mixjet[0] = new TH1D(Form("hjetshapeLR_mixjet_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshapeLR_mixjet[1] = new TH1D(Form("hjetshapeLR_mixjet_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshapeLR_mixsig[0] = new TH1D(Form("hjetshapeLR_mixsig_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshapeLR_mixsig[1] = new TH1D(Form("hjetshapeLR_mixsig_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
-      hjetshapeLR_mix_ue[0] = new TH1D(Form("hjetshapeLR_mix_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-      hjetshapeLR_mix_ue[1] = new TH1D(Form("hjetshapeLR_mix_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
-  }
+  hjetshapeLR_mix_ue[0] = new TH1D(Form("hjetshapeLR_mix_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+  hjetshapeLR_mix_ue[1] = new TH1D(Form("hjetshapeLR_mix_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
   /* Q/G JES */
   TF1* f_JES_Q[4] = {0};
