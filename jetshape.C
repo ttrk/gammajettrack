@@ -309,7 +309,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        rawjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
+        do {
+          rawjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
+        } while (rawjetpt < 0);
         rawjetphi = (*j_phi)[ij] + smear_rand.Gaus(0, res_phi);
 
         // jet phi cut
@@ -335,7 +337,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           case 3: {
             float jer_factor = 1 + sqrt(0.15 * 0.15 + 0.07 * 0.07);
             float initial_res = getResolutionHI(rawjetpt, centBin);
-            rawjetpt = rawjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
+            do {
+              rawjetpt = rawjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
+            } while (rawjetpt < 0);
             break; }
           default:
             break;
@@ -486,7 +490,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        mixjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
+        do {
+          mixjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
+        } while (mixjetpt < 0);
         mixjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
 
         // jet phi cut
@@ -512,7 +518,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           case 3: {
             float jer_factor = 1 + sqrt(0.15 * 0.15 + 0.07 * 0.07);
             float initial_res = getResolutionHI(mixjetpt, centBin);
-            mixjetpt = mixjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
+            do {
+              mixjetpt = mixjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
+            } while (mixjetpt < 0);
             break; }
           default:
             break;
