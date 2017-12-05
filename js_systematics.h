@@ -57,14 +57,6 @@ void th1_max_of_2_th1(TH1F* h1, TH1F* h2, TH1F* h) {
     }
 }
 
-float th1_average_content(TH1F* h) {
-    float sum = 0;
-    for (int i=1; i<=h->GetNbinsX(); ++i)
-        if (h->GetBinContent(i) < 3 && h->GetBinWidth(i) / h->GetBinWidth(1) < 5)
-            sum += h->GetBinContent(i);
-    return sum / h->GetNbinsX();
-}
-
 class sys_var_t {
 friend class total_sys_var_t;
 

@@ -25,20 +25,16 @@ set -x
 
 echo running closure histograms
 for i in ${@:8}; do
-  if [ ! -f ${7}_${6}_${1}_${3}_gxi${5}_${i}_js.root ]; then
     ./jetshape $SKIM "$BKGSKIM" $6 0 20 $1 $2 $3 $i $4 $5 $7 &
     ./jetshape $SKIM "$BKGSKIM" $6 20 60 $1 $2 $3 $i $4 $5 $7 &
     ./jetshape $SKIM "$BKGSKIM" $6 60 100 $1 $2 $3 $i $4 $5 $7 &
     ./jetshape $SKIM "$BKGSKIM" $6 100 200 $1 $2 $3 $i $4 $5 $7 &
-  fi
 done
 wait
 
 for i in ${@:8}; do
-  if [ ! -f ${7}_${6}_${1}_${3}_gxi${5}_${i}_js.root ]; then
     hadd -f ${7}_${6}_${1}_${3}_gxi${5}_${i}_js.root ${7}_${6}_${i}_${1}_${3}_${5}_*_*.root
     rm ${7}_${6}_${i}_${1}_${3}_${5}_*_*.root
-  fi
 done
 
 ./run-js-arithmetic.sh $@

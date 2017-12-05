@@ -83,11 +83,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   hjetshape_mix_ue[0] = new TH1D(Form("hjetshape_mix_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshape_mix_ue[1] = new TH1D(Form("hjetshape_mix_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
-  /* jet dr distributions */
-  TH1D* hjetshape_jetdr[2];
-  hjetshape_jetdr[0] = new TH1D(Form("hjetshape_jetdr_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";dr;", 20, 0, 1);
-  hjetshape_jetdr[1] = new TH1D(Form("hjetshape_jetdr_mix_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";dr;", 20, 0, 1);
-
   // long range correlation histograms
   TH1D* hjetshapeLR[2]; TH1D* hjetshapeLR_ue[2];
   TH1D* hjetshapeLR_mixjet[2]; TH1D* hjetshapeLR_mixsig[2];
@@ -350,40 +345,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         hjetpt[background]->Fill(rawjetpt, weight * smear_weight);
 
-        /* check jets dr2 distribution */
-        int njetdr = 0;
-        for (int ijj = 0; ijj < nij; ijj++) {
-          if (jet_type_is("gen0", genlevel)) {
-            if ((*gensubid)[ijj] != 0) continue;
-          }
-
-          float jjetpt = (*j_pt)[ijj];
-          float jjeteta = (*j_eta)[ijj];
-          float jjetphi = (*j_phi)[ijj];
-
-          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && dphi_2s1f1b(jjetphi, phoPhi) < 7 * pi / 8)
-            njetdr++;
-        }
-
-        for (int ijj = 0; ijj < nij; ijj++) {
-          if (jet_type_is("gen0", genlevel)) {
-            if ((*gensubid)[ijj] != 0) continue;
-          }
-
-          float jjetpt = (*j_pt)[ijj];
-          float jjeteta = (*j_eta)[ijj];
-          float jjetphi = (*j_phi)[ijj];
-
-          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && dphi_2s1f1b(jjetphi, phoPhi) < 7 * pi / 8) {
-            float dphi = dphi_2s1f1b(rawjetphi, jjetphi);
-            float deta = rawjeteta - jjeteta;
-            float deltar2 = (dphi * dphi) + (deta * deta);
-
-            hjetshape_jetdr[0]->Fill(sqrt(deltar2), 1. / njetdr);
-          }
-        }
-
         float refpt = gammaxi ? phoEtCorrected : rawjetpt;
+
         // raw jets - jetshape
         for (int ip = 0; ip < nip; ++ip) {
           if ((*p_pt)[ip] < trkptmin) continue;
@@ -528,31 +491,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         // jet pt cut
         if (mixjetpt < jetptcut) continue;
-
-        /* check jets dr2 distribution */
-        int njetdr_mix = 0;
-        for (int ijj = 0; ijj < nij_mix; ijj++) {
-          float jjetpt = (*j_pt_mix)[ijj];
-          float jjeteta = (*j_eta_mix)[ijj];
-          float jjetphi = (*j_phi_mix)[ijj];
-
-          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && dphi_2s1f1b(jjetphi, phoPhi) < 7 * pi / 8)
-            njetdr_mix++;
-        }
-
-        for (int ijj = 0; ijj < nij_mix; ijj++) {
-          float jjetpt = (*j_pt_mix)[ijj];
-          float jjeteta = (*j_eta_mix)[ijj];
-          float jjetphi = (*j_phi_mix)[ijj];
-
-          if (jjetpt > jetptcut && fabs(jjeteta) < 1.6 && dphi_2s1f1b(jjetphi, phoPhi) < 7 * pi / 8) {
-            float dphi = dphi_2s1f1b(mixjetphi, jjetphi);
-            float deta = mixjeteta - jjeteta;
-            float deltar2 = (dphi * dphi) + (deta * deta);
-
-            hjetshape_jetdr[1]->Fill(sqrt(deltar2), 1. / njetdr_mix);
-          }
-        }
 
         float refpt = gammaxi ? phoEtCorrected : mixjetpt;
 
