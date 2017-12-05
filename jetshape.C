@@ -27,6 +27,7 @@ float midxi_jec[4] = {1.0514, 1.0478, 1.0483, 1.0471};
 // 10: TRK_DOWN
 // 11: JES_GLUON
 // 12: JES_QUARK
+// 13: LONGRANGE
 
 void correct_bin_errors(TH1D* h1, int nsmear) {
   for (int i=1; i<=h1->GetNbinsX(); ++i)
