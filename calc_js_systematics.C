@@ -126,6 +126,44 @@ int calc_js_systematics(const char* nominal_file, const char* filelist, const ch
         c1[i]->SaveAs(Form("sys_%s-%s.png", hist_list[i].c_str(), label));
     }
 
+    std::string centlabels[4] = {
+        "0 - 10%", "10 - 30%", "30 - 50%", "50 - 100%"
+    };
+
+    for (std::size_t j=0; j<nfiles; ++j) {
+        TCanvas* c2 = new TCanvas("c2", "", 1200, 300);
+        c2->Divide(4, 1);
+
+        if (options[j] != 4) {
+            for (std::size_t i=0; i<nhists; ++i) {
+                c2->cd(i+1);
+
+                sys_vars[i][j]->get_diff_abs()->SetStats(0);
+                sys_vars[i][j]->get_diff_abs()->SetAxisRange(0, 0.29, "X");
+                sys_vars[i][j]->get_diff_abs()->SetTitle(Form("%s (%s)", sys_labels[j].c_str(), centlabels[i].c_str()));
+                sys_vars[i][j]->get_diff_abs()->Draw("hist e");
+            }
+
+            c2->SaveAs(Form("sys-%s-%zu.png", label, j));
+        }
+
+        delete c2;
+    }
+
+    TCanvas* c3 = new TCanvas("c3", "", 1200, 300);
+    c3->Divide(4, 1);
+
+    for (std::size_t i=0; i<nhists; ++i) {
+        c3->cd(i+1);
+
+        total_sys_vars[i]->get_total()->SetStats(0);
+        total_sys_vars[i]->get_total()->SetAxisRange(0, 0.29, "X");
+        total_sys_vars[i]->get_total()->SetTitle(Form("total (%s)", centlabels[i].c_str()));
+        total_sys_vars[i]->get_total()->Draw();
+    }
+
+    c3->SaveAs(Form("sys-%s-total.png", label));
+
     fout->Write("", TObject::kOverwrite);
     fout->Close();
 
