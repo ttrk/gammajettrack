@@ -124,10 +124,12 @@ export X509_USER_PROXY=\${PWD}/$proxyFile
 srmPrefix="/mnt/hadoop/"
 outputDirSRM=\${outputDirTmp#\${srmPrefix}}
 
-echo "##"
+echo "###"
 echo "host : \$(hostname)"
 echo "PWD  : \$PWD"
-echo "##"
+echo "## voms-proxy-info --all ##"
+voms-proxy-info --all
+echo "###"
 ./myRun.sh "./"\$progExe \$skimFile \$sample \$hiBinMin \$hiBinMax \$phoetMin \$phoetMax \$jetptMin \$genlevel \$trkptMin \$gammaxi \$label \$systematics \$obs
 echo "./myRun.sh "./"\$progExe \$skimFile \$sample \$hiBinMin \$hiBinMax \$phoetMin \$phoetMax \$jetptMin \$genlevel \$trkptMin \$gammaxi \$label \$systematics \$obs"
 
