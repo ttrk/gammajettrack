@@ -304,6 +304,15 @@ int draw_ff_js(std::string sample, std::string type, const char* fname, const ch
             hgjt[b][s][s]->Write("",TObject::kOverwrite);
 
             hgjt[s][s][s]->Write("",TObject::kOverwrite);
+
+            // calculate other objects (signal jets, raw tracks) for extra information
+            hgjt[r][s][r] = (TH1D*)hgjt[r][r][r]->Clone(Form("%s_raw_sig_raw_%s", outputObs[iObs].c_str(), tag.c_str()));
+            hgjt[r][s][r]->Add(hgjt[r][b][r], -1);
+            hgjt[b][s][r] = (TH1D*)hgjt[b][r][r]->Clone(Form("%s_bkg_sig_raw_%s", outputObs[iObs].c_str(), tag.c_str()));
+            hgjt[b][s][r]->Add(hgjt[b][b][r], -1);
+
+            hgjt[r][s][r]->Write("",TObject::kOverwrite);
+            hgjt[b][s][r]->Write("",TObject::kOverwrite);
         }
     }
 
