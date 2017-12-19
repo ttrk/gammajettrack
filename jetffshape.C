@@ -64,6 +64,8 @@ double getShiftedDPHI(double dphi);
 int getTrkPtBin(float trkPt);
 void correctBinError(TH1D* h, int nSmear);
 void correctBinError(TH2D* h, int nSmear);
+bool isQuark(int id);
+bool isGluon(int id);
 float trackingDataMCDiffUncert(float trkPt = -1, int cent = -1, bool isRatio = 1, bool isPP = 0);
 
 // systematic:
@@ -391,6 +393,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
       else if (jet_type_is("reco0", genlevel) || jet_type_is("sreco0", genlevel)) {
           if ((*subid)[ij] != 0) continue;
+      }
+
+      if (jet_flavor_is("QG", genlevel)) {
+          if ( !isQuark((*gjetflavor)[ij]) && !isGluon((*gjetflavor)[ij]) ) continue;
+      }
+      else if (jet_flavor_is("Q", genlevel)) {
+          if ( !isQuark((*gjetflavor)[ij]) ) continue;
+      }
+      else if (jet_flavor_is("G", genlevel)) {
+          if ( !isGluon((*gjetflavor)[ij]) ) continue;
       }
 
       float tmpjetpt = (*j_pt)[ij];
@@ -1159,6 +1171,16 @@ void correctBinError(TH2D* h, int nSmear)
             h->SetBinError(iBinX, iBinY, TMath::Sqrt(nSmear)*h->GetBinError(iBinX, iBinY));
         }
     }
+}
+
+bool isQuark(int id)
+{
+    return (std::fabs(id) > 0 && std::fabs(id) < 9);
+}
+
+bool isGluon(int id)
+{
+    return (std::fabs(id) == 21);
 }
 
 /*
