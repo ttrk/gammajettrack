@@ -129,8 +129,10 @@ float purity_down[4][56] = {
 };
 
 int draw_ff_js(std::string sample, std::string type, const char* fname, const char* outfname, int phoetmin, int purity_group) {
-    TFile* finput = new TFile(fname, "read");
 
+    std::cout << "type = " << type.c_str() << std::endl;
+
+    TFile* finput = new TFile(fname, "read");
     TFile* fout = new TFile(outfname, "update");
 
     TH1::SetDefaultSumw2();
