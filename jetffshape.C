@@ -1158,8 +1158,8 @@ double getDPHI(double phi1, double phi2)
     if (dphi <= -1*pi)
         dphi += 2*pi;
     if (TMath::Abs(dphi) > pi) {
-        std::cout << "Error in dphi calculation : |dphi| > PI" << std::endl;
-        std::cout << "dphi is set to -999." << std::endl;
+        //std::cout << "Error in dphi calculation : |dphi| > PI" << std::endl;
+        //std::cout << "dphi is set to -999." << std::endl;
         return -999;
     }
 
