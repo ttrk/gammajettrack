@@ -428,9 +428,25 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           res_phi = getPhiResolutionPP(tmpjetpt);
           nsmear = _NSMEAR;
         }
+        else if (jet_type_is("sptgen", genlevel)) {
+          res_pt = getResolutionPP(tmpjetpt);
+          nsmear = _NSMEAR;
+        }
+        else if (jet_type_is("sphigen", genlevel)) {
+          res_phi = getPhiResolutionPP(tmpjetpt);
+          nsmear = _NSMEAR;
+        }
       } else {
         if (jet_type_is("sgen", genlevel)) {
           res_pt = getResolutionHI(tmpjetpt, centBin);
+          res_phi = getPhiResolutionHI(tmpjetpt, centBin);
+          nsmear = _NSMEAR;
+        }
+        else if (jet_type_is("sptgen", genlevel)) {
+          res_pt = getResolutionHI(tmpjetpt, centBin);
+          nsmear = _NSMEAR;
+        }
+        else if (jet_type_is("sphigen", genlevel)) {
           res_phi = getPhiResolutionHI(tmpjetpt, centBin);
           nsmear = _NSMEAR;
         }
@@ -747,6 +763,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       if (jet_type_is("sgen", genlevel)) {
         res_pt = getResolutionHI(tmpjetpt, centBin);
+        res_phi = getPhiResolutionHI(tmpjetpt, centBin);
+        nsmear = _NSMEAR;
+      }
+      else if (jet_type_is("sptgen", genlevel)) {
+        res_pt = getResolutionHI(tmpjetpt, centBin);
+        nsmear = _NSMEAR;
+      }
+      else if (jet_type_is("sphigen", genlevel)) {
         res_phi = getPhiResolutionHI(tmpjetpt, centBin);
         nsmear = _NSMEAR;
       }
