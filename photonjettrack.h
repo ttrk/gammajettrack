@@ -20,10 +20,6 @@
 
 const double pi = 3.1415926535897932384;
 
-bool jet_flavor_is(std::string type, std::string jet_part) {
-  return (jet_part.find(type) != std::string::npos);
-}
-
 bool jet_type_is(std::string type, std::string jet_part) {
   return (jet_part.compare(0, type.length(), type) == 0);
 }
