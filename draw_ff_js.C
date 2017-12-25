@@ -289,7 +289,7 @@ int draw_ff_js(std::string sample, std::string type, const char* fname, const ch
             hgjt[s][s][s]->Add(hgjt[b][s][s], (purity[i] - 1.0)/purity[i]);
 
             hgjt[s][s][s]->Scale(1.0, "width");
-            bool isJetShape = (inputObs[i].find("hjs") != std::string::npos);
+            bool isJetShape = (inputObs[iObs].find("hjs") != std::string::npos);
             if (isJetShape) {
                 hgjt[s][s][s]->Scale(1.0 / hgjt[s][s][s]->Integral(1, hgjt[s][s][s]->FindBin(0.3)-1), "width");
             }
