@@ -302,6 +302,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_Q_jet = (!is_QG_jet && jetLevel.find("Q") != std::string::npos);
   bool is_G_jet = (!is_QG_jet && jetLevel.find("G") != std::string::npos);
 
+  bool use_recoPt = (jetLevel.find("rPt") != std::string::npos);
+  bool use_recoEta = (jetLevel.find("rEta") != std::string::npos);
+  bool use_recoPhi = (jetLevel.find("rPhi") != std::string::npos);
+
+  if ((use_recoPt || use_recoEta || use_recoPhi) && !(is_reco_jet || is_ref_jet)) {
+      std::cout << "The reco kinematics can be used only if the jet level is reco or ref." << std::endl;
+      std::cout << "Exiting" << std::endl;
+      return;
+  }
+
   bool is_gen_part = (partLevel.find("gen") != std::string::npos);
   bool is_gen0_part = (partLevel.find("gen0") != std::string::npos);
   bool is_reco_part = (partLevel.find("reco") != std::string::npos);
@@ -422,6 +432,19 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     else {
       nij = ngen;
       nij_mix = ngen_mix;
+    }
+
+    if (use_recoPt) {
+        j_pt = jetptCorr;
+        j_pt_mix = jetptCorr_mix;
+    }
+    if (use_recoEta) {
+        j_eta = jeteta;
+        j_eta_mix = jeteta_mix;
+    }
+    if (use_recoPhi) {
+        j_phi = jetphi;
+        j_phi_mix = jetphi_mix;
     }
 
     if (is_reco_part) {
