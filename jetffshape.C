@@ -8,6 +8,8 @@
 #include "photonjettrack.h"
 #include "th1Util.h"
 
+#include "math.h"
+
 int _NSMEAR = 15;
 int _NSMEAR_JER = 36;
 int _NSMEAR_JER_PbPb = 64;
@@ -111,6 +113,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hjeteta[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH1D* hdphijg[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH1D* hxjg[kN_PHO_SIGBKG][kN_JET_SIGBKG];
+  TH1D* hnPhoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH1D* hjetptrebin[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
       hphopt[i] = new TH1D(Form("hphopt%s_%s_%s_%d_%d", pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{#gamma}_{T};", 20, 0, 600);
@@ -120,6 +123,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           hjeteta[i][j] = new TH1D(Form("hjeteta%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{jet}_{T};", 8, 0, 1.6);
           hdphijg[i][j] = new TH1D(Form("hdphijg%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#phi_{j#gamma};", 20, 0, TMath::Pi());
           hxjg[i][j] = new TH1D(Form("hxjg%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";x_{j#gamma} = p^{jet}_{T}/p^{#gamma}_{T};", 16, 0, 2);
+          hnPhoJet[i][j] = new TH1D(Form("hnPhoJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";nJet;", 10, 0, 10);
 
           std::vector<float> binsX = {0, 15, 30, 45, 60, 75, 90, 120, 180, 240, 360, 480, 600};
           double arr[binsX.size()];
@@ -456,6 +460,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     }
 
     // jet loop
+    float nPhoJet = 0;
     for (int ij = 0; ij < nij; ij++) {
       if (is_gen0_jet) {
         if ((*gensubid)[ij] != 0) continue;
@@ -580,6 +585,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         hjetptrebin[phoBkg][k_rawJet]->Fill(tmpjetpt, weight * smear_weight * reweightPP);
         hjeteta[phoBkg][k_rawJet]->Fill(fabs(tmpjeteta), weight * smear_weight * reweightPP);
         hxjg[phoBkg][k_rawJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight * reweightPP);
+        nPhoJet += 1;
 
         TLorentzVector vJet;
         vJet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
@@ -811,10 +817,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
       }
     }
+    nPhoJet = std::round(nPhoJet / nsmear);
+    hnPhoJet[phoBkg][k_rawJet]->Fill(nPhoJet, weight);
 
     if (isPP) continue;
     if (is_gen0_jet || is_reco0_jet || is_ref0_jet) continue;
 
+    float nPhoJet_mix = 0;
     // mix jet loop
     float nmixedevents_jet = nmix - (nmix + 2) / 3;
     for (int ij_mix = 0; ij_mix < nij_mix; ij_mix++) {
@@ -903,6 +912,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         hjetptrebin[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight * smear_weight * reweightPP / nmixedevents_jet);
         hjeteta[phoBkg][k_bkgJet]->Fill(fabs(tmpjeteta), weight * smear_weight * reweightPP / nmixedevents_jet);
         hxjg[phoBkg][k_bkgJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight * reweightPP / nmixedevents_jet);
+        nPhoJet_mix += 1;
 
         TLorentzVector vJet;
         vJet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
@@ -1129,6 +1139,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
       }
     }
+    nPhoJet_mix = std::round(nPhoJet_mix / (nsmear * nmixedevents_jet));
+    hnPhoJet[phoBkg][k_bkgJet]->Fill(nPhoJet_mix, weight);
   }
   if (nsmear > 0 && nsmear != 1) {
       // Bin values were already corrected when filling the histograms.
