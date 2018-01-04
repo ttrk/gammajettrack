@@ -472,7 +472,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
           if (jetpt_corr < 5) continue; // njet is not incremented
       }
       else {
-          if (jetpt_corr < 25) continue; // njet is not incremented
+          if (jetpt_corr < 15) continue; // njet is not incremented
       }
 
       pjtt.jetptCorr.push_back(jetpt_corr);
@@ -630,7 +630,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                         if (jetpt_corr_mix < 5) continue; // njet_mix is not incremented
                     }
                     else {
-                        if (jetpt_corr_mix < 25) continue; // njet_mix is not incremented
+                        if (jetpt_corr_mix < 15) continue; // njet_mix is not incremented
                     }
 
                     pjtt.jetptCorr_mix.push_back(jetpt_corr_mix);
@@ -650,7 +650,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                             if (jt_mix[iMixFile].genpt[igenj_mix] < 5) continue;
                         }
                         else {
-                            if (jt_mix[iMixFile].genpt[igenj_mix] < 25) continue;
+                            if (jt_mix[iMixFile].genpt[igenj_mix] < 15) continue;
                         }
 
                         if (fabs(jt_mix[iMixFile].geneta[igenj_mix]) > 1.6) continue;
