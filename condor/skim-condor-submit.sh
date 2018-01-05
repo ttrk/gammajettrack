@@ -82,7 +82,7 @@ case \$2 in
     2)
         JETALGO=ak3PFJetAnalyzer
         ISPP=1
-        MXIFILE="null"
+        MIXFILE="null"
         ;;
     3)
         JETALGO=ak3PFJetAnalyzer
