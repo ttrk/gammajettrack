@@ -22,7 +22,14 @@ WORKDIR="/work/$USER/pjt-skim-${1}-$(date +"%Y-%m-%d_%H_%M_%S")"
 mkdir -p $WORKDIR
 echo $WORKDIR
 
-cp photon_jet_track_skim.exe $2 $4 $WORKDIR
+mixFile="DUMMY.list"
+if [ $1 -eq 0 ]; then
+  mixFile="PbPb_Data_MB.list"
+elif [ $1 -eq 1 ]; then
+  mixFile="PbPb_MC_MB.list"
+fi
+
+cp photon_jet_track_skim.exe $2 $4 $mixFile $WORKDIR
 cd $WORKDIR
 
 [ -d "logs" ] && rm -r logs
@@ -44,7 +51,7 @@ requirements = GLIDEIN_Site == "MIT_CampusFactory" && BOSCOGroup == "bosco_cmshi
 job_lease_duration = 240
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = /tmp/$PROXYFILE,photon_jet_track_skim.exe,$4,$2
+transfer_input_files = /tmp/$PROXYFILE,photon_jet_track_skim.exe,$4,$2,$mixFile
 #noop_job = !( stringListMember("\$(Process)","__FAILED__") )
 
 Queue $JOBS
@@ -68,26 +75,23 @@ SRM_PATH=\${4#\${SRM_PREFIX}}
 tar -xzvf \$5
 
 FILE=\$(head -n\$((\$1+1)) \$3 | tail -n1)
+MIXFILE=$mixFile
 case \$2 in
     0)
         JETALGO=akPu3PFJetAnalyzer
         ISPP=0
-        MIXFILE=PbPb_Data_MB.list
         ;;
     1)
         JETALGO=akPu3PFJetAnalyzer
         ISPP=0
-        MIXFILE=PbPb_MC_MB.list
         ;;
     2)
         JETALGO=ak3PFJetAnalyzer
         ISPP=1
-        MIXFILE="null"
         ;;
     3)
         JETALGO=ak3PFJetAnalyzer
         ISPP=1
-        MIXFILE="null"
         ;;
     *)
         echo "bad option"
