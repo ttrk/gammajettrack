@@ -22,7 +22,7 @@ WORKDIR="/work/$USER/pjt-skim-${1}-$(date +"%Y-%m-%d_%H_%M_%S")"
 mkdir -p $WORKDIR
 echo $WORKDIR
 
-mixFile="DUMMY.list"
+mixFile="PbPb_Data_MB.list"
 if [ $1 -eq 0 ]; then
   mixFile="PbPb_Data_MB.list"
 elif [ $1 -eq 1 ]; then
