@@ -46,7 +46,7 @@ set -x
 
 echo running closure histograms
 for rgLevel in $recogenLevels; do
-  if [ ! -f ${label}_${sample}_${phoetMin}_${phoetMax}_gxi${gammaxi}_obs${obs}_${rgLevel}_ffjs.root ]; then
+#  if [ ! -f ${label}_${sample}_${phoetMin}_${phoetMax}_gxi${gammaxi}_obs${obs}_${rgLevel}_ffjs.root ]; then
     hiBinMins=(0  20 60  100)
     hiBinMaxs=(20 60 100 200)
     for i1 in ${!hiBinMins[*]}
@@ -55,17 +55,17 @@ for rgLevel in $recogenLevels; do
       hiBinMax=${hiBinMaxs[i1]}
      ./jetffshape.exe $SKIM $sample $hiBinMin $hiBinMax $phoetMin $phoetMax $jetptMin $rgLevel $trkptMin $gammaxi ${outputDir}/$label 0 $obs &
     done
-  fi
+#  fi
 done
 wait
 
 for rgLevel in $recogenLevels; do
   outputFile=${outputDir}/${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_${rgLevel}_ffjs.root
   inputPrefix=${outputDir}/${label}_${sample}_${rgLevel}_${phoetMin}_${jetptMin}_${gammaxi}_${obs}
-  if [ ! -f $outputFile ]; then
-    hadd -f $outputFile ${inputPrefix}_*_*.root
-    rm ${inputPrefix}_*_*.root
-  fi
+#  if [ ! -f $outputFile ]; then
+  hadd -f $outputFile ${inputPrefix}_*_*.root
+  rm ${inputPrefix}_*_*.root
+#  fi
 done
 
 outputFilesMerged=${outputDir}/${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_ffjs_merged.root

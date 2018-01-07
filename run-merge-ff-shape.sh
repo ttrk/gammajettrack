@@ -36,10 +36,10 @@ mkdir -p $outDir
 for rgLevel in $recogenLevels; do
   outputFile=${outDir}/${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_${rgLevel}_ffjs.root
   inputPrefix=${inputDir}/${label}_${sample}_${rgLevel}_${phoetMin}_${jetptMin}_${gammaxi}_${obs}
-  if [ ! -f $outputFile ]; then
-    hadd -f $outputFile ${inputPrefix}_*_*.root
+#  if [ ! -f $outputFile ]; then
+  hadd -f $outputFile ${inputPrefix}_*_*.root
     # rm ${inputPrefix}_*_*.root
-  fi
+#  fi
 done
 
 #./run-ff-shape-plot.sh $@
