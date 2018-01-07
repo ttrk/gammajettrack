@@ -37,7 +37,7 @@ if [[ $outputDir != /mnt/hadoop/* ]]; then
 fi
 
 if [ $sample = "pbpbmc" ]; then
-    SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/PbPb-MC-skim-170911.root"
+    SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/PbPb-MC-skim-180105.root"
 elif [ $sample = "ppmc" ]; then
     SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/pp-MC-skim-170911.root"
 else
