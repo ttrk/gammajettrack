@@ -144,6 +144,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   double js_r2Max = js_rMax * js_rMax;
 
   TH1D* hgammaffjs[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
+  TH1D* hgammaffjsFB[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
   TH2D* h2gammaffjsrefreco[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
 
   TH1D* hffjsLR[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
@@ -180,6 +181,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           // FF / jet shape histogram
           hgammaffjs[i][j] = new TH1D(Form("%s%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX, 0, xMax);
+          hgammaffjsFB[i][j] = new TH1D(Form("%sFB%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*4, 0, xMax);
           h2gammaffjsrefreco[i][j] = new TH2D(Form("%srefreco%s%s_%s_%s_%d_%d", histNamePrefix2D.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*2, 0, xMax, nBinsX*2, 0, xMax);
 
@@ -720,6 +723,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             }
 
             hgammaffjs[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk);
+            hgammaffjsFB[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk);
 
             if (is_ref_jet || is_reco_jet) {
                 float match_j_eta = (*matched_j_eta)[ij];
@@ -852,6 +856,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             }
 
             hgammaffjs[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk);
+            hgammaffjsFB[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk);
 
             if (is_ref_jet || is_reco_jet) {
                 float match_j_eta = (*matched_j_eta)[ij];
@@ -1064,6 +1069,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             }
 
             hgammaffjs[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk);
+            hgammaffjsFB[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk);
 
             if (is_ref_jet || is_reco_jet) {
                 float match_j_eta = (*matched_j_eta_mix)[ij_mix];
@@ -1192,6 +1198,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             }
 
             hgammaffjs[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk);
+            hgammaffjsFB[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk);
 
             if (is_ref_jet || is_reco_jet) {
                 float match_j_eta = (*matched_j_eta_mix)[ij_mix];
@@ -1277,6 +1284,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
           for (int j = 0; j < kN_JET_TRK_SIGBKG; ++j) {
               correctBinError(hgammaffjs[i][j], nsmear);
+              correctBinError(hgammaffjsFB[i][j], nsmear);
 
               if (systematic == sysLR) {
                   correctBinError(hffjsLR[i][j], nsmear);
