@@ -31,7 +31,7 @@ echo "recogenLevels = $recogenLevels"
 if [ $sample = "pbpbmc" ]; then
     SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/PbPb-MC-skim-180105.root"
 elif [ $sample = "ppmc" ]; then
-    SKIM="/export/d00/scratch/tatar/GJT-out/pp-MC-skim-170911.root"
+    SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/pp-MC-skim-180105.root"
 else
     echo "invalid sample"
     exit 1
