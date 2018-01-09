@@ -209,8 +209,8 @@ int draw_ff_js(std::string sample, std::string type, const char* fname, const ch
         }
     }
 
-    std::vector<std::string> inputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsLR", "hjsLRAway", "hdphiProjNR", "hdphiProjLR"};
-    std::vector<std::string> outputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsLR", "hjsLRAway", "hdphiProjNR", "hdphiProjLR"};
+    std::vector<std::string> inputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR", "hjsLRAway", "hdphiProjNR", "hdphiProjLR"};
+    std::vector<std::string> outputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR", "hjsLRAway", "hdphiProjNR", "hdphiProjLR"};
     for (int iPt = 0; iPt < 8; ++iPt) {
         inputObs.push_back(Form("hdphiProjNRptBin%d", iPt));
         outputObs.push_back(Form("hdphiProjNRptBin%d", iPt));
