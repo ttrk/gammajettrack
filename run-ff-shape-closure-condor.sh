@@ -55,6 +55,10 @@ for rgLevel in $recogenLevels; do
   if [ ! -f ${label}_${sample}_${phoetMin}_${phoetMax}_gxi${gammaxi}_obs${obs}_${rgLevel}_ffjs.root ]; then
     hiBinMins=(0  20 60  100)
     hiBinMaxs=(20 60 100 200)
+    if [ $sample = "ppmc" ]; then
+      hiBinMins=(100)
+      hiBinMaxs=(200)
+    fi
     for i1 in ${!hiBinMins[*]}
     do
       hiBinMin=${hiBinMins[i1]}
