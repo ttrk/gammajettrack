@@ -166,7 +166,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
       for (int j = 0; j < kN_JET_TRK_SIGBKG; ++j) {
 
-          double binWidth = 5 / 10;
+          double binWidth = 5. / 10;
           double xMax = 5;
           int nBinsX = xMax / binWidth;
           std::string histNamePrefix = "hff";
