@@ -39,7 +39,7 @@ fi
 if [ $sample = "pbpbmc" ]; then
     SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/PbPb-MC-skim-180105.root"
 elif [ $sample = "ppmc" ]; then
-    SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/pp-MC-skim-180105.root"
+    SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/pp-MC-skim-180115.root"
 else
     echo "invalid sample"
     exit 1
