@@ -148,6 +148,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hgammaffjsdeta[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
   TH1D* hgammaffjsdphi[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
   TH2D* h2gammaffjsrefreco[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
+  TH2D* h2gammaffjsgensgen[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
 
   TH1D* hffjsLR[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH1D* hffjsLRAway[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
@@ -191,6 +192,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*4, 0, xMax);
           h2gammaffjsrefreco[i][j] = new TH2D(Form("%srefreco%s%s_%s_%s_%d_%d", histNamePrefix2D.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*2, 0, xMax, nBinsX*2, 0, xMax);
+          h2gammaffjsgensgen[i][j] = new TH2D(Form("%sgensgen%s%s_%s_%s_%d_%d", histNamePrefix2D.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                            sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*2, 0, xMax, nBinsX*2, 0, xMax);
 
           if (systematic == sysLR) {
               // FF / jet shape from long range correlation
@@ -741,6 +744,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 float match_val = sqrt(match_dphi * match_dphi + match_deta * match_deta);
                 h2gammaffjsrefreco[phoBkg][k_rawJet_rawTrk]->Fill(val, match_val, weight_rawJet_rawTrk);
             }
+            if (is_ref_jet || is_gen_jet) {
+                float unsmeared_j_eta = (*j_eta)[ij];
+                float unsmeared_j_phi = (*j_phi)[ij];
+                float unsmeared_dphi = getDPHI(unsmeared_j_phi, (*p_phi)[ip]);
+                float unsmeared_deta = unsmeared_j_eta - (*p_eta)[ip];
+                float unsmeared_val = sqrt(unsmeared_dphi * unsmeared_dphi + unsmeared_deta * unsmeared_deta);
+                h2gammaffjsgensgen[phoBkg][k_rawJet_rawTrk]->Fill(val, unsmeared_val, weight_rawJet_rawTrk);
+            }
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
@@ -875,6 +886,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 float match_deta = match_j_eta - (*p_eta)[ip_UE];
                 float match_val = sqrt(match_dphi * match_dphi + match_deta * match_deta);
                 h2gammaffjsrefreco[phoBkg][k_rawJet_ueTrk]->Fill(val, match_val, weight_rawJet_ueTrk);
+            }
+            if (is_ref_jet || is_gen_jet) {
+                float unsmeared_j_eta = (*j_eta)[ij];
+                float unsmeared_j_phi = (*j_phi)[ij];
+                float unsmeared_dphi = getDPHI(unsmeared_j_phi, (*p_phi)[ip_UE]);
+                float unsmeared_deta = unsmeared_j_eta - (*p_eta)[ip_UE];
+                float unsmeared_val = sqrt(unsmeared_dphi * unsmeared_dphi + unsmeared_deta * unsmeared_deta);
+                h2gammaffjsgensgen[phoBkg][k_rawJet_ueTrk]->Fill(val, unsmeared_val, weight_rawJet_ueTrk);
             }
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
@@ -1091,6 +1110,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 float match_val = sqrt(match_dphi * match_dphi + match_deta * match_deta);
                 h2gammaffjsrefreco[phoBkg][k_bkgJet_rawTrk]->Fill(val, match_val, weight_bkgJet_rawTrk);
             }
+            if (is_ref_jet || is_gen_jet) {
+                float unsmeared_j_eta = (*j_eta)[ij_mix];
+                float unsmeared_j_phi = (*j_phi)[ij_mix];
+                float unsmeared_dphi = getDPHI(unsmeared_j_phi, (*p_phi)[ip_mix]);
+                float unsmeared_deta = unsmeared_j_eta - (*p_eta)[ip_mix];
+                float unsmeared_val = sqrt(unsmeared_dphi * unsmeared_dphi + unsmeared_deta * unsmeared_deta);
+                h2gammaffjsgensgen[phoBkg][k_bkgJet_rawTrk]->Fill(val, unsmeared_val, weight_bkgJet_rawTrk);
+            }
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
@@ -1221,6 +1248,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 float match_deta = match_j_eta - (*p_eta)[ip_UE];
                 float match_val = sqrt(match_dphi * match_dphi + match_deta * match_deta);
                 h2gammaffjsrefreco[phoBkg][k_bkgJet_ueTrk]->Fill(val, match_val, weight_bkgJet_ueTrk);
+            }
+            if (is_ref_jet || is_gen_jet) {
+                float unsmeared_j_eta = (*j_eta)[ij_mix];
+                float unsmeared_j_phi = (*j_phi)[ij_mix];
+                float unsmeared_dphi = getDPHI(unsmeared_j_phi, (*p_phi)[ip_UE]);
+                float unsmeared_deta = unsmeared_j_eta - (*p_eta)[ip_UE];
+                float unsmeared_val = sqrt(unsmeared_dphi * unsmeared_dphi + unsmeared_deta * unsmeared_deta);
+                h2gammaffjsgensgen[phoBkg][k_bkgJet_ueTrk]->Fill(val, unsmeared_val, weight_bkgJet_ueTrk);
             }
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
