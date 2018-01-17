@@ -387,15 +387,15 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     if (isMC) {
       if (isHI) {
         if (pthat >= 14.95 && pthat < 30.)
-          pjtt.weight = 0.999328;
+          pjtt.weight = 0.999245;
         else if (pthat >= 30. && pthat < 50.)
-          pjtt.weight = 0.447420;
+          pjtt.weight = 0.430662;
         else if (pthat >= 50. && pthat < 80.)
-          pjtt.weight = 0.153135;
+          pjtt.weight = 0.160472;
         else if (pthat >= 80. && pthat < 120.)
-          pjtt.weight = 0.042342;
+          pjtt.weight = 0.0473137;
         else if (pthat >= 120.)
-          pjtt.weight = 0.012907;
+          pjtt.weight = 0.0123843;
         else
           pjtt.weight = 0;
       } else {
