@@ -42,32 +42,45 @@ void float_to_int(float* p1 , int* p2 , int count) {
 // Smearing parameters
 // pp resolution
 std::vector<double> CSN_PP = {0.06, 0.95, 0};
-std::vector<double> CSN_phi_PP = {7.72 / 100000000, 0.1222, 0.5818};
+//std::vector<double> CSN_phi_PP = {7.72 / 100000000, 0.1222, 0.5818};
+std::vector<double> CSN_phi_PP = {0.00000, 0.09730, 0.16973};
+std::vector<double> CSN_eta_PP = {0.00503, 0.05398, 0.29439};
 
 // HI resolution
 // 0-30 %
 std::vector<double> CSN_HI_cent0030 = {0.06, 1.241, 6.827};
 std::vector<double> CSN_phi_HI_cent0030 = { -1.303 / 1000000, 0.1651, 1.864};
+std::vector<double> CSN_eta_HI_cent0030 = { 0, 0, 0};
 // 30-100 %
 std::vector<double> CSN_HI_cent30100 = {0.059, 1.239, 0};
 std::vector<double> CSN_phi_HI_cent30100 = { -2.013 / 100000000, 0.1646, 1.04};
+std::vector<double> CSN_eta_HI_cent30100 = { 0, 0, 0};
 
 // 0-10 %
 std::vector<double> CSN_HI_cent0010 = {0.06, 1.241, 8.421};
-std::vector<double> CSN_phi_HI_cent0010 = { -3.18781 / 10000000, 0.125911, 2.23898};
+//std::vector<double> CSN_phi_HI_cent0010 = { -3.18781 / 10000000, 0.125911, 2.23898};
+std::vector<double> CSN_phi_HI_cent0010 = { 0.00417, 0.21271, 0.87971};
+std::vector<double> CSN_eta_HI_cent0010 = { 0.01528, 0.10106, 1.14225};
 // 10-30 %
 std::vector<double> CSN_HI_cent1030 = {0.06, 1.241, 5.537};
-std::vector<double> CSN_phi_HI_cent1030 = {1.14344 / 100000, 0.179847, 1.56128};
+//std::vector<double> CSN_phi_HI_cent1030 = {1.14344 / 100000, 0.179847, 1.56128};
+std::vector<double> CSN_phi_HI_cent1030 = {0.01502, 0.09981, 1.00527};
+std::vector<double> CSN_eta_HI_cent1030 = {0.01603, 0.05944, 0.94106};
 // 30-50 %
 std::vector<double> CSN_HI_cent3050 = {0.059, 1.239, 2.372};
-std::vector<double> CSN_phi_HI_cent3050 = {0.0145775, 0.1222, 1.21751};
+//std::vector<double> CSN_phi_HI_cent3050 = {0.0145775, 0.1222, 1.21751};
+std::vector<double> CSN_phi_HI_cent3050 = {0.01376, 0.11830, 0.64948};
+std::vector<double> CSN_eta_HI_cent3050 = {0.01598, 0.00003, 0.80111};
 // 50-100 %
 std::vector<double> CSN_HI_cent50100 = {0.059, 1.239, 0};
-std::vector<double> CSN_phi_HI_cent50100 = { -0.0073078, 0.168879, 0.798885};
+//std::vector<double> CSN_phi_HI_cent50100 = { -0.0073078, 0.168879, 0.798885};
+std::vector<double> CSN_phi_HI_cent50100 = { 0.01391, 0.11812, 0.39058};
+std::vector<double> CSN_eta_HI_cent50100 = { 0.01580, 0.02624, 0.61111};
 
 // CSN vectors
 std::vector<double>* CSN_vector[6] = {&CSN_HI_cent0010, &CSN_HI_cent1030, &CSN_HI_cent3050, &CSN_HI_cent50100, &CSN_HI_cent0030, &CSN_HI_cent30100};
 std::vector<double>* CSN_phi_vector[6] = {&CSN_phi_HI_cent0010, &CSN_phi_HI_cent1030, &CSN_phi_HI_cent3050, &CSN_phi_HI_cent50100, &CSN_phi_HI_cent0030, &CSN_phi_HI_cent30100};
+std::vector<double>* CSN_eta_vector[6] = {&CSN_eta_HI_cent0010, &CSN_eta_HI_cent1030, &CSN_eta_HI_cent3050, &CSN_eta_HI_cent50100, &CSN_eta_HI_cent0030, &CSN_eta_HI_cent30100};
 
 int getCentralityBin(int centmin, int centmax = 0) {
     if (centmin == 0 && (centmax == 0 || centmax == 20))
@@ -130,6 +143,17 @@ double getPhiResolutionHI(float jtpt, int centBin) {
   return sigma;
 }
 
+double getEtaResolutionHI(float jtpt, int centBin) {
+  std::vector<double>* CSN_HI = CSN_eta_vector[centBin];
+  double sigma = TMath::Sqrt(
+    (CSN_HI->at(0) * CSN_HI->at(0)) +
+    (CSN_HI->at(1) * CSN_HI->at(1)) / jtpt +
+    (CSN_HI->at(2) * CSN_HI->at(2)) / (jtpt * jtpt)
+  );
+
+  return sigma;
+}
+
 double getResolutionPP(float jtpt) {
   return TMath::Sqrt(
     (CSN_PP[0] * CSN_PP[0]) +
@@ -143,6 +167,14 @@ double getPhiResolutionPP(float jtpt) {
     (CSN_phi_PP[0] * CSN_phi_PP[0]) +
     (CSN_phi_PP[1] * CSN_phi_PP[1]) / jtpt +
     (CSN_phi_PP[2] * CSN_phi_PP[2]) / (jtpt * jtpt)
+  );
+}
+
+double getEtaResolutionPP(float jtpt) {
+  return TMath::Sqrt(
+    (CSN_eta_PP[0] * CSN_eta_PP[0]) +
+    (CSN_eta_PP[1] * CSN_eta_PP[1]) / jtpt +
+    (CSN_eta_PP[2] * CSN_eta_PP[2]) / (jtpt * jtpt)
   );
 }
 

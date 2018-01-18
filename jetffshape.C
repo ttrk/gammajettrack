@@ -339,11 +339,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_ref_jet = (jetLevel.find("ref") != std::string::npos);
   bool is_ref0_jet = (jetLevel.find("ref0") != std::string::npos);
   bool is_smeared_jet = (jetLevel.find("s") == 0);
-  bool is_ptsmeared_jet = (jetLevel.find("spt") == 0);
-  bool is_phismeared_jet = (jetLevel.find("sphi") == 0);
+  bool is_ptsmeared_jet = (jetLevel.find("spt") != std::string::npos);
+  bool is_phismeared_jet = (jetLevel.find("sphi") != std::string::npos);
+  bool is_etasmeared_jet = (jetLevel.find("seta") != std::string::npos);
   bool is_QG_jet = (jetLevel.find("QG") != std::string::npos);
   bool is_Q_jet = (!is_QG_jet && jetLevel.find("Q") != std::string::npos);
   bool is_G_jet = (!is_QG_jet && jetLevel.find("G") != std::string::npos);
+
+  if (is_smeared_jet && !is_ptsmeared_jet && !is_phismeared_jet && !is_etasmeared_jet) {
+      is_ptsmeared_jet = true;
+      is_phismeared_jet = true;
+      is_etasmeared_jet = true;
+  }
 
   bool use_recoPt = (jetLevel.find("rPt") != std::string::npos);
   bool use_recoEta = (jetLevel.find("rEta") != std::string::npos);
@@ -600,42 +607,28 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       nsmear = 1;
       float res_pt = 0;
       float res_phi = 0;
+      float res_eta = 0;
 
       // apply smearing
       if (is_smeared_jet) {
+          nsmear = _NSMEAR;
           if (isPP) {
             if (is_reco_jet) {
               res_pt = getSigmaRelPt(centmin, centmax, tmpjetpt);
               res_phi = getSigmaRelPhi(centmin, centmax, tmpjetpt);
-              nsmear = _NSMEAR;
-            }
-            else if (is_ptsmeared_jet && (is_gen_jet || is_ref_jet)) {
-              res_pt = getResolutionPP(tmpjetpt);
-              nsmear = _NSMEAR;
-            }
-            else if (is_phismeared_jet && (is_gen_jet || is_ref_jet)) {
-              res_phi = getPhiResolutionPP(tmpjetpt);
-              nsmear = _NSMEAR;
+              //res_eta = getSigmaRelEta(centmin, centmax, tmpjetpt);
             }
             else if (is_gen_jet || is_ref_jet) {
-              res_pt = getResolutionPP(tmpjetpt);
-              res_phi = getPhiResolutionPP(tmpjetpt);
-              nsmear = _NSMEAR;
+                res_pt = (is_ptsmeared_jet) ? getResolutionPP(tmpjetpt) : 0;
+                res_phi = (is_phismeared_jet) ? getPhiResolutionPP(tmpjetpt) : 0;
+                res_eta = (is_etasmeared_jet) ? getEtaResolutionPP(tmpjetpt) : 0;
             }
           }
           else {
-            if (is_ptsmeared_jet && (is_gen_jet || is_ref_jet)) {
-              res_pt = getResolutionHI(tmpjetpt, centBin);
-              nsmear = _NSMEAR;
-            }
-            else if (is_phismeared_jet && (is_gen_jet || is_ref_jet)) {
-              res_phi = getPhiResolutionHI(tmpjetpt, centBin);
-              nsmear = _NSMEAR;
-            }
-            else if (is_gen_jet || is_ref_jet) {
-              res_pt = getResolutionHI(tmpjetpt, centBin);
-              res_phi = getPhiResolutionHI(tmpjetpt, centBin);
-              nsmear = _NSMEAR;
+            if (is_gen_jet || is_ref_jet) {
+                res_pt = (is_ptsmeared_jet) ? getResolutionHI(tmpjetpt, centBin) : 0;
+                res_phi = (is_phismeared_jet) ? getPhiResolutionHI(tmpjetpt, centBin) : 0;
+                res_eta = (is_etasmeared_jet) ? getEtaResolutionHI(tmpjetpt, centBin) : 0;
             }
           }
       }
@@ -649,6 +642,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       for (int is = 0; is < nsmear; ++is) {
         tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
         tmpjetphi = (*j_phi)[ij] + smear_rand.Gaus(0, res_phi);
+        tmpjeteta = (*j_eta)[ij] + smear_rand.Gaus(0, res_eta);
 
         switch (systematic) {
           case 1: {
@@ -1000,20 +994,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       nsmear = 1;
       float res_pt = 0;
       float res_phi = 0;
+      float res_eta = 0;
 
       if (is_smeared_jet) {
-          if (is_ptsmeared_jet && (is_gen_jet || is_ref_jet)) {
-            res_pt = getResolutionHI(tmpjetpt, centBin);
-            nsmear = _NSMEAR;
-          }
-          else if (is_phismeared_jet && (is_gen_jet || is_ref_jet)) {
-            res_phi = getPhiResolutionHI(tmpjetpt, centBin);
-            nsmear = _NSMEAR;
-          }
-          else if (is_gen_jet || is_ref_jet) {
-            res_pt = getResolutionHI(tmpjetpt, centBin);
-            res_phi = getPhiResolutionHI(tmpjetpt, centBin);
-            nsmear = _NSMEAR;
+          nsmear = _NSMEAR;
+          if (is_gen_jet || is_ref_jet) {
+            res_pt = (is_ptsmeared_jet) ? getResolutionHI(tmpjetpt, centBin) : 0;
+            res_phi = (is_phismeared_jet) ? getPhiResolutionHI(tmpjetpt, centBin) : 0;
+            res_eta = (is_etasmeared_jet) ? getEtaResolutionHI(tmpjetpt, centBin) : 0;
           }
       }
 
@@ -1026,6 +1014,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       for (int is = 0; is < nsmear; ++is) {
         tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
         tmpjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
+        tmpjeteta = (*j_eta_mix)[ij_mix] + smear_rand.Gaus(0, res_eta);
 
         switch (systematic) {
           case 1: {
