@@ -120,7 +120,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH2D* h2dphirefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH2D* h2detarefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH2D* h2drrefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
+
   TH2D* h2dphidetarefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
+  std::vector<int> ptBins_dphidetarefrecoJet = {30, 40, 50, 60, 80, 100, 120, 150};
+  int nPtBins_dphidetarefrecoJet = ptBins_dphidetarefrecoJet.size() - 1;
+  TH2D* h2dphidetarefrecoJet_ptBin[kN_PHO_SIGBKG][kN_JET_SIGBKG][nPtBins_dphidetarefrecoJet];
+
   for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
       hphopt[i] = new TH1D(Form("hphopt%s_%s_%s_%d_%d", pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{#gamma}_{T};", 20, 0, 600);
 
@@ -146,6 +151,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                                              , ";p^{ref}_{T};#DeltaR(reco, ref)", 30, 0, 150, 80, 0, 0.8);
           h2dphidetarefrecoJet[i][j] = new TH2D(Form("h2dphidetarefrecoJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
                                              , ";#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}", 80, -0.4, 0.4, 80, -0.4, 0.4);
+
+          for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
+              std::string tmpTitle = Form("%d < p_{T} < %d GeV/c;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}",
+                                          ptBins_dphidetarefrecoJet[iPt], ptBins_dphidetarefrecoJet[iPt+1]);
+              h2dphidetarefrecoJet_ptBin[i][j][iPt] = new TH2D(Form("h2dphidetarefrecoJet_ptBin%d%s%s_%s_%s_%d_%d", iPt, jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
+                                                           , tmpTitle.c_str(), 80, -0.4, 0.4, 80, -0.4, 0.4);
+          }
       }
   }
 
@@ -703,6 +715,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             h2drrefrecoJet[phoBkg][k_rawJet]->Fill((*gjetpt)[ij], dr_refrecojet, weight_jet);
 
             h2dphidetarefrecoJet[phoBkg][k_rawJet]->Fill(dphi_refrecojet, deta_refrecojet, weight_jet);
+
+            for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
+                if (ptBins_dphidetarefrecoJet[iPt] <= tmpjetpt && tmpjetpt < ptBins_dphidetarefrecoJet[iPt+1]) {
+                    h2dphidetarefrecoJet_ptBin[phoBkg][k_rawJet][iPt]->Fill(dphi_refrecojet, deta_refrecojet, weight_jet);
+                }
+            }
         }
         nPhoJet += 1;
 
@@ -1077,6 +1095,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             h2drrefrecoJet[phoBkg][k_bkgJet]->Fill((*gjetpt)[ij_mix], dr_refrecojet, weight_jet);
 
             h2dphidetarefrecoJet[phoBkg][k_bkgJet]->Fill(dphi_refrecojet, deta_refrecojet, weight_jet);
+
+            for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
+                if (ptBins_dphidetarefrecoJet[iPt] <= tmpjetpt && tmpjetpt < ptBins_dphidetarefrecoJet[iPt+1]) {
+                    h2dphidetarefrecoJet_ptBin[phoBkg][k_bkgJet][iPt]->Fill(dphi_refrecojet, deta_refrecojet, weight_jet);
+                }
+            }
         }
         nPhoJet_mix += 1;
 
