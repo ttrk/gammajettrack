@@ -691,18 +691,19 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         // jet phi cut
         if (dphijg < 7 * pi / 8) continue;
 
-        hjetpt[phoBkg][k_rawJet]->Fill(tmpjetpt, weight * smear_weight * reweightPP);
-        hjetptrebin[phoBkg][k_rawJet]->Fill(tmpjetpt, weight * smear_weight * reweightPP);
-        hjeteta[phoBkg][k_rawJet]->Fill(fabs(tmpjeteta), weight * smear_weight * reweightPP);
-        hxjg[phoBkg][k_rawJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight * reweightPP);
+        float weight_jet = weight * smear_weight * reweightPP;
+        hjetpt[phoBkg][k_rawJet]->Fill(tmpjetpt, weight_jet);
+        hjetptrebin[phoBkg][k_rawJet]->Fill(tmpjetpt, weight_jet);
+        hjeteta[phoBkg][k_rawJet]->Fill(fabs(tmpjeteta), weight_jet);
+        hxjg[phoBkg][k_rawJet]->Fill(tmpjetpt/phoEtCorrected, weight_jet);
         if (is_ref_jet || is_reco_jet) {
-            h2ptRatiorefrecoJet[phoBkg][k_rawJet]->Fill((*gjetpt)[ij], tmpjetpt/(*gjetpt)[ij], weight * smear_weight * reweightPP);
+            h2ptRatiorefrecoJet[phoBkg][k_rawJet]->Fill((*gjetpt)[ij], tmpjetpt/(*gjetpt)[ij], weight_jet);
             float dphi_refrecojet = getDPHI(tmpjetphi, (*gjetphi)[ij]);
-            h2dphirefrecoJet[phoBkg][k_rawJet]->Fill((*gjetpt)[ij], dphi_refrecojet, weight * smear_weight * reweightPP);
+            h2dphirefrecoJet[phoBkg][k_rawJet]->Fill((*gjetpt)[ij], dphi_refrecojet, weight_jet);
             float deta_refrecojet = tmpjeteta - (*gjeteta)[ij];
-            h2detarefrecoJet[phoBkg][k_rawJet]->Fill((*gjetpt)[ij], deta_refrecojet, weight * smear_weight * reweightPP);
+            h2detarefrecoJet[phoBkg][k_rawJet]->Fill((*gjetpt)[ij], deta_refrecojet, weight_jet);
             float dr_refrecojet = std::sqrt(dphi_refrecojet*dphi_refrecojet + deta_refrecojet*deta_refrecojet);
-            h2drrefrecoJet[phoBkg][k_rawJet]->Fill((*gjetpt)[ij], dr_refrecojet, weight * smear_weight * reweightPP);
+            h2drrefrecoJet[phoBkg][k_rawJet]->Fill((*gjetpt)[ij], dr_refrecojet, weight_jet);
         }
         nPhoJet += 1;
 
@@ -1067,18 +1068,19 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         // jet phi cut
         if (dphijg < 7 * pi / 8) continue;
 
-        hjetpt[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight * smear_weight * reweightPP / nmixedevents_jet);
-        hjetptrebin[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight * smear_weight * reweightPP / nmixedevents_jet);
-        hjeteta[phoBkg][k_bkgJet]->Fill(fabs(tmpjeteta), weight * smear_weight * reweightPP / nmixedevents_jet);
-        hxjg[phoBkg][k_bkgJet]->Fill(tmpjetpt/phoEtCorrected, weight * smear_weight * reweightPP / nmixedevents_jet);
+        float weight_jet = weight * smear_weight * reweightPP / nmixedevents_jet;
+        hjetpt[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight_jet);
+        hjetptrebin[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight_jet);
+        hjeteta[phoBkg][k_bkgJet]->Fill(fabs(tmpjeteta), weight_jet);
+        hxjg[phoBkg][k_bkgJet]->Fill(tmpjetpt/phoEtCorrected, weight_jet);
         if (is_ref_jet || is_reco_jet) {
-            h2ptRatiorefrecoJet[phoBkg][k_bkgJet]->Fill((*gjetpt)[ij_mix], tmpjetpt/(*gjetpt)[ij_mix], weight * smear_weight * reweightPP / nmixedevents_jet);
+            h2ptRatiorefrecoJet[phoBkg][k_bkgJet]->Fill((*gjetpt)[ij_mix], tmpjetpt/(*gjetpt)[ij_mix], weight_jet);
             float dphi_refrecojet = getDPHI(tmpjetphi, (*gjetphi)[ij_mix]);
-            h2dphirefrecoJet[phoBkg][k_bkgJet]->Fill((*gjetpt)[ij_mix], dphi_refrecojet, weight * smear_weight * reweightPP / nmixedevents_jet);
+            h2dphirefrecoJet[phoBkg][k_bkgJet]->Fill((*gjetpt)[ij_mix], dphi_refrecojet, weight_jet);
             float deta_refrecojet = tmpjeteta - (*gjeteta)[ij_mix];
-            h2detarefrecoJet[phoBkg][k_bkgJet]->Fill((*gjetpt)[ij_mix], deta_refrecojet, weight * smear_weight * reweightPP / nmixedevents_jet);
+            h2detarefrecoJet[phoBkg][k_bkgJet]->Fill((*gjetpt)[ij_mix], deta_refrecojet, weight_jet);
             float dr_refrecojet = std::sqrt(dphi_refrecojet*dphi_refrecojet + deta_refrecojet*deta_refrecojet);
-            h2drrefrecoJet[phoBkg][k_bkgJet]->Fill((*gjetpt)[ij_mix], dr_refrecojet, weight * smear_weight * reweightPP / nmixedevents_jet);
+            h2drrefrecoJet[phoBkg][k_bkgJet]->Fill((*gjetpt)[ij_mix], dr_refrecojet, weight_jet);
         }
         nPhoJet_mix += 1;
 
