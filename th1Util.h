@@ -26,14 +26,20 @@ void fillTH1fromTGraph(TH1* h, TGraph* graph);
 void setTH1_energyScale(TH1* h, float titleOffsetX = 1.25, float titleOffsetY = 1.75);
 void setTH1_energyWidth(TH1* h, float titleOffsetX = 1.25, float titleOffsetY = 1.75);
 void setTH1_efficiency (TH1* h, float titleOffsetX = 1.25, float titleOffsetY = 1.75);
-double getMinimumTH1s(TH1D* h[], int nHistos, int start = 0);
-double getMaximumTH1s(TH1D* h[], int nHistos, int start = 0);
+double getMinimumTH1s(TH1* h[], int nHistos, int start = 0);
+double getMinimumTH1s(std::vector<TH1*> vecH, int nHistos, int start = 0);
+double getMaximumTH1s(TH1* h[], int nHistos, int start = 0);
+double getMaximumTH1s(std::vector<TH1*> vecH, int nHistos, int start = 0);
 void setConstantBinContent(TH1* h, double constantContent);
+void setConstantBinError(TH1* h, double constantError);
 void setConstantBinContentError(TH1* h, double constantContent, double  constantError);
 void setBinContents(TH1* h, std::vector<double> binContents);
+void setBinErrors(TH1* h, std::vector<double> binErrors);
 void setBinContentsErrors(TH1* h, std::vector<double> binContents, std::vector<double> binErrors);
 void scaleBinErrors(TH1* h, double scale);
 void scaleBinContentErrors(TH1* h, double scaleContent, double scaleError);
+std::vector<double> getBinContents(TH1* h);
+std::vector<double> getBinErrors(TH1* h);
 std::vector<double> getTH1xBins(int nBins, double xLow, double xUp);
 std::vector<double> getTH1xBins(TH1* h);
 int getMinimumBin(TH1D* h, double minval = -FLT_MAX, int binFirst = 1, int binLast = -1);
@@ -66,10 +72,16 @@ void calcTH1Abs4SysUnc(TH1* h);
 void setTH1Style4SysUnc(TH1* h);
 void subtractIdentity4SysUnc(TH1* h);
 void addSysUnc(TH1* hTot, TH1* h);
+void sysDiff2sysRel(TH1D* hNom, TH1D* hSys);
+void sysRel2sysDiff(TH1D* hNom, TH1D* hSys);
 void setSysUncBox(TBox* box, TH1* h, TH1* hSys, int bin, double binWidth = -1, double binWidthScale = 1);
 void drawSysUncBoxes(TBox* box, TH1* h, TH1* hSys, double binWidth = -1, double binWidthScale = 1);
 void setSysUncBox(TGraph* gr, TH1* h, TH1* hSys, int bin, bool doRelUnc = false, double binWidth = -1, double binWidthScale = 1);
+void setSysUncBox(TGraph* gr, TH1* h, TH1* hSys, bool isSysMinus, int bin, bool doRelUnc = false, double binWidth = -1, double binWidthScale = 1);
+void setSysUncBoxDown(TGraph* gr, TH1* h, TH1* hSys, int bin, bool doRelUnc = false, double binWidth = -1, double binWidthScale = 1);
+void setSysUncBoxUp(TGraph* gr, TH1* h, TH1* hSys, int bin, bool doRelUnc = false, double binWidth = -1, double binWidthScale = 1);
 void drawSysUncBoxes(TGraph* gr, TH1* h, TH1* hSys, bool doRelUnc = false, double binWidth = -1, double binWidthScale = 1);
+void drawSysUncBoxes(TGraph* gr, TH1* h, TH1* hSysDown, TH1* hSysUp, bool doRelUnc = false, double binWidth = -1, double binWidthScale = 1);
 // plotting
 void drawSameTH1D(TCanvas* c, std::vector<TH1D*> vecTH1D);
 void drawSameTH1D(TPad* pad, std::vector<TH1D*> vecTH1D);
@@ -210,9 +222,9 @@ void setTH1_efficiency(TH1* h, float titleOffsetX, float titleOffsetY) {
 }
 
 /*
- * get minimum of an array of TH1D
+ * get minimum of an array of TH1
  */
-double getMinimumTH1s(TH1D* h[], int nHistos, int start) {
+double getMinimumTH1s(TH1* h[], int nHistos, int start) {
 
     double result = h[start]->GetMinimum();
     for (int i = start+1; i < start+nHistos; ++i) {
@@ -223,9 +235,19 @@ double getMinimumTH1s(TH1D* h[], int nHistos, int start) {
 }
 
 /*
- * get maximum of an array of TH1D
+ * get minimum of a vector of TH1
  */
-double getMaximumTH1s(TH1D* h[], int nHistos, int start) {
+double getMinimumTH1s(std::vector<TH1*> vecH, int nHistos, int start) {
+
+    TH1* arrH[nHistos];
+    std::copy(vecH.begin() + start, vecH.begin() + start + nHistos, arrH);
+    return getMinimumTH1s(arrH, nHistos);
+}
+
+/*
+ * get maximum of an array of TH1
+ */
+double getMaximumTH1s(TH1* h[], int nHistos, int start) {
 
     double result = h[start]->GetMaximum();
     for (int i = start+1; i < start+nHistos; ++i) {
@@ -236,29 +258,44 @@ double getMaximumTH1s(TH1D* h[], int nHistos, int start) {
 }
 
 /*
+ * get maximum of a vector of TH1
+ */
+double getMaximumTH1s(std::vector<TH1*> vecH, int nHistos, int start) {
+
+    TH1* arrH[nHistos];
+    std::copy(vecH.begin() + start, vecH.begin() + start + nHistos, arrH);
+    return getMaximumTH1s(arrH, nHistos);
+}
+
+/*
  * set content of all bins to the given value
  */
 void setConstantBinContent(TH1* h, double constantContent)
 {
     int nBins = h->GetNbinsX();
-    std::vector<double> binContents (nBins, constantContent);
+    std::vector<double> binContents (nBins+2, constantContent);
     setBinContents(h, binContents);
 }
 
 /*
- * set content of all bins to constantContent
- * set error of all bins to constantError
+ * set error of all bins to the given value
  */
-void setConstantBinContentError(TH1* h, double constantContent, double  constantError)
+void setConstantBinError(TH1* h, double constantError)
 {
     int nBins = h->GetNbinsX();
-    std::vector<double> binContents (nBins, constantContent);
-    std::vector<double> binErrors   (nBins, constantError);
-    setBinContentsErrors(h, binContents, binErrors);
+    std::vector<double> binErrors (nBins+2, constantError);
+    setBinErrors(h, binErrors);
+}
+
+void setConstantBinContentError(TH1* h, double constantContent, double  constantError)
+{
+    setConstantBinContent(h, constantContent);
+    setConstantBinError(h, constantError);
 }
 
 /*
  * function to set bin contents of TH1 histogram.
+ * includes underflow and overflow bins, size of binContents must be nBins + 2.
  * avoids looping over the bins in the main program.
  * helps to keep the code clean.
  */
@@ -266,32 +303,36 @@ void setBinContents(TH1* h, std::vector<double> binContents)
 {
     int nBins = h->GetNbinsX();
     int nVec  = binContents.size();
-    if (nBins != nVec)  return;
+    if (nBins+2 != nVec)  return;
 
-    for ( int i = 1; i <= nBins; i++)
+    for ( int i = 0; i <= nBins+1; ++i)
     {
-        h->SetBinContent(i, binContents.at(i-1));
+        h->SetBinContent(i, binContents.at(i));
     }
 }
 
 /*
- * function to set bin contents and errors of TH1 histogram.
+ * function to set bin errors of TH1 histogram.
+ * includes underflow and overflow bins, size of binErrors must be nBins + 2.
  * avoids looping over the bins in the main program.
  * helps to keep the code clean.
  */
+void setBinErrors(TH1* h, std::vector<double> binErrors)
+{
+    int nBins = h->GetNbinsX();
+    int nVec  = binErrors.size();
+    if (nBins+2 != nVec)  return;
+
+    for ( int i = 0; i <= nBins+1; ++i)
+    {
+        h->SetBinError(i, binErrors.at(i));
+    }
+}
+
 void setBinContentsErrors(TH1* h, std::vector<double> binContents, std::vector<double> binErrors)
 {
-    int nBins    = h->GetNbinsX();
-    int nVec     = binContents.size();
-    int nVecErr  = binErrors.size();
-    if (nBins != nVec)     return;
-    if (nBins != nVecErr)  return;
-
-    for ( int i = 1; i <= nBins; i++)
-    {
-        h->SetBinContent(i, binContents.at(i-1));
-        h->SetBinError(i, binErrors.at(i-1));
-    }
+    setBinContents(h, binContents);
+    setBinErrors(h, binErrors);
 }
 
 void scaleBinErrors(TH1* h, double scale)
@@ -311,6 +352,38 @@ void scaleBinContentErrors(TH1* h, double scaleContent, double scaleError)
         h->SetBinContent(i, h->GetBinContent(i)*scaleContent);
         h->SetBinError(i,   h->GetBinError(i)*scaleError);
     }
+}
+
+/*
+ * returns the bin contents including underflow and overflow bins
+ * size of the vector is nBins+2.
+ */
+std::vector<double> getBinContents(TH1* h)
+{
+    std::vector<double> res;
+    int nBins = h->GetNbinsX();
+    for ( int i = 0; i <= nBins+1; ++i)
+    {
+        res.push_back(h->GetBinContent(i));
+    }
+
+    return res;
+}
+
+/*
+ * returns the bin errors including underflow and overflow bins
+ * size of the vector is nBins+2.
+ */
+std::vector<double> getBinErrors(TH1* h)
+{
+    std::vector<double> res;
+    int nBins = h->GetNbinsX();
+    for ( int i = 0; i <= nBins+1; ++i)
+    {
+        res.push_back(h->GetBinError(i));
+    }
+
+    return res;
 }
 
 /*
@@ -860,6 +933,44 @@ void addSysUnc(TH1* hTot, TH1* h)
     }
 }
 
+/*
+ * "hSys" is the histogram that contains the systematics variation in difference.
+ * convert it to histogram that contains the relative systematics variation.
+ */
+void sysDiff2sysRel(TH1D* hNom, TH1D* hSys)
+{
+    int nBins = hSys->GetNbinsX();
+    for (int iBin = 1; iBin <= nBins; ++iBin) {
+        double valDiff = hSys->GetBinContent(iBin);
+        double x = hSys->GetBinCenter(iBin);
+
+        int binNom = hNom->FindBin(x);
+        double valNom = hNom->GetBinContent(binNom);
+
+        double val = TMath::Abs(valDiff / valNom);
+        hSys->SetBinContent(iBin, val);
+    }
+}
+
+/*
+ * "hSys" is the histogram that contains the relative systematics variation.
+ * convert it to histogram that contains the systematics variation in difference.
+ */
+void sysRel2sysDiff(TH1D* hNom, TH1D* hSys)
+{
+    int nBins = hSys->GetNbinsX();
+    for (int iBin = 1; iBin <= nBins; ++iBin) {
+        double valRel = hSys->GetBinContent(iBin);
+        double x = hSys->GetBinCenter(iBin);
+
+        int binNom = hNom->FindBin(x);
+        double valNom = hNom->GetBinContent(binNom);
+
+        double val = TMath::Abs(valRel * valNom);
+        hSys->SetBinContent(iBin, val);
+    }
+}
+
 void setSysUncBox(TBox* box, TH1* h, TH1* hSys, int bin, double binWidth, double binWidthScale)
 {
    double val = h->GetBinContent(bin);
@@ -924,6 +1035,47 @@ void setSysUncBox(TGraph* gr, TH1* h, TH1* hSys, int bin, bool doRelUnc, double 
    gr->SetPoint(3, x - (binWidth/2)*binWidthScale, errorUp);
 }
 
+void setSysUncBox(TGraph* gr, TH1* h, TH1* hSys, bool isSysMinus, int bin, bool doRelUnc, double binWidth, double binWidthScale)
+{
+    double val = h->GetBinContent(bin);
+    double x   = h->GetBinCenter(bin);
+    int binSys = hSys->FindBin(x);
+
+    double error = TMath::Abs(hSys->GetBinContent(binSys));             // if the uncertainty is calculated using differences
+    if (doRelUnc) error = TMath::Abs(val * hSys->GetBinContent(binSys));    // if the uncertainty is calculated using ratios
+
+    std::string hSysName = hSys->GetName();
+
+    if (binWidth < 0) {
+      binWidth = h->GetBinLowEdge(bin+1) - h->GetBinLowEdge(bin);
+    }
+
+    if (isSysMinus) {
+        double valSys = val - error;
+        if (valSys < h->GetMinimum())  valSys = h->GetMinimum();
+
+        gr->SetPoint(0, x - (binWidth/2)*binWidthScale, valSys);
+        gr->SetPoint(1, x + (binWidth/2)*binWidthScale, valSys);
+    }
+    else {
+        double valSys = val + error;
+        if (valSys > h->GetMaximum()) valSys = h->GetMaximum();
+
+        gr->SetPoint(2, x + (binWidth/2)*binWidthScale, valSys);
+        gr->SetPoint(3, x - (binWidth/2)*binWidthScale, valSys);
+    }
+}
+
+void setSysUncBoxUp(TGraph* gr, TH1* h, TH1* hSys, int bin, bool doRelUnc, double binWidth, double binWidthScale)
+{
+    setSysUncBox(gr, h, hSys, false, bin, doRelUnc, binWidth, binWidthScale);
+}
+
+void setSysUncBoxDown(TGraph* gr, TH1* h, TH1* hSys, int bin, bool doRelUnc, double binWidth, double binWidthScale)
+{
+    setSysUncBox(gr, h, hSys, true, bin, doRelUnc, binWidth, binWidthScale);
+}
+
 /*
  * draws SysUnc boxes using TGraph objects instead of TBox. TBox objects with transparent fill do not
  * show up in ".png" files. Hence, use this version of the function to produce transparent boxes in ".png" files
@@ -942,6 +1094,19 @@ void drawSysUncBoxes(TGraph* gr, TH1* h, TH1* hSys, bool doRelUnc, double binWid
     }
 }
 
+void drawSysUncBoxes(TGraph* gr, TH1* h, TH1* hSysDown, TH1* hSysUp, bool doRelUnc, double binWidth, double binWidthScale)
+{
+    int nBins = h->GetNbinsX();
+    for (int i = 1; i <= nBins; ++i) {
+        if (h->GetBinError(i) == 0) continue;
+        if (h->GetBinContent(i) < h->GetMinimum()) continue;
+        if (h->GetBinContent(i) > h->GetMaximum()) continue;
+
+        setSysUncBox(gr, h, hSysDown, true, i, doRelUnc, binWidth, binWidthScale);
+        setSysUncBox(gr, h, hSysUp, false, i, doRelUnc, binWidth, binWidthScale);
+        gr->DrawClone("f");
+    }
+}
 
 void drawSameTH1D(TCanvas* c, std::vector<TH1D*> vecTH1D)
 {
