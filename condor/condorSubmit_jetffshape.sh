@@ -49,7 +49,7 @@ baseDir="/work/"$USER"/gjt/"
 timeNow=$(date +"%Y%m%d_%H%M%S")
 outputNamePrefix="${outputName/.root/}"
 submitDir=$baseDir"condorSubmissions/"$outputNamePrefix"/"$timeNow
-condorLogsDir=$baseDir"condorLogs/"$outputNamePrefix"/"$timeNow
+condorLogsDir=$submitDir"/logs"
 mkdir -p $submitDir
 mkdir -p $condorLogsDir
 
