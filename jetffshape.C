@@ -161,6 +161,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
   }
 
+  TH2D* h2dphidetarefrecoJet_seed[nPtBins_dphidetarefrecoJet];
+  for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
+      std::string histName = Form("h2dphidetarefrecoJet_ptBin%d_%s_reco0gen0_%d_%d", iPt, sample.c_str(), abs(centmin), abs(centmax));
+      h2dphidetarefrecoJet_seed[iPt] = 0;
+      h2dphidetarefrecoJet_seed[iPt] = (TH2D*)fweight->Get(histName.c_str());
+      if (!h2dphidetarefrecoJet_seed[iPt]) {
+          std::cout << "Warning : Histogram " << histName.c_str() << " is not found in file" << fweight->GetName() << std::endl;
+      }
+  }
+
   std::string xTitle = "";
   if (defnFF == k_jetFF && gammaxi == 0)
       xTitle = "#xi_{jet}";
@@ -357,6 +367,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_ptsmeared_jet = (jetLevel.find("spt") != std::string::npos);
   bool is_phismeared_jet = (jetLevel.find("sphi") != std::string::npos);
   bool is_etasmeared_jet = (jetLevel.find("seta") != std::string::npos);
+  bool is_jet_smeared_using_hist = (jetLevel.find("rndTH") != std::string::npos);
   bool is_QG_jet = (jetLevel.find("QG") != std::string::npos);
   bool is_Q_jet = (!is_QG_jet && jetLevel.find("Q") != std::string::npos);
   bool is_G_jet = (!is_QG_jet && jetLevel.find("G") != std::string::npos);
@@ -655,9 +666,24 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
-        tmpjetphi = (*j_phi)[ij] + smear_rand.Gaus(0, res_phi);
-        tmpjeteta = (*j_eta)[ij] + smear_rand.Gaus(0, res_eta);
+        if (!is_jet_smeared_using_hist) {
+            tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
+            tmpjetphi = (*j_phi)[ij] + smear_rand.Gaus(0, res_phi);
+            tmpjeteta = (*j_eta)[ij] + smear_rand.Gaus(0, res_eta);
+        }
+        else {
+            double x1 = 0;
+            double x2 = 0;
+            for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
+                if (ptBins_dphidetarefrecoJet[iPt] <= tmpjetpt && tmpjetpt < ptBins_dphidetarefrecoJet[iPt+1]) {
+                    h2dphidetarefrecoJet_seed[iPt]->GetRandom2(x1, x2);
+                    break;
+                }
+            }
+            tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
+            if (is_phismeared_jet) tmpjetphi = (*j_phi)[ij] + x1;
+            if (is_etasmeared_jet) tmpjeteta = (*j_eta)[ij] + x2;
+        }
 
         switch (systematic) {
           case 1: {
@@ -1035,9 +1061,24 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
-        tmpjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
-        tmpjeteta = (*j_eta_mix)[ij_mix] + smear_rand.Gaus(0, res_eta);
+        if (is_jet_smeared_using_hist) {
+          tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
+          tmpjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
+          tmpjeteta = (*j_eta_mix)[ij_mix] + smear_rand.Gaus(0, res_eta);
+        }
+        else {
+            double x1 = 0;
+            double x2 = 0;
+            for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
+                if (ptBins_dphidetarefrecoJet[iPt] <= tmpjetpt && tmpjetpt < ptBins_dphidetarefrecoJet[iPt+1]) {
+                    h2dphidetarefrecoJet_seed[iPt]->GetRandom2(x1, x2);
+                    break;
+                }
+            }
+            tmpjetpt = (*j_pt)[ij_mix] * smear_rand.Gaus(1, res_pt);
+            if (is_phismeared_jet) tmpjetphi = (*j_phi_mix)[ij_mix] + x1;
+            if (is_etasmeared_jet) tmpjeteta = (*j_eta_mix)[ij_mix] + x2;
+        }
 
         switch (systematic) {
           case 1: {
