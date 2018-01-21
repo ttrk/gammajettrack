@@ -122,7 +122,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH2D* h2drrefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
 
   TH2D* h2dphidetarefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
-  std::vector<int> ptBins_dphidetarefrecoJet = {30, 40, 50, 60, 80, 100, 120, 150};
+  std::vector<int> ptBins_dphidetarefrecoJet = {30, 40, 50, 60, 80, 100, 120, 150, 9999};
   int nPtBins_dphidetarefrecoJet = ptBins_dphidetarefrecoJet.size() - 1;
   TH2D* h2dphidetarefrecoJet_ptBin[kN_PHO_SIGBKG][kN_JET_SIGBKG][nPtBins_dphidetarefrecoJet];
 
