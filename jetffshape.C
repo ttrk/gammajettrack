@@ -192,6 +192,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hgammaffjsfb[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
   TH1D* hgammaffjsdeta[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
   TH1D* hgammaffjsdphi[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
+  TH2D* h2gammaffjsdphideta[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
   TH2D* h2gammaffjsrefreco[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH2D* h2gammaffjsgensgen[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
 
@@ -233,6 +234,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                             sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#eta;", nBinsX*4, 0, xMax);
           hgammaffjsdphi[i][j] = new TH1D(Form("%sdphi%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                             sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#phi;", nBinsX*4, 0, xMax);
+          h2gammaffjsdphideta[i][j] = new TH2D(Form("%sdphideta%s%s_%s_%s_%d_%d", histNamePrefix2D.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#phi;#Delta#eta", nBinsX*4, 0, xMax, nBinsX*4, 0, xMax);
           hgammaffjsfb[i][j] = new TH1D(Form("%sfb%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*4, 0, xMax);
           h2gammaffjsrefreco[i][j] = new TH2D(Form("%srefreco%s%s_%s_%s_%d_%d", histNamePrefix2D.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
@@ -810,6 +813,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             hgammaffjs[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk);
             hgammaffjsdeta[phoBkg][k_rawJet_rawTrk]->Fill(std::fabs(deta), weight_rawJet_rawTrk);
             hgammaffjsdphi[phoBkg][k_rawJet_rawTrk]->Fill(std::fabs(dphi), weight_rawJet_rawTrk);
+            h2gammaffjsdphideta[phoBkg][k_rawJet_rawTrk]->Fill(std::fabs(dphi), std::fabs(deta), weight_rawJet_rawTrk);
             hgammaffjsfb[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk);
 
             if (is_ref_jet || is_reco_jet) {
@@ -953,6 +957,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             hgammaffjs[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk);
             hgammaffjsdeta[phoBkg][k_rawJet_ueTrk]->Fill(std::fabs(deta), weight_rawJet_ueTrk);
             hgammaffjsdphi[phoBkg][k_rawJet_ueTrk]->Fill(std::fabs(dphi), weight_rawJet_ueTrk);
+            h2gammaffjsdphideta[phoBkg][k_rawJet_ueTrk]->Fill(std::fabs(dphi), std::fabs(deta), weight_rawJet_ueTrk);
             hgammaffjsfb[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk);
 
             if (is_ref_jet || is_reco_jet) {
@@ -1207,6 +1212,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             hgammaffjs[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk);
             hgammaffjsdeta[phoBkg][k_bkgJet_rawTrk]->Fill(std::fabs(deta), weight_bkgJet_rawTrk);
             hgammaffjsdphi[phoBkg][k_bkgJet_rawTrk]->Fill(std::fabs(dphi), weight_bkgJet_rawTrk);
+            h2gammaffjsdphideta[phoBkg][k_bkgJet_rawTrk]->Fill(std::fabs(dphi), std::fabs(deta), weight_bkgJet_rawTrk);
             hgammaffjsfb[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk);
 
             if (is_ref_jet || is_reco_jet) {
@@ -1346,6 +1352,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             hgammaffjs[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk);
             hgammaffjsdeta[phoBkg][k_bkgJet_ueTrk]->Fill(std::fabs(deta), weight_bkgJet_ueTrk);
             hgammaffjsdphi[phoBkg][k_bkgJet_ueTrk]->Fill(std::fabs(dphi), weight_bkgJet_ueTrk);
+            h2gammaffjsdphideta[phoBkg][k_bkgJet_ueTrk]->Fill(std::fabs(dphi), std::fabs(deta), weight_bkgJet_ueTrk);
             hgammaffjsfb[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk);
 
             if (is_ref_jet || is_reco_jet) {
