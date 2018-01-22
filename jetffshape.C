@@ -127,6 +127,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH2D* h2dphidetarefrecoJet_ptBin[kN_PHO_SIGBKG][kN_JET_SIGBKG][nPtBins_dphidetarefrecoJet];
   TH2D* h2dphidetarefrecoJet_refptBin[kN_PHO_SIGBKG][kN_JET_SIGBKG][nPtBins_dphidetarefrecoJet];
 
+  std::string titleCent = "";
+  if (isHI && isMC) titleCent = Form("Cent:%d-%d%%", abs(centmin)/2, abs(centmax)/2);
+
   for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
       hphopt[i] = new TH1D(Form("hphopt%s_%s_%s_%d_%d", pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{#gamma}_{T};", 20, 0, 600);
 
@@ -143,24 +146,24 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           hjetptrebin[i][j] = new TH1D(Form("hjetptrebin%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{jet}_{T};", binsX.size()-1, arr);
 
           h2ptRatiorefrecoJet[i][j] = new TH2D(Form("h2ptRatiorefrecoJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                             , ";p^{ref}_{T};p^{reco}_{T} / p^{ref}_{T}", 30, 0, 150, 80, 0, 2);
+                                             , Form("%s;p^{ref}_{T};p^{reco}_{T} / p^{ref}_{T}", titleCent.c_str()), 30, 0, 150, 80, 0, 2);
           h2dphirefrecoJet[i][j] = new TH2D(Form("h2dphirefrecoJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                   , ";p^{ref}_{T};#phi^{reco} - #phi^{ref}", 30, 0, 150, 80, -0.4, 0.4);
+                                   , Form("%s;p^{ref}_{T};#phi^{reco} - #phi^{ref}", titleCent.c_str()), 30, 0, 150, 80, -0.4, 0.4);
           h2detarefrecoJet[i][j] = new TH2D(Form("h2detarefrecoJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                   , ";p^{ref}_{T};#eta^{reco} - #eta^{ref}", 30, 0, 150, 80, -0.4, 0.4);
+                                   , Form("%s;p^{ref}_{T};#eta^{reco} - #eta^{ref}", titleCent.c_str()), 30, 0, 150, 80, -0.4, 0.4);
           h2drrefrecoJet[i][j] = new TH2D(Form("h2drrefrecoJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                             , ";p^{ref}_{T};#DeltaR(reco, ref)", 30, 0, 150, 80, 0, 0.8);
+                                             , Form("%s;p^{ref}_{T};#DeltaR(reco, ref)", titleCent.c_str()), 30, 0, 150, 80, 0, 0.8);
           h2dphidetarefrecoJet[i][j] = new TH2D(Form("h2dphidetarefrecoJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                             , ";#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}", 80, -0.4, 0.4, 80, -0.4, 0.4);
+                                             , Form("%s;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}", titleCent.c_str()), 80, -0.4, 0.4, 80, -0.4, 0.4);
 
           for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
-              std::string tmpTitle = Form("%d < p_{T} < %d GeV/c;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}",
-                                          ptBins_dphidetarefrecoJet[iPt], ptBins_dphidetarefrecoJet[iPt+1]);
+              std::string tmpTitle = Form("%d < p_{T} < %d GeV/c, %s;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}",
+                                          ptBins_dphidetarefrecoJet[iPt], ptBins_dphidetarefrecoJet[iPt+1], titleCent.c_str());
               h2dphidetarefrecoJet_ptBin[i][j][iPt] = new TH2D(Form("h2dphidetarefrecoJet_ptBin%d%s%s_%s_%s_%d_%d", iPt, jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
                                                            , tmpTitle.c_str(), 80, -0.4, 0.4, 80, -0.4, 0.4);
 
-              tmpTitle = Form("%d < p^{ref}_{T} < %d GeV/c;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}",
-                                          ptBins_dphidetarefrecoJet[iPt], ptBins_dphidetarefrecoJet[iPt+1]);
+              tmpTitle = Form("%d < p^{ref}_{T} < %d GeV/c, %s;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}",
+                                          ptBins_dphidetarefrecoJet[iPt], ptBins_dphidetarefrecoJet[iPt+1], titleCent.c_str());
               h2dphidetarefrecoJet_refptBin[i][j][iPt] = new TH2D(Form("h2dphidetarefrecoJet_refptBin%d%s%s_%s_%s_%d_%d", iPt, jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
                                                            , tmpTitle.c_str(), 80, -0.4, 0.4, 80, -0.4, 0.4);
           }
@@ -235,7 +238,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           hgammaffjsdphi[i][j] = new TH1D(Form("%sdphi%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                             sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#phi;", nBinsX*4, 0, xMax);
           h2gammaffjsdphideta[i][j] = new TH2D(Form("%sdphideta%s%s_%s_%s_%d_%d", histNamePrefix2D.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#phi;#Delta#eta", nBinsX*4, 0, xMax, nBinsX*4, 0, xMax);
+                                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), Form("%s;#Delta#phi;#Delta#eta", titleCent.c_str()), nBinsX*4, 0, xMax, nBinsX*4, 0, xMax);
           hgammaffjsfb[i][j] = new TH1D(Form("%sfb%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*4, 0, xMax);
           h2gammaffjsrefreco[i][j] = new TH2D(Form("%srefreco%s%s_%s_%s_%d_%d", histNamePrefix2D.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
