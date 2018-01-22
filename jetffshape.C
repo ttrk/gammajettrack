@@ -172,7 +172,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   TH2D* h2dphidetarefrecoJet_seed[nPtBins_dphidetarefrecoJet];
   for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
-      std::string histName = Form("h2dphidetarefrecoJet_ptBin%d_%s_reco0gen0_%d_%d", iPt, sample.c_str(), abs(centmin), abs(centmax));
+      std::string histName = Form("h2dphidetarefrecoJet_refptBin%d_%s_reco0gen0_%d_%d", iPt, sample.c_str(), abs(centmin), abs(centmax));
       h2dphidetarefrecoJet_seed[iPt] = 0;
       h2dphidetarefrecoJet_seed[iPt] = (TH2D*)fweight->Get(histName.c_str());
       if (!h2dphidetarefrecoJet_seed[iPt]) {

@@ -21,7 +21,7 @@ int save_dphidetarefrecoJet_ptBin(std::string inputFile, std::string outputFile,
 
     TH1::SetDefaultSumw2();
 
-    std::vector<int> ptBins = {30, 40, 50, 60, 80, 100, 120, 150, 9999};
+    std::vector<int> ptBins = {0, 10, 20, 30, 40, 50, 60, 80, 100, 120, 150, 9999};
     int nPtBins = ptBins.size() - 1;
 
     std::vector<int> min_hiBin = {0, 20, 60, 100, 0, 60};
@@ -32,7 +32,7 @@ int save_dphidetarefrecoJet_ptBin(std::string inputFile, std::string outputFile,
     for (int iPt = 0; iPt < nPtBins; ++iPt) {
         for (int iCent = 0; iCent < nCentBins; ++iCent) {
 
-            std::string histName = Form("h2dphidetarefrecoJet_ptBin%d_%s_reco0gen0_%d_%d", iPt, sample.c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+            std::string histName = Form("h2dphidetarefrecoJet_refptBin%d_%s_reco0gen0_%d_%d", iPt, sample.c_str(), min_hiBin[iCent], max_hiBin[iCent]);
             h2 = 0;
             h2 = (TH2D*)finput->Get(histName.c_str());
             if (!h2) continue;
