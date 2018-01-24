@@ -364,7 +364,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   std::string jetLevel = "";
   std::string partLevel = "";
-  std::vector<std::string> partLevelCands = {"gen", "gen0", "reco", "reco0"};
+  std::vector<std::string> partLevelCands = {"w0gen", "w0gen0", "w0reco", "gen", "gen0", "reco"};
   for (int i = 0; i < (int)partLevelCands.size(); ++i) {
       int len = genlevel.size();
       int lenSubStr = partLevelCands.at(i).size();
@@ -419,6 +419,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_gen_part = (partLevel.find("gen") != std::string::npos);
   bool is_gen0_part = (partLevel.find("gen0") != std::string::npos);
   bool is_reco_part = (partLevel.find("reco") != std::string::npos);
+  bool is_part_unweighted = (partLevel.find("w0") != std::string::npos);
 
   if (is_reco_jet) {
     j_pt = jetptCorr;
@@ -474,11 +475,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     p_eta = trkEta;
     p_phi = trkPhi;
     p_weight = trkWeight;
+    if (is_part_unweighted) p_weight = &dummy_trkweight;
     p_pt_mix = trkPt_mix;
     p_eta_mix = trkEta_mix;
     p_phi_mix = trkPhi_mix;
     p_ev_mix = trkFromEv_mix;
     p_weight_mix = trkWeight_mix;
+    if (is_part_unweighted) p_weight_mix = &dummy_trkweight;
   } else {
     p_pt = pt;
     p_eta = eta;
