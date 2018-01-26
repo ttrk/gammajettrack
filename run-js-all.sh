@@ -7,7 +7,10 @@ if [[ $# -ne 5 ]]; then
 fi
 
 echo "compiling macros..."
-make jetshape calc_systematics calc_ratio_systematics plot_js
+make calc_js_ratio_systematics plot_js
+
+DATAFILE=nominal_data_${1}_${3}_gxi${5}_js_final.root
+SYSFILE=nominal_data_${1}_${3}_gxi${5}-systematics.root
 
 set -x
 
@@ -17,6 +20,8 @@ echo "running data"
 echo "running systematics"
 ./run-js-systematics.sh $@ pbpbdata nominal_pbpbdata_${1}_${3}_gxi${5}_js_final.root
 ./run-js-systematics.sh $@ ppdata nominal_ppdata_${1}_${3}_gxi${5}_js_final.root
+
+hadd -f $SYSFILE nominal_ppdata_${1}_${3}_gxi${5}-systematics.root nominal_pbpbdata_${1}_${3}_gxi${5}-systematics.root
 
 echo "running ratio systematics"
 SYSHISTLIST=syshist_${1}_${3}_${5}.list
@@ -28,22 +33,12 @@ echo -e "20_60" >> $SYSHISTLIST
 echo -e "60_100" >> $SYSHISTLIST
 echo -e "100_200" >> $SYSHISTLIST
 
-SYSFILELIST=sysfile_${1}_${3}_${5}.list
-if [ -f $SYSFILELIST ]; then
-    rm $SYSFILELIST
-fi
-touch $SYSFILELIST
+PBPBLIST=systematics_${1}_${3}_${5}_pbpbdata.list
+PPLIST=systematics_${1}_${3}_${5}_ppdata.list
 
-echo -e "data_${1}_${3}_gxi${5}-systematics.root" >> $SYSFILELIST
-echo -e "data_${1}_${3}_gxi${5}-systematics.root" >> $SYSFILELIST
+./calc_js_ratio_systematics $DATAFILE $PBPBLIST $PPLIST $SYSHISTLIST nominal_data_${1}_${3}_gxi${5}
 
-./calc_ratio_systematics js $SYSFILELIST $SYSHISTLIST data_${1}_${3}_gxi${5}
-
-rm $SYSHISTLIST
-rm $SYSFILELIST
-
-DATAFILE=nominal_data_${1}_${3}_gxi${5}_js_final.root
-SYSFILE=data_${1}_${3}_gxi${5}-systematics.root
+rm $SYSHISTLIST $PBPBLIST $PPLIST
 
 echo "plotting final results"
 PLOTLIST=plot_${1}_${3}_${5}_final.list
@@ -61,6 +56,6 @@ echo -e "hjetshape_final_pbpbdata_recoreco_20_60" >> $PLOTLIST
 echo -e "hjetshape_final_pbpbdata_recoreco_60_100" >> $PLOTLIST
 echo -e "hjetshape_final_pbpbdata_recoreco_100_200" >> $PLOTLIST
 
-./plot_js nominal_data_${1}_${3}_gxi${5}_js_final.root final_js_${1}_${3}_gxi${5} $PLOTLIST 1 $5 $1 $3 0 data_${1}_${3}_gxi${5}-systematics.root
+./plot_js $DATAFILE final_js_${1}_${3}_gxi${5} $PLOTLIST 1 $5 $1 $3 0 $SYSFILE
 
 rm $PLOTLIST
