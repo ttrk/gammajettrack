@@ -10,9 +10,6 @@
 
 TRandom3 smear_rand(12345);
 
-int sysLR = 13;
-int sysBkgEtaReflection = 22;
-
 float lowxi_jec[4] = {1.073, 1.079, 1.083, 1.074};
 float midxi_jec[4] = {1.0514, 1.0478, 1.0483, 1.0471};
 
@@ -28,6 +25,11 @@ float midxi_jec[4] = {1.0514, 1.0478, 1.0483, 1.0471};
 // 11: JES_GLUON
 // 12: JES_QUARK
 // 13: LONGRANGE
+// 14: ETAREFLECT
+// 15: TRK_RATIO
+
+int sysLR = 13;
+int sysBkgEtaReflection = 14;
 
 void correct_bin_errors(TH1D* h1, int nsmear) {
   for (int i=1; i<=h1->GetNbinsX(); ++i)

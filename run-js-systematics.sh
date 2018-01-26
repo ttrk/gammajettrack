@@ -24,14 +24,14 @@ else
     exit 1
 fi
 
-SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_gluon jes_quark longrange)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_gluon jes_quark longrange etareflect)
 
 echo "compiling macros..."
 make jetshape draw_js calc_iso_systematics calc_js_systematics
 
 set -x
 
-for SYS in 1 2 3 4 6 9 10 11 12 13
+for SYS in 1 2 3 4 6 9 10 11 12 13 14
 do
     ./jetshape $SKIM "" $6 0 20 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
     ./jetshape $SKIM "" $6 20 60 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
@@ -66,7 +66,7 @@ hadd -f iso_${MCSAMPLE}_${1}_${3}_gxi${5}_js_merged.root iso_${MCSAMPLE}_${1}_${
 
 ./calc_iso_systematics nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_js_final.root iso_${MCSAMPLE}_${1}_${3}_gxi${5}_js_final.root $7 $MCSAMPLE $6 $TYPE $1 $3 $5
 
-for SYS in 1 2 3 4 6 9 10 11 12 13
+for SYS in 1 2 3 4 6 9 10 11 12 13 14
 do
     hadd -f ${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_${TYPE}_js.root ${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_*_*.root
     rm ${SYSTEMATIC[SYS]}_${6}_${TYPE}_${1}_${3}_${5}_*_*.root
@@ -80,7 +80,7 @@ if [ -f $SYSLIST ]; then
 fi
 touch $SYSLIST
 
-for SYS in 1 2 3 4 5 6 7 8 9 10 11 12 13
+for SYS in 1 2 3 4 5 6 7 8 9 10 11 12 13 14
 do
     echo -e "${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_js_final.root" >> $SYSLIST
 done
