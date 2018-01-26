@@ -12,26 +12,26 @@
 #include "js_systematics.h"
 #include "error_bands.h"
 
-#define NSYS 14
+#define NSYS 13
 
 std::string sys_types[NSYS] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_g", "jes_q", "longrange", "etareflect"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking", "jes_g", "jes_q", "longrange", "etareflect"
 };
 
 std::string fit_funcs[NSYS] = {
-    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
+    "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2", "pol2"
 };
 
 int options[NSYS] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0
+    4, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0
 };
 
 int special[NSYS] = {
-    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 0, 0
+    0, 1, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0
 };
 
 std::string sys_labels[NSYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES gluon", "JES quark", "long range correlations", "eta reflection"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "JES gluon", "JES quark", "long range correlations", "eta reflection"
 };
 
 int calc_js_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label) {
@@ -106,7 +106,7 @@ int calc_js_systematics(const char* nominal_file, const char* filelist, const ch
         c1[i] = new TCanvas(Form("sys_%s", hist_list[i].c_str()), "", 900, 900);
 
         int p = 1;
-        c1[i]->Divide(3, 4);
+        c1[i]->DivideSquare(NSYS);
         for (std::size_t j=0; j<nfiles; ++j) {
             c1[i]->cd(p);
             if (options[j] != 4) {
@@ -116,7 +116,7 @@ int calc_js_systematics(const char* nominal_file, const char* filelist, const ch
                 ++p;
             }
         }
-        if (p < 13) {
+        if (p < NSYS + 1) {
             c1[i]->cd(p);
             total_sys_vars[i]->get_total()->SetStats(0);
             total_sys_vars[i]->get_total()->SetTitle("total systematics");
