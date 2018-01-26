@@ -251,6 +251,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         continue;
     }
 
+    // background subtraction systematics
+    if (systematic == sysBkgEtaReflection) {
+      if (isPP) systematic = 0;
+    }
+
     if (isMC) weight = weight * hvzweight->GetBinContent(hvzweight->FindBin(vz));
     if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
 
