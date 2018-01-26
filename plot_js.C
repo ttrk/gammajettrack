@@ -16,6 +16,9 @@
 
 int min_hiBin[4] = {0, 20, 60, 100};
 int max_hiBin[4] = {20, 60, 100, 200};
+std::string cent_str[4] = {
+    "0_20", "20_60", "60_100", "100_200"
+};
 
 int rows = 1;
 int columns = 4;
@@ -58,6 +61,7 @@ int plot_js(const char* input, const char* plot_name, const char* hist_list, int
         for (int i=0; i<4; ++i) {
             hsys[i][0] = (TH1D*)fsys->Get((hist_names[i+1] + "_systematics").c_str());
             hsys[i][1] = (TH1D*)fsys->Get((hist_names[i+6] + "_systematics").c_str());
+            hsys_ratio[i] = (TH1D*)fsys->Get(Form("hjetshape_final_ratio_%s_systematics", cent_str[i].c_str()));
         }
     }
     TGraph* gr = new TGraph();
@@ -209,8 +213,6 @@ int plot_js(const char* input, const char* plot_name, const char* hist_list, int
             }
 
             if (is_data_plot) {
-                hsys_ratio[i] = (TH1D*)hsys[i][1]->Clone(Form("hsys_ratio_%i", i));
-                hsys_ratio[i]->Divide(h1[i][0]);
                 gr->SetFillColorAlpha(46, 0.7);
                 draw_sys_unc(gr, hratio[i][1], hsys_ratio[i]);
 
