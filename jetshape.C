@@ -30,6 +30,23 @@ float midxi_jec[4] = {1.0514, 1.0478, 1.0483, 1.0471};
 
 int sysLR = 13;
 int sysBkgEtaReflection = 14;
+int sysTrkRatio = 15;
+
+float tracking_ratio(float trkpt, int cent, bool ispp) {
+  if (ispp) return 0;
+
+  if (trkpt < 1.0) { return 0.04; }
+  else if (trkpt < 1.4) {
+    if (cent < 30) return 0.052;
+    else if (cent < 50) return 0.045;
+    else if (cent < 70) return 0.035;
+    else return 0.03; }
+  else {
+    if (cent < 30) return 0.064;
+    else if (cent < 50) return 0.05;
+    else if (cent < 70) return 0.03;
+    else return 0.02; }
+}
 
 void correct_bin_errors(TH1D* h1, int nsmear) {
   for (int i=1; i<=h1->GetNbinsX(); ++i)
@@ -359,18 +376,21 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg)[ip] == 0) continue;
           }
 
+          float tracking_weight = tracking_sys;
+          if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt)[ip], hiBin/2, isPP); }
+
           float dphi = dphi_2s1f1b(rawjetphi, (*p_phi)[ip]);
           float deta = rawjeteta - (*p_eta)[ip];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight);
+            hjetshape[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_weight * smear_weight);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (rawjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
                   float deltar = fabs(dphi);
 
-                  hjetshapeLR[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight * weightLR);
+                  hjetshapeLR[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_weight * smear_weight * weightLR);
               }
           }
         }
@@ -410,18 +430,21 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
+          float tracking_weight = tracking_sys;
+          if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt_UE)[ip_UE], hiBin/2, isPP); }
+
           float dphi = dphi_2s1f1b(rawjetphi, (*p_phi_UE)[ip_UE]);
           float deta = rawjeteta - tmp_p_eta;
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue);
+            hjetshape_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_weight * smear_weight / nmixedevents_ue);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (rawjeteta * tmp_p_eta < 0)  { // trk and jet are on the opposite sides of the detector
                   float deltar = fabs(dphi);
 
-                  hjetshapeLR_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_ue * weightLR);
+                  hjetshapeLR_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_weight * smear_weight / nmixedevents_ue * weightLR);
               }
           }
         }
@@ -525,18 +548,21 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg)[ip] == 0) continue;
           }
 
+          float tracking_weight = tracking_sys;
+          if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt)[ip], hiBin/2, isPP); }
+
           float dphi = dphi_2s1f1b(mixjetphi, (*p_pt)[ip]);
           float deta = mixjeteta - (*p_eta)[ip];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_mixsig[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight / nmixedevents_jet);
+            hjetshape_mixsig[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_weight * smear_weight / nmixedevents_jet);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (mixjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
                   float deltar = fabs(dphi);
 
-                  hjetshapeLR_mixsig[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
+                  hjetshapeLR_mixsig[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_weight * smear_weight / nmixedevents_jet * weightLR);
               }
           }
         }
@@ -555,18 +581,21 @@ after_mixsignal:
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
+          float tracking_weight = tracking_sys;
+          if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt_mix)[ip_mix], hiBin/2, isPP); }
+
           float dphi = dphi_2s1f1b(mixjetphi, (*p_phi_mix)[ip_mix]);
           float deta = mixjeteta - (*p_eta_mix)[ip_mix];
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet);
+            hjetshape_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_weight * smear_weight / nmixedevents_jet);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (mixjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
                   float deltar = fabs(dphi);
 
-                  hjetshapeLR_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight / nmixedevents_jet * weightLR);
+                  hjetshapeLR_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_weight * smear_weight / nmixedevents_jet * weightLR);
               }
           }
         }
@@ -600,18 +629,21 @@ after_mixsignal:
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
+          float tracking_weight = tracking_sys;
+          if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt_UE)[ip_UE], hiBin/2, isPP); }
+
           float dphi = dphi_2s1f1b(mixjetphi, (*p_phi_UE)[ip_UE]);
           float deta = mixjeteta - tmp_p_eta;
           float deltar2 = (dphi * dphi) + (deta * deta);
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
-            hjetshape_mix_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue);
+            hjetshape_mix_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_weight * smear_weight / nmixedevents_jet_ue);
           }
           else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (mixjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
                   float deltar = fabs(dphi);
 
-                  hjetshapeLR_mix_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight / nmixedevents_jet_ue * weightLR);
+                  hjetshapeLR_mix_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_weight * smear_weight / nmixedevents_jet_ue * weightLR);
               }
           }
         }
