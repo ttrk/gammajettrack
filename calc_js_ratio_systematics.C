@@ -49,6 +49,15 @@ int calc_js_systematics(const char* nominal_file, const char* pbpblist, const ch
     std::size_t nhists = hist_list.size();
     if (!nhists) {printf("0 total hists!\n"); return 1;}
 
+    std::vector<std::string> pbpb_hist_list(hist_list);
+    std::vector<std::string> pp_hist_list(hist_list);
+    std::vector<std::string> ratio_hist_list(hist_list);
+    for (std::size_t i=0; i<nhists; ++i) {
+        pbpb_hist_list[i].insert(0, "hjetshape_final_pbpbdata_recoreco_");
+        pp_hist_list[i].insert(0, "hjetshape_final_ppdata_srecoreco_");
+        ratio_hist_list[i].insert(0, "hjetshape_final_ratio_");
+    }
+
     std::vector<std::string> pbpb_list;
     std::ifstream pbpb_stream(pbpblist);
     if (!pbpb_stream) return 1;
@@ -72,9 +81,9 @@ int calc_js_systematics(const char* nominal_file, const char* pbpblist, const ch
     TH1F* hnominals[nhists][2] = {0};
     TH1F* hratios[nhists] = {0};
     for (std::size_t i=0; i<nhists; ++i) {
-        hnominals[i][0] = (TH1F*)fnominal->Get(Form("hjetshape_final_pbpbdata_recoreco_%s", hist_list[i].c_str()));
-        hnominals[i][1] = (TH1F*)fnominal->Get(Form("hjetshape_final_ppdata_srecoreco_%s", hist_list[i].c_str()));
-        hratios[i] = (TH1F*)hnominals[i][0]->Clone(Form("hjetshape_final_ratio_%s", hist_list[i].c_str()));
+        hnominals[i][0] = (TH1F*)fnominal->Get(pbpb_hist_list[i].c_str());
+        hnominals[i][1] = (TH1F*)fnominal->Get(pp_hist_list[i].c_str());
+        hratios[i] = (TH1F*)hnominals[i][0]->Clone(ratio_hist_list[i].c_str());
         hratios[i]->Divide(hnominals[i][1]);
     }
 
@@ -86,9 +95,9 @@ int calc_js_systematics(const char* nominal_file, const char* pbpblist, const ch
         fsys[j][1] = new TFile(pp_list[j].c_str(), "read");
 
         for (std::size_t i=0; i<nhists; ++i) {
-            hsyss[i][j][0] = (TH1F*)fsys[j][0]->Get(Form("hjetshape_final_pbpbdata_recoreco_%s", hist_list[i].c_str()));
-            hsyss[i][j][1] = (TH1F*)fsys[j][1]->Get(Form("hjetshape_final_ppdata_srecoreco_%s", hist_list[i].c_str()));
-            hsysratios[i][j] = (TH1F*)hsyss[i][j][0]->Clone(Form("hjetshape_final_ratio_source%zu_%s", j, hist_list[i].c_str()));
+            hsyss[i][j][0] = (TH1F*)fsys[j][0]->Get(pbpb_hist_list[i].c_str());
+            hsyss[i][j][1] = (TH1F*)fsys[j][1]->Get(pp_hist_list[i].c_str());
+            hsysratios[i][j] = (TH1F*)hsyss[i][j][0]->Clone(Form("%s_%zu", ratio_hist_list[i].c_str(), j));
             hsysratios[i][j]->Divide(hsyss[i][j][1]);
         }
     }
@@ -98,10 +107,10 @@ int calc_js_systematics(const char* nominal_file, const char* pbpblist, const ch
     total_sys_var_t* total_sys_vars[nhists] = {0};
     sys_var_t* sys_vars[nhists][nfiles] = {0};
     for (std::size_t i=0; i<nhists; ++i) {
-        total_sys_vars[i] = new total_sys_var_t(Form("hjetshape_final_ratio_%s", hist_list[i].c_str()), hratios[i]);
+        total_sys_vars[i] = new total_sys_var_t(ratio_hist_list[i].c_str(), hratios[i]);
 
         for (std::size_t j=0; j<nfiles; ++j) {
-            sys_vars[i][j] = new sys_var_t(Form("hjetshape_final_ratio_%s", hist_list[i].c_str()), sys_types[j], hratios[i], hsysratios[i][j]);
+            sys_vars[i][j] = new sys_var_t(ratio_hist_list[i].c_str(), sys_types[j], hratios[i], hsysratios[i][j]);
             sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), "pol2");
             sys_vars[i][j]->write();
 
@@ -143,7 +152,7 @@ int calc_js_systematics(const char* nominal_file, const char* pbpblist, const ch
             total_sys_vars[i]->get_total()->Draw();
         }
 
-        c1[i]->SaveAs(Form("sys_%s-%s.png", hist_list[i].c_str(), label));
+        c1[i]->SaveAs(Form("sys_ratio_%s-%s.png", hist_list[i].c_str(), label));
     }
 
     std::string centlabels[4] = {
@@ -164,7 +173,7 @@ int calc_js_systematics(const char* nominal_file, const char* pbpblist, const ch
                 sys_vars[i][j]->get_diff_abs()->Draw("hist e");
             }
 
-            c2->SaveAs(Form("sys-%s-%zu.png", label, j));
+            c2->SaveAs(Form("sys_ratio-%s-%zu.png", label, j));
         }
 
         delete c2;
@@ -182,7 +191,7 @@ int calc_js_systematics(const char* nominal_file, const char* pbpblist, const ch
         total_sys_vars[i]->get_total()->Draw();
     }
 
-    c3->SaveAs(Form("sys-%s-total.png", label));
+    c3->SaveAs(Form("sys_ratio-%s-total.png", label));
 
     fout->Write("", TObject::kOverwrite);
     fout->Close();

@@ -123,3 +123,5 @@ echo -e "hjetshape_final_${6}_${TYPE}_60_100" >> $HISTLIST
 echo -e "hjetshape_final_${6}_${TYPE}_100_200" >> $HISTLIST
 
 ./calc_js_systematics $7 $SYSLIST $HISTLIST nominal_${6}_${1}_${3}_gxi${5}
+
+rm $HISTLIST
