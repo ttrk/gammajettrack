@@ -20,11 +20,9 @@ echo "running systematics"
 
 echo "running ratio systematics"
 SYSHISTLIST=syshist_${1}_${3}_${5}.list
-if [ -f $SYSHISTLIST ]; then
-    rm $SYSHISTLIST
-fi
-touch $SYSHISTLIST
+[ -f $SYSHISTLIST ] && rm $SYSHISTLIST
 
+touch $SYSHISTLIST
 echo -e "0_20" >> $SYSHISTLIST
 echo -e "20_60" >> $SYSHISTLIST
 echo -e "60_100" >> $SYSHISTLIST
@@ -49,11 +47,9 @@ SYSFILE=data_${1}_${3}_gxi${5}-systematics.root
 
 echo "plotting final results"
 PLOTLIST=plot_${1}_${3}_${5}_final.list
-if [ -f $PLOTLIST ]; then
-    rm $PLOTLIST
-fi
-touch $PLOTLIST
+[ -f $PLOTLIST ] && rm $PLOTLIST
 
+touch $PLOTLIST
 echo -e "pp (smeared)" >> $PLOTLIST
 echo -e "hjetshape_final_ppdata_srecoreco_0_20" >> $PLOTLIST
 echo -e "hjetshape_final_ppdata_srecoreco_20_60" >> $PLOTLIST

@@ -102,11 +102,9 @@ do
 done
 
 SYSLIST=systematics_${1}_${3}_${5}_${6}.list
-if [ -f $SYSLIST ]; then
-    rm $SYSLIST
-fi
-touch $SYSLIST
+[ -f $SYSLIST ] && rm $SYSLIST
 
+touch $SYSLIST
 for SYS in 1 2 3 4 5 6 7 8 9 11 12 13 14
 do
     echo -e "${SYSTEMATIC[SYS]}_${6}_${1}_${3}_gxi${5}_js_final.root" >> $SYSLIST
@@ -116,16 +114,15 @@ done
 # none
 
 HISTLIST=hist_${1}_${3}_${5}_${6}.list
-if [ -f $HISTLIST ]; then
-    rm $HISTLIST
-fi
+[ -f $HISTLIST ] && rm $HISTLIST
+
 touch $HISTLIST
 echo -e "hjetshape_final_${6}_${TYPE}_0_20" >> $HISTLIST
 echo -e "hjetshape_final_${6}_${TYPE}_20_60" >> $HISTLIST
 echo -e "hjetshape_final_${6}_${TYPE}_60_100" >> $HISTLIST
 echo -e "hjetshape_final_${6}_${TYPE}_100_200" >> $HISTLIST
 
-./calc_js_systematics $7 $SYSLIST $HISTLIST data_${1}_${3}_gxi${5}
+./calc_js_systematics $7 $SYSLIST $HISTLIST nominal_${6}_${1}_${3}_gxi${5}
 
 rm $SYSLIST
 rm $HISTLIST
