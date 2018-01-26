@@ -20,8 +20,6 @@ float midxi_jec[4] = {1.0514, 1.0478, 1.0483, 1.0471};
 // 4: PES
 // 5: ISO
 // 6: ELE_REJ
-// 9: TRK_UP
-// 10: TRK_DOWN
 // 11: JES_GLUON
 // 12: JES_QUARK
 // 13: LONGRANGE
@@ -221,11 +219,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   if (systematic == 3)
     nsmear *= _NSMEAR_JER;
 
-  float tracking_sys = isHI ? 0.05 : 0.04;
-  if (systematic == 9) { tracking_sys = 1 + tracking_sys; }
-  else if (systematic == 10) { tracking_sys = 1 - tracking_sys; }
-  else { tracking_sys = 1; }
-
   // main loop
   for (int64_t jentry = 0; jentry < nentries; jentry++) {
     if (jentry % 10000 == 0) { printf("%li/%li\n", jentry, nentries); }
@@ -376,7 +369,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg)[ip] == 0) continue;
           }
 
-          float tracking_weight = tracking_sys;
+          float tracking_weight = 1.;
           if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt)[ip], hiBin/2, isPP); }
 
           float dphi = dphi_2s1f1b(rawjetphi, (*p_phi)[ip]);
@@ -430,7 +423,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
-          float tracking_weight = tracking_sys;
+          float tracking_weight = 1.;
           if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt_UE)[ip_UE], hiBin/2, isPP); }
 
           float dphi = dphi_2s1f1b(rawjetphi, (*p_phi_UE)[ip_UE]);
@@ -548,7 +541,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if ((*chg)[ip] == 0) continue;
           }
 
-          float tracking_weight = tracking_sys;
+          float tracking_weight = 1.;
           if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt)[ip], hiBin/2, isPP); }
 
           float dphi = dphi_2s1f1b(mixjetphi, (*p_pt)[ip]);
@@ -581,7 +574,7 @@ after_mixsignal:
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
-          float tracking_weight = tracking_sys;
+          float tracking_weight = 1.;
           if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt_mix)[ip_mix], hiBin/2, isPP); }
 
           float dphi = dphi_2s1f1b(mixjetphi, (*p_phi_mix)[ip_mix]);
@@ -629,7 +622,7 @@ after_mixsignal:
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
           if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
 
-          float tracking_weight = tracking_sys;
+          float tracking_weight = 1.;
           if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt_UE)[ip_UE], hiBin/2, isPP); }
 
           float dphi = dphi_2s1f1b(mixjetphi, (*p_phi_UE)[ip_UE]);
