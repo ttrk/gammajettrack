@@ -127,6 +127,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH2D* h2dphidetarefrecoJet_ptBin[kN_PHO_SIGBKG][kN_JET_SIGBKG][nPtBins_dphidetarefrecoJet];
   TH2D* h2dphidetarefrecoJet_refptBin[kN_PHO_SIGBKG][kN_JET_SIGBKG][nPtBins_dphidetarefrecoJet];
 
+  std::vector<double> etaBins_dphidetarefrecoJet = {0, 0.5, 1.0, 1.6};
+  int nEtaBins_dphidetarefrecoJet = etaBins_dphidetarefrecoJet.size() - 1;
+  TH2D* h2dphidetarefrecoJet_refptBin_etaBin[kN_PHO_SIGBKG][kN_JET_SIGBKG][nPtBins_dphidetarefrecoJet][nEtaBins_dphidetarefrecoJet];
+  //TH2D* h2detarefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
+  //TH2D* h2drrefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
+
   std::string titleCent = "";
   if (isHI && isMC) titleCent = Form("Cent:%d-%d%%", abs(centmin)/2, abs(centmax)/2);
 
@@ -158,14 +164,24 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
           for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
               std::string tmpTitle = Form("%d < p_{T} < %d GeV/c, %s;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}",
-                                          ptBins_dphidetarefrecoJet[iPt], ptBins_dphidetarefrecoJet[iPt+1], titleCent.c_str());
-              h2dphidetarefrecoJet_ptBin[i][j][iPt] = new TH2D(Form("h2dphidetarefrecoJet_ptBin%d%s%s_%s_%s_%d_%d", iPt, jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                                           , tmpTitle.c_str(), 80, -0.4, 0.4, 80, -0.4, 0.4);
+                      ptBins_dphidetarefrecoJet[iPt], ptBins_dphidetarefrecoJet[iPt+1], titleCent.c_str());
+              h2dphidetarefrecoJet_ptBin[i][j][iPt] = new TH2D(Form("h2dphidetarefrecoJet_ptBin%d%s%s_%s_%s_%d_%d", iPt, jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)),
+                      tmpTitle.c_str(), 80, -0.4, 0.4, 80, -0.4, 0.4);
 
               tmpTitle = Form("%d < p^{ref}_{T} < %d GeV/c, %s;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}",
-                                          ptBins_dphidetarefrecoJet[iPt], ptBins_dphidetarefrecoJet[iPt+1], titleCent.c_str());
-              h2dphidetarefrecoJet_refptBin[i][j][iPt] = new TH2D(Form("h2dphidetarefrecoJet_refptBin%d%s%s_%s_%s_%d_%d", iPt, jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                                           , tmpTitle.c_str(), 80, -0.4, 0.4, 80, -0.4, 0.4);
+                      ptBins_dphidetarefrecoJet[iPt], ptBins_dphidetarefrecoJet[iPt+1], titleCent.c_str());
+              h2dphidetarefrecoJet_refptBin[i][j][iPt] = new TH2D(Form("h2dphidetarefrecoJet_refptBin%d%s%s_%s_%s_%d_%d", iPt, jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)),
+                      tmpTitle.c_str(), 80, -0.4, 0.4, 80, -0.4, 0.4);
+
+              for (int iEta = 0; iEta < nEtaBins_dphidetarefrecoJet; ++iEta) {
+
+                  std::string tmpTextEta = Form ("%.1f < |#eta^{ref}| < %.1f", etaBins_dphidetarefrecoJet[iEta], etaBins_dphidetarefrecoJet[iEta+1]);
+                  tmpTitle = Form("%d < p^{ref}_{T} < %d GeV/c, %s, %s;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}",
+                          ptBins_dphidetarefrecoJet[iPt], ptBins_dphidetarefrecoJet[iPt+1], tmpTextEta.c_str(), titleCent.c_str());
+                  h2dphidetarefrecoJet_refptBin_etaBin[i][j][iPt][iEta] = new TH2D(Form("h2dphidetarefrecoJet_refptBin%d_etaBin%d%s%s_%s_%s_%d_%d",
+                          iPt, iEta, jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)),
+                          tmpTitle.c_str(), 80, -0.4, 0.4, 80, -0.4, 0.4);
+              }
           }
       }
   }
@@ -177,6 +193,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       h2dphidetarefrecoJet_seed[iPt] = (TH2D*)fweight->Get(histName.c_str());
       if (!h2dphidetarefrecoJet_seed[iPt]) {
           std::cout << "Warning : Histogram " << histName.c_str() << " is not found in file" << fweight->GetName() << std::endl;
+      }
+  }
+
+  TH2D* h2dphidetarefrecoJet_etaBins_seed[nPtBins_dphidetarefrecoJet][nEtaBins_dphidetarefrecoJet];
+  for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
+      for (int iEta = 0; iEta < nEtaBins_dphidetarefrecoJet; ++iEta) {
+          std::string histName = Form("h2dphidetarefrecoJet_refptBin%d_etaBin%d_%s_reco0gen0_%d_%d", iPt, iEta, sample.c_str(), abs(centmin), abs(centmax));
+          h2dphidetarefrecoJet_etaBins_seed[iPt][iEta] = 0;
+          h2dphidetarefrecoJet_etaBins_seed[iPt][iEta] = (TH2D*)fweight->Get(histName.c_str());
+          if (!h2dphidetarefrecoJet_etaBins_seed[iPt][iEta]) {
+              std::cout << "Warning : Histogram " << histName.c_str() << " is not found in file" << fweight->GetName() << std::endl;
+          }
       }
   }
 
@@ -443,6 +471,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_phismeared_jet = (jetLevel.find("sphi") != std::string::npos);
   bool is_etasmeared_jet = (jetLevel.find("seta") != std::string::npos);
   bool is_jet_smeared_using_hist = (jetLevel.find("rndTH") != std::string::npos);
+  bool is_jet_smeared_using_hist_etaBins = (jetLevel.find("rndTHjeta") != std::string::npos);
   bool is_QG_jet = (jetLevel.find("QG") != std::string::npos);
   bool is_Q_jet = (!is_QG_jet && jetLevel.find("Q") != std::string::npos);
   bool is_G_jet = (!is_QG_jet && jetLevel.find("G") != std::string::npos);
@@ -754,18 +783,35 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        if (!is_jet_smeared_using_hist) {
+        if (is_smeared_jet && !is_jet_smeared_using_hist) {
             tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
             tmpjetphi = (*j_phi)[ij] + smear_rand.Gaus(0, res_phi);
             tmpjeteta = (*j_eta)[ij] + smear_rand.Gaus(0, res_eta);
         }
-        else {
+        else if (is_jet_smeared_using_hist && !is_jet_smeared_using_hist_etaBins) {
             double x1 = 0;
             double x2 = 0;
             for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
-                if (ptBins_dphidetarefrecoJet[iPt] <= tmpjetpt && tmpjetpt < ptBins_dphidetarefrecoJet[iPt+1]) {
+                if (ptBins_dphidetarefrecoJet[iPt] <= (*j_pt)[ij] && (*j_pt)[ij] < ptBins_dphidetarefrecoJet[iPt+1]) {
                     h2dphidetarefrecoJet_seed[iPt]->GetRandom2(x1, x2);
                     break;
+                }
+            }
+            tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
+            if (is_phismeared_jet) tmpjetphi = (*j_phi)[ij] + x1;
+            if (is_etasmeared_jet) tmpjeteta = (*j_eta)[ij] + x2;
+        }
+        else if (is_jet_smeared_using_hist_etaBins) {
+            double x1 = 0;
+            double x2 = 0;
+            for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
+                if (ptBins_dphidetarefrecoJet[iPt] <= (*j_pt)[ij] && (*j_pt)[ij] < ptBins_dphidetarefrecoJet[iPt+1]) {
+                    for (int iEta = 0; iEta < nEtaBins_dphidetarefrecoJet; ++iEta) {
+                        if (etaBins_dphidetarefrecoJet[iEta] <= TMath::Abs((*j_eta)[ij]) && TMath::Abs((*j_eta)[ij]) < etaBins_dphidetarefrecoJet[iEta+1]) {
+                            h2dphidetarefrecoJet_etaBins_seed[iPt][iEta]->GetRandom2(x1, x2);
+                            break;
+                        }
+                    }
                 }
             }
             tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
@@ -836,6 +882,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 }
                 if (ptBins_dphidetarefrecoJet[iPt] <= (*gjetpt)[ij] && (*gjetpt)[ij] < ptBins_dphidetarefrecoJet[iPt+1]) {
                     h2dphidetarefrecoJet_refptBin[phoBkg][k_rawJet][iPt]->Fill(dphi_refrecojet, deta_refrecojet, weight_jet);
+                    for (int iEta = 0; iEta < nEtaBins_dphidetarefrecoJet; ++iEta) {
+                        if (etaBins_dphidetarefrecoJet[iEta] <= TMath::Abs((*gjeteta)[ij]) && TMath::Abs((*gjeteta)[ij]) < etaBins_dphidetarefrecoJet[iEta+1]) {
+                            h2dphidetarefrecoJet_refptBin_etaBin[phoBkg][k_rawJet][iPt][iEta]->Fill(dphi_refrecojet, deta_refrecojet, weight_jet);
+                        }
+                    }
                 }
             }
         }
@@ -1266,21 +1317,38 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
-        if (is_jet_smeared_using_hist) {
+        if (is_smeared_jet && !is_jet_smeared_using_hist) {
           tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
           tmpjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
           tmpjeteta = (*j_eta_mix)[ij_mix] + smear_rand.Gaus(0, res_eta);
         }
-        else {
+        else if (is_jet_smeared_using_hist && !is_jet_smeared_using_hist_etaBins) {
             double x1 = 0;
             double x2 = 0;
             for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
-                if (ptBins_dphidetarefrecoJet[iPt] <= tmpjetpt && tmpjetpt < ptBins_dphidetarefrecoJet[iPt+1]) {
+                if (ptBins_dphidetarefrecoJet[iPt] <= (*j_pt_mix)[ij_mix] && (*j_pt_mix)[ij_mix] < ptBins_dphidetarefrecoJet[iPt+1]) {
                     h2dphidetarefrecoJet_seed[iPt]->GetRandom2(x1, x2);
                     break;
                 }
             }
-            tmpjetpt = (*j_pt)[ij_mix] * smear_rand.Gaus(1, res_pt);
+            tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
+            if (is_phismeared_jet) tmpjetphi = (*j_phi_mix)[ij_mix] + x1;
+            if (is_etasmeared_jet) tmpjeteta = (*j_eta_mix)[ij_mix] + x2;
+        }
+        else if (is_jet_smeared_using_hist_etaBins) {
+            double x1 = 0;
+            double x2 = 0;
+            for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
+                if (ptBins_dphidetarefrecoJet[iPt] <= (*j_pt_mix)[ij_mix] && (*j_pt_mix)[ij_mix] < ptBins_dphidetarefrecoJet[iPt+1]) {
+                    for (int iEta = 0; iEta < nEtaBins_dphidetarefrecoJet; ++iEta) {
+                        if (etaBins_dphidetarefrecoJet[iEta] <= TMath::Abs((*j_eta_mix)[ij_mix]) && TMath::Abs((*j_eta_mix)[ij_mix]) < etaBins_dphidetarefrecoJet[iEta+1]) {
+                            h2dphidetarefrecoJet_etaBins_seed[iPt][iEta]->GetRandom2(x1, x2);
+                            break;
+                        }
+                    }
+                }
+            }
+            tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
             if (is_phismeared_jet) tmpjetphi = (*j_phi_mix)[ij_mix] + x1;
             if (is_etasmeared_jet) tmpjeteta = (*j_eta_mix)[ij_mix] + x2;
         }
@@ -1348,6 +1416,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 }
                 if (ptBins_dphidetarefrecoJet[iPt] <= (*gjetpt_mix)[ij_mix] && (*gjetpt_mix)[ij_mix] < ptBins_dphidetarefrecoJet[iPt+1]) {
                     h2dphidetarefrecoJet_refptBin[phoBkg][k_bkgJet][iPt]->Fill(dphi_refrecojet, deta_refrecojet, weight_jet);
+                    for (int iEta = 0; iEta < nEtaBins_dphidetarefrecoJet; ++iEta) {
+                        if (etaBins_dphidetarefrecoJet[iEta] <= TMath::Abs((*gjetpt_mix)[ij_mix]) && TMath::Abs((*gjetpt_mix)[ij_mix]) < etaBins_dphidetarefrecoJet[iEta+1]) {
+                            h2dphidetarefrecoJet_refptBin_etaBin[phoBkg][k_bkgJet][iPt][iEta]->Fill(dphi_refrecojet, deta_refrecojet, weight_jet);
+                        }
+                    }
                 }
             }
         }
