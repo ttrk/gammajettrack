@@ -42,6 +42,24 @@ int save_dphidetarefrecoJet_ptBin(std::string inputFile, std::string outputFile,
         }
     }
 
+    std::vector<double> etaBins = {0, 0.5, 1.0, 1.6};
+    int nEtaBins = etaBins.size() - 1;
+
+    for (int iPt = 0; iPt < nPtBins; ++iPt) {
+        for (int iEta = 0; iEta < nEtaBins; ++iEta) {
+            for (int iCent = 0; iCent < nCentBins; ++iCent) {
+
+                std::string histName = Form("h2dphidetarefrecoJet_refptBin%d_etaBin%d_%s_reco0gen0_%d_%d", iPt, iEta, sample.c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+                h2 = 0;
+                h2 = (TH2D*)finput->Get(histName.c_str());
+                if (!h2) continue;
+
+                h2->Write("",TObject::kOverwrite);
+                std::cout << "saved histogram " << histName.c_str() << std::endl;
+            }
+        }
+    }
+
     fout->Write("", TObject::kOverwrite);
     fout->Close();
 
