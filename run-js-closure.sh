@@ -27,11 +27,9 @@ set -- "${ARGS[@]}"
 
 if [ $6 = "pbpbmc" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170911.root"
-    BKGSKIM=""
     TOTAL=12
 elif [ $6 = "ppmc" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-180115.root"
-    BKGSKIM=""
     TOTAL=15
 else
     echo "invalid sample"
@@ -52,16 +50,16 @@ echo running closure histograms
 for i in ${@:8}; do
     for slice in $(seq 0 $TOTAL); do
         $PREFIX sem --id rjc-$GROUP -j$JOBS $FLAGS  \
-                "./jetshape $SKIM $BKGSKIM $6       \
+                "./jetshape $SKIM $6                \
                 0 20 $1 $2 $3 $i $4 $5 $7 0 $slice"
         $PREFIX sem --id rjc-$GROUP -j$JOBS $FLAGS  \
-                "./jetshape $SKIM $BKGSKIM $6       \
+                "./jetshape $SKIM $6                \
                 20 60 $1 $2 $3 $i $4 $5 $7 0 $slice"
         $PREFIX sem --id rjc-$GROUP -j$JOBS $FLAGS  \
-                "./jetshape $SKIM $BKGSKIM $6       \
+                "./jetshape $SKIM $6                \
                 60 100 $1 $2 $3 $i $4 $5 $7 0 $slice"
         $PREFIX sem --id rjc-$GROUP -j$JOBS $FLAGS  \
-                "./jetshape $SKIM $BKGSKIM $6       \
+                "./jetshape $SKIM $6                \
                 100 200 $1 $2 $3 $i $4 $5 $7 0 $slice"
     done
 done

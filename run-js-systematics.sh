@@ -12,8 +12,6 @@ if [ $6 = "pbpbdata" ]; then
     GENTYPE="gengen"
     RECOTYPE="genreco"
     MCSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170911.root"
-    # MCBKGSKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-EmEnrichedDijet-skim-170925.root"
-    MCBKGSKIM=""
     MCSAMPLE="pbpbmc"
 elif [ $6 = "ppdata" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/pp-Data-skim-170911.root"
@@ -21,7 +19,6 @@ elif [ $6 = "ppdata" ]; then
     GENTYPE="gengen"
     RECOTYPE="genreco"
     MCSKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-170911.root"
-    MCBKGSKIM=""
     MCSAMPLE="ppmc"
 else
     echo "invalid sample"
@@ -37,10 +34,10 @@ set -x
 
 for SYS in 1 2 3 4 6 11 12 13 14
 do
-    ./jetshape $SKIM "" $6 0 20 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
-    ./jetshape $SKIM "" $6 20 60 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
-    ./jetshape $SKIM "" $6 60 100 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
-    ./jetshape $SKIM "" $6 100 200 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
+    ./jetshape $SKIM $6 0 20 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
+    ./jetshape $SKIM $6 20 60 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
+    ./jetshape $SKIM $6 60 100 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
+    ./jetshape $SKIM $6 100 200 $1 $2 $3 $TYPE $4 $5 ${SYSTEMATIC[SYS]} $SYS &
 done
 wait
 
@@ -48,14 +45,14 @@ wait
 ./draw_js $6 nominal_data_${1}_${3}_gxi${5}_js_merged.root purity_down_${6}_${1}_${3}_gxi${5}_js_final.root ${1} -2 $TYPE
 
 # isolation systematics
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 0 20 $1 $2 $3 $TYPE $4 $5 nominal_iso 0 &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 20 60 $1 $2 $3 $TYPE $4 $5 nominal_iso 0 &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 60 100 $1 $2 $3 $TYPE $4 $5 nominal_iso 0 &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 100 200 $1 $2 $3 $TYPE $4 $5 nominal_iso 0 &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 0 20 $1 $2 $3 $TYPE $4 $5 iso 5 &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 20 60 $1 $2 $3 $TYPE $4 $5 iso 5 &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 60 100 $1 $2 $3 $TYPE $4 $5 iso 5 &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 100 200 $1 $2 $3 $TYPE $4 $5 iso 5 &
+./jetshape $MCSKIM $MCSAMPLE 0 20 $1 $2 $3 $TYPE $4 $5 nominal_iso 0 &
+./jetshape $MCSKIM $MCSAMPLE 20 60 $1 $2 $3 $TYPE $4 $5 nominal_iso 0 &
+./jetshape $MCSKIM $MCSAMPLE 60 100 $1 $2 $3 $TYPE $4 $5 nominal_iso 0 &
+./jetshape $MCSKIM $MCSAMPLE 100 200 $1 $2 $3 $TYPE $4 $5 nominal_iso 0 &
+./jetshape $MCSKIM $MCSAMPLE 0 20 $1 $2 $3 $TYPE $4 $5 iso 5 &
+./jetshape $MCSKIM $MCSAMPLE 20 60 $1 $2 $3 $TYPE $4 $5 iso 5 &
+./jetshape $MCSKIM $MCSAMPLE 60 100 $1 $2 $3 $TYPE $4 $5 iso 5 &
+./jetshape $MCSKIM $MCSAMPLE 100 200 $1 $2 $3 $TYPE $4 $5 iso 5 &
 wait
 
 hadd -f nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_${TYPE}_js.root nominal_iso_${MCSAMPLE}_${TYPE}_${1}_${3}_${5}_*_*.root
@@ -71,14 +68,14 @@ hadd -f iso_${MCSAMPLE}_${1}_${3}_gxi${5}_js_merged.root iso_${MCSAMPLE}_${1}_${
 ./calc_iso_systematics nominal_iso_${MCSAMPLE}_${1}_${3}_gxi${5}_js_final.root iso_${MCSAMPLE}_${1}_${3}_gxi${5}_js_final.root $7 $MCSAMPLE $6 $TYPE $1 $3 $5
 
 # tracking systematics
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 0 20 $1 $2 $3 $GENTYPE $4 $5 trk_gen &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 20 60 $1 $2 $3 $GENTYPE $4 $5 trk_gen &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 60 100 $1 $2 $3 $GENTYPE $4 $5 trk_gen &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 100 200 $1 $2 $3 $GENTYPE $4 $5 trk_gen &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 0 20 $1 $2 $3 $RECOTYPE $4 $5 trk_reco &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 20 60 $1 $2 $3 $RECOTYPE $4 $5 trk_reco &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 60 100 $1 $2 $3 $RECOTYPE $4 $5 trk_reco &
-./jetshape $MCSKIM "$MCBKGSKIM" $MCSAMPLE 100 200 $1 $2 $3 $RECOTYPE $4 $5 trk_reco &
+./jetshape $MCSKIM $MCSAMPLE 0 20 $1 $2 $3 $GENTYPE $4 $5 trk_gen &
+./jetshape $MCSKIM $MCSAMPLE 20 60 $1 $2 $3 $GENTYPE $4 $5 trk_gen &
+./jetshape $MCSKIM $MCSAMPLE 60 100 $1 $2 $3 $GENTYPE $4 $5 trk_gen &
+./jetshape $MCSKIM $MCSAMPLE 100 200 $1 $2 $3 $GENTYPE $4 $5 trk_gen &
+./jetshape $MCSKIM $MCSAMPLE 0 20 $1 $2 $3 $RECOTYPE $4 $5 trk_reco &
+./jetshape $MCSKIM $MCSAMPLE 20 60 $1 $2 $3 $RECOTYPE $4 $5 trk_reco &
+./jetshape $MCSKIM $MCSAMPLE 60 100 $1 $2 $3 $RECOTYPE $4 $5 trk_reco &
+./jetshape $MCSKIM $MCSAMPLE 100 200 $1 $2 $3 $RECOTYPE $4 $5 trk_reco &
 wait
 
 hadd -f trk_gen_${MCSAMPLE}_${1}_${3}_gxi${5}_${GENTYPE}_js.root trk_gen_${MCSAMPLE}_${GENTYPE}_${1}_${3}_${5}_*_*.root
