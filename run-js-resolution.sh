@@ -7,10 +7,10 @@ if [ $# -lt 7 ]; then
 fi
 
 if [ $6 = "pbpbmc" ]; then
-    SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_skim_20180115_merged/job0.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170911.root"
     BKGSKIM=""
 elif [ $6 = "ppmc" ]; then
-    SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/pp-MC-skim-180115.root"
+    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-180115.root"
     BKGSKIM=""
 else
     echo "invalid sample"
