@@ -54,11 +54,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hrjetpt = new TH1D(Form("hrjetpt_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins);
   TH1D* hgjetpt = new TH1D(Form("hgjetpt_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins);
 
-  TH2D* h2rjetphijp = new TH2D(Form("h2rjetphijp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 100, -0.2 ,0.2);
-  TH2D* h2rjetetajp = new TH2D(Form("h2rjetetajp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 100, -0.2 ,0.2);
+  TH2D* h2rjetphijp = new TH2D(Form("h2rjetphijp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
+  TH2D* h2rjetetajp = new TH2D(Form("h2rjetetajp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
 
-  TH2D* h2gjetphijp = new TH2D(Form("h2gjetphijp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 100, -0.2 ,0.2);
-  TH2D* h2gjetetajp = new TH2D(Form("h2gjetetajp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 100, -0.2 ,0.2);
+  TH2D* h2gjetphijp = new TH2D(Form("h2gjetphijp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
+  TH2D* h2gjetetajp = new TH2D(Form("h2gjetetajp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
 
   // generic pointers
   int nij;
