@@ -307,7 +307,6 @@ public :
    std::vector<int>     *chg;
    std::vector<int>     *sube;
    Int_t           nmix;
-   Int_t           nlooped;
    Float_t         dvz_mix[60];   //[nmix]
    Int_t           dhiBin_mix[60];   //[nmix]
    Float_t         dhiEvtPlanes_mix[60];   //[nmix]
@@ -441,7 +440,6 @@ public :
    TBranch        *b_chg;   //!
    TBranch        *b_sube;   //!
    TBranch        *b_nmix;   //!
-   TBranch        *b_nlooped;   //!
    TBranch        *b_dvz_mix;   //!
    TBranch        *b_dhiBin_mix;   //!
    TBranch        *b_dhiEvtPlanes_mix;   //!
@@ -709,7 +707,6 @@ void photonjettrack::Init(std::string file, std::string bkg_file)
    fChain->SetBranchAddress("chg", &chg, &b_chg);
    fChain->SetBranchAddress("sube", &sube, &b_sube);
    fChain->SetBranchAddress("nmix", &nmix, &b_nmix);
-   fChain->SetBranchAddress("nlooped", &nlooped, &b_nlooped);
    fChain->SetBranchAddress("dvz_mix", dvz_mix, &b_dvz_mix);
    fChain->SetBranchAddress("dhiBin_mix", dhiBin_mix, &b_dhiBin_mix);
    fChain->SetBranchAddress("dhiEvtPlanes_mix", dhiEvtPlanes_mix, &b_dhiEvtPlanes_mix);
