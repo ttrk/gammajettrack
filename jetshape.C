@@ -1,6 +1,7 @@
 #include "TRandom3.h"
 #include "TF1.h"
 #include "TH1.h"
+#include "TH2.h"
 
 #include "photonjettrack.h"
 
@@ -58,6 +59,18 @@ void correct_bin_errors(TH1D* h1, int nsmear) {
 inline float dphi_2s1f1b(float phi1, float phi2) {
   float dphi = fabs(phi1 - phi2);
   if (dphi > PI) { dphi = 2 * PI - dphi; }
+  return dphi;
+}
+
+double getdphi(double phi1, double phi2) {
+  double dphi = phi1 - phi2;
+  if (dphi > PI)
+    dphi -= 2 * PI;
+  if (dphi <= -1 * PI)
+    dphi += 2 * PI;
+  if (fabs(dphi) > PI)
+    return -999;
+
   return dphi;
 }
 
@@ -143,6 +156,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   hjetshapeLR_mix_ue[0] = new TH1D(Form("hjetshapeLR_mix_ue_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
   hjetshapeLR_mix_ue[1] = new TH1D(Form("hjetshapeLR_mix_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
+
+  // performance histograms
+  TH2D* h2dphideta = new TH2D(Form("h2dphideta_%s_%s_%d_%d", sample.data(), genlevel.data(), centmin, centmax), ";#delta#phi;#delta#eta", 40, -0.4, 0.4, 40, -0.4, 0.4);
 
   /* Q/G JES */
   TF1* f_JES_Q[4] = {0};
@@ -446,6 +462,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         // jet pt cut
         if (rawjetpt < jetptcut) continue;
+
+        if (jet_type_is("reco", genlevel) || jet_type_is("sref", genlevel))
+          h2dphideta->Fill(getdphi(rawjetphi, (*gjetphi)[ij]), rawjeteta - (*gjeteta)[ij], weight * smear_weight);
 
         hjetpt[background]->Fill(rawjetpt, weight * smear_weight);
 
