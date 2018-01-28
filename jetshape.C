@@ -284,9 +284,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
     // jet loop
     for (int ij = 0; ij < nij; ij++) {
-      if (jet_type_is("gen0", genlevel)) {
+      if (jet_type_is("gen0", genlevel))
         if ((*gensubid)[ij] != 0) continue;
-      }
 
       float rawjetpt = (*j_pt)[ij];
       float rawjeteta = (*j_eta)[ij];
@@ -366,13 +365,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         // raw jets - jetshape
         for (int ip = 0; ip < nip; ++ip) {
           if ((*p_pt)[ip] < trkptmin) continue;
-          if (part_type_is("gen0", genlevel)) {
+          if (part_type_is("gen0", genlevel))
             if ((*sube)[ip] != 0) continue;
+          if (part_type_is("gen", genlevel))
             if ((*chg)[ip] == 0) continue;
-          }
-          if (part_type_is("gen", genlevel)) {
-            if ((*chg)[ip] == 0) continue;
-          }
 
           float tracking_weight = 1.;
           if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt)[ip], hiBin/2, isPP); }
@@ -383,13 +379,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
             hjetshape[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_weight * smear_weight);
-          }
-          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
-              if (rawjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
-                  float deltar = fabs(dphi);
+          } else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+            if (rawjeteta * (*p_eta)[ip] < 0) { // trk and jet are on the opposite sides of the detector
+              float deltar = fabs(dphi);
 
-                  hjetshapeLR[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_weight * smear_weight * weightLR);
-              }
+              hjetshapeLR[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_weight * smear_weight * weightLR);
+            }
           }
         }
 
@@ -405,28 +400,29 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         p_phi_UE = p_phi_mix;
         p_weight_UE = p_weight_mix;
         p_chg_UE = chg_mix;
+
         if (systematic == sysBkgEtaReflection) {
-            // use particles from the same event
-            nmixedevents_ue = 1;
-            nip_UE = nip;
-            p_ev_UE = 0;
-            p_pt_UE = p_pt;
-            p_eta_UE = p_eta;
-            p_phi_UE = p_phi;
-            p_weight_UE = p_weight;
-            p_chg_UE = chg;
+          // use particles from the same event
+          nmixedevents_ue = 1;
+          nip_UE = nip;
+          p_ev_UE = 0;
+          p_pt_UE = p_pt;
+          p_eta_UE = p_eta;
+          p_phi_UE = p_phi;
+          p_weight_UE = p_weight;
+          p_chg_UE = chg;
         }
+
         for (int ip_UE = 0; ip_UE < nip_UE; ++ip_UE) {
-          if(systematic != sysBkgEtaReflection) {
+          if (systematic != sysBkgEtaReflection)
             if (((*p_ev_UE)[ip_UE]) % 3 != 0) continue;
-          }
+
           if ((*p_pt_UE)[ip_UE] < trkptmin) continue;
-          if (part_type_is("gen", genlevel)) {
+          if (part_type_is("gen", genlevel))
             if ((*p_chg_UE)[ip_UE] == 0) continue;
-          }
 
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
-          if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
+          if (systematic == sysBkgEtaReflection) tmp_p_eta *= -1;
 
           float tracking_weight = 1.;
           if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt_UE)[ip_UE], hiBin/2, isPP); }
@@ -437,13 +433,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
             hjetshape_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_weight * smear_weight / nmixedevents_ue);
-          }
-          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
-              if (rawjeteta * tmp_p_eta < 0)  { // trk and jet are on the opposite sides of the detector
-                  float deltar = fabs(dphi);
+          } else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+            if (rawjeteta * tmp_p_eta < 0) { // trk and jet are on the opposite sides of the detector
+              float deltar = fabs(dphi);
 
-                  hjetshapeLR_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_weight * smear_weight / nmixedevents_ue * weightLR);
-              }
+              hjetshapeLR_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_weight * smear_weight / nmixedevents_ue * weightLR);
+            }
           }
         }
       }
@@ -463,6 +458,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       // jet eta cut
       if (fabs(mixjeteta) > 1.6) continue;
+
       if (systematic == sysBkgEtaReflection && fabs(mixjeteta) < 0.3) continue;
 
       float res_pt = 0;
@@ -538,13 +534,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         for (int ip = 0; ip < nip; ++ip) {
           if ((*p_pt)[ip] < trkptmin) continue;
-          if (part_type_is("gen0", genlevel)) {
+          if (part_type_is("gen0", genlevel))
             if ((*sube)[ip] != 0) continue;
+          if (part_type_is("gen", genlevel))
             if ((*chg)[ip] == 0) continue;
-          }
-          if (part_type_is("gen", genlevel)) {
-            if ((*chg)[ip] == 0) continue;
-          }
 
           float tracking_weight = 1.;
           if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt)[ip], hiBin/2, isPP); }
@@ -555,13 +548,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
             hjetshape_mixsig[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_weight * smear_weight / nmixedevents_jet);
-          }
-          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
-              if (mixjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
-                  float deltar = fabs(dphi);
+          } else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+            if (mixjeteta * (*p_eta)[ip] < 0) { // trk and jet are on the opposite sides of the detector
+              float deltar = fabs(dphi);
 
-                  hjetshapeLR_mixsig[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_weight * smear_weight / nmixedevents_jet * weightLR);
-              }
+              hjetshapeLR_mixsig[background]->Fill(deltar, (*p_pt)[ip] / refpt * weight * (*p_weight)[ip] * tracking_weight * smear_weight / nmixedevents_jet * weightLR);
+            }
           }
         }
 
@@ -575,9 +567,8 @@ after_mixsignal:
           // tracks and jet must come from same mixed event
           if ((*j_ev_mix)[ij_mix] != (*p_ev_mix)[ip_mix]) continue;
           if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
-          if (part_type_is("gen", genlevel)) {
+          if (part_type_is("gen", genlevel))
             if ((*chg_mix)[ip_mix] == 0) continue;
-          }
 
           float tracking_weight = 1.;
           if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt_mix)[ip_mix], hiBin/2, isPP); }
@@ -588,13 +579,12 @@ after_mixsignal:
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
             hjetshape_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_weight * smear_weight / nmixedevents_jet);
-          }
-          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
-              if (mixjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
-                  float deltar = fabs(dphi);
+          } else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+            if (mixjeteta * (*p_eta_mix)[ip_mix] < 0) { // trk and jet are on the opposite sides of the detector
+              float deltar = fabs(dphi);
 
-                  hjetshapeLR_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_weight * smear_weight / nmixedevents_jet * weightLR);
-              }
+              hjetshapeLR_mixjet[background]->Fill(deltar, (*p_pt_mix)[ip_mix] / refpt * weight * (*p_weight_mix)[ip_mix] * tracking_weight * smear_weight / nmixedevents_jet * weightLR);
+            }
           }
         }
 
@@ -607,25 +597,24 @@ after_mixsignal:
         p_phi_UE = p_phi_mix;
         p_weight_UE = p_weight_mix;
         p_chg_UE = chg_mix;
-        if (systematic == sysBkgEtaReflection) {
-            nmixedevents_jet_ue = nmixedevents_jet;
-        }
+
+        if (systematic == sysBkgEtaReflection)
+          nmixedevents_jet_ue = nmixedevents_jet;
+
         for (int ip_UE = 0; ip_UE < nip_UE; ++ip_UE) {
           if (systematic != sysBkgEtaReflection) {
-              if ((*p_ev_UE)[ip_UE] % 3 == 0) continue;
-              if ((*j_ev_mix)[ij_mix] == (*p_ev_UE)[ip_UE]) continue;
-          }
-          else if (systematic == sysBkgEtaReflection) {
-              // use particles from the same event
-              if ((*j_ev_mix)[ij_mix] != (*p_ev_UE)[ip_UE]) continue;
+            if ((*p_ev_UE)[ip_UE] % 3 == 0) continue;
+            if ((*j_ev_mix)[ij_mix] == (*p_ev_UE)[ip_UE]) continue;
+          } else {
+            // use particles from the same event
+            if ((*j_ev_mix)[ij_mix] != (*p_ev_UE)[ip_UE]) continue;
           }
           if ((*p_pt_UE)[ip_UE] < trkptmin) continue;
-          if (part_type_is("gen", genlevel)) {
-              if ((*p_chg_UE)[ip_UE] == 0) continue;
-          }
+          if (part_type_is("gen", genlevel))
+            if ((*p_chg_UE)[ip_UE] == 0) continue;
 
           float tmp_p_eta = (*p_eta_UE)[ip_UE];
-          if(systematic == sysBkgEtaReflection)  tmp_p_eta *= -1;
+          if (systematic == sysBkgEtaReflection) tmp_p_eta *= -1;
 
           float tracking_weight = 1.;
           if (systematic == sysTrkRatio) { tracking_weight += tracking_ratio((*p_pt_UE)[ip_UE], hiBin/2, isPP); }
@@ -636,13 +625,12 @@ after_mixsignal:
           if (deltar2 < 1) {
             float deltar = sqrt(deltar2);
             hjetshape_mix_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_weight * smear_weight / nmixedevents_jet_ue);
-          }
-          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
-              if (mixjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
-                  float deltar = fabs(dphi);
+          } else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+            if (mixjeteta * (*p_eta_UE)[ip_UE] < 0) { // trk and jet are on the opposite sides of the detector
+              float deltar = fabs(dphi);
 
-                  hjetshapeLR_mix_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_weight * smear_weight / nmixedevents_jet_ue * weightLR);
-              }
+              hjetshapeLR_mix_ue[background]->Fill(deltar, (*p_pt_UE)[ip_UE] / refpt * weight * (*p_weight_UE)[ip_UE] * tracking_weight * smear_weight / nmixedevents_jet_ue * weightLR);
+            }
           }
         }
       }
@@ -661,11 +649,11 @@ after_mixsignal:
       correct_bin_errors(hjetshape_mix_ue[r], nsmear);
 
       if (systematic == sysLR) {
-          correct_bin_errors(hjetshapeLR[r], nsmear);
-          correct_bin_errors(hjetshapeLR_ue[r], nsmear);
-          correct_bin_errors(hjetshapeLR_mixjet[r], nsmear);
-          correct_bin_errors(hjetshapeLR_mixsig[r], nsmear);
-          correct_bin_errors(hjetshapeLR_mix_ue[r], nsmear);
+        correct_bin_errors(hjetshapeLR[r], nsmear);
+        correct_bin_errors(hjetshapeLR_ue[r], nsmear);
+        correct_bin_errors(hjetshapeLR_mixjet[r], nsmear);
+        correct_bin_errors(hjetshapeLR_mixsig[r], nsmear);
+        correct_bin_errors(hjetshapeLR_mix_ue[r], nsmear);
       }
     }
   }
@@ -673,13 +661,11 @@ after_mixsignal:
   if (isHI) {
     for (int h=0; h<2; ++h) {
       if (hjetpt_mixjet[h]->Integral()) {
-          hjetshape_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
+        hjetshape_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
 
-          if (systematic == sysLR) {
-              hjetshapeLR_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
-          }
-      }
-      else
+        if (systematic == sysLR)
+          hjetshapeLR_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
+      } else
         printf("warning: for gen: %s, centmin: %i, centmax: %i, hjetpt_mixjet[%i] has integral 0\n", genlevel.c_str(), centmin, centmax, h);
     }
   }
