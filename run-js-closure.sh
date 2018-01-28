@@ -26,8 +26,8 @@ done
 set -- "${ARGS[@]}"
 
 if [ $6 = "pbpbmc" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170911.root"
-    TOTAL=12
+    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-180115.root"
+    TOTAL=51
 elif [ $6 = "ppmc" ]; then
     SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-180115.root"
     TOTAL=15

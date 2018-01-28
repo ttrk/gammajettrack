@@ -27,8 +27,8 @@ set -- "${ARGS[@]}"
 
 case "$6" in
     pbpbmc)
-        SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170911.root"
-        TOTAL=12
+        SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-180115.root"
+        TOTAL=51
         ;;
     ppmc)
         SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-180115.root"
