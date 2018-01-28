@@ -454,8 +454,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         // raw jets - jetshape
         for (int ip = 0; ip < nip; ++ip) {
           if ((*p_pt)[ip] < trkptmin) continue;
-          if (part_type_is("gen0", genlevel))
+          if (part_type_is("gen0", genlevel)) {
+            if ((*chg)[ip] == 0) continue;
             if ((*sube)[ip] != 0) continue;
+          }
           if (part_type_is("gen", genlevel))
             if ((*chg)[ip] == 0) continue;
 
@@ -638,8 +640,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         for (int ip = 0; ip < nip; ++ip) {
           if ((*p_pt)[ip] < trkptmin) continue;
-          if (part_type_is("gen0", genlevel))
+          if (part_type_is("gen0", genlevel)) {
+            if ((*chg)[ip] == 0) continue;
             if ((*sube)[ip] != 0) continue;
+          }
           if (part_type_is("gen", genlevel))
             if ((*chg)[ip] == 0) continue;
 
