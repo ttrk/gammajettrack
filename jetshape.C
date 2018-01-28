@@ -321,6 +321,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         if ((*gensubid)[ij] != 0) continue;
 
       float rawjetpt = (*j_pt)[ij];
+      if (rawjetpt < 15) continue;
       float rawjeteta = (*j_eta)[ij];
       float rawjetphi = (*j_phi)[ij];
 
@@ -529,6 +530,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       if ((*j_ev_mix)[ij_mix] % 3 == 0) continue;
 
       float mixjetpt = (*j_pt_mix)[ij_mix];
+      if (mixjetpt < 15) continue;
       float mixjeteta = (*j_eta_mix)[ij_mix];
       float mixjetphi = (*j_phi_mix)[ij_mix];
 
