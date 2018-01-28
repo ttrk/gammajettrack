@@ -201,6 +201,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     j_eta_mix = jeteta_mix;
     j_phi_mix = jetphi_mix;
     j_ev_mix = nmixEv_mix;
+  } else if (jet_type_is("ref", genlevel) || jet_type_is("sref", genlevel) || jet_type_is("ssref", genlevel)) {
+    j_pt = gjetpt;
+    j_eta = gjeteta;
+    j_phi = gjetphi;
+    j_pt_mix = gjetpt_mix;
+    j_eta_mix = gjeteta_mix;
+    j_phi_mix = gjetphi_mix;
+    j_ev_mix = nmixEv_mix;
   } else {
     j_pt = genpt;
     j_eta = geneta;
@@ -238,7 +246,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   if (isPP && jet_type_is("sreco", genlevel))
     nsmear = _NSMEAR_PP;
-  else if (jet_type_is("sgen", genlevel) || jet_type_is("ssgen", genlevel))
+  else if (jet_type_is("s", genlevel))
     nsmear = _NSMEAR_GEN;
 
   if (systematic == 3)
@@ -299,7 +307,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     bool background = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
     if (!signal && !background) continue;
 
-    if (jet_type_is("reco", genlevel) || jet_type_is("sreco", genlevel)) {
+    if (jet_type_is("reco", genlevel) || jet_type_is("sreco", genlevel) ||
+        jet_type_is("ref", genlevel) || jet_type_is("sref", genlevel) || jet_type_is("ssref", genlevel)) {
       nij = njet;
       nij_mix = njet_mix;
     } else {
@@ -319,6 +328,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     for (int ij = 0; ij < nij; ij++) {
       if (jet_type_is("gen0", genlevel))
         if ((*gensubid)[ij] != 0) continue;
+
+      if (jet_type_is("ref0", genlevel) || jet_type_is("sref0", genlevel) || jet_type_is("ssref0", genlevel))
+        if ((*subid)[ij] != 0) continue;
 
       float rawjetpt = (*j_pt)[ij];
       if (rawjetpt < 15) continue;
@@ -346,7 +358,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             float retahi = hretahi->GetBinContent(hretahi->FindBin(rawjetpt));
             res_eta = get_rel_res(retapp, retahi);
           }
-        } else if (jet_type_is("sgen", genlevel)) {
+        } else if (jet_type_is("sgen", genlevel) || jet_type_is("sref", genlevel)) {
           if (genlevel.find("pt") != std::string::npos)
             res_pt = getResolutionPP(rawjetpt);
           if (genlevel.find("phi") != std::string::npos) {
@@ -359,7 +371,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             float retareco = hreta->GetBinContent(hgeta->FindBin(rawjetpt));
             res_eta = get_rel_res(retagen, retareco);
           }
-        } else if (jet_type_is("ssgen", genlevel)) {
+        } else if (jet_type_is("ssgen", genlevel) || jet_type_is("ssref", genlevel)) {
           if (genlevel.find("pt") != std::string::npos)
             res_pt = getResolutionHI(rawjetpt, centBin);
           if (genlevel.find("phi") != std::string::npos) {
@@ -374,7 +386,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           }
         }
       } else {
-        if (jet_type_is("sgen", genlevel)) {
+        if (jet_type_is("sgen", genlevel) || jet_type_is("sref", genlevel)) {
           if (genlevel.find("pt") != std::string::npos)
             res_pt = getResolutionHI(rawjetpt, centBin);
           if (genlevel.find("phi") != std::string::npos) {
@@ -522,7 +534,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     }
 
     if (isPP) continue;
-    if (jet_type_is("gen0", genlevel)) continue;
+    if (jet_type_is("gen0", genlevel) || jet_type_is("ref0", genlevel) ||
+        jet_type_is("sgen0", genlevel) || jet_type_is("sref0", genlevel) ||
+        jet_type_is("ssgen0", genlevel) || jet_type_is("ssref0", genlevel)) continue;
 
     // mix jet loop
     int nmixedevents_jet = nmix - (nmix + 2) / 3;
@@ -540,7 +554,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       float res_phi = 0;
       float res_eta = 0;
 
-      if (jet_type_is("sgen", genlevel)) {
+      if (jet_type_is("sgen", genlevel) || jet_type_is("sref", genlevel)) {
         if (genlevel.find("pt") != std::string::npos)
           res_pt = getResolutionHI(mixjetpt, centBin);
         if (genlevel.find("phi") != std::string::npos) {
