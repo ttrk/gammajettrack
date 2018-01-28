@@ -4,6 +4,8 @@
 
 #include "photonjettrack.h"
 
+#define SIZE 20000
+
 #define _NSMEAR_PP  1
 #define _NSMEAR_GEN 1
 #define _NSMEAR_JER 1
@@ -66,7 +68,7 @@ float get_rel_res(float gen, float reco) {
     return 0;
 }
 
-void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int) {
+void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int slice) {
   bool isHI = (sample.find("pbpb") != std::string::npos);
   TFile* fweight = (isHI) ? TFile::Open("PbPb-weights.root") : TFile::Open("pp-weights.root");
   TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
@@ -93,7 +95,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   if (fChain == 0) return;
   int64_t nentries = fChain->GetEntries();
 
-  TFile* fout = new TFile(Form("%s_%s_%s_%d_%d_%i_%d_%d.root", label.data(), sample.data(), genlevel.data(), (int)phoetmin, (int)jetptcut, gammaxi, abs(centmin), abs(centmax)), "recreate");
+  TFile* fout = new TFile(Form("%s_%s_%s_%d_%d_%i_%d_%d_%i.root", label.data(), sample.data(), genlevel.data(), (int)phoetmin, (int)jetptcut, gammaxi, abs(centmin), abs(centmax), slice), "recreate");
 
   /* raw */
   TH1D* hjetpt[2];
@@ -242,8 +244,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   if (systematic == 3)
     nsmear *= _NSMEAR_JER;
 
+  int start = slice * SIZE;
+  int end = start + SIZE;
+
+  if (slice < 0) {
+    start = 0;
+    end = nentries;
+  }
+
   // main loop
-  for (int64_t jentry = 0; jentry < nentries; jentry++) {
+  for (int64_t jentry = start; jentry < end && jentry < nentries; jentry++) {
     if (jentry % 10000 == 0) { printf("%li/%li\n", jentry, nentries); }
     int64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -736,25 +746,13 @@ after_mixsignal:
     }
   }
 
-  if (isHI) {
-    for (int h=0; h<2; ++h) {
-      if (hjetpt_mixjet[h]->Integral()) {
-        hjetshape_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
-
-        if (systematic == sysLR)
-          hjetshapeLR_mix_ue[h]->Scale(1. / hjetpt_mixjet[h]->Integral());
-      } else
-        printf("warning: for gen: %s, centmin: %i, centmax: %i, hjetpt_mixjet[%i] has integral 0\n", genlevel.c_str(), centmin, centmax, h);
-    }
-  }
-
   fout->Write();
   fout->Close();
 }
 
 int main(int argc, char* argv[]) {
-  if (argc > 14 || argc < 6) {
-    printf("usage: ./jetshape [inputs] [sample] [centmin centmax] [phoetmin phoetmax] [jetptcut] [genlevel] [trkptmin] [gammaxi] [label] [systematic]\n");
+  if (argc > 15 || argc < 6) {
+    printf("usage: ./jetshape [inputs] [sample] [centmin centmax] [phoetmin phoetmax] [jetptcut] [genlevel] [trkptmin] [gammaxi] [label] [systematic] [slice]\n");
     return 1;
   }
 
@@ -777,6 +775,8 @@ int main(int argc, char* argv[]) {
     t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]), std::atof(argv[6]), std::atof(argv[7]), std::atof(argv[8]), argv[9], std::atof(argv[10]), std::atoi(argv[11]), argv[12]);
   else if (argc == 14)
     t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]), std::atof(argv[6]), std::atof(argv[7]), std::atof(argv[8]), argv[9], std::atof(argv[10]), std::atoi(argv[11]), argv[12], std::atoi(argv[13]));
+  else if (argc == 15)
+    t->jetshape(argv[3], std::atoi(argv[4]), std::atoi(argv[5]), std::atof(argv[6]), std::atof(argv[7]), std::atof(argv[8]), argv[9], std::atof(argv[10]), std::atoi(argv[11]), argv[12], std::atoi(argv[13]), std::atoi(argv[14]));
 
   return 0;
 }

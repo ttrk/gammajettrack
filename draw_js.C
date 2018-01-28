@@ -88,6 +88,14 @@ int draw_js(std::string sample, const char* type, const char* fname, const char*
                 /* underlying event for mixjet/mixsignal (scaled per jet) */
                 hjetshape_mix_ue[i][l][j] = (TH1D*)finput->Get(Form("hjetshape%s_mix_ue%s_%s", lrtype[l], photype[j], tag.c_str()))->Clone();
 
+                if (sample.find("pbpb") != std::string::npos) {
+                    if (hjetpt_mixjet[i][j]->Integral()) {
+                        hjetshape_mix_ue[i][l][j]->Scale(1. / hjetpt_mixjet[i][j]->Integral());
+                    } else {
+                        printf("warning: for gen: %s, centmin: %i, centmax: %i, hjetpt_mixjet[%i] has integral 0\n", type, min_hiBin[i], max_hiBin[i], j);
+                    }
+                }
+
                 /* ue subtraction */
                 hjetshape_sub[i][l][j] = (TH1D*)hjetshape[i][l][j]->Clone(Form("hjetshape%s_sub%s_%s", lrtype[l], photype[j], tag.c_str()));
                 hjetshape_sub[i][l][j]->Add(hjetshape_ue[i][l][j], -1 * uescale[i]);

@@ -32,7 +32,7 @@ inline float dphi_2s1f1b(float phi1, float phi2) {
   return dphi;
 }
 
-void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float, float jetptcut, std::string, float trkptmin, int gammaxi, std::string label, int, int) {
+void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float, float jetptcut, std::string, float trkptmin, int gammaxi, std::string label, int start, int end) {
   bool isHI = (sample.find("pbpb") != std::string::npos);
   TFile* fweight = (isHI) ? TFile::Open("PbPb-weights.root") : TFile::Open("pp-weights.root");
   TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
@@ -90,7 +90,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   gp_phi = phi;
 
   // main loop
-  for (int64_t jentry = 0; jentry < nentries; jentry++) {
+  for (int64_t jentry = start; jentry < end && jentry < nentries; jentry++) {
     if (jentry % 10000 == 0) { printf("%li/%li\n", jentry, nentries); }
     int64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -183,40 +183,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
     }
   }
-
-  h2rjetphijp->FitSlicesY();
-  h2rjetetajp->FitSlicesY();
-  h2gjetphijp->FitSlicesY();
-  h2gjetetajp->FitSlicesY();
-
-  TH1D* h2rjetphijpres = (TH1D*)gDirectory->Get(Form("h2rjetphijp_%s_%d_%d_2", sample.data(), centmin, centmax));
-  TH1D* h2rjetetajpres = (TH1D*)gDirectory->Get(Form("h2rjetetajp_%s_%d_%d_2", sample.data(), centmin, centmax));
-  TH1D* h2gjetphijpres = (TH1D*)gDirectory->Get(Form("h2gjetphijp_%s_%d_%d_2", sample.data(), centmin, centmax));
-  TH1D* h2gjetetajpres = (TH1D*)gDirectory->Get(Form("h2gjetetajp_%s_%d_%d_2", sample.data(), centmin, centmax));
-
-  TCanvas* c1 = new TCanvas("c1", "", 600, 600);
-  h2rjetphijpres->SetAxisRange(0, 0.08, "Y");
-  h2rjetphijpres->Draw("p e");
-  c1->SaveAs(Form("h2rjetphijpres_%s_%i_%i.png", sample.data(), centmin, centmax));
-  h2rjetetajpres->SetAxisRange(0, 0.08, "Y");
-  h2rjetetajpres->Draw("p e");
-  c1->SaveAs(Form("h2rjetetajpres_%s_%i_%i.png", sample.data(), centmin, centmax));
-  h2gjetphijpres->SetAxisRange(0, 0.08, "Y");
-  h2gjetphijpres->Draw("p e");
-  c1->SaveAs(Form("h2gjetphijpres_%s_%i_%i.png", sample.data(), centmin, centmax));
-  h2gjetetajpres->SetAxisRange(0, 0.08, "Y");
-  h2gjetetajpres->Draw("p e");
-  c1->SaveAs(Form("h2gjetetajpres_%s_%i_%i.png", sample.data(), centmin, centmax));
-
-  TCanvas* c2 = new TCanvas("c2", "", 600, 600);
-  h2rjetphijp->Draw("colz");
-  c2->SaveAs(Form("h2rjetphijp_%s_%i_%i.png", sample.data(), centmin, centmax));
-  h2rjetetajp->Draw("colz");
-  c2->SaveAs(Form("h2rjetetajp_%s_%i_%i.png", sample.data(), centmin, centmax));
-  h2gjetphijp->Draw("colz");
-  c2->SaveAs(Form("h2gjetphijp_%s_%i_%i.png", sample.data(), centmin, centmax));
-  h2gjetetajp->Draw("colz");
-  c2->SaveAs(Form("h2gjetetajp_%s_%i_%i.png", sample.data(), centmin, centmax));
 
   fout->Write();
   fout->Close();
