@@ -6,6 +6,8 @@
 
 #include "photonjettrack.h"
 
+#define SIZE    20000
+
 #define _NSMEAR_PP  1
 #define _NSMEAR_GEN 1
 #define _NSMEAR_JER 1
@@ -32,7 +34,7 @@ inline float dphi_2s1f1b(float phi1, float phi2) {
   return dphi;
 }
 
-void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float, float jetptcut, std::string, float trkptmin, int gammaxi, std::string label, int start, int end) {
+void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float, float jetptcut, std::string, float trkptmin, int gammaxi, std::string label, int, int slice) {
   bool isHI = (sample.find("pbpb") != std::string::npos);
   TFile* fweight = (isHI) ? TFile::Open("PbPb-weights.root") : TFile::Open("pp-weights.root");
   TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
@@ -43,7 +45,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   if (fChain == 0) return;
   int64_t nentries = fChain->GetEntries();
 
-  TFile* fout = new TFile(Form("%s_%s_%d_%d_%i_%d_%d.root", label.data(), sample.data(), (int)phoetmin, (int)jetptcut, gammaxi, centmin, centmax), "recreate");
+  TFile* fout = new TFile(Form("%s_%s_%d_%d_%i_%d_%d_%i.root", label.data(), sample.data(), (int)phoetmin, (int)jetptcut, gammaxi, centmin, centmax, slice), "recreate");
 
   const int nptbins = 9;
   const double ptbins[10] = {30, 40, 50, 60, 80, 100, 120, 150, 200, 300};
@@ -88,6 +90,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   gp_pt = pt;
   gp_eta = eta;
   gp_phi = phi;
+
+  int start = slice * SIZE;
+  int end = start + SIZE;
+
+  if (slice < 0) {
+      start = 0;
+      end = nentries;
+  }
 
   // main loop
   for (int64_t jentry = start; jentry < end && jentry < nentries; jentry++) {
