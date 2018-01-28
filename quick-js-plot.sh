@@ -87,7 +87,9 @@ else
         echo -e "hjetshape_${8}_${6}_${i}_100_200" >> $PLOTLIST
     done
 
-    ./plot_js ${7}_${6}_${1}_${3}_gxi${5}_js_final.root ${7}_${6}_gxi${5}_${1}_${3}_${8}${arglist} $PLOTLIST 1 $5 $1 $3
+    [[ $6 = "pp"* ]] && opt=1
+
+    ./plot_js ${7}_${6}_${1}_${3}_gxi${5}_js_final.root ${7}_${6}_gxi${5}_${1}_${3}_${8}${arglist} $PLOTLIST 1 $5 $1 $3 $opt
 fi
 
 rm $PLOTLIST
