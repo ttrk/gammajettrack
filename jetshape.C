@@ -581,8 +581,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
       }
 
-      res_phi = get_rel_res(fromphires->GetBinContent(fromphires->FindBin(mixjetpt)), tophires->GetBinContent(tophires->FindBin(mixjetpt)));
-      res_eta = get_rel_res(frometares->GetBinContent(frometares->FindBin(mixjetpt)), toetares->GetBinContent(toetares->FindBin(mixjetpt)));
+      if (fromphires != 0 && tophires != 0)
+        res_phi = get_rel_res(fromphires->GetBinContent(fromphires->FindBin(mixjetpt)), tophires->GetBinContent(tophires->FindBin(mixjetpt)));
+      if (frometares != 0 && toetares != 0)
+        res_eta = get_rel_res(frometares->GetBinContent(frometares->FindBin(mixjetpt)), toetares->GetBinContent(toetares->FindBin(mixjetpt)));
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
