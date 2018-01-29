@@ -10,6 +10,7 @@ ARGS=()
 
 while [ $# -gt 0 ]; do
     case "$1" in
+        -f|--fit)       fitonly=1; shift ;;
         -g)             GROUP="$2"; shift 2 ;;
         --group=*)      GROUP="${1#*=}"; shift ;;
         -j)             JOBS="$2"; shift 2 ;;
@@ -50,28 +51,30 @@ FLAGS="--linebuffer"
 
 [ -n "$NICE" ] && PREFIX+="nice -n $NICE "
 
-echo running resolution histograms
-for slice in $(seq 0 $TOTAL); do
-    $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
-            "./jetres $SKIM $6 0 20 $1 $2 $3 a $4 $5 $7 0 $slice"
-    $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
-            "./jetres $SKIM $6 20 60 $1 $2 $3 a $4 $5 $7 0 $slice"
-    $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
-            "./jetres $SKIM $6 60 100 $1 $2 $3 a $4 $5 $7 0 $slice"
-    $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
-            "./jetres $SKIM $6 100 200 $1 $2 $3 a $4 $5 $7 0 $slice"
-done
-sem --id rjr-$GROUP --wait
+if [ ! -n "$fitonly" ]; then
+  echo running resolution histograms
+    for slice in $(seq 0 $TOTAL); do
+        $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
+                "./jetres $SKIM $6 0 20 $1 $2 $3 a $4 $5 $7 0 $slice"
+        $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
+                "./jetres $SKIM $6 20 60 $1 $2 $3 a $4 $5 $7 0 $slice"
+        $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
+                "./jetres $SKIM $6 60 100 $1 $2 $3 a $4 $5 $7 0 $slice"
+        $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
+                "./jetres $SKIM $6 100 200 $1 $2 $3 a $4 $5 $7 0 $slice"
+    done
+    sem --id rjr-$GROUP --wait
 
-hadd -f ${7}_${6}_${1}_${3}_${5}_0_20.root ${7}_${6}_${1}_${3}_${5}_0_20_*.root
-hadd -f ${7}_${6}_${1}_${3}_${5}_20_60.root ${7}_${6}_${1}_${3}_${5}_20_60_*.root
-hadd -f ${7}_${6}_${1}_${3}_${5}_60_100.root ${7}_${6}_${1}_${3}_${5}_60_100_*.root
-hadd -f ${7}_${6}_${1}_${3}_${5}_100_200.root ${7}_${6}_${1}_${3}_${5}_100_200_*.root
+    hadd -f ${7}_${6}_${1}_${3}_${5}_0_20.root ${7}_${6}_${1}_${3}_${5}_0_20_*.root
+    hadd -f ${7}_${6}_${1}_${3}_${5}_20_60.root ${7}_${6}_${1}_${3}_${5}_20_60_*.root
+    hadd -f ${7}_${6}_${1}_${3}_${5}_60_100.root ${7}_${6}_${1}_${3}_${5}_60_100_*.root
+    hadd -f ${7}_${6}_${1}_${3}_${5}_100_200.root ${7}_${6}_${1}_${3}_${5}_100_200_*.root
 
-rm ${7}_${6}_${1}_${3}_${5}_0_20_*.root
-rm ${7}_${6}_${1}_${3}_${5}_20_60_*.root
-rm ${7}_${6}_${1}_${3}_${5}_60_100_*.root
-rm ${7}_${6}_${1}_${3}_${5}_100_200_*.root
+    rm ${7}_${6}_${1}_${3}_${5}_0_20_*.root
+    rm ${7}_${6}_${1}_${3}_${5}_20_60_*.root
+    rm ${7}_${6}_${1}_${3}_${5}_60_100_*.root
+    rm ${7}_${6}_${1}_${3}_${5}_100_200_*.root
+fi
 
 ./fitjetres ${7}_${6}_${1}_${3}_${5}_0_20.root $6 0 20
 ./fitjetres ${7}_${6}_${1}_${3}_${5}_20_60.root $6 20 60
