@@ -156,7 +156,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   hjetshapeLR_mix_ue[1] = new TH1D(Form("hjetshapeLR_mix_ue_bkg_%s_%s_%d_%d", sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";r;#rho(r)", 20, 0, 1);
 
   // performance histograms
-  TH2D* h2dphideta = new TH2D(Form("h2dphideta_%s_%s_%d_%d", sample.data(), genlevel.data(), centmin, centmax), ";#delta#phi;#delta#eta", 40, -0.4, 0.4, 40, -0.4, 0.4);
+  TH2D* h2dphideta = new TH2D(Form("h2dphideta_%s_%s_%d_%d", sample.data(), genlevel.data(), centmin, centmax), ";#delta#phi;#delta#eta", 200, -0.4, 0.4, 200, -0.4, 0.4);
 
   /* Q/G JES */
   TF1* f_JES_Q[4] = {0};
