@@ -87,18 +87,20 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
   TH1D* hcentweight = (TH1D*)fweight->Get("hcent");
 
-  TFile* jpres = TFile::Open(Form("resolution_%s_%d_%d_%i_%d_%d.root", sample.data(), (int)phoetmin, (int)jetptcut, gammaxi, centmin, centmax), "read");
-  TH1D* hrphi = (TH1D*)jpres->Get(Form("h2rjetphijp_%s_%i_%i_2", sample.data(), centmin, centmax));
-  TH1D* hreta = (TH1D*)jpres->Get(Form("h2rjetetajp_%s_%i_%i_2", sample.data(), centmin, centmax));
-  TH1D* hgphi = (TH1D*)jpres->Get(Form("h2gjetphijp_%s_%i_%i_2", sample.data(), centmin, centmax));
-  TH1D* hgeta = (TH1D*)jpres->Get(Form("h2gjetetajp_%s_%i_%i_2", sample.data(), centmin, centmax));
+  TFile* relres = TFile::Open(Form("resolution_%s_%d_%d_%i_%d_%d.root", sample.data(), (int)phoetmin, (int)jetptcut, gammaxi, centmin, centmax), "read");
+  TH1D* hrphi = (TH1D*)relres->Get(Form("h2rphi_%s_%i_%i_2", sample.data(), centmin, centmax));
+  TH1D* hreta = (TH1D*)relres->Get(Form("h2reta_%s_%i_%i_2", sample.data(), centmin, centmax));
+  TH1D* hgphi = (TH1D*)relres->Get(Form("h2gphi_%s_%i_%i_2", sample.data(), centmin, centmax));
+  TH1D* hgeta = (TH1D*)relres->Get(Form("h2geta_%s_%i_%i_2", sample.data(), centmin, centmax));
 
-  TFile* jpreshi = 0;
+  TFile* relreshi = 0;
   TH1D* hrphihi = 0; TH1D* hretahi = 0;
   if (!isHI) {
-    jpreshi = TFile::Open(Form("resolution_%s_%d_%d_%i_%d_%d.root", sample.data(), (int)phoetmin, (int)jetptcut, gammaxi, centmin, centmax), "read");
-    hrphihi = (TH1D*)jpreshi->Get(Form("h2rjetphijp_%s_%i_%i_2", sample.data(), centmin, centmax));
-    hretahi = (TH1D*)jpreshi->Get(Form("h2rjetetajp_%s_%i_%i_2", sample.data(), centmin, centmax));
+    std::string hisample = sample; hisample.replace(sample.find("pp"), 2, "pbpb");
+    relreshi = TFile::Open(Form("resolution_%s_%d_%d_%i_%d_%d.root", hisample.data(), (int)phoetmin, (int)jetptcut, gammaxi, centmin, centmax), "read");
+
+    hrphihi = (TH1D*)relreshi->Get(Form("h2rphi_%s_%i_%i_2", sample.data(), centmin, centmax));
+    hretahi = (TH1D*)relreshi->Get(Form("h2reta_%s_%i_%i_2", sample.data(), centmin, centmax));
   }
 
   bool isMC = (sample.find("mc") != std::string::npos);
@@ -357,46 +359,37 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       float res_phi = 0;
       float res_eta = 0;
 
+      TH1D* fromphires = 0; TH1D* tophires = 0;
+      TH1D* frometares = 0; TH1D* toetares = 0;
+
       // apply smearing
       if (isPP) {
         if (jet_type_is("sreco", genlevel)) {
           if (genlevel.find("pt") != std::string::npos)
             res_pt = getSigmaRelPt(centmin, centmax, rawjetpt);
           if (genlevel.find("phi") != std::string::npos) {
-            float rphipp = hrphi->GetBinContent(hrphi->FindBin(rawjetpt));
-            float rphihi = hrphihi->GetBinContent(hrphihi->FindBin(rawjetpt));
-            res_phi = get_rel_res(rphipp, rphihi);
+            fromphires = hrphi; tophires = hrphihi;
           }
           if (genlevel.find("eta") != std::string::npos) {
-            float retapp = hreta->GetBinContent(hreta->FindBin(rawjetpt));
-            float retahi = hretahi->GetBinContent(hretahi->FindBin(rawjetpt));
-            res_eta = get_rel_res(retapp, retahi);
+            frometares = hreta; toetares = hretahi;
           }
         } else if (jet_type_is("sgen", genlevel) || jet_type_is("sref", genlevel)) {
           if (genlevel.find("pt") != std::string::npos)
             res_pt = getResolutionPP(rawjetpt);
           if (genlevel.find("phi") != std::string::npos) {
-            float rphigen = hgphi->GetBinContent(hgphi->FindBin(rawjetpt));
-            float rphireco = hrphi->GetBinContent(hrphi->FindBin(rawjetpt));
-            res_phi = get_rel_res(rphigen, rphireco);
+            fromphires = hgphi; tophires = hrphi;
           }
           if (genlevel.find("eta") != std::string::npos) {
-            float retagen = hgeta->GetBinContent(hgeta->FindBin(rawjetpt));
-            float retareco = hreta->GetBinContent(hreta->FindBin(rawjetpt));
-            res_eta = get_rel_res(retagen, retareco);
+            frometares = hgeta; toetares = hreta;
           }
         } else if (jet_type_is("ssgen", genlevel) || jet_type_is("ssref", genlevel)) {
           if (genlevel.find("pt") != std::string::npos)
             res_pt = getResolutionHI(rawjetpt, centBin);
           if (genlevel.find("phi") != std::string::npos) {
-            float rphigen = hgphi->GetBinContent(hgphi->FindBin(rawjetpt));
-            float rphireco = hrphihi->GetBinContent(hrphihi->FindBin(rawjetpt));
-            res_phi = get_rel_res(rphigen, rphireco);
+            fromphires = hgphi; tophires = hrphihi;
           }
           if (genlevel.find("eta") != std::string::npos) {
-            float retagen = hgeta->GetBinContent(hgeta->FindBin(rawjetpt));
-            float retareco = hretahi->GetBinContent(hretahi->FindBin(rawjetpt));
-            res_eta = get_rel_res(retagen, retareco);
+            frometares = hgeta; toetares = hretahi;
           }
         }
       } else {
@@ -404,17 +397,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (genlevel.find("pt") != std::string::npos)
             res_pt = getResolutionHI(rawjetpt, centBin);
           if (genlevel.find("phi") != std::string::npos) {
-            float rphigen = hgphi->GetBinContent(hgphi->FindBin(rawjetpt));
-            float rphireco = hrphi->GetBinContent(hrphi->FindBin(rawjetpt));
-            res_phi = get_rel_res(rphigen, rphireco);
+            fromphires = hgphi; tophires = hrphi;
           }
           if (genlevel.find("eta") != std::string::npos) {
-            float retagen = hgeta->GetBinContent(hgeta->FindBin(rawjetpt));
-            float retareco = hreta->GetBinContent(hreta->FindBin(rawjetpt));
-            res_eta = get_rel_res(retagen, retareco);
+            frometares = hgeta; toetares = hreta;
           }
         }
       }
+
+      if (fromphires != 0 && tophires != 0)
+        res_phi = get_rel_res(fromphires->GetBinContent(fromphires->FindBin(rawjetpt)), tophires->GetBinContent(tophires->FindBin(rawjetpt)));
+      if (frometares != 0 && toetares != 0)
+        res_eta = get_rel_res(frometares->GetBinContent(frometares->FindBin(rawjetpt)), toetares->GetBinContent(toetares->FindBin(rawjetpt)));
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
@@ -573,20 +567,22 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       float res_phi = 0;
       float res_eta = 0;
 
+      TH1D* fromphires = 0; TH1D* tophires = 0;
+      TH1D* frometares = 0; TH1D* toetares = 0;
+
       if (jet_type_is("sgen", genlevel) || jet_type_is("sref", genlevel)) {
         if (genlevel.find("pt") != std::string::npos)
           res_pt = getResolutionHI(mixjetpt, centBin);
         if (genlevel.find("phi") != std::string::npos) {
-          float rphigen = hgphi->GetBinContent(hgphi->FindBin(mixjetpt));
-          float rphireco = hrphi->GetBinContent(hgphi->FindBin(mixjetpt));
-          res_phi = get_rel_res(rphigen, rphireco);
+          fromphires = hgphi; tophires = hrphi;
         }
         if (genlevel.find("eta") != std::string::npos) {
-          float retagen = hgeta->GetBinContent(hgeta->FindBin(mixjetpt));
-          float retareco = hreta->GetBinContent(hgeta->FindBin(mixjetpt));
-          res_eta = get_rel_res(retagen, retareco);
+          frometares = hgeta; toetares = hreta;
         }
       }
+
+      res_phi = get_rel_res(fromphires->GetBinContent(fromphires->FindBin(mixjetpt)), tophires->GetBinContent(tophires->FindBin(mixjetpt)));
+      res_eta = get_rel_res(frometares->GetBinContent(frometares->FindBin(mixjetpt)), toetares->GetBinContent(toetares->FindBin(mixjetpt)));
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {

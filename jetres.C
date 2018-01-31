@@ -17,15 +17,15 @@ TRandom3 smear_rand(12345);
 #define PI 3.141593f
 
 double getdphi(double phi1, double phi2) {
-    double dphi = phi1 - phi2;
-    if (dphi > PI)
-        dphi -= 2 * PI;
-    if (dphi <= -1 * PI)
-        dphi += 2 * PI;
-    if (fabs(dphi) > PI)
-        return -999;
+  double dphi = phi1 - phi2;
+  if (dphi > PI)
+    dphi -= 2 * PI;
+  if (dphi <= -1 * PI)
+    dphi += 2 * PI;
+  if (fabs(dphi) > PI)
+    return -999;
 
-    return dphi;
+  return dphi;
 }
 
 inline float dphi_2s1f1b(float phi1, float phi2) {
@@ -54,11 +54,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hrjetpt = new TH1D(Form("hrjetpt_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins);
   TH1D* hgjetpt = new TH1D(Form("hgjetpt_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins);
 
-  TH2D* h2rjetphijp = new TH2D(Form("h2rjetphijp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
-  TH2D* h2rjetetajp = new TH2D(Form("h2rjetetajp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
-
-  TH2D* h2gjetphijp = new TH2D(Form("h2gjetphijp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
-  TH2D* h2gjetetajp = new TH2D(Form("h2gjetetajp_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
+  TH2D* h2rphi = new TH2D(Form("h2rphi_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
+  TH2D* h2reta = new TH2D(Form("h2reta_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
+  TH2D* h2gphi = new TH2D(Form("h2gphi_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
+  TH2D* h2geta = new TH2D(Form("h2geta_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
 
   // generic pointers
   int nij;
@@ -160,8 +159,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
 
         if (leadip != -1) {
-          h2rjetphijp->Fill(refjetpt, getdphi(rawjetphi, (*p_phi)[leadip]), weight);
-          h2rjetetajp->Fill(refjetpt, rawjeteta - (*p_eta)[leadip], weight);
+          h2rphi->Fill(refjetpt, getdphi(rawjetphi, (*p_phi)[leadip]), weight);
+          h2reta->Fill(refjetpt, rawjeteta - (*p_eta)[leadip], weight);
         }
       }
 
@@ -187,8 +186,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
 
         if (leadip != -1) {
-          h2gjetphijp->Fill(refjetpt, getdphi(refjetphi, (*gp_phi)[leadip]), weight);
-          h2gjetetajp->Fill(refjetpt, refjeteta - (*gp_eta)[leadip], weight);
+          h2gphi->Fill(refjetpt, getdphi(refjetphi, (*gp_phi)[leadip]), weight);
+          h2geta->Fill(refjetpt, refjeteta - (*gp_eta)[leadip], weight);
         }
       }
     }
