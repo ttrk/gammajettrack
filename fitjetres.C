@@ -7,7 +7,8 @@
 
 #include <algorithm>
 
-int fitjetres(const char* input, const char* sample, int centmin, int centmax, int method) {
+int fitjetres(const char* input, const char* sample, int centmin, int centmax,
+              int method, const char* free = 0) {
   TFile* finput = new TFile(input, "update");
 
   const char* tags[4] = { "rphi", "reta", "gphi", "geta" };
@@ -29,9 +30,9 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax, i
     float sigma[4] = {0}; float err[4] = {0};
     switch (method) {
       case 0: {
-        /* iterative x-sigma fit */
+        /* iterative n-sigma fit */
         const int niter = 8;
-        const float ns = 2;
+        const float ns = (free != 0) ? atof(free) : 2.;
 
         TF1* fits[4][niter]; float pars[4][3];
         for (int k=0; k<4; ++k) {
@@ -52,18 +53,20 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax, i
         /* double gaussian fit */
         const int npars = 6;
 
+        const float range = (free != 0) ? atof(free) : 0.2;
+
         TF1* fits[4]; float pars[4][npars];
         for (int k=0; k<4; ++k) {
           pars[k][1] = 0.0; pars[k][2] = 0.2; pars[k][4] = 0.0; pars[k][5] = 0.2;
 
           fits[k] = new TF1(Form("f%s_bin%i", tags[k], i),
-              "[0]*exp(-0.5*((x-[1])/[2])**2)+[3]*exp(-0.5*((x-[4])/[5])**2)", -0.2, 0.2);
+              "[0]*exp(-0.5*((x-[1])/[2])**2)+[3]*exp(-0.5*((x-[4])/[5])**2)", -range, range);
           fits[k]->SetParameter(0, 0.5); fits[k]->SetParameter(1, 0); fits[k]->SetParameter(2, 0.02);
           fits[k]->SetParameter(3, 0.5); fits[k]->SetParameter(4, 0); fits[k]->SetParameter(5, 0.06);
           fits[k]->SetParLimits(0, 0, 999); fits[k]->SetParLimits(2, 0, 0.2);
           fits[k]->SetParLimits(3, 0, 999); fits[k]->SetParLimits(5, 0, 0.2);
 
-          h1jp[i][k]->Fit(fits[k], "LL", "");
+          h1jp[i][k]->Fit(fits[k], "LL R", "");
           TF1* ftemp = h1jp[i][k]->GetFunction(Form("f%s_bin%i", tags[k], i));
           for (int p=0; p<npars; ++p) { if (ftemp) { pars[k][p] = ftemp->GetParameter(p); }}
 
@@ -122,6 +125,8 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax, i
 int main(int argc, char* argv[]) {
   if (argc == 6)
     return fitjetres(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
+  else if (argc == 7)
+    return fitjetres(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), argv[6]);
   else
     return 1;
 }
