@@ -172,6 +172,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         for (int ip = 0; ip < nigp; ++ip) {
           if ((*gp_pt)[ip] < trkptmin) continue;
           if ((*chg)[ip] == 0) continue;
+          if ((*sube)[ip] != 0) continue;
 
           float dphi = dphi_2s1f1b(refjetphi, (*gp_phi)[ip]);
           float deta = refjeteta - (*gp_eta)[ip];
