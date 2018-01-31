@@ -99,8 +99,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     std::string hisample = sample; hisample.replace(sample.find("pp"), 2, "pbpb");
     relreshi = TFile::Open(Form("resolution_%s_%d_%d_%i_%d_%d.root", hisample.data(), (int)phoetmin, (int)jetptcut, gammaxi, centmin, centmax), "read");
 
-    hrphihi = (TH1D*)relreshi->Get(Form("h2rphi_%s_%i_%i_2", sample.data(), centmin, centmax));
-    hretahi = (TH1D*)relreshi->Get(Form("h2reta_%s_%i_%i_2", sample.data(), centmin, centmax));
+    hrphihi = (TH1D*)relreshi->Get(Form("h2rphi_%s_%i_%i_2", hisample.data(), centmin, centmax));
+    hretahi = (TH1D*)relreshi->Get(Form("h2reta_%s_%i_%i_2", hisample.data(), centmin, centmax));
   }
 
   bool isMC = (sample.find("mc") != std::string::npos);
