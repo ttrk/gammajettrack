@@ -1,10 +1,14 @@
 #!/bin/bash
 
-if [ $# -lt 7 ]; then
-  echo "Usage: ./run-js-resolution.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [sample] [label]"
-  echo "Example: ./run-js-resolution.sh 60 1000 30 1 0 pbpbmc resolution"
-  exit 1
-fi
+helpmsg() {
+    echo -e 'usage:   ./run-js-resolution.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [sample] [label]'
+    echo -e 'example: ./run-js-resolution.sh 60 1000 30 1 0 pbpbmc resolution\n'
+    echo -e '   -f, --fit       refit only'
+    echo -e '   -g, --group     group identifier'
+    echo -e '   -h, --help      show (this) help message'
+    echo -e '   -j, --jobs      jobs relative to number of cores'
+    echo -e '   -n, --nice      niceness\n'
+}
 
 ARGS=()
 
@@ -13,6 +17,7 @@ while [ $# -gt 0 ]; do
         -f|--fit)       fitonly=1; shift ;;
         -g)             GROUP="$2"; shift 2 ;;
         --group=*)      GROUP="${1#*=}"; shift ;;
+        -h|--help)      helpmsg; exit ;;
         -j)             JOBS="$2"; shift 2 ;;
         --jobs=*)       JOBS="${1#*=}"; shift ;;
         -n)             NICE="$2"; shift 2 ;;
@@ -25,6 +30,8 @@ while [ $# -gt 0 ]; do
 done
 
 set -- "${ARGS[@]}"
+
+[ $# -lt 7 ] && { helpmsg; exit; }
 
 case "$6" in
     pbpbmc)

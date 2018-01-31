@@ -1,10 +1,13 @@
 #!/bin/bash
 
-if [ $# -lt 8 ]; then
-  echo "Usage: ./run-js-closure.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [sample] [label] [types...]"
-  echo "Example: ./run-js-closure.sh 60 1000 30 1 0 pbpbmc closure sgengen sgenreco recogen recoreco"
-  exit 1
-fi
+helpmsg() {
+    echo -e 'usage:   ./run-js-closure.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [sample] [label] [types...]'
+    echo -e 'example: ./run-js-closure.sh 60 1000 30 1 0 pbpbmc closure sgengen sgenreco recogen recoreco\n'
+    echo -e '   -g, --group     group identifier'
+    echo -e '   -h, --help      show (this) help message'
+    echo -e '   -j, --jobs      jobs relative to number of cores'
+    echo -e '   -n, --nice      niceness\n'
+}
 
 ARGS=()
 
@@ -12,6 +15,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
         -g)             GROUP="$2"; shift 2 ;;
         --group=*)      GROUP="${1#*=}"; shift ;;
+        -h|--help)      helpmsg; exit ;;
         -j)             JOBS="$2"; shift 2 ;;
         --jobs=*)       JOBS="${1#*=}"; shift ;;
         -n)             NICE="$2"; shift 2 ;;
@@ -25,19 +29,25 @@ done
 
 set -- "${ARGS[@]}"
 
-if [ $6 = "pbpbmc" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-180115.root"
-    TOTAL=51
-elif [ $6 = "ppmc" ]; then
-    SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-180115.root"
-    TOTAL=15
-else
-    echo "invalid sample"
-    exit 1
-fi
+[ $# -lt 8 ] && { helpmsg; exit; }
+
+case "$6" in
+    pbpbmc)
+        SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-180115.root"
+        TOTAL=51
+        ;;
+    ppmc)
+        SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-180115.root"
+        TOTAL=15
+        ;;
+    *)
+        echo "invalid sample"
+        exit 1
+        ;;
+esac
 
 echo "compiling macros..."
-make jetshape
+make jetshape || exit 1
 
 GROUP=${GROUP:-"def"}
 JOBS=${JOBS:-"+0"}
