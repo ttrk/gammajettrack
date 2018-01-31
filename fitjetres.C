@@ -3,6 +3,7 @@
 #include "TH2.h"
 #include "TF1.h"
 #include "TCanvas.h"
+#include "TLegend.h"
 
 #include <algorithm>
 
@@ -81,17 +82,36 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax, i
     }
   }
 
-  TCanvas* c1 = new TCanvas("c1", "", 600, 600);
+  int nrows = nbins / 3 + 1;
+  TCanvas* c1 = new TCanvas("c1", "", 1200, 400 * nrows); c1->Divide(3, nrows);
   for (int k=0; k<4; ++k) {
-    h2jpres[k]->SetAxisRange(0, 0.08, "Y");
-    h2jpres[k]->Draw("p e");
-    c1->SaveAs(Form("h2%sres_%s_%i_%i.png", tags[k], sample, centmin, centmax));
-
-    h2jp[k]->Draw("colz");
+    for (int i=1; i<=nbins+1; ++i) { c1->cd(i); h1jp[i][k]->Draw(); }
     c1->SaveAs(Form("h2%s_%s_%i_%i.png", tags[k], sample, centmin, centmax));
   }
 
-  delete c1;
+  TCanvas* c2 = new TCanvas("c2", "", 600, 600);
+  h2jpres[0]->SetLineColor(46); h2jpres[0]->SetMarkerColor(46); h2jpres[0]->SetMarkerStyle(20);
+  h2jpres[1]->SetLineColor(46); h2jpres[1]->SetMarkerColor(46); h2jpres[1]->SetMarkerStyle(21);
+  h2jpres[2]->SetLineColor(38); h2jpres[2]->SetMarkerColor(38); h2jpres[2]->SetMarkerStyle(24);
+  h2jpres[3]->SetLineColor(38); h2jpres[3]->SetMarkerColor(38); h2jpres[3]->SetMarkerStyle(25);
+  for (int k=0; k<4; ++k) {
+    h2jpres[k]->SetStats(0);
+    h2jpres[k]->SetAxisRange(0, 0.1, "Y");
+    h2jpres[k]->Draw("p e same");
+  }
+
+  TLegend* l1 = new TLegend(0.54, 0.675, 0.96, 0.825);
+  l1->SetBorderSize(0); l1->SetFillStyle(0);
+  l1->SetTextFont(43); l1->SetTextSize(15);
+  l1->AddEntry(h2jpres[0], "reco, phi", "pl");
+  l1->AddEntry(h2jpres[1], "reco, eta", "pl");
+  l1->AddEntry(h2jpres[2], "gen, phi", "pl");
+  l1->AddEntry(h2jpres[3], "gen, eta", "pl");
+  l1->Draw();
+
+  c2->SaveAs(Form("hres_%s_%i_%i.png", sample, centmin, centmax));
+
+  delete c1; delete c2;
 
   finput->Write("", TObject::kOverwrite);
   finput->Close();
