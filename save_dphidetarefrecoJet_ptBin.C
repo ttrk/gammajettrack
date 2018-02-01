@@ -60,6 +60,32 @@ int save_dphidetarefrecoJet_ptBin(std::string inputFile, std::string outputFile,
         }
     }
 
+    std::vector<double> ptDispBins_dphidetarefrecoJet = {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 1, 1.1};
+    int nPtDispBins_dphidetarefrecoJet = ptDispBins_dphidetarefrecoJet.size() - 1;
+
+    for (int iPtDisp = 0; iPtDisp < nPtDispBins_dphidetarefrecoJet; ++iPtDisp) {
+        for (int iCent = 0; iCent < nCentBins; ++iCent) {
+
+            std::string histName = Form("h2dphidetarefrecoJet_ptDispBin%d_%s_reco0gen0_%d_%d", iPtDisp, sample.c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+            h2 = 0;
+            h2 = (TH2D*)finput->Get(histName.c_str());
+            if (!h2) continue;
+
+            h2->Write("",TObject::kOverwrite);
+            std::cout << "saved histogram " << histName.c_str() << std::endl;
+
+            for (int iPt = 0; iPt < nPtBins; ++iPt) {
+                histName = Form("h2dphidetarefrecoJet_refptBin%d_ptDispBin%d_%s_reco0gen0_%d_%d", iPt, iPtDisp, sample.c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+                h2 = 0;
+                h2 = (TH2D*)finput->Get(histName.c_str());
+                if (!h2) continue;
+
+                h2->Write("",TObject::kOverwrite);
+                std::cout << "saved histogram " << histName.c_str() << std::endl;
+            }
+        }
+    }
+
     fout->Write("", TObject::kOverwrite);
     fout->Close();
 
