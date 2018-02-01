@@ -51,52 +51,26 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   const double ptbins[10] = {30, 40, 50, 60, 80, 100, 120, 150, 200, 300};
 
   /* raw */
-  TH1D* hrjetpt = new TH1D(Form("hrjetpt_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins);
-  TH1D* hgjetpt = new TH1D(Form("hgjetpt_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins);
-
-  TH2D* h2rphi = new TH2D(Form("h2rphi_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
-  TH2D* h2reta = new TH2D(Form("h2reta_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
-  TH2D* h2gphi = new TH2D(Form("h2gphi_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
-  TH2D* h2geta = new TH2D(Form("h2geta_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.2 ,0.2);
+  TH2D* h2phi[2] = {0}; TH2D* h2eta[2] = {0};
+  h2phi[0]= new TH2D(Form("h2rphi_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
+  h2eta[0] = new TH2D(Form("h2reta_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
+  h2phi[1] = new TH2D(Form("h2gphi_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
+  h2eta[1] = new TH2D(Form("h2geta_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
 
   // generic pointers
   int nij;
   std::vector<float>* j_pt;
   std::vector<float>* j_eta;
   std::vector<float>* j_phi;
-  std::vector<float>* gj_pt;
-  std::vector<float>* gj_eta;
-  std::vector<float>* gj_phi;
+  std::vector<int>* j_subid;
 
-  int nip, nigp;
+  int nip;
   std::vector<float>* p_pt;
   std::vector<float>* p_eta;
   std::vector<float>* p_phi;
-  std::vector<float>* gp_pt;
-  std::vector<float>* gp_eta;
-  std::vector<float>* gp_phi;
 
-  j_pt = jetptCorr;
-  j_eta = jeteta;
-  j_phi = jetphi;
-  gj_pt = gjetpt;
-  gj_eta = gjeteta;
-  gj_phi = gjetphi;
-
-  p_pt = trkPt;
-  p_eta = trkEta;
-  p_phi = trkPhi;
-  gp_pt = pt;
-  gp_eta = eta;
-  gp_phi = phi;
-
-  int start = slice * SIZE;
-  int end = start + SIZE;
-
-  if (slice < 0) {
-      start = 0;
-      end = nentries;
-  }
+  int start = slice * SIZE; int end = start + SIZE;
+  if (slice < 0) { start = 0; end = nentries; }
 
   // main loop
   for (int64_t jentry = start; jentry < end && jentry < nentries; jentry++) {
@@ -115,80 +89,71 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
     if (phoSigmaIEtaIEta_2012 > 0.010) { continue; }
 
-    nij = njet;
+    for (int ig = 0; ig < 2; ++ ig) {
+      switch (ig) {
+        case 0:
+          nij = njet;
+          j_pt = jetptCorr;
+          j_eta = jeteta;
+          j_phi = jetphi;
+          j_subid = subid;
 
-    nip = nTrk;
-    nigp = mult;
+          nip = nTrk;
+          p_pt = trkPt;
+          p_eta = trkEta;
+          p_phi = trkPhi;
+          break;
+        case 1:
+          nij = ngen;
+          j_pt = genpt;
+          j_eta = geneta;
+          j_phi = genphi;
+          j_subid = gensubid;
 
-    // jet loop
-    for (int ij = 0; ij < nij; ij++) {
-      float rawjetpt = (*j_pt)[ij];
-      float rawjeteta = (*j_eta)[ij];
-      float rawjetphi = (*j_phi)[ij];
-
-      float refjetpt = (*gj_pt)[ij];
-      float refjeteta = (*gj_eta)[ij];
-      float refjetphi = (*gj_phi)[ij];
-
-      if ((*subid)[ij] != 0) continue;
-
-      if (fabs(rawjeteta) > 1.6) continue;
-      if (dphi_2s1f1b(rawjetphi, phoPhi) < 7 * pi / 8) continue;
-
-      hrjetpt->Fill(rawjetpt, weight);
-      hgjetpt->Fill(refjetpt, weight);
-
-      if (rawjetpt > jetptcut) {
-        int leadip = -1;
-        float leadpt = -1;
-
-        // reco jet - tracks
-        for (int ip = 0; ip < nip; ++ip) {
-          if ((*p_pt)[ip] < trkptmin) continue;
-
-          float dphi = dphi_2s1f1b(rawjetphi, (*p_phi)[ip]);
-          float deta = rawjeteta - (*p_eta)[ip];
-          float deltar2 = (dphi * dphi) + (deta * deta);
-
-          if (deltar2 < 0.09) {
-            if ((*p_pt)[ip] > leadpt) {
-              leadip = ip;
-              leadpt = (*p_pt)[ip];
-            }
-          }
-        }
-
-        if (leadip != -1) {
-          h2rphi->Fill(refjetpt, getdphi(rawjetphi, (*p_phi)[leadip]), weight);
-          h2reta->Fill(refjetpt, rawjeteta - (*p_eta)[leadip], weight);
-        }
+          nip = mult;
+          p_pt = pt;
+          p_eta = eta;
+          p_phi = phi;
+          break;
       }
 
-      if (refjetpt > jetptcut) {
-        int leadip = -1;
-        float leadpt = -1;
+      for (int ij = 0; ij < nij; ij++) {
+        if ((*j_subid)[ij] != 0) continue;
 
-        // ref jet - particles
-        for (int ip = 0; ip < nigp; ++ip) {
-          if ((*gp_pt)[ip] < trkptmin) continue;
-          if ((*chg)[ip] == 0) continue;
-          if ((*sube)[ip] != 0) continue;
+        float jetpt = (*j_pt)[ij];
+        float jeteta = (*j_eta)[ij];
+        if (fabs(jeteta) > 1.6) continue;
+        float jetphi = (*j_phi)[ij];
+        if (dphi_2s1f1b(jetphi, phoPhi) < 7 * pi / 8) continue;
 
-          float dphi = dphi_2s1f1b(refjetphi, (*gp_phi)[ip]);
-          float deta = refjeteta - (*gp_eta)[ip];
-          float deltar2 = (dphi * dphi) + (deta * deta);
+        if (jetpt > jetptcut) {
+          int leadip = -1;
+          float leadpt = -1;
 
-          if (deltar2 < 0.09) {
-            if ((*gp_pt)[ip] > leadpt) {
-              leadip = ip;
-              leadpt = (*gp_pt)[ip];
+          for (int ip = 0; ip < nip; ++ip) {
+            if ((*p_pt)[ip] < trkptmin) continue;
+
+            if (ig == 1) {
+              if ((*chg)[ip] == 0) continue;
+              if ((*sube)[ip] != 0) continue;
+            }
+
+            float dphi = dphi_2s1f1b(jetphi, (*p_phi)[ip]);
+            float deta = jeteta - (*p_eta)[ip];
+            float deltar2 = (dphi * dphi) + (deta * deta);
+
+            if (deltar2 < 0.09) {
+              if ((*p_pt)[ip] > leadpt) {
+                leadip = ip;
+                leadpt = (*p_pt)[ip];
+              }
             }
           }
-        }
 
-        if (leadip != -1) {
-          h2gphi->Fill(refjetpt, getdphi(refjetphi, (*gp_phi)[leadip]), weight);
-          h2geta->Fill(refjetpt, refjeteta - (*gp_eta)[leadip], weight);
+          if (leadip != -1) {
+            h2phi[ig]->Fill(jetpt, getdphi(jetphi, (*p_phi)[leadip]), weight);
+            h2eta[ig]->Fill(jetpt, jeteta - (*p_eta)[leadip], weight);
+          }
         }
       }
     }
