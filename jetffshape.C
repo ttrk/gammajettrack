@@ -124,10 +124,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH2D* h2dphirefrecoJet_drTrk1Jet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH2D* h2detarefrecoJet_drTrk1Jet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH2D* h2drrefrecoJet_drTrk1Jet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
+  TH2D* h2dphirefrecoJet_dphiTrk1Jet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
+  TH2D* h2detarefrecoJet_detaTrk1Jet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
 
   TH2D* h2dphirefrecoJet_drTrk1refJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH2D* h2detarefrecoJet_drTrk1refJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH2D* h2drrefrecoJet_drTrk1refJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
+  TH2D* h2dphirefrecoJet_dphiTrk1refJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
+  TH2D* h2detarefrecoJet_detaTrk1refJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
 
   TH2D* h2dphidetarefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   std::vector<int> ptBins_dphidetarefrecoJet = {0, 10, 20, 30, 40, 50, 60, 80, 100, 120, 150, 9999};
@@ -174,18 +178,28 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                                              , Form("%s;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}", titleCent.c_str()), 80, -0.4, 0.4, 80, -0.4, 0.4);
 
           h2dphirefrecoJet_drTrk1Jet[i][j] = new TH2D(Form("h2dphirefrecoJet_drTrk1Jet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                   , Form("%s;#DeltaR(leading particle, jet);#phi^{reco} - #phi^{ref}", titleCent.c_str()), 12*4, 0, 0.6, 80, -0.4, 0.4);
+                                   , Form("%s;#DeltaR(leading particle, jet);#phi^{jet} - #phi^{ref jet}", titleCent.c_str()), 12*4, 0, 0.6, 80, -0.4, 0.4);
           h2detarefrecoJet_drTrk1Jet[i][j] = new TH2D(Form("h2detarefrecoJet_drTrk1Jet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                   , Form("%s;#DeltaR(leading particle, jet);#eta^{reco} - #eta^{ref}", titleCent.c_str()), 12*4, 0, 0.6, 80, -0.4, 0.4);
+                                   , Form("%s;#DeltaR(leading particle, jet);#eta^{jet} - #eta^{ref jet}", titleCent.c_str()), 12*4, 0, 0.6, 80, -0.4, 0.4);
           h2drrefrecoJet_drTrk1Jet[i][j] = new TH2D(Form("h2drrefrecoJet_drTrk1Jet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                             , Form("%s;#DeltaR(leading particle, jet);#DeltaR(reco, ref)", titleCent.c_str()), 12*4, 0, 0.6, 80, 0, 0.8);
+                                             , Form("%s;#DeltaR(leading particle, jet);#DeltaR(jet, ref jet)", titleCent.c_str()), 12*4, 0, 0.6, 80, 0, 0.8);
+
+          h2dphirefrecoJet_dphiTrk1Jet[i][j] = new TH2D(Form("h2dphirefrecoJet_dphiTrk1Jet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
+                                   , Form("%s;#phi^{jet} - #phi^{leading particle};#phi^{jet} - #phi^{ref jet}", titleCent.c_str()), 12*4, -0.6, 0.6, 80, -0.4, 0.4);
+          h2detarefrecoJet_detaTrk1Jet[i][j] = new TH2D(Form("h2detarefrecoJet_detaTrk1Jet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
+                                   , Form("%s;#eta^{jet} - #eta^{leading particle};#eta^{jet} - #eta^{ref jet}", titleCent.c_str()), 12*4, -0.6, 0.6, 80, -0.4, 0.4);
 
           h2dphirefrecoJet_drTrk1refJet[i][j] = new TH2D(Form("h2dphirefrecoJet_drTrk1refJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                   , Form("%s;#DeltaR(leading particle, gen jet);#phi^{reco} - #phi^{ref}", titleCent.c_str()), 12*4, 0, 0.6, 80, -0.4, 0.4);
+                                   , Form("%s;#DeltaR(leading particle, ref jet);#phi^{jet} - #phi^{ref jet}", titleCent.c_str()), 12*4, 0, 0.6, 80, -0.4, 0.4);
           h2detarefrecoJet_drTrk1refJet[i][j] = new TH2D(Form("h2detarefrecoJet_drTrk1refJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                   , Form("%s;#DeltaR(leading particle, gen jet);#eta^{reco} - #eta^{ref}", titleCent.c_str()), 12*4, 0, 0.6, 80, -0.4, 0.4);
+                                   , Form("%s;#DeltaR(leading particle, ref jet);#eta^{jet} - #eta^{ref jet}", titleCent.c_str()), 12*4, 0, 0.6, 80, -0.4, 0.4);
           h2drrefrecoJet_drTrk1refJet[i][j] = new TH2D(Form("h2drrefrecoJet_drTrk1refJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
-                                             , Form("%s;#DeltaR(leading particle, gen jet);#DeltaR(reco, ref)", titleCent.c_str()), 12*4, 0, 0.6, 80, 0, 0.8);
+                                             , Form("%s;#DeltaR(leading particle, gen jet);#DeltaR(jet, ref jet)", titleCent.c_str()), 12*4, 0, 0.6, 80, 0, 0.8);
+
+          h2dphirefrecoJet_dphiTrk1refJet[i][j] = new TH2D(Form("h2dphirefrecoJet_dphiTrk1refJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
+                                   , Form("%s;#phi^{leading particle} - #phi^{ref jet};#phi^{jet} - #phi^{ref jet}", titleCent.c_str()), 12*4, -0.6, 0.6, 80, -0.4, 0.4);
+          h2detarefrecoJet_detaTrk1refJet[i][j] = new TH2D(Form("h2detarefrecoJet_detaTrk1refJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
+                                   , Form("%s;#eta^{leading particle} - #eta^{ref jet};#eta^{jet} - #eta^{ref jet}", titleCent.c_str()), 12*4, -0.6, 0.6, 80, -0.4, 0.4);
 
           for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
               std::string tmpTitle = Form("%d < p_{T} < %d GeV/c, %s;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}",
@@ -1173,13 +1187,17 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 h2dphirefrecoJet_drTrk1Jet[phoBkg][k_rawJet]->Fill(deltar, dphi_refrecojet, weight_jet);
                 h2detarefrecoJet_drTrk1Jet[phoBkg][k_rawJet]->Fill(deltar, deta_refrecojet, weight_jet);
                 h2drrefrecoJet_drTrk1Jet[phoBkg][k_rawJet]->Fill(deltar, dr_refrecojet, weight_jet);
+                h2dphirefrecoJet_dphiTrk1Jet[phoBkg][k_rawJet]->Fill(dphi, dphi_refrecojet, weight_jet);
+                h2detarefrecoJet_detaTrk1Jet[phoBkg][k_rawJet]->Fill(deta, deta_refrecojet, weight_jet);
 
-                float dphi_ref = getDPHI((*gjetphi)[ij], (*p_phi)[indexMaxPt_part]);
-                float deta_ref = (*gjeteta)[ij] - (*p_eta)[indexMaxPt_part];
+                float dphi_ref = getDPHI((*p_phi)[indexMaxPt_part], (*gjetphi)[ij]);
+                float deta_ref = (*p_eta)[indexMaxPt_part] - (*gjeteta)[ij];
                 float deltar_ref = sqrt((dphi_ref * dphi_ref) + (deta_ref * deta_ref));
                 h2dphirefrecoJet_drTrk1refJet[phoBkg][k_rawJet]->Fill(deltar_ref, dphi_refrecojet, weight_jet);
                 h2detarefrecoJet_drTrk1refJet[phoBkg][k_rawJet]->Fill(deltar_ref, deta_refrecojet, weight_jet);
                 h2drrefrecoJet_drTrk1refJet[phoBkg][k_rawJet]->Fill(deltar_ref, dr_refrecojet, weight_jet);
+                h2dphirefrecoJet_dphiTrk1refJet[phoBkg][k_rawJet]->Fill(dphi_ref, dphi_refrecojet, weight_jet);
+                h2detarefrecoJet_detaTrk1refJet[phoBkg][k_rawJet]->Fill(deta_ref, deta_refrecojet, weight_jet);
             }
 
             h2dphiNch[phoBkg][k_rawJet_rawTrk]->Fill(Nch, dphi_refrecojet, weight_jet);
@@ -1790,13 +1808,17 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 h2dphirefrecoJet_drTrk1Jet[phoBkg][k_bkgJet]->Fill(deltar, dphi_refrecojet, weight_jet);
                 h2detarefrecoJet_drTrk1Jet[phoBkg][k_bkgJet]->Fill(deltar, deta_refrecojet, weight_jet);
                 h2drrefrecoJet_drTrk1Jet[phoBkg][k_bkgJet]->Fill(deltar, dr_refrecojet, weight_jet);
+                h2dphirefrecoJet_dphiTrk1Jet[phoBkg][k_bkgJet]->Fill(dphi, dphi_refrecojet, weight_jet);
+                h2detarefrecoJet_detaTrk1Jet[phoBkg][k_bkgJet]->Fill(deta, deta_refrecojet, weight_jet);
 
-                float dphi_ref = getDPHI((*gjetphi_mix)[ij_mix], (*p_phi)[indexMaxPt_part]);
-                float deta_ref = (*gjeteta_mix)[ij_mix] - (*p_eta)[indexMaxPt_part];
+                float dphi_ref = getDPHI((*p_phi)[indexMaxPt_part], (*gjetphi_mix)[ij_mix]);
+                float deta_ref = (*p_eta)[indexMaxPt_part] - (*gjeteta_mix)[ij_mix];
                 float deltar_ref = sqrt((dphi_ref * dphi_ref) + (deta_ref * deta_ref));
                 h2dphirefrecoJet_drTrk1refJet[phoBkg][k_bkgJet]->Fill(deltar_ref, dphi_refrecojet, weight_jet);
                 h2detarefrecoJet_drTrk1refJet[phoBkg][k_bkgJet]->Fill(deltar_ref, deta_refrecojet, weight_jet);
                 h2drrefrecoJet_drTrk1refJet[phoBkg][k_bkgJet]->Fill(deltar_ref, dr_refrecojet, weight_jet);
+                h2dphirefrecoJet_dphiTrk1refJet[phoBkg][k_bkgJet]->Fill(dphi_ref, dphi_refrecojet, weight_jet);
+                h2detarefrecoJet_detaTrk1refJet[phoBkg][k_bkgJet]->Fill(deta_ref, deta_refrecojet, weight_jet);
             }
 
             h2dphiNch[phoBkg][k_bkgJet_rawTrk]->Fill(Nch, dphi_refrecojet, weight_jet);
