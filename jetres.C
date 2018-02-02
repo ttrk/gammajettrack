@@ -135,7 +135,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
             if (ig == 1) {
               if ((*chg)[ip] == 0) continue;
-              if ((*sube)[ip] != 0) continue;
             }
 
             float dphi = dphi_2s1f1b(jetphi, (*p_phi)[ip]);
