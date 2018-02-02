@@ -7,6 +7,8 @@
 
 #include <algorithm>
 
+void sum_with_weights(TH1D* hsum, TH1D* h0, TH1D* h1);
+
 int fitjetres(const char* input, const char* sample, int centmin, int centmax,
               int method, const char* free = 0) {
   TFile* finput = new TFile(input, "update");
@@ -41,6 +43,7 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax,
           for (int j=0; j<niter; ++j) {
             fits[k][j] = new TF1(Form("f%s_bin%i_iter%i", tags[k], i, j), "gaus", -0.2, 0.2);
             h1jp[i][k]->Fit(fits[k][j], "", "", pars[k][1]-ns*pars[k][2], pars[k][1]+ns*pars[k][2]);
+            h1jp[i][k]->Fit(fits[k][j], "M E", "", pars[k][1]-ns*pars[k][2], pars[k][1]+ns*pars[k][2]);
             TF1* ftemp = h1jp[i][k]->GetFunction(Form("f%s_bin%i_iter%i", tags[k], i, j));
             for (int p=0; p<3; ++p) { if (ftemp) pars[k][p] = ftemp->GetParameter(p); }
           }
@@ -63,10 +66,13 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax,
               "[0]*exp(-0.5*((x-[1])/[2])**2)+[3]*exp(-0.5*((x-[4])/[5])**2)", -range, range);
           fits[k]->SetParameter(0, 0.5); fits[k]->SetParameter(1, 0); fits[k]->SetParameter(2, 0.02);
           fits[k]->SetParameter(3, 0.5); fits[k]->SetParameter(4, 0); fits[k]->SetParameter(5, 0.06);
-          fits[k]->SetParLimits(0, 0, 999); fits[k]->SetParLimits(2, 0, 0.2);
-          fits[k]->SetParLimits(3, 0, 999); fits[k]->SetParLimits(5, 0, 0.2);
+          fits[k]->SetParLimits(0, 0, 999); fits[k]->SetParLimits(1, -0.02, 0.02);
+          fits[k]->SetParLimits(3, 0, 999); fits[k]->SetParLimits(4, -0.02, 0.02);
+          fits[k]->SetParLimits(2, 0.005, 0.4);
+          fits[k]->SetParLimits(5, 0.005, 0.4);
 
-          h1jp[i][k]->Fit(fits[k], "LL R", "");
+          h1jp[i][k]->Fit(fits[k], "L I R", ""); h1jp[i][k]->Fit(fits[k], "L I R", "");
+          h1jp[i][k]->Fit(fits[k], "L I R", ""); h1jp[i][k]->Fit(fits[k], "L I M E R", "");
           TF1* ftemp = h1jp[i][k]->GetFunction(Form("f%s_bin%i", tags[k], i));
           for (int p=0; p<npars; ++p) { if (ftemp) { pars[k][p] = ftemp->GetParameter(p); }}
 
@@ -83,6 +89,20 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax,
       h2jpres[k]->SetBinContent(i, sigma[k]);
       h2jpres[k]->SetBinError(i, err[k]);
     }
+  }
+
+  TH1D* h2rjpres; TH1D* h2gjpres;
+  if (method == 1) {
+    h2rjpres = (TH1D*)h2jpres[0]->Clone(Form("h2r_%s_%i_%i_2", sample, centmin, centmax));
+    h2gjpres = (TH1D*)h2jpres[1]->Clone(Form("h2g_%s_%i_%i_2", sample, centmin, centmax));
+    sum_with_weights(h2rjpres, h2jpres[0], h2jpres[1]);
+    sum_with_weights(h2gjpres, h2jpres[2], h2jpres[3]);
+
+    TF1* fitpt = new TF1("fitpt", "sqrt([0]*[0]+[1]*[1]/x+[2]*[2]/(x*x))",
+        h2jp[0]->GetBinLowEdge(1), h2jp[0]->GetBinLowEdge(nbins+1));
+
+    h2rjpres->Fit(fitpt); h2rjpres->Fit(fitpt); h2rjpres->Fit(fitpt, "M");
+    h2gjpres->Fit(fitpt); h2gjpres->Fit(fitpt); h2gjpres->Fit(fitpt, "M");
   }
 
   int nrows = nbins / 3 + 1;
@@ -103,6 +123,11 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax,
     h2jpres[k]->Draw("p e same");
   }
 
+  if (method == 1) {
+    TF1* fr = h2rjpres->GetFunction("fitpt"); fr->Draw("same");
+    TF1* fg = h2gjpres->GetFunction("fitpt"); fg->Draw("same");
+  }
+
   TLegend* l1 = new TLegend(0.54, 0.675, 0.96, 0.825);
   l1->SetBorderSize(0); l1->SetFillStyle(0);
   l1->SetTextFont(43); l1->SetTextSize(15);
@@ -120,6 +145,26 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax,
   finput->Close();
 
   return 0;
+}
+
+void sum_with_weights(TH1D* hsum, TH1D* h0, TH1D* h1) {
+  TH1D* h[2] = {h0, h1};
+
+  for (int i=0; i<=hsum->GetNbinsX()+1; ++i) {
+    float sw = 0; float wc = 0; float wcs = 0;
+    for (int j=0; j<2; ++j) {
+      if (h[j]->GetBinContent(i) > 0.005) {
+        float c = h[j]->GetBinContent(i);
+        float e = h[j]->GetBinError(i);
+        float w = 1. / (e * e);
+        wc += c * w; sw += w;
+        wcs += (c * w) * (c * w);
+      }
+    }
+
+    hsum->SetBinContent(i, wc / sw);
+    hsum->SetBinError(i, sqrt(wcs / (sw * sw)));
+  }
 }
 
 int main(int argc, char* argv[]) {
