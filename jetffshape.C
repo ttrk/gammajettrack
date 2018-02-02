@@ -514,7 +514,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   std::string jetLevel = "";
   std::string partLevel = "";
-  std::vector<std::string> partLevelCands = {"w0gen", "w0gen0", "w0reco", "gen", "gen0", "reco"};
+  std::vector<std::string> partLevelCands = {"w0gen", "w0gen0", "w0gen1", "w0reco", "gen", "gen0", "gen1", "reco"};
   for (int i = 0; i < (int)partLevelCands.size(); ++i) {
       int len = genlevel.size();
       int lenSubStr = partLevelCands.at(i).size();
@@ -571,6 +571,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   bool is_gen_part = (partLevel.find("gen") != std::string::npos);
   bool is_gen0_part = (partLevel.find("gen0") != std::string::npos);
+  bool is_gen1_part = (partLevel.find("gen1") != std::string::npos);
   bool is_reco_part = (partLevel.find("reco") != std::string::npos);
   bool is_part_unweighted = (partLevel.find("w0") != std::string::npos);
 
@@ -899,6 +900,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 if (is_gen0_part) {
                     if ((*sube)[ip] != 0) continue;
                 }
+                if (is_gen1_part) {
+                    if ((*sube)[ip] == 0) continue;
+                }
                 if (is_gen_part) {
                     if ((*chg)[ip] == 0) continue;
                 }
@@ -1038,6 +1042,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if ((*p_pt)[ip] < trkptmin) continue;
           if (is_gen0_part) {
             if ((*sube)[ip] != 0) continue;
+          }
+          if (is_gen1_part) {
+            if ((*sube)[ip] == 0) continue;
           }
           if (is_gen_part) {
             if ((*chg)[ip] == 0) continue;
