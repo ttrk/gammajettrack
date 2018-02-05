@@ -33,8 +33,12 @@ set -- "${ARGS[@]}"
 
 case "$6" in
     pbpbmc)
-        SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-180115.root"
-        TOTAL=51
+        # SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_Flt50_skim_20180115_merged/job0.root"
+        # TOTAL=52
+        # SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-180115.root"
+        # TOTAL=51
+        SKIM="/export/d00/scratch/biran/photon-jet-track/PbPb-MC-skim-170911.root"
+        TOTAL=12
         ;;
     ppmc)
         SKIM="/export/d00/scratch/biran/photon-jet-track/pp-MC-skim-180115.root"
