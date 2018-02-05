@@ -7,6 +7,7 @@ helpmsg() {
     echo -e '   -g, --group     group identifier'
     echo -e '   -h, --help      show (this) help message'
     echo -e '   -j, --jobs      jobs relative to number of cores'
+    echo -e '   -m, --mix       loop mix jets'
     echo -e '   -n, --nice      niceness\n'
 }
 
@@ -20,6 +21,7 @@ while [ $# -gt 0 ]; do
         -h|--help)      helpmsg; exit ;;
         -j)             JOBS="$2"; shift 2 ;;
         --jobs=*)       JOBS="${1#*=}"; shift ;;
+        -m|--mix)       MIX=4; shift ;;
         -n)             NICE="$2"; shift 2 ;;
         --nice=*)       NICE="${1#*=}"; shift ;;
         -*|--*)         [[ $1 =~ ^-?[0-9]+$ ]] && \
@@ -53,6 +55,7 @@ make jetres fitjetres || exit 1
 
 GROUP=${GROUP:-"def"}
 JOBS=${JOBS:-"+0"}
+MIX=${MIX:-2}
 
 FLAGS="--linebuffer"
 
@@ -62,13 +65,13 @@ if [ ! -n "$fitonly" ]; then
   echo running resolution histograms
     for slice in $(seq 0 $TOTAL); do
         $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
-                "./jetres $SKIM $6 0 20 $1 $2 $3 a $4 $5 $7 0 $slice"
+                "./jetres $SKIM $6 0 20 $1 $2 $3 a $4 $5 $7 $MIX $slice"
         $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
-                "./jetres $SKIM $6 20 60 $1 $2 $3 a $4 $5 $7 0 $slice"
+                "./jetres $SKIM $6 20 60 $1 $2 $3 a $4 $5 $7 $MIX $slice"
         $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
-                "./jetres $SKIM $6 60 100 $1 $2 $3 a $4 $5 $7 0 $slice"
+                "./jetres $SKIM $6 60 100 $1 $2 $3 a $4 $5 $7 $MIX $slice"
         $PREFIX sem --id rjr-$GROUP -j$JOBS $FLAGS  \
-                "./jetres $SKIM $6 100 200 $1 $2 $3 a $4 $5 $7 0 $slice"
+                "./jetres $SKIM $6 100 200 $1 $2 $3 a $4 $5 $7 $MIX $slice"
     done
     sem --id rjr-$GROUP --wait
 

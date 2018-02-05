@@ -1,6 +1,7 @@
 #include "TFile.h"
-#include "TH1.h"
 #include "TH2.h"
+#include "TH1.h"
+#include "TGraphErrors.h"
 #include "TF1.h"
 #include "TCanvas.h"
 #include "TLegend.h"
@@ -9,20 +10,36 @@
 
 void sum_with_weights(TH1D* hsum, TH1D* h0, TH1D* h1);
 
+TF1* fr; TF1* fg;
+double frel(double* x, double* par) {
+  double r = fr->EvalPar(x, par); double g = fg->EvalPar(x, par);
+  return sqrt(r * r - g * g);
+}
+
 int fitjetres(const char* input, const char* sample, int centmin, int centmax,
               int method, const char* free = 0) {
   TFile* finput = new TFile(input, "update");
 
   const char* tags[4] = { "rphi", "reta", "gphi", "geta" };
+  const char* type[2] = { "", "sub" };
+
+  const char* mix = type[0];
+  if (method > 1) mix = type[1];
 
   TH2D* h2jp[4] = {0}; TH1D* h2jpres[4] ={0};
   for (int k=0; k<4; ++k) {
-    h2jp[k] = (TH2D*)finput->Get(Form("h2%s_%s_%i_%i", tags[k], sample, centmin, centmax));
+    h2jp[k] = (TH2D*)finput->Get(Form("h2%s%s_%s_%i_%i", tags[k], mix, sample, centmin, centmax));
     h2jpres[k] = h2jp[k]->ProjectionX();
     h2jpres[k]->SetName(Form("h2%s_%s_%i_%i_2", tags[k], sample, centmin, centmax));
   }
 
   int nbins = h2jp[0]->GetNbinsX();
+
+  TH1D* hjetpt[2][nbins+2];
+  for (int i=0; i<=nbins+1; ++i) {
+    hjetpt[0][i] = (TH1D*)finput->Get(Form("hrjetpt%sbin%i", mix, i));
+    hjetpt[1][i] = (TH1D*)finput->Get(Form("hgjetpt%sbin%i", mix, i));
+  }
 
   TH1D* h1jp[nbins+2][4];
   for (int i=1; i<=nbins+1; ++i) {
@@ -30,7 +47,7 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax,
       h1jp[i][k] = h2jp[k]->ProjectionY(Form("%s_bin%i", h2jp[k]->GetName(), i), i, i, "e");
 
     float sigma[4] = {0}; float err[4] = {0};
-    switch (method) {
+    switch (method % 2) {
       case 0: {
         /* iterative n-sigma fit */
         const int niter = 8;
@@ -71,8 +88,8 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax,
           fits[k]->SetParLimits(2, 0.005, 0.4);
           fits[k]->SetParLimits(5, 0.005, 0.4);
 
-          h1jp[i][k]->Fit(fits[k], "L I R", ""); h1jp[i][k]->Fit(fits[k], "L I R", "");
-          h1jp[i][k]->Fit(fits[k], "L I R", ""); h1jp[i][k]->Fit(fits[k], "L I M E R", "");
+          h1jp[i][k]->Fit(fits[k], "L R", ""); h1jp[i][k]->Fit(fits[k], "L R", "");
+          h1jp[i][k]->Fit(fits[k], "L R", ""); h1jp[i][k]->Fit(fits[k], "L M E R", "");
           TF1* ftemp = h1jp[i][k]->GetFunction(Form("f%s_bin%i", tags[k], i));
           for (int p=0; p<npars; ++p) { if (ftemp) { pars[k][p] = ftemp->GetParameter(p); }}
 
@@ -91,25 +108,34 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax,
     }
   }
 
-  TH1D* h2rjpres; TH1D* h2gjpres;
-  if (method == 1) {
-    h2rjpres = (TH1D*)h2jpres[0]->Clone(Form("h2r_%s_%i_%i_2", sample, centmin, centmax));
-    h2gjpres = (TH1D*)h2jpres[1]->Clone(Form("h2g_%s_%i_%i_2", sample, centmin, centmax));
-    sum_with_weights(h2rjpres, h2jpres[0], h2jpres[1]);
-    sum_with_weights(h2gjpres, h2jpres[2], h2jpres[3]);
+  TH1D* h2rjpres = (TH1D*)h2jpres[0]->Clone(Form("h2r_%s_%i_%i_2", sample, centmin, centmax));
+  TH1D* h2gjpres = (TH1D*)h2jpres[1]->Clone(Form("h2g_%s_%i_%i_2", sample, centmin, centmax));
+  sum_with_weights(h2rjpres, h2jpres[0], h2jpres[1]);
+  sum_with_weights(h2gjpres, h2jpres[2], h2jpres[3]);
 
-    TF1* fitpt = new TF1("fitpt", "sqrt([0]*[0]+[1]*[1]/x+[2]*[2]/(x*x))",
-        h2jp[0]->GetBinLowEdge(1), h2jp[0]->GetBinLowEdge(nbins+1));
+  TF1* fitpt = new TF1("fitpt", "sqrt([0]*[0]+[1]*[1]/x+[2]*[2]/(x*x))",
+      h2rjpres->GetBinLowEdge(1), h2rjpres->GetBinLowEdge(nbins+1));
 
-    h2rjpres->Fit(fitpt); h2rjpres->Fit(fitpt); h2rjpres->Fit(fitpt, "M");
-    h2gjpres->Fit(fitpt); h2gjpres->Fit(fitpt); h2gjpres->Fit(fitpt, "M");
+  h2rjpres->Fit(fitpt, "I R"); h2rjpres->Fit(fitpt, "I R"); h2rjpres->Fit(fitpt, "I M E R");
+  h2gjpres->Fit(fitpt, "I R"); h2gjpres->Fit(fitpt, "I R"); h2gjpres->Fit(fitpt, "I M E R");
+
+  TGraphErrors* grjpres = new TGraphErrors(nbins);
+  TGraphErrors* ggjpres = new TGraphErrors(nbins);
+  for (int p=0; p<nbins; ++p) {
+    grjpres->SetPoint(p, hjetpt[0][p+1]->GetMean(), h2rjpres->GetBinContent(p+1));
+    grjpres->SetPointError(p, hjetpt[0][p+1]->GetMeanError(), h2rjpres->GetBinError(p+1));
+    ggjpres->SetPoint(p, hjetpt[1][p+1]->GetMean(), h2gjpres->GetBinContent(p+1));
+    ggjpres->SetPointError(p, hjetpt[1][p+1]->GetMeanError(), h2gjpres->GetBinError(p+1));
   }
+
+  grjpres->Fit(fitpt, "R"); grjpres->Fit(fitpt, "R"); grjpres->Fit(fitpt, "M E R");
+  ggjpres->Fit(fitpt, "R"); ggjpres->Fit(fitpt, "R"); ggjpres->Fit(fitpt, "M E R");
 
   int nrows = nbins / 3 + 1;
   TCanvas* c1 = new TCanvas("c1", "", 1200, 400 * nrows); c1->Divide(3, nrows);
   for (int k=0; k<4; ++k) {
     for (int i=1; i<=nbins+1; ++i) { c1->cd(i); h1jp[i][k]->Draw(); }
-    c1->SaveAs(Form("h2%s_%s_%i_%i.png", tags[k], sample, centmin, centmax));
+    c1->SaveAs(Form("h2%s%s_%s_%i_%i.png", tags[k], mix, sample, centmin, centmax));
   }
 
   TCanvas* c2 = new TCanvas("c2", "", 600, 600);
@@ -123,10 +149,17 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax,
     h2jpres[k]->Draw("p e same");
   }
 
-  if (method == 1) {
-    TF1* fr = h2rjpres->GetFunction("fitpt"); fr->Draw("same");
-    TF1* fg = h2gjpres->GetFunction("fitpt"); fg->Draw("same");
-  }
+  // TF1* fr = h2rjpres->GetFunction("fitpt"); fr->Draw("same");
+  // TF1* fg = h2gjpres->GetFunction("fitpt"); fg->Draw("same");
+  // grjpres->SetMarkerStyle(33); grjpres->SetMarkerColor(30); grjpres->SetLineColor(30);
+  // ggjpres->SetMarkerStyle(27); ggjpres->SetMarkerColor(30); ggjpres->SetLineColor(30);
+  // grjpres->Draw("p e same"); ggjpres->Draw("p e same");
+  TF1* gr = grjpres->GetFunction("fitpt"); gr->Draw("same");
+  TF1* gg = ggjpres->GetFunction("fitpt"); gg->Draw("same");
+
+  fr = gr; fg = gg;
+  TF1* grel = new TF1("relres", frel, h2rjpres->GetBinLowEdge(1), h2rjpres->GetBinLowEdge(nbins+1), 0);
+  grel->SetLineColor(30); grel->Draw("same");
 
   TLegend* l1 = new TLegend(0.54, 0.675, 0.96, 0.825);
   l1->SetBorderSize(0); l1->SetFillStyle(0);
@@ -137,7 +170,7 @@ int fitjetres(const char* input, const char* sample, int centmin, int centmax,
   l1->AddEntry(h2jpres[3], "gen, eta", "pl");
   l1->Draw();
 
-  c2->SaveAs(Form("hres_%s_%i_%i.png", sample, centmin, centmax));
+  c2->SaveAs(Form("h%sres_%s_%i_%i.png", mix, sample, centmin, centmax));
 
   delete c1; delete c2;
 
@@ -151,19 +184,19 @@ void sum_with_weights(TH1D* hsum, TH1D* h0, TH1D* h1) {
   TH1D* h[2] = {h0, h1};
 
   for (int i=0; i<=hsum->GetNbinsX()+1; ++i) {
-    float sw = 0; float wc = 0; float wcs = 0;
+    float sw = 0; float wc = 0; float wes = 0;
     for (int j=0; j<2; ++j) {
       if (h[j]->GetBinContent(i) > 0.005) {
         float c = h[j]->GetBinContent(i);
         float e = h[j]->GetBinError(i);
         float w = 1. / (e * e);
         wc += c * w; sw += w;
-        wcs += (c * w) * (c * w);
+        wes += (e * w) * (e * w);
       }
     }
 
     hsum->SetBinContent(i, wc / sw);
-    hsum->SetBinError(i, sqrt(wcs / (sw * sw)));
+    hsum->SetBinError(i, sqrt(wes / (sw * sw)));
   }
 }
 
