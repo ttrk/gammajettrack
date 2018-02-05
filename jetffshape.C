@@ -250,7 +250,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       h2dphidetarefrecoJet_seed[iPt] = 0;
       h2dphidetarefrecoJet_seed[iPt] = (TH2D*)fweight->Get(histName.c_str());
       if (!h2dphidetarefrecoJet_seed[iPt]) {
-          std::cout << "Warning : Histogram " << histName.c_str() << " is not found in file" << fweight->GetName() << std::endl;
+          std::cout << "Warning : Histogram " << histName.c_str() << " is not found in file " << fweight->GetName() << std::endl;
       }
   }
 
@@ -261,7 +261,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           h2dphidetarefrecoJet_etaBins_seed[iPt][iEta] = 0;
           h2dphidetarefrecoJet_etaBins_seed[iPt][iEta] = (TH2D*)fweight->Get(histName.c_str());
           if (!h2dphidetarefrecoJet_etaBins_seed[iPt][iEta]) {
-              std::cout << "Warning : Histogram " << histName.c_str() << " is not found in file" << fweight->GetName() << std::endl;
+              std::cout << "Warning : Histogram " << histName.c_str() << " is not found in file " << fweight->GetName() << std::endl;
           }
       }
   }
@@ -273,7 +273,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           h2dphidetarefrecoJet_ptDispBins_seed[iPt][iPtDisp] = 0;
           h2dphidetarefrecoJet_ptDispBins_seed[iPt][iPtDisp] = (TH2D*)fweight->Get(histName.c_str());
           if (!h2dphidetarefrecoJet_ptDispBins_seed[iPt][iPtDisp]) {
-              std::cout << "Warning : Histogram " << histName.c_str() << " is not found in file" << fweight->GetName() << std::endl;
+              std::cout << "Warning : Histogram " << histName.c_str() << " is not found in file " << fweight->GetName() << std::endl;
           }
       }
   }
@@ -514,7 +514,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   std::string jetLevel = "";
   std::string partLevel = "";
-  std::vector<std::string> partLevelCands = {"w0gen", "w0gen0", "w0gen1", "w0reco", "gen", "gen0", "gen1", "reco"};
+  std::vector<std::string> partLevelCands = { "w0genCh01", "w0gen0Ch01", "w0gen1Ch01", "genCh01", "gen0Ch01", "gen1Ch01",
+                                              "w0gen", "w0gen0", "w0gen1", "w0reco", "gen", "gen0", "gen1", "reco" };
   for (int i = 0; i < (int)partLevelCands.size(); ++i) {
       int len = genlevel.size();
       int lenSubStr = partLevelCands.at(i).size();
@@ -574,6 +575,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_gen1_part = (partLevel.find("gen1") != std::string::npos);
   bool is_reco_part = (partLevel.find("reco") != std::string::npos);
   bool is_part_unweighted = (partLevel.find("w0") != std::string::npos);
+  bool is_ignoreCh_part = (partLevel.find("Ch01") != std::string::npos);
 
   if (is_reco_jet) {
     j_pt = jetptCorr;
@@ -903,7 +905,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 if (is_gen1_part) {
                     if ((*sube)[ip] == 0) continue;
                 }
-                if (is_gen_part) {
+                if (is_gen_part && !is_ignoreCh_part) {
                     if ((*chg)[ip] == 0) continue;
                 }
 
@@ -1046,7 +1048,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (is_gen1_part) {
             if ((*sube)[ip] == 0) continue;
           }
-          if (is_gen_part) {
+          if (is_gen_part && !is_ignoreCh_part) {
             if ((*chg)[ip] == 0) continue;
           }
 
@@ -1282,7 +1284,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               if (((*p_ev_UE)[ip_UE]) % 3 != 0) continue;
           }
           if ((*p_pt_UE)[ip_UE] < trkptmin) continue;
-          if (is_gen_part) {
+          if (is_gen_part && !is_ignoreCh_part) {
             if ((*p_chg_UE)[ip_UE] == 0) continue;
           }
 
@@ -1530,7 +1532,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 // tracks and jet must come from same mixed event
                 if ((*j_ev_mix)[ij_mix] != (*p_ev_mix)[ip_mix]) continue;
                 if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
-                if (is_gen_part) {
+                if (is_gen_part && !is_ignoreCh_part) {
                     if ((*chg_mix)[ip_mix] == 0) continue;
                 }
 
@@ -1669,7 +1671,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           // tracks and jet must come from same mixed event
           if ((*j_ev_mix)[ij_mix] != (*p_ev_mix)[ip_mix]) continue;
           if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
-          if (is_gen_part) {
+          if (is_gen_part && !is_ignoreCh_part) {
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
 
@@ -1899,7 +1901,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               if ((*j_ev_mix)[ij_mix] != (*p_ev_UE)[ip_UE]) continue;
           }
           if ((*p_pt_UE)[ip_UE] < trkptmin) continue;
-          if (is_gen_part) {
+          if (is_gen_part && !is_ignoreCh_part) {
             if ((*p_chg_UE)[ip_UE] == 0) continue;
           }
 
