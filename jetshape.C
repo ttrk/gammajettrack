@@ -7,8 +7,8 @@
 
 #define SIZE 20000
 
-#define _NSMEAR_PP  1
-#define _NSMEAR_GEN 1
+#define _NSMEAR_PP  15
+#define _NSMEAR_GEN 15
 #define _NSMEAR_JER 1
 
 TRandom3 smear_rand(12345);
@@ -76,7 +76,7 @@ double getdphi(double phi1, double phi2) {
 
 float get_rel_res(float gen, float reco) {
   if (reco > gen)
-    return sqrt(reco * reco - gen * gen);
+    return sqrt((reco * reco - gen * gen) / 2.);
   else
     return 0;
 }
@@ -93,22 +93,26 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   // TH1D* hgphi = (TH1D*)relres->Get(Form("h2gphi_%s_%i_%i_2", sample.data(), centmin, centmax));
   // TH1D* hgeta = (TH1D*)relres->Get(Form("h2geta_%s_%i_%i_2", sample.data(), centmin, centmax));
 
-  TH1D* hr = (TH1D*)relres->Get(Form("h2r_%s_%i_%i_2", sample.data(), centmin, centmax));
-  TF1* fr = hr->GetFunction("fitpt");
-  TH1D* hg = (TH1D*)relres->Get(Form("h2g_%s_%i_%i_2", sample.data(), centmin, centmax));
-  TF1* fg = hg->GetFunction("fitpt");
+  // TH1D* hr = (TH1D*)relres->Get(Form("h2r_%s_%i_%i_2", sample.data(), centmin, centmax));
+  // TF1* fr = hr->GetFunction("fitpt");
+  // TH1D* hg = (TH1D*)relres->Get(Form("h2g_%s_%i_%i_2", sample.data(), centmin, centmax));
+  // TF1* fg = hg->GetFunction("fitpt");
+  TF1* fr = (TF1*)relres->Get("drreco");
+  TF1* fg = (TF1*)relres->Get("drgen");
 
   TFile* relreshi = 0;
   // TH1D* hrphihi = 0; TH1D* hretahi = 0;
-  TH1D* hrhi = 0; TF1* frhi = 0;
+  // TH1D* hrhi = 0; TF1* frhi = 0;
+  TF1* frhi = 0;
   if (!isHI) {
     std::string hisample = sample; hisample.replace(sample.find("pp"), 2, "pbpb");
     relreshi = TFile::Open(Form("resolution_%s_%d_%d_%i_%d_%d.root", hisample.data(), (int)phoetmin, (int)jetptcut, gammaxi, centmin, centmax), "read");
 
     // hrphihi = (TH1D*)relreshi->Get(Form("h2rphi_%s_%i_%i_2", hisample.data(), centmin, centmax));
     // hretahi = (TH1D*)relreshi->Get(Form("h2reta_%s_%i_%i_2", hisample.data(), centmin, centmax));
-    hrhi = (TH1D*)relreshi->Get(Form("h2r_%s_%i_%i_2", hisample.data(), centmin, centmax));
-    frhi = hrhi->GetFunction("fitpt");
+    // hrhi = (TH1D*)relreshi->Get(Form("h2r_%s_%i_%i_2", hisample.data(), centmin, centmax));
+    // frhi = hrhi->GetFunction("fitpt");
+    frhi = (TF1*)relreshi->Get("drreco");
   }
 
   bool isMC = (sample.find("mc") != std::string::npos);
@@ -427,11 +431,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       //   res_phi = get_rel_res(fromphires->GetBinContent(fromphires->FindBin(rawjetpt)), tophires->GetBinContent(tophires->FindBin(rawjetpt)));
       // if (frometares != 0 && toetares != 0)
       //   res_eta = get_rel_res(frometares->GetBinContent(frometares->FindBin(rawjetpt)), toetares->GetBinContent(toetares->FindBin(rawjetpt)));
-      float bincentre = hr->GetBinCenter(hr->FindBin(rawjetpt));
+      // float bincentre = hr->GetBinCenter(hr->FindBin(rawjetpt));
       if (fromphires != 0 && tophires != 0)
-        res_phi = get_rel_res(fromphires->Eval(bincentre), tophires->Eval(bincentre));
+        res_phi = get_rel_res(fromphires->Eval(rawjetpt), tophires->Eval(rawjetpt));
       if (frometares != 0 && toetares != 0)
-        res_eta = get_rel_res(frometares->Eval(bincentre), toetares->Eval(bincentre));
+        res_eta = get_rel_res(frometares->Eval(rawjetpt), toetares->Eval(rawjetpt));
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
@@ -612,11 +616,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       //   res_phi = get_rel_res(fromphires->GetBinContent(fromphires->FindBin(mixjetpt)), tophires->GetBinContent(tophires->FindBin(mixjetpt)));
       // if (frometares != 0 && toetares != 0)
       //   res_eta = get_rel_res(frometares->GetBinContent(frometares->FindBin(mixjetpt)), toetares->GetBinContent(toetares->FindBin(mixjetpt)));
-      float bincentre = hr->GetBinCenter(hr->FindBin(mixjetpt));
+      // float bincentre = hr->GetBinCenter(hr->FindBin(mixjetpt));
       if (fromphires != 0 && tophires != 0)
-        res_phi = get_rel_res(fromphires->Eval(bincentre), tophires->Eval(bincentre));
+        res_phi = get_rel_res(fromphires->Eval(mixjetpt), tophires->Eval(mixjetpt));
       if (frometares != 0 && toetares != 0)
-        res_eta = get_rel_res(frometares->Eval(bincentre), toetares->Eval(bincentre));
+        res_eta = get_rel_res(frometares->Eval(mixjetpt), toetares->Eval(mixjetpt));
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
