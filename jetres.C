@@ -38,7 +38,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool isHI = (sample.find("pbpb") != std::string::npos);
   TFile* fweight = (isHI) ? TFile::Open("PbPb-weights.root") : TFile::Open("pp-weights.root");
   TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
-  TH1D* hcentweight = (TH1D*)fweight->Get("hcent");
+  // TH1D* hcentweight = (TH1D*)fweight->Get("hcent");
 
   bool isMC = (sample.find("mc") != std::string::npos);
 
@@ -47,29 +47,35 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   TFile* fout = new TFile(Form("%s_%s_%d_%d_%i_%d_%d_%i.root", label.data(), sample.data(), (int)phoetmin, (int)jetptcut, gammaxi, centmin, centmax, slice), "recreate");
 
-  const int nptbins = 9;
-  const double ptbins[10] = {30, 40, 50, 60, 80, 100, 120, 150, 200, 300};
-  const double extptbins[12] = {0, 30, 40, 50, 60, 80, 100, 120, 150, 200, 300, 99999};
+  const int nptbins = 5;
+  const double ptbins[6] = {30, 50, 80, 120, 200, 300};
+  const double extptbins[8] = {0, 30, 50, 80, 120, 200, 300, 99999};
 
   /* raw */
   TH2D* h2phi[4] = {0}; TH2D* h2eta[4] = {0};
-  h2phi[0] = new TH2D(Form("h2rphi_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
-  h2eta[0] = new TH2D(Form("h2reta_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
-  h2phi[1] = new TH2D(Form("h2gphi_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
-  h2eta[1] = new TH2D(Form("h2geta_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
-  h2phi[2] = new TH2D(Form("h2rphimix_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
-  h2eta[2] = new TH2D(Form("h2retamix_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
-  h2phi[3] = new TH2D(Form("h2gphimix_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
-  h2eta[3] = new TH2D(Form("h2getamix_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 80, -0.25, 0.25);
+  h2phi[0] = new TH2D(Form("h2rphi_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
+  h2eta[0] = new TH2D(Form("h2reta_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
+  h2phi[1] = new TH2D(Form("h2gphi_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
+  h2eta[1] = new TH2D(Form("h2geta_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
+  h2phi[2] = new TH2D(Form("h2rphimix_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
+  h2eta[2] = new TH2D(Form("h2retamix_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
+  h2phi[3] = new TH2D(Form("h2gphimix_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
+  h2eta[3] = new TH2D(Form("h2getamix_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
+
+  TH2D* h2dr[4] = {0};
+  h2dr[0] = new TH2D(Form("h2rdr2_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
+  h2dr[1] = new TH2D(Form("h2gdr2_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
+  h2dr[2] = new TH2D(Form("h2rdr2mix_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
+  h2dr[3] = new TH2D(Form("h2gdr2mix_%s_%d_%d", sample.data(), centmin, centmax), ";jet p_{T};", nptbins, ptbins, 150, -0.3, 0.3);
 
   TH1D* hbin = new TH1D("hbin", "", nptbins, ptbins);
 
   TH1D* hjetpt[4][nptbins+2] = {{0}};
   for (int i=0; i<=nptbins+1; ++i) {
-    hjetpt[0][i] = new TH1D(Form("hrjetptbin%i", i), ";jet p_{T};", 10, extptbins[i], extptbins[i+1]);
-    hjetpt[1][i] = new TH1D(Form("hgjetptbin%i", i), ";jet p_{T};", 10, extptbins[i], extptbins[i+1]);
-    hjetpt[2][i] = new TH1D(Form("hrjetmixptbin%i", i), ";jet p_{T};", 10, extptbins[i], extptbins[i+1]);
-    hjetpt[3][i] = new TH1D(Form("hgjetmixptbin%i", i), ";jet p_{T};", 10, extptbins[i], extptbins[i+1]);
+    hjetpt[0][i] = new TH1D(Form("hrjetptbin%i", i), ";jet p_{T};", 40, extptbins[i], extptbins[i+1]);
+    hjetpt[1][i] = new TH1D(Form("hgjetptbin%i", i), ";jet p_{T};", 40, extptbins[i], extptbins[i+1]);
+    hjetpt[2][i] = new TH1D(Form("hrjetmixptbin%i", i), ";jet p_{T};", 40, extptbins[i], extptbins[i+1]);
+    hjetpt[3][i] = new TH1D(Form("hgjetmixptbin%i", i), ";jet p_{T};", 40, extptbins[i], extptbins[i+1]);
   }
 
   TH2D* h2dphideta[4] = {0};
@@ -84,7 +90,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   std::vector<float>* j_eta = 0;
   std::vector<float>* j_phi = 0;
   std::vector<int>* j_ev = 0;
-  // std::vector<int>* j_subid;
+  // std::vector<int>* j_subid = 0;
 
   int nip;
   std::vector<float>* p_pt = 0;
@@ -108,7 +114,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     if (phoNoise == 0) continue;
 
     if (isMC) weight = weight * hvzweight->GetBinContent(hvzweight->FindBin(vz));
-    if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
+    // if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
 
     if (phoSigmaIEtaIEta_2012 > 0.010) { continue; }
 
@@ -212,9 +218,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             float deta = jeteta - (*p_eta)[leadip];
             h2phi[ig]->Fill(jetpt, dphi, weight);
             h2eta[ig]->Fill(jetpt, deta, weight);
+            float dr = sqrt((dphi * dphi) + (deta * deta));
+            h2dr[ig]->Fill(jetpt, dr, weight);
 
             hjetpt[ig][hbin->FindBin(jetpt)]->Fill(jetpt, weight);
-            h2dphideta[ig]->Fill(deta, dphi, weight);
+            if (jetpt > 120)
+              h2dphideta[ig]->Fill(deta, dphi, weight);
           }
         }
       }
@@ -227,10 +236,17 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   h2phisub[1] = (TH2D*)h2phi[1]->Clone(Form("h2gphisub_%s_%d_%d", sample.data(), centmin, centmax));
   h2etasub[1] = (TH2D*)h2eta[1]->Clone(Form("h2getasub_%s_%d_%d", sample.data(), centmin, centmax));
 
+  TH2D* h2drsub[2] = {0};
+  h2drsub[0] = (TH2D*)h2dr[0]->Clone(Form("h2rdr2sub_%s_%d_%d", sample.data(), centmin, centmax));
+  h2drsub[1] = (TH2D*)h2dr[1]->Clone(Form("h2gdr2sub_%s_%d_%d", sample.data(), centmin, centmax));
+
   h2phisub[0]->Add(h2phi[2], -1);
-  h2etasub[0]->Add(h2phi[2], -1);
+  h2etasub[0]->Add(h2eta[2], -1);
   h2phisub[1]->Add(h2phi[3], -1);
-  h2etasub[1]->Add(h2phi[3], -1);
+  h2etasub[1]->Add(h2eta[3], -1);
+
+  h2drsub[0]->Add(h2dr[2], -1);
+  h2drsub[1]->Add(h2dr[3], -1);
 
   TH1D* hjetptsub[2][nptbins] = {{0}};
   for (int i=0; i<=nptbins+1; ++i) {
