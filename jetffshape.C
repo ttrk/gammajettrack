@@ -60,6 +60,18 @@ int sysDetaDphiJetTrk = 24;
 int trkPtsLow[8] = {1, 2, 3, 4, 8, 12, 16, 20};
 int trkPtsUp[8] = {2, 3, 4, 8, 12, 16, 20, 9999};
 
+std::vector<int> ptBins_js_corr = {0, 10, 20, 30, 45, 60, 80, 120, 9999};
+const int nPtBins_js_corr = 8;
+std::vector<double> etaBins_js_corr = {0, 1.0, 1.6};
+const int nEtaBins_js_corr = 2;
+
+std::vector<int> min_hiBin_js_corr = {0, 20, 60, 100};
+std::vector<int> max_hiBin_js_corr = {20, 60, 100, 200};
+const int nCentBins_js_corr = 4;
+std::vector<std::string> recoGenStepsNum   = {"reco0gen0", "sref0gen0", "ref0gen0"};
+std::vector<std::string> recoGenStepsDenom = {"reco0reco", "reco0gen0", "sref0gen0"};
+const int nSteps_js_corr = 3;
+
 double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[]);
 double getDPHI(double phi1, double phi2);
 double getShiftedDPHI(double dphi);
@@ -68,6 +80,7 @@ void correctBinError(TH1D* h, int nSmear);
 void correctBinError(TH2D* h, int nSmear);
 bool isQuark(int id);
 bool isGluon(int id);
+double getjscorrection(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& max_hiBins);
 float trackingDataMCDiffUncert(float trkPt = -1, int cent = -1, bool isRatio = 1, bool isPP = 0);
 
 // systematic:
@@ -267,6 +280,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   }
 
   TH2D* h2dphidetarefrecoJet_ptDispBins_seed[nPtBins_dphidetarefrecoJet][nPtDispBins_dphidetarefrecoJet];
+  /*
   for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
       for (int iPtDisp = 0; iPtDisp < nPtDispBins_dphidetarefrecoJet; ++iPtDisp) {
           std::string histName = Form("h2dphidetarefrecoJet_refptBin%d_ptDispBin%d_%s_reco0gen0_%d_%d", iPt, iPtDisp, sample.c_str(), abs(centmin), abs(centmax));
@@ -277,6 +291,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           }
       }
   }
+  */
 
   std::string xTitle = "";
   if (defnFF == k_jetFF && gammaxi == 0)
@@ -296,6 +311,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH2D* h2gammaffjsdphideta[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
   TH2D* h2gammaffjsrefreco[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH2D* h2gammaffjsgensgen[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
+
+  TH1D* hgammaffjs_pt_eta_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr];
+  TH1D* hgammaffjs_refpt_eta_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr];
 
   // number of charged particles
   TH2D* h2dphiNch[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
@@ -357,17 +375,38 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           hgammaffjs[i][j] = new TH1D(Form("%s%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX, 0, xMax);
           hgammaffjsdeta[i][j] = new TH1D(Form("%sdeta%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                            sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#eta;", nBinsX*4, 0, xMax);
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#eta;", nBinsX*4, 0, xMax);
           hgammaffjsdphi[i][j] = new TH1D(Form("%sdphi%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                            sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#phi;", nBinsX*4, 0, xMax);
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#phi;", nBinsX*4, 0, xMax);
           h2gammaffjsdphideta[i][j] = new TH2D(Form("%sdphideta%s%s_%s_%s_%d_%d", histNamePrefix2D.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                                      sample.data(), genlevel.data(), abs(centmin), abs(centmax)), Form("%s;#Delta#phi;#Delta#eta", titleCent.c_str()), nBinsX*4, 0, xMax, nBinsX*4, 0, xMax);
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), Form("%s;#Delta#phi;#Delta#eta", titleCent.c_str()), nBinsX*4, 0, xMax, nBinsX*4, 0, xMax);
           hgammaffjsfb[i][j] = new TH1D(Form("%sfb%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*4, 0, xMax);
           h2gammaffjsrefreco[i][j] = new TH2D(Form("%srefreco%s%s_%s_%s_%d_%d", histNamePrefix2D.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*4, 0, xMax, nBinsX*4, 0, xMax);
           h2gammaffjsgensgen[i][j] = new TH2D(Form("%sgensgen%s%s_%s_%s_%d_%d", histNamePrefix2D.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                            sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*4, 0, xMax, nBinsX*4, 0, xMax);
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*4, 0, xMax, nBinsX*4, 0, xMax);
+
+          for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
+              for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
+
+                  std::string tmpTextPt = Form("%d < p^{jet}_{T} < %d GeV/c", ptBins_js_corr[iPt], ptBins_js_corr[iPt+1]);
+                  std::string tmpTextEta = Form ("%.1f < |#eta| < %.1f", etaBins_js_corr[iEta], etaBins_js_corr[iEta+1]);
+
+                  std::string hTitle_ptBin_EtaBin = Form("%s, %s;%s;", tmpTextPt.c_str(), tmpTextEta.c_str(), xTitle.c_str());
+                  hgammaffjs_pt_eta_bins[i][j][iPt][iEta] = new TH1D(
+                          Form("%s%s%s_%s_%s_ptBin%d_etaBin%d_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                                  sample.data(), genlevel.data(), iPt, iEta, abs(centmin), abs(centmax)),
+                                  hTitle_ptBin_EtaBin.c_str(), nBinsX, 0, xMax);
+
+                  std::string tmpTextRefpt = Form("%d < p^{ref}_{T} < %d GeV/c", ptBins_js_corr[iPt], ptBins_js_corr[iPt+1]);
+                  std::string hTitle_refptBin_EtaBin = Form("%s, %s;%s;", tmpTextRefpt.c_str(), tmpTextEta.c_str(), xTitle.c_str());
+                  hgammaffjs_refpt_eta_bins[i][j][iPt][iEta] = new TH1D(
+                          Form("%s%s%s_%s_%s_refptBin%d_etaBin%d_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                                  sample.data(), genlevel.data(), iPt, iEta, abs(centmin), abs(centmax)),
+                                  hTitle_refptBin_EtaBin.c_str(), nBinsX, 0, xMax);
+              }
+          }
 
           // number of charged particles
           h2dphiNch[i][j] = new TH2D(Form("h2dphiNch%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
@@ -457,6 +496,33 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
   }
 
+  if (sample == "ppmc") {
+      min_hiBin_js_corr = {100};
+      max_hiBin_js_corr = {200};
+  }
+
+  TH1D* hgammaffjs_corr_pt_eta_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nCentBins_js_corr][nSteps_js_corr];
+  for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
+      for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
+          for (int iCent = 0; iCent < nCentBins_js_corr; ++iCent) {
+
+              if (sample == "ppmc" && iCent > 0) continue;
+
+              for (int i = 0; i < nSteps_js_corr; ++i) {
+
+                  std::string histName = Form("hjs_corr_%s_%s2%s_ptBin%d_etaBin%d_%d_%d", sample.c_str(),
+                          recoGenStepsDenom[i].c_str(), recoGenStepsNum[i].c_str(),
+                          iPt, iEta, min_hiBin_js_corr[iCent], max_hiBin_js_corr[iCent]);
+                  hgammaffjs_corr_pt_eta_bins[k_sigPho][k_rawJet_rawTrk][iPt][iEta][iCent][i] = 0;
+                  hgammaffjs_corr_pt_eta_bins[k_sigPho][k_rawJet_rawTrk][iPt][iEta][iCent][i] = (TH1D*)fweight->Get(histName.c_str());
+                  if (!hgammaffjs_corr_pt_eta_bins[k_sigPho][k_rawJet_rawTrk][iPt][iEta][iCent][i]) {
+                      std::cout << "Warning : Histogram " << histName.c_str() << " is not found in file " << fweight->GetName() << std::endl;
+                  }
+              }
+          }
+      }
+  }
+
   TF1* f_JES_Q[4] = {0};
   f_JES_Q[0] = new TF1("f_JES_Q_3", "0.011180+0.195313/sqrt(x)", 30, 300);
   f_JES_Q[1] = new TF1("f_JES_Q_4", "0.014200+0.127950/sqrt(x)", 30, 300);
@@ -520,7 +586,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       int len = genlevel.size();
       int lenSubStr = partLevelCands.at(i).size();
 
-      if (genlevel.rfind(partLevelCands.at(i).c_str()) == (size_t)(len - lenSubStr)) {
+      if ((len - lenSubStr) > 0 && genlevel.rfind(partLevelCands.at(i).c_str()) == (size_t)(len - lenSubStr)) {
           partLevel = partLevelCands.at(i);
           break;
       }
@@ -548,6 +614,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_QG_jet = (jetLevel.find("QG") != std::string::npos);
   bool is_Q_jet = (!is_QG_jet && jetLevel.find("Q") != std::string::npos);
   bool is_G_jet = (!is_QG_jet && jetLevel.find("G") != std::string::npos);
+  bool is_corrected_js = (jetLevel.find("corrjs") != std::string::npos);
 
   if (is_smeared_jet && !is_ptsmeared_jet && !is_phismeared_jet && !is_etasmeared_jet) {
       is_ptsmeared_jet = true;
@@ -1087,11 +1154,32 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 weight_rawJet_rawTrk *= (*p_pt)[ip] / refP;
             }
 
+            if (defnFF == k_jetShape && is_corrected_js) {
+                weight_rawJet_rawTrk *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
+                        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
+            }
+
             hgammaffjs[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk);
             hgammaffjsdeta[phoBkg][k_rawJet_rawTrk]->Fill(std::fabs(deta), weight_rawJet_rawTrk);
             hgammaffjsdphi[phoBkg][k_rawJet_rawTrk]->Fill(std::fabs(dphi), weight_rawJet_rawTrk);
             h2gammaffjsdphideta[phoBkg][k_rawJet_rawTrk]->Fill(std::fabs(dphi), std::fabs(deta), weight_rawJet_rawTrk);
             hgammaffjsfb[phoBkg][k_rawJet_rawTrk]->Fill(val, weight_rawJet_rawTrk);
+
+            for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
+                if (etaBins_js_corr[iEta] <= TMath::Abs(tmpjeteta) && TMath::Abs(tmpjeteta) < etaBins_js_corr[iEta+1]) {
+                    for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
+                        if (ptBins_js_corr[iPt] <= tmpjetpt && tmpjetpt < ptBins_js_corr[iPt+1]) {
+                            hgammaffjs_pt_eta_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta]->Fill(val, weight_rawJet_rawTrk);
+                        }
+                        if (is_ref_jet || is_reco_jet) {
+                            if (ptBins_js_corr[iPt] <= (*gjetpt)[ij] && (*gjetpt)[ij] < ptBins_js_corr[iPt+1]) {
+                                hgammaffjs_refpt_eta_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta]->Fill(val, weight_rawJet_rawTrk);
+                            }
+                        }
+                    }
+                break;
+                }
+            }
 
             if (is_ref_jet || is_reco_jet) {
                 float match_j_eta = (*matched_j_eta)[ij];
@@ -1321,11 +1409,32 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 weight_rawJet_ueTrk *= (*p_pt_UE)[ip_UE] / refP;
             }
 
+            if (defnFF == k_jetShape && is_corrected_js) {
+                weight_rawJet_ueTrk *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
+                        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
+            }
+
             hgammaffjs[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk);
             hgammaffjsdeta[phoBkg][k_rawJet_ueTrk]->Fill(std::fabs(deta), weight_rawJet_ueTrk);
             hgammaffjsdphi[phoBkg][k_rawJet_ueTrk]->Fill(std::fabs(dphi), weight_rawJet_ueTrk);
             h2gammaffjsdphideta[phoBkg][k_rawJet_ueTrk]->Fill(std::fabs(dphi), std::fabs(deta), weight_rawJet_ueTrk);
             hgammaffjsfb[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk);
+
+            for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
+                if (etaBins_js_corr[iEta] <= TMath::Abs(tmpjeteta) && TMath::Abs(tmpjeteta) < etaBins_js_corr[iEta+1]) {
+                    for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
+                        if (ptBins_js_corr[iPt] <= tmpjetpt && tmpjetpt < ptBins_js_corr[iPt+1]) {
+                            hgammaffjs_pt_eta_bins[phoBkg][k_rawJet_ueTrk][iPt][iEta]->Fill(val, weight_rawJet_ueTrk);
+                        }
+                        if (is_ref_jet || is_reco_jet) {
+                            if (ptBins_js_corr[iPt] <= (*gjetpt)[ij] && (*gjetpt)[ij] < ptBins_js_corr[iPt+1]) {
+                                hgammaffjs_refpt_eta_bins[phoBkg][k_rawJet_ueTrk][iPt][iEta]->Fill(val, weight_rawJet_ueTrk);
+                            }
+                        }
+                    }
+                break;
+                }
+            }
 
             if (is_ref_jet || is_reco_jet) {
                 float match_j_eta = (*matched_j_eta)[ij];
@@ -1710,11 +1819,32 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 weight_bkgJet_rawTrk *= (*p_pt_mix)[ip_mix] / refP;
             }
 
+            if (defnFF == k_jetShape && is_corrected_js) {
+                weight_bkgJet_rawTrk *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
+                        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
+            }
+
             hgammaffjs[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk);
             hgammaffjsdeta[phoBkg][k_bkgJet_rawTrk]->Fill(std::fabs(deta), weight_bkgJet_rawTrk);
             hgammaffjsdphi[phoBkg][k_bkgJet_rawTrk]->Fill(std::fabs(dphi), weight_bkgJet_rawTrk);
             h2gammaffjsdphideta[phoBkg][k_bkgJet_rawTrk]->Fill(std::fabs(dphi), std::fabs(deta), weight_bkgJet_rawTrk);
             hgammaffjsfb[phoBkg][k_bkgJet_rawTrk]->Fill(val, weight_bkgJet_rawTrk);
+
+            for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
+                if (etaBins_js_corr[iEta] <= TMath::Abs(tmpjeteta) && TMath::Abs(tmpjeteta) < etaBins_js_corr[iEta+1]) {
+                    for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
+                        if (ptBins_js_corr[iPt] <= tmpjetpt && tmpjetpt < ptBins_js_corr[iPt+1]) {
+                            hgammaffjs_pt_eta_bins[phoBkg][k_bkgJet_rawTrk][iPt][iEta]->Fill(val, weight_bkgJet_rawTrk);
+                        }
+                        if (is_ref_jet || is_reco_jet) {
+                            if (ptBins_js_corr[iPt] <= (*gjetpt_mix)[ij_mix] && (*gjetpt_mix)[ij_mix] < ptBins_js_corr[iPt+1]) {
+                                hgammaffjs_refpt_eta_bins[phoBkg][k_bkgJet_rawTrk][iPt][iEta]->Fill(val, weight_bkgJet_rawTrk);
+                            }
+                        }
+                    }
+                break;
+                }
+            }
 
             if (is_ref_jet || is_reco_jet) {
                 float match_j_eta = (*matched_j_eta_mix)[ij_mix];
@@ -1938,11 +2068,32 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 weight_bkgJet_ueTrk *= (*p_pt_UE)[ip_UE] / refP;
             }
 
+            if (defnFF == k_jetShape && is_corrected_js) {
+                weight_bkgJet_ueTrk *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
+                        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
+            }
+
             hgammaffjs[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk);
             hgammaffjsdeta[phoBkg][k_bkgJet_ueTrk]->Fill(std::fabs(deta), weight_bkgJet_ueTrk);
             hgammaffjsdphi[phoBkg][k_bkgJet_ueTrk]->Fill(std::fabs(dphi), weight_bkgJet_ueTrk);
             h2gammaffjsdphideta[phoBkg][k_bkgJet_ueTrk]->Fill(std::fabs(dphi), std::fabs(deta), weight_bkgJet_ueTrk);
             hgammaffjsfb[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk);
+
+            for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
+                if (etaBins_js_corr[iEta] <= TMath::Abs(tmpjeteta) && TMath::Abs(tmpjeteta) < etaBins_js_corr[iEta+1]) {
+                    for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
+                        if (ptBins_js_corr[iPt] <= tmpjetpt && tmpjetpt < ptBins_js_corr[iPt+1]) {
+                            hgammaffjs_pt_eta_bins[phoBkg][k_bkgJet_ueTrk][iPt][iEta]->Fill(val, weight_bkgJet_ueTrk);
+                        }
+                        if (is_ref_jet || is_reco_jet) {
+                            if (ptBins_js_corr[iPt] <= (*gjetpt_mix)[ij_mix] && (*gjetpt_mix)[ij_mix] < ptBins_js_corr[iPt+1]) {
+                                hgammaffjs_refpt_eta_bins[phoBkg][k_bkgJet_ueTrk][iPt][iEta]->Fill(val, weight_bkgJet_ueTrk);
+                            }
+                        }
+                    }
+                break;
+                }
+            }
 
             if (is_ref_jet || is_reco_jet) {
                 float match_j_eta = (*matched_j_eta_mix)[ij_mix];
@@ -2218,6 +2369,33 @@ bool isQuark(int id)
 bool isGluon(int id)
 {
     return (std::fabs(id) == 21);
+}
+
+double getjscorrection(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& max_hiBins)
+{
+    double corr = 1;
+    for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
+        if (ptBins[iPt] <= jetpt && jetpt < ptBins[iPt+1]) {
+            for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
+                if (etaBins[iEta] <= jeteta && jeteta < etaBins[iEta+1]) {
+                    for (int iHiBin = 0; iHiBin < nCentBins_js_corr; ++iHiBin) {
+                        if (hiBin < max_hiBins[iHiBin]) {
+
+                            int binR = h[0][0][iPt][iEta][iHiBin][0]->FindBin(r);
+                            if (binR > 0 && binR <= h[0][0][iPt][iEta][iHiBin][0]->GetNbinsX()) {
+                                for (int iStep = 0; iStep < nSteps_js_corr; ++iStep) {
+                                    corr *= h[0][0][iPt][iEta][iHiBin][iStep]->GetBinContent(binR);
+                                }
+                            }
+
+                            return corr;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return corr;
 }
 
 /*
