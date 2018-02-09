@@ -66,16 +66,16 @@ elif [ $9 = "datamc" ]; then
 elif [ $9 = "pbpbpp" ]; then
     hadd -f ${7}_pbpbpp${6}_${1}_${3}_gxi${5}_js_final.root ${7}_pbpb${6}_${1}_${3}_gxi${5}_js_final.root ${7}_pp${6}_${1}_${3}_gxi${5}_js_final.root
 
-    echo -e "pp ${11}" >> $PLOTLIST
-    echo -e "hjetshape_${8}_pp${6}_${11}_0_20" >> $PLOTLIST
-    echo -e "hjetshape_${8}_pp${6}_${11}_20_60" >> $PLOTLIST
-    echo -e "hjetshape_${8}_pp${6}_${11}_60_100" >> $PLOTLIST
-    echo -e "hjetshape_${8}_pp${6}_${11}_100_200" >> $PLOTLIST
     echo -e "pbpb ${10}" >> $PLOTLIST
     echo -e "hjetshape_${8}_pbpb${6}_${10}_0_20" >> $PLOTLIST
     echo -e "hjetshape_${8}_pbpb${6}_${10}_20_60" >> $PLOTLIST
     echo -e "hjetshape_${8}_pbpb${6}_${10}_60_100" >> $PLOTLIST
     echo -e "hjetshape_${8}_pbpb${6}_${10}_100_200" >> $PLOTLIST
+    echo -e "pp ${11}" >> $PLOTLIST
+    echo -e "hjetshape_${8}_pp${6}_${11}_0_20" >> $PLOTLIST
+    echo -e "hjetshape_${8}_pp${6}_${11}_20_60" >> $PLOTLIST
+    echo -e "hjetshape_${8}_pp${6}_${11}_60_100" >> $PLOTLIST
+    echo -e "hjetshape_${8}_pp${6}_${11}_100_200" >> $PLOTLIST
 
     ./plot_js ${7}_pbpbpp${6}_${1}_${3}_gxi${5}_js_final.root ${7}_${6}_pbpb_${10}_pp_${11}_gxi${5}_${1}_${3}_${8} $PLOTLIST 1 $5 $1 $3
 else
@@ -87,7 +87,7 @@ else
         echo -e "hjetshape_${8}_${6}_${i}_100_200" >> $PLOTLIST
     done
 
-    ./plot_js ${7}_${6}_${1}_${3}_gxi${5}_js_final.root ${7}_${6}_gxi${5}_${1}_${3}_${8}${arglist} $PLOTLIST 1 $5 $1 $3
+    ./plot_js ${7}_${6}_${1}_${3}_gxi${5}_js_final.root ${7}_${6}_gxi${5}_${1}_${3}_${8}${arglist} $PLOTLIST 1 $5 $1 $3 $opt
 fi
 
 rm $PLOTLIST

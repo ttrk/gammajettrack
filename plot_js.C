@@ -16,6 +16,9 @@
 
 int min_hiBin[4] = {0, 20, 60, 100};
 int max_hiBin[4] = {20, 60, 100, 200};
+std::string cent_str[4] = {
+    "0_20", "20_60", "60_100", "100_200"
+};
 
 int rows = 1;
 int columns = 4;
@@ -58,6 +61,7 @@ int plot_js(const char* input, const char* plot_name, const char* hist_list, int
         for (int i=0; i<4; ++i) {
             hsys[i][0] = (TH1D*)fsys->Get((hist_names[i+1] + "_systematics").c_str());
             hsys[i][1] = (TH1D*)fsys->Get((hist_names[i+6] + "_systematics").c_str());
+            hsys_ratio[i] = (TH1D*)fsys->Get(Form("hjetshape_final_ratio_%s_systematics", cent_str[i].c_str()));
         }
     }
     TGraph* gr = new TGraph();
@@ -83,13 +87,7 @@ int plot_js(const char* input, const char* plot_name, const char* hist_list, int
     TH1D* hratio[4][layers-1] = {0};
     for (int i=0; i<4; ++i) {
         c1->cd(i+1);
-        switch (option) {
-            case 0: case 1:
-                gPad->SetLogy();
-                break;
-            default:
-                break;
-        }
+        gPad->SetLogy();
 
         for (std::size_t k=0; k<layers; ++k) {
             h1[i][k] = (TH1D*)finput->Get(hist_names[5*k+i+1].c_str());
@@ -100,19 +98,21 @@ int plot_js(const char* input, const char* plot_name, const char* hist_list, int
 
             set_axis_style(h1[i][k], i, 0);
             switch (option) {
-                case 1:
-                    h1[i][k]->SetAxisRange(0.05, 50, "Y");
-                    break;
                 case 0:
                     h1[i][k]->SetAxisRange(0, 0.29, "X");
                     h1[i][k]->SetAxisRange(0.05, 50, "Y");
                     break;
+                case 1:
+                    h1[i][k]->SetAxisRange(0, 0.29, "X");
+                    h1[i][k]->SetAxisRange(0.05, 50, "Y");
+                    break;
                 case 2:
-                    h1[i][k]->SetAxisRange(0, 4, "Y");
+                    h1[i][k]->SetAxisRange(0, 0.49, "X");
+                    h1[i][k]->SetAxisRange(0.05, 50, "Y");
                     break;
                 case 3:
-                    h1[i][k]->SetAxisRange(0.5, 5, "X");
-                    h1[i][k]->SetAxisRange(0, 4, "Y");
+                    h1[i][k]->SetAxisRange(0, 0.49, "X");
+                    h1[i][k]->SetAxisRange(0.05, 50, "Y");
                     break;
                 default:
                     break;
@@ -187,19 +187,21 @@ int plot_js(const char* input, const char* plot_name, const char* hist_list, int
 
                 set_axis_style(hratio[i][r], i, 1);
                 switch (option) {
-                    case 1:
-                        hratio[i][r]->SetAxisRange(0, 3, "Y");
-                        break;
                     case 0:
                         hratio[i][r]->SetAxisRange(0, 0.29, "X");
-                        hratio[i][r]->SetAxisRange(0, 3, "Y");
+                        hratio[i][r]->SetAxisRange(0.5, 1.5, "Y");
+                        break;
+                    case 1:
+                        hratio[i][r]->SetAxisRange(0, 0.29, "X");
+                        hratio[i][r]->SetAxisRange(0.8, 1.2, "Y");
                         break;
                     case 2:
+                        hratio[i][r]->SetAxisRange(0, 0.49, "X");
                         hratio[i][r]->SetAxisRange(0.5, 1.5, "Y");
                         break;
                     case 3:
-                        hratio[i][r]->SetAxisRange(0.5, 5, "X");
-                        hratio[i][r]->SetAxisRange(0.5, 1.5, "Y");
+                        hratio[i][r]->SetAxisRange(0, 0.49, "X");
+                        hratio[i][r]->SetAxisRange(0.8, 1.2, "Y");
                         break;
                     default:
                         break;
@@ -209,8 +211,6 @@ int plot_js(const char* input, const char* plot_name, const char* hist_list, int
             }
 
             if (is_data_plot) {
-                hsys_ratio[i] = (TH1D*)hsys[i][1]->Clone(Form("hsys_ratio_%i", i));
-                hsys_ratio[i]->Divide(h1[i][0]);
                 gr->SetFillColorAlpha(46, 0.7);
                 draw_sys_unc(gr, hratio[i][1], hsys_ratio[i]);
 
