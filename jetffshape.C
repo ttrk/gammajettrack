@@ -496,9 +496,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
   }
 
-  if (sample == "ppmc") {
+  if (sample == "ppmc" || sample == "ppdata") {
       min_hiBin_js_corr = {100};
       max_hiBin_js_corr = {200};
+  }
+
+  if (genlevel.find("corrjsrndTH") != std::string::npos) {
+      recoGenStepsNum   = {"reco0gen0", "srndTHref0gen0", "ref0gen0"};
+      recoGenStepsDenom = {"reco0reco", "reco0gen0", "srndTHref0gen0"};
   }
 
   TH1D* hgammaffjs_corr_pt_eta_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nCentBins_js_corr][nSteps_js_corr];
@@ -506,11 +511,15 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
           for (int iCent = 0; iCent < nCentBins_js_corr; ++iCent) {
 
-              if (sample == "ppmc" && iCent > 0) continue;
+              std::string tmpSample = sample;
+              if (sample == "ppdata") tmpSample = "ppmc";
+              if (sample == "pbpbdata") tmpSample = "pbpbmc";
+
+              if (tmpSample == "ppmc" && iCent > 0) continue;
 
               for (int i = 0; i < nSteps_js_corr; ++i) {
 
-                  std::string histName = Form("hjs_corr_%s_%s2%s_ptBin%d_etaBin%d_%d_%d", sample.c_str(),
+                  std::string histName = Form("hjs_corr_%s_%s2%s_ptBin%d_etaBin%d_%d_%d", tmpSample.c_str(),
                           recoGenStepsDenom[i].c_str(), recoGenStepsNum[i].c_str(),
                           iPt, iEta, min_hiBin_js_corr[iCent], max_hiBin_js_corr[iCent]);
                   hgammaffjs_corr_pt_eta_bins[k_sigPho][k_rawJet_rawTrk][iPt][iEta][iCent][i] = 0;
