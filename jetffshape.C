@@ -2461,7 +2461,7 @@ double getjscorrection(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr
     for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
         if (ptBins[iPt] <= jetpt && jetpt < ptBins[iPt+1]) {
             for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
-                if (etaBins[iEta] <= jeteta && jeteta < etaBins[iEta+1]) {
+                if (etaBins[iEta] <= TMath::Abs(jeteta) && TMath::Abs(jeteta) < etaBins[iEta+1]) {
                     for (int iHiBin = 0; iHiBin < nCentBins_js_corr; ++iHiBin) {
                         if (hiBin < max_hiBins[iHiBin]) {
 
