@@ -30,7 +30,7 @@ int calc_lr_systematics(const char* nominal, const char* variation, const char* 
 
         hnominal[i] = (TH1D*)finput->Get(Form("%s_final_%s_%s_%s", histPrefix.c_str(), sample, type, centStr.c_str()))->Clone(Form("hnominal_%s", centStr.c_str()));
         hlongrange[i] = (TH1D*)fsys->Get(Form("%sLR_final_%s_%s_%s", histPrefix.c_str(), sample, type, centStr.c_str()))->Clone(Form("hlongrange_%s", centStr.c_str()));
-        hratio[i] = (TH1D*)hlongrange[i]->Clone(Form("hffLRratio_final_%s_%s_%s", sample, type, centStr.c_str()));
+        hratio[i] = (TH1D*)hlongrange[i]->Clone(Form("%sLRratio_final_%s_%s_%s", histPrefix.c_str(), sample, type, centStr.c_str()));
         hratio[i]->Divide(hnominal[i]);
 
         hsys[i] = (TH1D*)hnominal[i]->Clone(Form("%s_final_%s_%s_%s", histPrefix.c_str(), sample, type, centStr.c_str()));
