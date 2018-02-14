@@ -64,6 +64,8 @@ std::vector<int> ptBins_js_corr = {0, 10, 20, 30, 45, 60, 80, 120, 9999};
 const int nPtBins_js_corr = 8;
 std::vector<double> etaBins_js_corr = {0, 1.0, 1.6};
 const int nEtaBins_js_corr = 2;
+std::vector<int> trkPtBins_js_corr = {1, 2, 3, 5, 9999};
+const int nTrkPtBins_js_corr = 4;
 
 std::vector<int> min_hiBin_js_corr = {0, 20, 60, 100};
 std::vector<int> max_hiBin_js_corr = {20, 60, 100, 200};
@@ -314,6 +316,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   TH1D* hgammaffjs_pt_eta_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr];
   TH1D* hgammaffjs_refpt_eta_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr];
+  TH1D* hgammaffjs_pt_eta_trkPt_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr];
 
   // number of charged particles
   TH2D* h2dphiNch[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
@@ -399,6 +402,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                           Form("%s%s%s_%s_%s_ptBin%d_etaBin%d_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                                   sample.data(), genlevel.data(), iPt, iEta, abs(centmin), abs(centmax)),
                                   hTitle_ptBin_EtaBin.c_str(), nBinsX, 0, xMax);
+
+                  for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
+                      std::string tmpTextTrkPt = Form("%d < p^{trk}_{T} < %d GeV/c", trkPtBins_js_corr[iTrkPt], trkPtBins_js_corr[iTrkPt+1]);
+
+                      std::string hTitle_ptBin_EtaBin_trkPtBin = Form("%s, %s, %s;%s;", tmpTextPt.c_str(), tmpTextEta.c_str(), tmpTextTrkPt.c_str(), xTitle.c_str());
+                      hgammaffjs_pt_eta_trkPt_bins[i][j][iPt][iEta][iTrkPt] = new TH1D(
+                              Form("%s%s%s_%s_%s_ptBin%d_etaBin%d_trkPtBin%d_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                                      sample.data(), genlevel.data(), iPt, iEta, iTrkPt, abs(centmin), abs(centmax)),
+                                      hTitle_ptBin_EtaBin_trkPtBin.c_str(), nBinsX, 0, xMax);
+                  }
 
                   std::string tmpTextRefpt = Form("%d < p^{ref}_{T} < %d GeV/c", ptBins_js_corr[iPt], ptBins_js_corr[iPt+1]);
                   std::string hTitle_refptBin_EtaBin = Form("%s, %s;%s;", tmpTextRefpt.c_str(), tmpTextEta.c_str(), xTitle.c_str());
@@ -1203,6 +1216,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
                         if (ptBins_js_corr[iPt] <= tmpjetpt && tmpjetpt < ptBins_js_corr[iPt+1]) {
                             hgammaffjs_pt_eta_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta]->Fill(val, weight_rawJet_rawTrk);
+                            for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
+                                if (trkPtBins_js_corr[iTrkPt] <= (*p_pt)[ip] && (*p_pt)[ip] < trkPtBins_js_corr[iTrkPt+1]) {
+                                    hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_rawJet_rawTrk);
+                                }
+                            }
                         }
                         if (is_ref_jet || is_reco_jet) {
                             if (ptBins_js_corr[iPt] <= (*gjetpt)[ij] && (*gjetpt)[ij] < ptBins_js_corr[iPt+1]) {
@@ -1269,7 +1287,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                       val = log(1.0 / z);
                   }
                   else if (defnFF == k_jetShape) {
-                      val = sqrt(deltar2);
+                      val = fabs(dphi);
                       weight_rawJet_rawTrk *= (*p_pt)[ip] / refP;
                   }
 
@@ -1481,6 +1499,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
                         if (ptBins_js_corr[iPt] <= tmpjetpt && tmpjetpt < ptBins_js_corr[iPt+1]) {
                             hgammaffjs_pt_eta_bins[phoBkg][k_rawJet_ueTrk][iPt][iEta]->Fill(val, weight_rawJet_ueTrk);
+                            for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
+                                if (trkPtBins_js_corr[iTrkPt] <= (*p_pt_UE)[ip_UE] && (*p_pt_UE)[ip_UE] < trkPtBins_js_corr[iTrkPt+1]) {
+                                    hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_rawJet_ueTrk);
+                                }
+                            }
                         }
                         if (is_ref_jet || is_reco_jet) {
                             if (ptBins_js_corr[iPt] <= (*gjetpt)[ij] && (*gjetpt)[ij] < ptBins_js_corr[iPt+1]) {
@@ -1547,7 +1570,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                       val = log(1.0 / z);
                   }
                   else if (defnFF == k_jetShape) {
-                      val = sqrt(deltar2);
+                      val = fabs(dphi);
                       weight_rawJet_ueTrk *= (*p_pt_UE)[ip_UE] / refP;
                   }
 
@@ -1914,6 +1937,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
                         if (ptBins_js_corr[iPt] <= tmpjetpt && tmpjetpt < ptBins_js_corr[iPt+1]) {
                             hgammaffjs_pt_eta_bins[phoBkg][k_bkgJet_rawTrk][iPt][iEta]->Fill(val, weight_bkgJet_rawTrk);
+                            for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
+                                if (trkPtBins_js_corr[iTrkPt] <= (*p_pt_mix)[ip_mix] && (*p_pt_mix)[ip_mix] < trkPtBins_js_corr[iTrkPt+1]) {
+                                    hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_bkgJet_rawTrk);
+                                }
+                            }
                         }
                         if (is_ref_jet || is_reco_jet) {
                             if (ptBins_js_corr[iPt] <= (*gjetpt_mix)[ij_mix] && (*gjetpt_mix)[ij_mix] < ptBins_js_corr[iPt+1]) {
@@ -1980,7 +2008,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                       val = log(1.0 / z);
                   }
                   else if (defnFF == k_jetShape) {
-                      val = sqrt(deltar2);
+                      val = fabs(dphi);
                       weight_bkgJet_rawTrk *= (*p_pt_mix)[ip_mix] / refP;
                   }
 
@@ -2186,6 +2214,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
                         if (ptBins_js_corr[iPt] <= tmpjetpt && tmpjetpt < ptBins_js_corr[iPt+1]) {
                             hgammaffjs_pt_eta_bins[phoBkg][k_bkgJet_ueTrk][iPt][iEta]->Fill(val, weight_bkgJet_ueTrk);
+                            for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
+                                if (trkPtBins_js_corr[iTrkPt] <= (*p_pt_UE)[ip_UE] && (*p_pt_UE)[ip_UE] < trkPtBins_js_corr[iTrkPt+1]) {
+                                    hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_bkgJet_ueTrk);
+                                }
+                            }
                         }
                         if (is_ref_jet || is_reco_jet) {
                             if (ptBins_js_corr[iPt] <= (*gjetpt_mix)[ij_mix] && (*gjetpt_mix)[ij_mix] < ptBins_js_corr[iPt+1]) {
@@ -2252,7 +2285,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                       val = log(1.0 / z);
                   }
                   else if (defnFF == k_jetShape) {
-                      val = sqrt(deltar2);
+                      val = fabs(dphi);
                       weight_bkgJet_ueTrk *= (*p_pt_UE)[ip_UE] / refP;
                   }
 
