@@ -45,6 +45,10 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
 
   bool isHI = !isPP;
   bool isMC = true;
+  bool isFlt50Sample = (input.find("Flt50") != std::string::npos);
+  std::cout << "isHI = " << isHI << std::endl;
+  std::cout << "isMC = " << isMC << std::endl;
+  std::cout << "isFlt50Sample = " << isFlt50Sample << std::endl;
 
   /**********************************************************
   * OPEN INPUT FILE
@@ -398,6 +402,18 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
           pjtt.weight = 0.0123843;
         else
           pjtt.weight = 0;
+        if (isFlt50Sample) {
+            if (pthat >= 30. && pthat < 50.)
+              pjtt.weight = 0.999614;
+            else if (pthat >= 50. && pthat < 80.)
+              pjtt.weight = 0.400499;
+            else if (pthat >= 80. && pthat < 120.)
+              pjtt.weight = 0.139021;
+            else if (pthat >= 120.)
+              pjtt.weight = 0.0440695;
+            else
+              pjtt.weight = 0;
+        }
       } else {
         if (pthat >= 14.95 && pthat < 30.)
           pjtt.weight = 0.999082;
