@@ -244,8 +244,12 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             float legX1 = 0.10;
             float legWidth = 0.45;
             if ((mode == k_data_sysvar || mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt || mode == k_mc_reco_gen) && (option == kJS_r_lt_1 || option == kJS_r_lt_0p3)) {
-                legX1 = 0.35;
+                legX1 = 0.25;
                 legWidth = 0.30;
+                if (mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) {
+                    legX1 = 0.22;
+                    legWidth = 0.30*2.4;
+                }
             }
             else if ((mode == k_data_sysvar || mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt || mode == k_mc_reco_gen) && (option == kFF_xi_gt_0p5_lt_4p5 || option == kFF_xi_gt_0p5_lt_4p5)) {
                 legX1 = 0.25;
@@ -568,7 +572,7 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
             }
             else {
                 if (gammaxi > 0) h1->SetYTitle("#rho_{#gamma} (r)");
-                else             h1->SetYTitle("#rho_{jet} (r)");
+                else             h1->SetYTitle("#rho (r)");
             }
             h1->SetXTitle("r");
             break;
@@ -613,10 +617,10 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
-            else         h1->SetAxisRange(0.05, 50, "Y");
+            else         h1->SetAxisRange(0.2, 90, "Y");
             break;
         case kJS_r_lt_0p3:
-            h1->SetAxisRange(0, h1->GetBinLowEdge(h1->FindBin(0.3)-1), "X");
+            h1->SetAxisRange(0, 0.3 - 0.001, "X");
             if (isRatio) {
                 if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 3, "Y");
                 else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
@@ -628,7 +632,7 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
-            else         h1->SetAxisRange(0.05, 50, "Y");
+            else         h1->SetAxisRange(0.2, 90, "Y");
             break;
         case kFF_xi_gt_0:
             if (isRatio) {
