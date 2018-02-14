@@ -1501,7 +1501,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                             hgammaffjs_pt_eta_bins[phoBkg][k_rawJet_ueTrk][iPt][iEta]->Fill(val, weight_rawJet_ueTrk);
                             for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
                                 if (trkPtBins_js_corr[iTrkPt] <= (*p_pt_UE)[ip_UE] && (*p_pt_UE)[ip_UE] < trkPtBins_js_corr[iTrkPt+1]) {
-                                    hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_rawJet_ueTrk);
+                                    hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_rawJet_ueTrk][iPt][iEta][iTrkPt]->Fill(val, weight_rawJet_ueTrk);
                                 }
                             }
                         }
@@ -1939,7 +1939,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                             hgammaffjs_pt_eta_bins[phoBkg][k_bkgJet_rawTrk][iPt][iEta]->Fill(val, weight_bkgJet_rawTrk);
                             for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
                                 if (trkPtBins_js_corr[iTrkPt] <= (*p_pt_mix)[ip_mix] && (*p_pt_mix)[ip_mix] < trkPtBins_js_corr[iTrkPt+1]) {
-                                    hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_bkgJet_rawTrk);
+                                    hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_bkgJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_bkgJet_rawTrk);
                                 }
                             }
                         }
@@ -2216,7 +2216,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                             hgammaffjs_pt_eta_bins[phoBkg][k_bkgJet_ueTrk][iPt][iEta]->Fill(val, weight_bkgJet_ueTrk);
                             for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
                                 if (trkPtBins_js_corr[iTrkPt] <= (*p_pt_UE)[ip_UE] && (*p_pt_UE)[ip_UE] < trkPtBins_js_corr[iTrkPt+1]) {
-                                    hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_bkgJet_ueTrk);
+                                    hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_bkgJet_ueTrk][iPt][iEta][iTrkPt]->Fill(val, weight_bkgJet_ueTrk);
                                 }
                             }
                         }
