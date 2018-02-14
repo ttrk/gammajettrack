@@ -2524,7 +2524,10 @@ double getjscorrection(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr
                             int binR = h[0][0][iPt][iEta][iHiBin][0]->FindBin(r);
                             if (binR > 0 && binR <= h[0][0][iPt][iEta][iHiBin][0]->GetNbinsX()) {
                                 for (int iStep = 0; iStep < nSteps_js_corr; ++iStep) {
-                                    corr *= h[0][0][iPt][iEta][iHiBin][iStep]->GetBinContent(binR);
+                                    double corrTmp = h[0][0][iPt][iEta][iHiBin][iStep]->GetBinContent(binR);
+                                    if (corrTmp > 0) {
+                                        corr *= corrTmp;
+                                    }
                                 }
                             }
 
