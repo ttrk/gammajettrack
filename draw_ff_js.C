@@ -209,8 +209,8 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
         }
     }
 
-    std::vector<std::string> inputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR", "hjsLRAway", "hdphiProjNR", "hdphiProjLR"};
-    std::vector<std::string> outputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR", "hjsLRAway", "hdphiProjNR", "hdphiProjLR"};
+    std::vector<std::string> inputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR", "hjsLRAway", "hgirth", "hdphiProjNR", "hdphiProjLR"};
+    std::vector<std::string> outputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR", "hjsLRAway", "hgirth", "hdphiProjNR", "hdphiProjLR"};
     for (int iPt = 0; iPt < 8; ++iPt) {
         inputObs.push_back(Form("hdphiProjNRptBin%d", iPt));
         outputObs.push_back(Form("hdphiProjNRptBin%d", iPt));
@@ -264,6 +264,18 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
             hgjt[b][r][b] = (TH1D*)finput->Get(Form("%suemixsideband_%s", inputObs[iObs].c_str(), tag.c_str()));
             hgjt[b][b][r] = (TH1D*)finput->Get(Form("%sjetmixsideband_%s", inputObs[iObs].c_str(), tag.c_str()));
             hgjt[b][b][b] = (TH1D*)finput->Get(Form("%sjetmixuesideband_%s", inputObs[iObs].c_str(), tag.c_str()));
+
+            if (sample == "pbpbmc" || sample == "ppmc") {
+                // write original objects as well
+                hgjt[r][r][r]->Write("",TObject::kOverwrite);
+                hgjt[r][r][b]->Write("",TObject::kOverwrite);
+                hgjt[r][b][r]->Write("",TObject::kOverwrite);
+                hgjt[r][b][b]->Write("",TObject::kOverwrite);
+                hgjt[b][r][r]->Write("",TObject::kOverwrite);
+                hgjt[b][r][b]->Write("",TObject::kOverwrite);
+                hgjt[b][b][r]->Write("",TObject::kOverwrite);
+                hgjt[b][b][b]->Write("",TObject::kOverwrite);
+            }
 
             hgjt[r][r][s] = (TH1D*)hgjt[r][r][r]->Clone(Form("%s_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
             hgjt[r][b][s] = (TH1D*)hgjt[r][b][r]->Clone(Form("%s_jet_sub_%s", outputObs[iObs].c_str(), tag.c_str()));
@@ -346,10 +358,19 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
             else if (i == 0) {
                 std::cout << "working on gj obs = " << inputObsgj[iObs].c_str() << std::endl;
             }
+            hgj[r][r]->Write("",TObject::kOverwrite);
 
             hgj[r][b] = (TH1D*)finput->Get(Form("%sjetmix_%s", inputObsgj[iObs].c_str(), tag.c_str()));
             hgj[b][r] = (TH1D*)finput->Get(Form("%ssideband_%s", inputObsgj[iObs].c_str(), tag.c_str()));
             hgj[b][b] = (TH1D*)finput->Get(Form("%sjetmixsideband_%s", inputObsgj[iObs].c_str(), tag.c_str()));
+
+            if (sample == "pbpbmc" || sample == "ppmc") {
+                // write original objects as well
+                hgj[r][r]->Write("",TObject::kOverwrite);
+                hgj[r][b]->Write("",TObject::kOverwrite);
+                hgj[b][r]->Write("",TObject::kOverwrite);
+                hgj[b][b]->Write("",TObject::kOverwrite);
+            }
 
             // normalize by the number of photons
             hgj[r][r]->Scale(1.0/hphopt[r]->Integral(), "width");
