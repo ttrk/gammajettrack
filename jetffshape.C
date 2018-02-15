@@ -64,8 +64,8 @@ std::vector<int> ptBins_js_corr = {0, 10, 20, 30, 45, 60, 80, 120, 9999};
 const int nPtBins_js_corr = 8;
 std::vector<double> etaBins_js_corr = {0, 1.0, 1.6};
 const int nEtaBins_js_corr = 2;
-std::vector<int> trkPtBins_js_corr = {1, 2, 3, 5, 9999};
-const int nTrkPtBins_js_corr = 4;
+std::vector<int> trkPtBins_js_corr = {1, 2, 3, 4, 8, 9999};
+const int nTrkPtBins_js_corr = 5;
 
 std::vector<int> min_hiBin_js_corr = {0, 20, 60, 100};
 std::vector<int> max_hiBin_js_corr = {20, 60, 100, 200};
@@ -785,7 +785,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   float weightNR = TMath::Pi()*0.3*0.3 / (1*2*0.3);
 
   //float uescale[4] = {0.997, 0.99, 0.96, 0.85};
-  float uescale[4] = {0.9774, 0.9705, 0.96, 0.8585};
+  //float uescale[4] = {0.9774, 0.9705, 0.96, 0.8585};
+  float uescale[4] = {0.9875, 0.9800, 0.96, 0.8585};
 
   float tracking_sys = isHI ? 0.05 : 0.04;
   if (systematic == 9) { tracking_sys = 1 + tracking_sys; }
