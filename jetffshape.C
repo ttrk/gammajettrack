@@ -784,7 +784,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   float weightLR = TMath::Pi()*0.3*0.3 / ((2.4-1.5)*2*0.3);
   float weightNR = TMath::Pi()*0.3*0.3 / (1*2*0.3);
 
-  float uescale[4] = {0.997, 0.99, 0.96, 0.85};
+  //float uescale[4] = {0.997, 0.99, 0.96, 0.85};
+  float uescale[4] = {0.9774, 0.9705, 0.96, 0.8585};
 
   float tracking_sys = isHI ? 0.05 : 0.04;
   if (systematic == 9) { tracking_sys = 1 + tracking_sys; }
