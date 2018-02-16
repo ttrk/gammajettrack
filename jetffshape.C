@@ -784,9 +784,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   float weightLR = TMath::Pi()*0.3*0.3 / ((2.4-1.5)*2*0.3);
   float weightNR = TMath::Pi()*0.3*0.3 / (1*2*0.3);
 
-  //float uescale[4] = {0.997, 0.99, 0.96, 0.85};
+  float uescale[4] = {0.997, 0.99, 0.96, 0.85};
+  //float uescale[4] = {1, 1, 1, 1};
   //float uescale[4] = {0.9774, 0.9705, 0.96, 0.8585};
-  float uescale[4] = {0.9875, 0.9800, 0.96, 0.8585};
+  //float uescale[4] = {0.9875, 0.9800, 0.96, 0.8585};
+  //float uescale[4] = {0.9885, 0.9780, 0.96, 0.8585};
 
   float tracking_sys = isHI ? 0.05 : 0.04;
   if (systematic == 9) { tracking_sys = 1 + tracking_sys; }
@@ -1505,13 +1507,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (is_gen_part && !is_ignoreCh_part) {
             if ((*p_chg_UE)[ip_UE] == 0) continue;
           }
-          if (is_reco_part && is_reco_part_matched2gen) {
+          if (is_reco_part && is_reco_part_matched2gen && !is_reco_part_matched2gen0) {
               bool isMatched2gen = false;
               for (int ip_gen_mix = 0; ip_gen_mix < mult_mix; ++ip_gen_mix) {
                   // pt must be within 5%.
                   if ( TMath::Abs((*p_pt_UE)[ip_UE] - (*pt_mix)[ip_gen_mix]) / (*p_pt_UE)[ip_UE] > 0.50 ) continue;
 
-                  if (is_reco_part_matched2gen0) continue;
                   if (!is_ignoreCh_part && (*chg_mix)[ip_gen_mix] == 0) continue;
 
                   float dphi_matched2gen = getDPHI((*phi_mix)[ip_gen_mix], (*p_phi_UE)[ip_UE]);
@@ -1974,13 +1975,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (is_gen_part && !is_ignoreCh_part) {
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
-          if (is_reco_part && is_reco_part_matched2gen) {
+          if (is_reco_part && is_reco_part_matched2gen && !is_reco_part_matched2gen0) {
               bool isMatched2gen = false;
               for (int ip_gen_mix = 0; ip_gen_mix < mult_mix; ++ip_gen_mix) {
                   // pt must be within 5%.
                   if ( TMath::Abs((*p_pt_mix)[ip_mix] - (*pt_mix)[ip_gen_mix]) / (*p_pt_mix)[ip_mix] > 0.50 ) continue;
 
-                  if (is_reco_part_matched2gen0) continue;
                   if (!is_ignoreCh_part && (*chg_mix)[ip_gen_mix] == 0) continue;
 
                   float dphi_matched2gen = getDPHI((*phi_mix)[ip_gen_mix], (*p_phi_mix)[ip_mix]);
@@ -2257,13 +2257,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (is_gen_part && !is_ignoreCh_part) {
             if ((*p_chg_UE)[ip_UE] == 0) continue;
           }
-          if (is_reco_part && is_reco_part_matched2gen) {
+          if (is_reco_part && is_reco_part_matched2gen && !is_reco_part_matched2gen0) {
               bool isMatched2gen = false;
               for (int ip_gen_mix = 0; ip_gen_mix < mult_mix; ++ip_gen_mix) {
                   // pt must be within 5%.
                   if ( TMath::Abs(((*p_pt_UE)[ip_UE] - (*pt_mix)[ip_gen_mix])) / (*p_pt_UE)[ip_UE] > 0.50 ) continue;
 
-                  if (is_reco_part_matched2gen0) continue;
                   if (!is_ignoreCh_part && (*chg_mix)[ip_gen_mix] == 0) continue;
 
                   float dphi_matched2gen = getDPHI((*phi_mix)[ip_gen_mix], (*p_phi_UE)[ip_UE]);
