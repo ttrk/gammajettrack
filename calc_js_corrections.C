@@ -27,7 +27,7 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
     std::vector<double> etaBins = {0, 1.0, 1.6};
     int nEtaBins = etaBins.size() - 1;
 
-    std::vector<int> trkPtBins = {1, 2, 3, 5, 9999};
+    std::vector<int> trkPtBins = {1, 2, 3, 4, 8, 9999};
     int nTrkPtBins = trkPtBins.size() - 1;
 
     std::vector<int> min_hiBin = {0, 20, 60, 100};
@@ -38,17 +38,24 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
     }
     int nCentBins = min_hiBin.size();
 
-    std::vector<std::string> ptTypes = {"", "ref"};
+    //std::vector<std::string> ptTypes = {"", "ref"};
+    std::vector<std::string> ptTypes = {""};
     int nPtTypes = ptTypes.size();
 
-    std::vector<std::string> recoGenStepsNum   = {"reco0gen0", "sref0gen0", "ref0gen0",  "srndTHref0gen0", "ref0gen0",       "ref0gen0"};
-    std::vector<std::string> recoGenStepsDenom = {"reco0reco", "reco0gen0", "sref0gen0", "reco0gen0",      "srndTHref0gen0", "ref0gen"};
+    std::vector<std::string> recoGenStepsNum   = {"reco0gen0", "sref0gen0", "ref0gen0",  "srndTHref0gen0", "ref0gen0",
+            "ref0gen0", "ref0gen0",  "reco0gen0"};
+    std::vector<std::string> recoGenStepsDenom = {"reco0reco", "reco0gen0", "sref0gen0", "reco0gen0",      "srndTHref0gen0",
+            "ref0gen",  "reco0gen0", "reco0recomatchg0"};
 
-    std::vector<std::string> rawbkgsigNum   = {"", "", "", "", "", ""};
-    std::vector<std::string> rawbkgsigDenom = {"subtrk", "", "", "", "", "subtrk"};
+    std::vector<std::string> rawbkgsigNum   = {"",       "", "", "", "",
+            "", "", ""};
+    std::vector<std::string> rawbkgsigDenom = {"subtrk", "", "", "", "",
+            "subtrk", "", ""};
 
-    std::vector<std::string> stepsNumPrefixes   = {"hjs", "hjs", "hjs", "hjs", "hjs", "hjs"};
-    std::vector<std::string> stepsDenomPrefixes = {"hjs", "hjs", "hjs", "hjs", "hjs", "hjs"};
+    std::vector<std::string> stepsNumPrefixes   = {"hjs", "hjs", "hjs", "hjs", "hjs",
+            "hjs", "hjs", "hjs"};
+    std::vector<std::string> stepsDenomPrefixes = {"hjs", "hjs", "hjs", "hjs", "hjs",
+            "hjs", "hjs", "hjs"};
 
     int nSteps = recoGenStepsNum.size();
 
@@ -135,6 +142,8 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
                             hCorrection->Divide(hDenom);
 
                             hCorrection->SetYTitle("correction factor");
+                            hCorrection->SetMinimum(0);
+                            hCorrection->SetMaximum(5);
                             hCorrection->SetMarkerStyle(kFullCircle);
                             hCorrection->Write("",TObject::kOverwrite);
                             std::cout << "saved histogram " << histCorrName.c_str() << std::endl;
