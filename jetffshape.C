@@ -635,8 +635,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   std::string jetLevel = "";
   std::string partLevel = "";
   std::vector<std::string> partLevelCands = { "w0genCh01", "w0gen0Ch01", "w0gen1Ch01", "genCh01", "gen0Ch01", "gen1Ch01",
-                                              "w0gen", "w0gen0", "w0gen1", "w0reco", "w0recomatchg", "w0recomatchg0",
-                                              "gen", "gen0", "gen1", "reco", "recomatchg", "recomatchg0" };
+                                              "w0gen", "w0gen0", "w0gen1", "w0reco", "w0genmatchr", "w0gen0matchgr", "w0recomatchg", "w0recomatchg0",
+                                              "gen", "gen0", "gen1", "reco", "genmatchr", "gen0matchr", "recomatchg", "recomatchg0" };
   for (int i = 0; i < (int)partLevelCands.size(); ++i) {
       int len = genlevel.size();
       int lenSubStr = partLevelCands.at(i).size();
@@ -701,6 +701,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_ignoreCh_part = (partLevel.find("Ch01") != std::string::npos);
   bool is_reco_part_matched2gen = (partLevel.find("matchg") != std::string::npos);
   bool is_reco_part_matched2gen0 = (partLevel.find("matchg0") != std::string::npos);
+  bool is_gen_part_matched2reco = (partLevel.find("matchr") != std::string::npos);
 
   int corr_js_stepFirst = 0;
   int corr_js_stepLast = nSteps_js_corr - 1;
@@ -1223,7 +1224,23 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (is_gen_part && !is_ignoreCh_part) {
             if ((*chg)[ip] == 0) continue;
           }
-          if (is_reco_part && is_reco_part_matched2gen) {
+
+          if (is_gen_part && is_gen_part_matched2reco) {
+              bool isMatched2reco = false;
+              for (int ip_reco = 0; ip_reco < nTrk; ++ip_reco) {
+                  // pt must be within 5%.
+                  if ( TMath::Abs((*p_pt)[ip] - (*trkPt)[ip_reco]) / (*p_pt)[ip] > 0.50 ) continue;
+
+                  float dphi_matched2gen = getDPHI((*trkPhi)[ip_reco], (*p_phi)[ip]);
+                  float deta_matched2gen = (*trkEta)[ip_reco] - (*p_eta)[ip];
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+
+                  isMatched2reco = true;
+                  break;
+              }
+              if (!isMatched2reco) continue;
+          }
+          else if (is_reco_part && is_reco_part_matched2gen) {
               bool isMatched2gen = false;
               for (int ip_gen = 0; ip_gen < mult; ++ip_gen) {
                   // pt must be within 5%.
@@ -1512,7 +1529,23 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (is_gen_part && !is_ignoreCh_part) {
             if ((*p_chg_UE)[ip_UE] == 0) continue;
           }
-          if (is_reco_part && is_reco_part_matched2gen && !is_reco_part_matched2gen0) {
+
+          if (is_gen_part && is_gen_part_matched2reco) {
+              bool isMatched2reco = false;
+              for (int ip_reco = 0; ip_reco < nTrk_mix; ++ip_reco) {
+                  // pt must be within 5%.
+                  if ( TMath::Abs((*p_pt_UE)[ip_UE] - (*trkPt_mix)[ip_reco]) / (*p_pt_UE)[ip_UE] > 0.50 ) continue;
+
+                  float dphi_matched2gen = getDPHI((*trkPhi_mix)[ip_reco], (*p_phi_UE)[ip_UE]);
+                  float deta_matched2gen = (*trkEta_mix)[ip_reco] - (*p_eta_UE)[ip_UE];
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+
+                  isMatched2reco = true;
+                  break;
+              }
+              if (!isMatched2reco) continue;
+          }
+          else if (is_reco_part && is_reco_part_matched2gen && !is_reco_part_matched2gen0) {
               bool isMatched2gen = false;
               for (int ip_gen_mix = 0; ip_gen_mix < mult_mix; ++ip_gen_mix) {
                   // pt must be within 5%.
@@ -1980,7 +2013,23 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (is_gen_part && !is_ignoreCh_part) {
             if ((*chg_mix)[ip_mix] == 0) continue;
           }
-          if (is_reco_part && is_reco_part_matched2gen && !is_reco_part_matched2gen0) {
+
+          if (is_gen_part && is_gen_part_matched2reco) {
+              bool isMatched2reco = false;
+              for (int ip_reco = 0; ip_reco < nTrk_mix; ++ip_reco) {
+                  // pt must be within 5%.
+                  if ( TMath::Abs((*p_pt_mix)[ip_mix] - (*trkPt_mix)[ip_reco]) / (*p_pt_mix)[ip_mix] > 0.50 ) continue;
+
+                  float dphi_matched2gen = getDPHI((*trkPhi_mix)[ip_reco], (*p_phi_mix)[ip_mix]);
+                  float deta_matched2gen = (*trkEta_mix)[ip_reco] - (*p_eta_mix)[ip_mix];
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+
+                  isMatched2reco = true;
+                  break;
+              }
+              if (!isMatched2reco) continue;
+          }
+          else if (is_reco_part && is_reco_part_matched2gen && !is_reco_part_matched2gen0) {
               bool isMatched2gen = false;
               for (int ip_gen_mix = 0; ip_gen_mix < mult_mix; ++ip_gen_mix) {
                   // pt must be within 5%.
@@ -2262,7 +2311,23 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (is_gen_part && !is_ignoreCh_part) {
             if ((*p_chg_UE)[ip_UE] == 0) continue;
           }
-          if (is_reco_part && is_reco_part_matched2gen && !is_reco_part_matched2gen0) {
+
+          if (is_gen_part && is_gen_part_matched2reco) {
+              bool isMatched2reco = false;
+              for (int ip_reco = 0; ip_reco < nTrk_mix; ++ip_reco) {
+                  // pt must be within 5%.
+                  if ( TMath::Abs((*p_pt_UE)[ip_UE] - (*trkPt_mix)[ip_reco]) / (*p_pt_UE)[ip_UE] > 0.50 ) continue;
+
+                  float dphi_matched2gen = getDPHI((*trkPhi_mix)[ip_reco], (*p_phi_UE)[ip_UE]);
+                  float deta_matched2gen = (*trkEta_mix)[ip_reco] - (*p_eta_UE)[ip_UE];
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+
+                  isMatched2reco = true;
+                  break;
+              }
+              if (!isMatched2reco) continue;
+          }
+          else if (is_reco_part && is_reco_part_matched2gen && !is_reco_part_matched2gen0) {
               bool isMatched2gen = false;
               for (int ip_gen_mix = 0; ip_gen_mix < mult_mix; ++ip_gen_mix) {
                   // pt must be within 5%.
