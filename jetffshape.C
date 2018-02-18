@@ -2741,6 +2741,9 @@ double getjscorrectionv2(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_co
                                     if (binR > 0 && binR <= h[0][0][iPt][iEta][iTrkPt][iHiBin][0]->GetNbinsX()) {
                                         for (int iStep = stepFirst; iStep <= stepLast; ++iStep) {
                                             double corrTmp = h[0][0][iPt][iEta][iTrkPt][iHiBin][iStep]->GetBinContent(binR);
+                                            // avoid  very large corrections
+                                            if (corrTmp > 4)  corrTmp = 4;
+                                            else if (corrTmp < 0.25) corrTmp = 0.25;
                                             if (corrTmp > 0) {
                                                 corr *= corrTmp;
                                             }
