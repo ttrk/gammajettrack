@@ -160,6 +160,8 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
             break;
         default:
             printf("no purity numbers available\n");
+            std::cout << "using purity for phoetmin = 60 GeV" << std::endl;
+            purity_pt = 1;
             break;
     }
 
