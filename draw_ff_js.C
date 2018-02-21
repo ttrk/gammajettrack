@@ -293,8 +293,11 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
             hgjt[b][s][s] = (TH1D*)hgjt[b][r][s]->Clone(Form("%s_sideband_%s", outputObs[iObs].c_str(), tag.c_str()));
 
             hgjt[r][s][s]->Add(hgjt[r][b][s], -1);
+            hgjt[r][s][s]->Write(Form("%s_raw_signal_%s", outputObs[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
             hgjt[r][s][s]->Scale(1.0/(hjetpt[r][r]->Integral() - hjetpt[r][b]->Integral()));
+
             hgjt[b][s][s]->Add(hgjt[b][b][s], -1);
+            hgjt[b][s][s]->Write(Form("%s_raw_sideband_%s", outputObs[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
             hgjt[b][s][s]->Scale(1.0/(hjetpt[b][r]->Integral() - hjetpt[b][b]->Integral()));
 
             hgjt[s][s][s] = (TH1D*)hgjt[r][s][s]->Clone(Form("%s_final_%s", outputObs[iObs].c_str(), tag.c_str()));
@@ -302,7 +305,9 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
             hgjt[s][s][s]->Scale(1.0/purity[i]);
             hgjt[s][s][s]->Add(hgjt[b][s][s], (purity[i] - 1.0)/purity[i]);
 
+            hgjt[s][s][s]->Write(Form("%s_raw_final_%s", outputObs[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
             hgjt[s][s][s]->Scale(1.0, "width");
+
             bool isJetShape = (inputObs[iObs].find("hjs") != std::string::npos);
             if (isJetShape) {
                 hgjt[s][s][s]->Scale(1.0 / hgjt[s][s][s]->Integral(1, hgjt[s][s][s]->FindBin(0.3)-1), "width");
@@ -384,12 +389,17 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
             hgj[b][s] = (TH1D*)hgj[b][r]->Clone(Form("%s_sb_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
 
             hgj[r][s]->Add(hgj[r][b], -1);
+            hgj[r][s]->Write(Form("%s_raw_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
+
             hgj[b][s]->Add(hgj[b][b], -1);
+            hgj[b][s]->Write(Form("%s_raw_sub_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
 
             hgj[s][s] = (TH1D*)hgj[r][s]->Clone(Form("%s_final_%s", outputObsgj[iObs].c_str(), tag.c_str()));
 
             hgj[s][s]->Scale(1.0/purity[i]);
             hgj[s][s]->Add(hgj[b][s], (purity[i] - 1.0)/purity[i]);
+
+            hgj[s][s]->Write(Form("%s_raw_final_%s", outputObsgj[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
 
             // dphi normalization
             if (inputObsgj[iObs] == "hdphijg") {
