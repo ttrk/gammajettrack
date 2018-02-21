@@ -70,10 +70,11 @@ const int nTrkPtBins_js_corr = 5;
 std::vector<int> min_hiBin_js_corr = {0, 20, 60, 100};
 std::vector<int> max_hiBin_js_corr = {20, 60, 100, 200};
 const int nCentBins_js_corr = 4;
-std::vector<std::string> recoGenStepsNum   = {"reco0gen0", "sref0gen0", "ref0gen0"};
-std::vector<std::string> recoGenStepsDenom = {"reco0recomatchg0", "reco0gen0", "sref0gen0"};
-//std::vector<std::string> recoGenStepsDenom = {"reco0reco", "reco0gen0", "sref0gen0"};
-const int nSteps_js_corr = 3;
+std::vector<std::string> recoGenStepsNum   = {"reco0gen",  "reco0gen0", "sref0gen0", "ref0gen0"};
+std::vector<std::string> recoGenStepsDenom = {"reco0reco", "reco0gen",  "reco0gen0", "sref0gen0"};
+//std::vector<std::string> recoGenStepsNum   = {"reco0gen0", "sref0gen0", "ref0gen0"};
+//std::vector<std::string> recoGenStepsDenom = {"reco0recomatchg0", "reco0gen0", "sref0gen0"};
+const int nSteps_js_corr = 4;
 
 double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[]);
 double getDPHI(double phi1, double phi2);
@@ -656,6 +657,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_gen0_jet = (jetLevel.find("gen0") != std::string::npos);
   bool is_reco_jet = (jetLevel.find("reco") != std::string::npos);
   bool is_reco0_jet = (jetLevel.find("reco0") != std::string::npos);
+  bool is_reco1_jet = (jetLevel.find("reco1") != std::string::npos);
   bool is_ref_jet = (jetLevel.find("ref") != std::string::npos);
   bool is_ref0_jet = (jetLevel.find("ref0") != std::string::npos);
   bool is_smeared_jet = (jetLevel.find("s") == 0);
@@ -670,6 +672,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_Q_jet = (!is_QG_jet && jetLevel.find("Q") != std::string::npos);
   bool is_G_jet = (!is_QG_jet && jetLevel.find("G") != std::string::npos);
   bool is_corrected_js = (jetLevel.find("corrjs") != std::string::npos);
+  bool is_corrected_js_step1 = (jetLevel.find("corrjs1") != std::string::npos);
+  bool is_corrected_js_step2 = (jetLevel.find("corrjs2") != std::string::npos);
+  bool is_corrected_js_step3 = (jetLevel.find("corrjs3") != std::string::npos);
+  bool is_corrected_js_step4 = (jetLevel.find("corrjs4") != std::string::npos);
+  bool is_corrected_js_ue0 = (jetLevel.find("corrjsue0") != std::string::npos);
   bool is_wta_jet = (jetLevel.find("WTA") != std::string::npos);
 
   if (is_smeared_jet && !is_ptsmeared_jet && !is_phismeared_jet && !is_etasmeared_jet) {
@@ -706,7 +713,30 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   int corr_js_stepFirst = 0;
   int corr_js_stepLast = nSteps_js_corr - 1;
   if (is_gen0_part) {
+      corr_js_stepFirst = 2;
+  }
+  else if (is_gen_part) {
       corr_js_stepFirst = 1;
+  }
+
+  if (is_corrected_js_step1) {
+      corr_js_stepLast = 0;
+  }
+  else if (is_corrected_js_step2) {
+      corr_js_stepLast = 1;
+  }
+  else if (is_corrected_js_step3) {
+      corr_js_stepLast = 2;
+  }
+  else if (is_corrected_js_step4) {
+      corr_js_stepLast = 3;
+  }
+
+  int corr_js_stepFirst_UE = 1;     // no reco track 2 gen track for UE tracks
+  int corr_js_stepLast_UE = corr_js_stepLast;
+  if (is_corrected_js_ue0) {
+      corr_js_stepFirst_UE = 999;
+      corr_js_stepLast_UE = 0;
   }
 
   if (is_reco_jet) {
@@ -888,6 +918,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             else if (is_reco0_jet || is_ref0_jet) {
                 if ((*subid)[ij] != 0) continue;
             }
+            else if (is_reco1_jet) {
+                if ((*subid)[ij] == 0) continue;
+            }
 
             if (is_QG_jet) {
                 if ( !isQuark((*gjetflavor)[ij]) && !isGluon((*gjetflavor)[ij]) ) continue;
@@ -942,6 +975,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
       else if (is_reco0_jet || is_ref0_jet) {
           if ((*subid)[ij] != 0) continue;
+      }
+      else if (is_reco1_jet) {
+          if ((*subid)[ij] == 0) continue;
       }
 
       if (is_QG_jet) {
@@ -999,7 +1035,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
         if (is_smeared_jet && !is_jet_smeared_using_hist) {
-            tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
+            do {
+                tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
+            } while (tmpjetpt < 0);
             tmpjetphi = (*j_phi)[ij] + smear_rand.Gaus(0, res_phi);
             tmpjeteta = (*j_eta)[ij] + smear_rand.Gaus(0, res_eta);
         }
@@ -1139,7 +1177,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           case 3: {
             float jer_factor = 1 + sqrt(0.15*0.15 + 0.07*0.07);
             float initial_res = getResolutionHI(tmpjetpt, centBin);
-            tmpjetpt = tmpjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
+            float tmpjetptinit = tmpjetpt;
+            do {
+                tmpjetpt = tmpjetptinit * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
+            } while (tmpjetpt < 0);
             break; }
           default:
             break;
@@ -1229,11 +1270,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               bool isMatched2reco = false;
               for (int ip_reco = 0; ip_reco < nTrk; ++ip_reco) {
                   // pt must be within 5%.
-                  if ( TMath::Abs((*p_pt)[ip] - (*trkPt)[ip_reco]) / (*p_pt)[ip] > 0.50 ) continue;
+                  if ( TMath::Abs((*p_pt)[ip] - (*trkPt)[ip_reco]) / (*p_pt)[ip] > 0.10 ) continue;
 
                   float dphi_matched2gen = getDPHI((*trkPhi)[ip_reco], (*p_phi)[ip]);
                   float deta_matched2gen = (*trkEta)[ip_reco] - (*p_eta)[ip];
-                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0004) continue;
 
                   isMatched2reco = true;
                   break;
@@ -1244,14 +1285,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               bool isMatched2gen = false;
               for (int ip_gen = 0; ip_gen < mult; ++ip_gen) {
                   // pt must be within 5%.
-                  if ( TMath::Abs((*p_pt)[ip] - (*pt)[ip_gen]) / (*p_pt)[ip] > 0.50 ) continue;
+                  if ( TMath::Abs((*p_pt)[ip] - (*pt)[ip_gen]) / (*p_pt)[ip] > 0.10 ) continue;
 
                   if (is_reco_part_matched2gen0 && (*sube)[ip_gen] != 0) continue;
                   if (!is_ignoreCh_part && (*chg)[ip_gen] == 0) continue;
 
                   float dphi_matched2gen = getDPHI((*phi)[ip_gen], (*p_phi)[ip]);
                   float deta_matched2gen = (*eta)[ip_gen] - (*p_eta)[ip];
-                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0004) continue;
 
                   isMatched2gen = true;
                   break;
@@ -1534,11 +1575,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               bool isMatched2reco = false;
               for (int ip_reco = 0; ip_reco < nTrk_mix; ++ip_reco) {
                   // pt must be within 5%.
-                  if ( TMath::Abs((*p_pt_UE)[ip_UE] - (*trkPt_mix)[ip_reco]) / (*p_pt_UE)[ip_UE] > 0.50 ) continue;
+                  if ( TMath::Abs((*p_pt_UE)[ip_UE] - (*trkPt_mix)[ip_reco]) / (*p_pt_UE)[ip_UE] > 0.10 ) continue;
 
                   float dphi_matched2gen = getDPHI((*trkPhi_mix)[ip_reco], (*p_phi_UE)[ip_UE]);
                   float deta_matched2gen = (*trkEta_mix)[ip_reco] - (*p_eta_UE)[ip_UE];
-                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0004) continue;
 
                   isMatched2reco = true;
                   break;
@@ -1549,13 +1590,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               bool isMatched2gen = false;
               for (int ip_gen_mix = 0; ip_gen_mix < mult_mix; ++ip_gen_mix) {
                   // pt must be within 5%.
-                  if ( TMath::Abs((*p_pt_UE)[ip_UE] - (*pt_mix)[ip_gen_mix]) / (*p_pt_UE)[ip_UE] > 0.50 ) continue;
+                  if ( TMath::Abs((*p_pt_UE)[ip_UE] - (*pt_mix)[ip_gen_mix]) / (*p_pt_UE)[ip_UE] > 0.10 ) continue;
 
                   if (!is_ignoreCh_part && (*chg_mix)[ip_gen_mix] == 0) continue;
 
                   float dphi_matched2gen = getDPHI((*phi_mix)[ip_gen_mix], (*p_phi_UE)[ip_UE]);
                   float deta_matched2gen = (*eta_mix)[ip_gen_mix] - (*p_eta_UE)[ip_UE];
-                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0004) continue;
 
                   isMatched2gen = true;
                   break;
@@ -1600,7 +1641,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 //weight_rawJet_ueTrk *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                 //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
                 weight_rawJet_ueTrk *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
-                        ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst, corr_js_stepLast);
+                        ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst_UE, corr_js_stepLast_UE);
             }
 
             hgammaffjs[phoBkg][k_rawJet_ueTrk]->Fill(val, weight_rawJet_ueTrk);
@@ -1653,7 +1694,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                         //weight_part *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                         //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
                         weight_part *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
-                                ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst, corr_js_stepLast);
+                                ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst_UE, corr_js_stepLast_UE);
                     }
                     double weight_part_pt = (*p_pt_UE)[ip_UE] * weight_part;
 
@@ -1762,7 +1803,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     hnPhoJet[phoBkg][k_rawJet]->Fill(nPhoJet, weight);
 
     if (isPP) continue;
-    if (is_gen0_jet || is_reco0_jet || is_ref0_jet) continue;
+    if (is_gen0_jet || is_reco0_jet || is_ref0_jet || is_reco1_jet) continue;
 
     float nPhoJet_mix = 0;
     // mix jet loop
@@ -1800,7 +1841,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
         if (is_smeared_jet && !is_jet_smeared_using_hist) {
-          tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
+          do {
+              tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
+          } while (tmpjetpt < 0);
           tmpjetphi = (*j_phi_mix)[ij_mix] + smear_rand.Gaus(0, res_phi);
           tmpjeteta = (*j_eta_mix)[ij_mix] + smear_rand.Gaus(0, res_eta);
         }
@@ -1932,7 +1975,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           case 3: {
             float jer_factor = 1 + sqrt(0.15*0.15 + 0.07*0.07);
             float initial_res = getResolutionHI(tmpjetpt, centBin);
-            tmpjetpt = tmpjetpt * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
+            float tmpjetptinit = tmpjetpt;
+            do {
+                tmpjetpt = tmpjetptinit * smear_rand.Gaus(1, jer_factor * initial_res * sqrt(jer_factor * jer_factor - 1));
+            } while (tmpjetpt < 0);
             break; }
           default:
             break;
@@ -2018,11 +2064,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               bool isMatched2reco = false;
               for (int ip_reco = 0; ip_reco < nTrk_mix; ++ip_reco) {
                   // pt must be within 5%.
-                  if ( TMath::Abs((*p_pt_mix)[ip_mix] - (*trkPt_mix)[ip_reco]) / (*p_pt_mix)[ip_mix] > 0.50 ) continue;
+                  if ( TMath::Abs((*p_pt_mix)[ip_mix] - (*trkPt_mix)[ip_reco]) / (*p_pt_mix)[ip_mix] > 0.10 ) continue;
 
                   float dphi_matched2gen = getDPHI((*trkPhi_mix)[ip_reco], (*p_phi_mix)[ip_mix]);
                   float deta_matched2gen = (*trkEta_mix)[ip_reco] - (*p_eta_mix)[ip_mix];
-                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0004) continue;
 
                   isMatched2reco = true;
                   break;
@@ -2033,13 +2079,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               bool isMatched2gen = false;
               for (int ip_gen_mix = 0; ip_gen_mix < mult_mix; ++ip_gen_mix) {
                   // pt must be within 5%.
-                  if ( TMath::Abs((*p_pt_mix)[ip_mix] - (*pt_mix)[ip_gen_mix]) / (*p_pt_mix)[ip_mix] > 0.50 ) continue;
+                  if ( TMath::Abs((*p_pt_mix)[ip_mix] - (*pt_mix)[ip_gen_mix]) / (*p_pt_mix)[ip_mix] > 0.10 ) continue;
 
                   if (!is_ignoreCh_part && (*chg_mix)[ip_gen_mix] == 0) continue;
 
                   float dphi_matched2gen = getDPHI((*phi_mix)[ip_gen_mix], (*p_phi_mix)[ip_mix]);
                   float deta_matched2gen = (*eta_mix)[ip_gen_mix] - (*p_eta_mix)[ip_mix];
-                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0004) continue;
 
                   isMatched2gen = true;
                   break;
@@ -2316,11 +2362,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               bool isMatched2reco = false;
               for (int ip_reco = 0; ip_reco < nTrk_mix; ++ip_reco) {
                   // pt must be within 5%.
-                  if ( TMath::Abs((*p_pt_UE)[ip_UE] - (*trkPt_mix)[ip_reco]) / (*p_pt_UE)[ip_UE] > 0.50 ) continue;
+                  if ( TMath::Abs((*p_pt_UE)[ip_UE] - (*trkPt_mix)[ip_reco]) / (*p_pt_UE)[ip_UE] > 0.10 ) continue;
 
                   float dphi_matched2gen = getDPHI((*trkPhi_mix)[ip_reco], (*p_phi_UE)[ip_UE]);
                   float deta_matched2gen = (*trkEta_mix)[ip_reco] - (*p_eta_UE)[ip_UE];
-                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0004) continue;
 
                   isMatched2reco = true;
                   break;
@@ -2331,13 +2377,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               bool isMatched2gen = false;
               for (int ip_gen_mix = 0; ip_gen_mix < mult_mix; ++ip_gen_mix) {
                   // pt must be within 5%.
-                  if ( TMath::Abs(((*p_pt_UE)[ip_UE] - (*pt_mix)[ip_gen_mix])) / (*p_pt_UE)[ip_UE] > 0.50 ) continue;
+                  if ( TMath::Abs(((*p_pt_UE)[ip_UE] - (*pt_mix)[ip_gen_mix])) / (*p_pt_UE)[ip_UE] > 0.10 ) continue;
 
                   if (!is_ignoreCh_part && (*chg_mix)[ip_gen_mix] == 0) continue;
 
                   float dphi_matched2gen = getDPHI((*phi_mix)[ip_gen_mix], (*p_phi_UE)[ip_UE]);
                   float deta_matched2gen = (*eta_mix)[ip_gen_mix] - (*p_eta_UE)[ip_UE];
-                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0025) continue;
+                  if ((dphi_matched2gen * dphi_matched2gen) + (deta_matched2gen * deta_matched2gen) > 0.0004) continue;
 
                   isMatched2gen = true;
                   break;
@@ -2382,7 +2428,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 //weight_bkgJet_ueTrk *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                 //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
                 weight_bkgJet_ueTrk *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
-                        ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst, corr_js_stepLast);
+                        ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst_UE, corr_js_stepLast_UE);
             }
 
             hgammaffjs[phoBkg][k_bkgJet_ueTrk]->Fill(val, weight_bkgJet_ueTrk);
@@ -2435,7 +2481,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                         //weight_part *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                         //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
                         weight_part *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
-                                ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst, corr_js_stepLast);
+                                ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst_UE, corr_js_stepLast_UE);
                     }
                     double weight_part_pt = (*p_pt_UE)[ip_UE] * weight_part;
 
@@ -2741,9 +2787,14 @@ double getjscorrectionv2(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_co
                                     if (binR > 0 && binR <= h[0][0][iPt][iEta][iTrkPt][iHiBin][0]->GetNbinsX()) {
                                         for (int iStep = stepFirst; iStep <= stepLast; ++iStep) {
                                             double corrTmp = h[0][0][iPt][iEta][iTrkPt][iHiBin][iStep]->GetBinContent(binR);
-                                            // avoid  very large corrections
-                                            if (corrTmp > 4)  corrTmp = 4;
-                                            else if (corrTmp < 0.25) corrTmp = 0.25;
+                                            // avoid large corrections
+                                            if (corrTmp > 1.5 || corrTmp < 0.3) {
+                                                double errTmp = h[0][0][iPt][iEta][iTrkPt][iHiBin][iStep]->GetBinError(binR);
+                                                if (errTmp / corrTmp > 0.4) {
+                                                    if (corrTmp > 1.5)  corrTmp = 1.5;
+                                                    else if (corrTmp < 0.3)  corrTmp = 0.3;
+                                                }
+                                            }
                                             if (corrTmp > 0) {
                                                 corr *= corrTmp;
                                             }
