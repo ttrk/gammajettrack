@@ -42,22 +42,31 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
     std::vector<std::string> ptTypes = {""};
     int nPtTypes = ptTypes.size();
 
-    std::vector<std::string> recoGenStepsNum   = {"reco0gen0", "sref0gen0", "ref0gen0",  "srndTHref0gen0", "ref0gen0",
-            "ref0gen0", "ref0gen0",  "reco0gen0"};
-    std::vector<std::string> recoGenStepsDenom = {"reco0reco", "reco0gen0", "sref0gen0", "reco0gen0",      "srndTHref0gen0",
-            "ref0gen",  "reco0gen0", "reco0recomatchg0"};
+    std::vector<std::string> recoGenStepsNum   = {"recogen0", "reco0gen0", "sref0gen0", "ref0gen0",  "srndTHref0gen0", "ref0gen0",
+            "ref0gen0", "ref0gen0",  "reco0gen0",        "reco0gen0",       "reco0gen",  "reco0gen",  "reco0gen0", "reco0gen0"};
+    std::vector<std::string> recoGenStepsDenom = {"recoreco", "reco0reco", "reco0gen0", "sref0gen0", "reco0gen0",      "srndTHref0gen0",
+            "ref0gen",  "reco0gen0", "reco0recomatchg0", "reco0gen0matchr", "reco0reco", "reco0reco", "reco0gen",  "reco0gen"};
 
-    std::vector<std::string> rawbkgsigNum   = {"",       "", "", "", "",
-            "", "", ""};
-    std::vector<std::string> rawbkgsigDenom = {"subtrk", "", "", "", "",
-            "subtrk", "", ""};
+    std::vector<std::string> rawbkgsigNum   = {"",       "",       "", "", "", "",
+            "",       "", "", "", "", "", "", ""};
+    std::vector<std::string> rawbkgsigDenom = {"subtrk", "subtrk", "", "", "", "",
+            "subtrk", "", "", "", "", "", "",  "subtrk"};
 
-    std::vector<std::string> stepsNumPrefixes   = {"hjs", "hjs", "hjs", "hjs", "hjs",
-            "hjs", "hjs", "hjs"};
-    std::vector<std::string> stepsDenomPrefixes = {"hjs", "hjs", "hjs", "hjs", "hjs",
-            "hjs", "hjs", "hjs"};
+    std::vector<std::string> stepsNumPrefixes   = {"hjs", "hjs", "hjs", "hjs", "hjs", "hjs",
+            "hjs", "hjs", "hjs", "hjs", "hjs", "hjsuemix", "hjs", "hjs"};
+    std::vector<std::string> stepsDenomPrefixes = {"hjs", "hjs", "hjs", "hjs", "hjs", "hjs",
+            "hjs", "hjs", "hjs", "hjs", "hjs", "hjsuemix", "hjs", "hjs"};
 
     int nSteps = recoGenStepsNum.size();
+    int nStepsDenom = recoGenStepsDenom.size();
+
+    std::cout << "nSteps = " << nSteps << std::endl;
+    std::cout << "nStepsDenom = " << nStepsDenom << std::endl;
+    if (nSteps != nStepsDenom) {
+        std::cout << "Number of steps from num and denom do not match." << std::endl;
+        std::cout << "Exiting." << std::endl;
+        return -1;
+    }
 
     TH1D* hNum = 0;
     TH1D* hDenom = 0;
@@ -147,6 +156,11 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
                             hCorrection->SetMarkerStyle(kFullCircle);
                             hCorrection->Write("",TObject::kOverwrite);
                             std::cout << "saved histogram " << histCorrName.c_str() << std::endl;
+
+                            hNum->Delete();
+                            hDenom->Delete();
+                            hCorrection->Delete();
+                            if (!hTmp) hTmp->Delete();
                         }
                     }
                 }
