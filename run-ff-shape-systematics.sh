@@ -66,7 +66,7 @@ g++ jetffshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetffshape.
 
 SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange tracking_ratio eta_reflection etagt0p3)
 
-sysIndices="1 2 3 4 6 9 10"
+sysIndices="1 2 3 4 6 9 10 13"
 runSysIso=1
 if [ $sample = "pbpbdata" ] || [ $sample = "pbpbmc" ]; then
   sysIndices="1 2 3 4 6 9 10 11 12 13 14 15 16"
