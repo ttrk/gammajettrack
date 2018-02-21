@@ -121,6 +121,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       hReweightPP[k_bkgPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_sideband_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
   }
 
+  bool doSysLR = (systematic == sysLR);
+
   if (fChain == 0) return;
   int64_t nentries = fChain->GetEntries();
 
@@ -465,7 +467,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           h2drgirth[i][j] = new TH2D(Form("h2drgirth%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), Form("%s;g;#DeltaR", titleCent.c_str()), nBinsX*4, 0, 0.2, 80, 0, 0.4);
 
-          if (systematic == sysLR) {
+          if (doSysLR) {
               // FF / jet shape from long range correlation
               hffjsLR[i][j] = new TH1D(Form("%sLR%s%s_%s_%s_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                       sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX, 0, xMax);
@@ -1409,7 +1411,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 }
             }
           }
-          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+          else if (doSysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta)[ip] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
                   float val = -1;
@@ -1711,7 +1713,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 }
             }
           }
-          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+          else if (doSysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
                   float val = -1;
@@ -2202,7 +2204,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 }
             }
           }
-          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+          else if (doSysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_mix)[ip_mix] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
                   float val = -1;
@@ -2498,7 +2500,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                 }
             }
           }
-          else if (systematic == sysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
+          else if (doSysLR && 1.5 < fabs(deta) && fabs(deta) < 2.4) {
               if (tmpjeteta * (*p_eta_UE)[ip_UE] < 0)  { // trk and jet are on the opposite sides of the detector
                   TLorentzVector vtrack;
                   float val = -1;
@@ -2607,7 +2609,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               correctBinError(hgammaffjsdphi[i][j], nsmear);
               correctBinError(hgammaffjsfb[i][j], nsmear);
 
-              if (systematic == sysLR) {
+              if (doSysLR) {
                   correctBinError(hffjsLR[i][j], nsmear);
                   correctBinError(hffjsLRAway[i][j], nsmear);
               }
