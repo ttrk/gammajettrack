@@ -1,7 +1,7 @@
 #!/bin/bash
 
-inputDir="/home/kaya/Documents/EclipseWorkSpace/GJT/gammajettrack/results/"
-inputDirClosure=$inputDir"closure/"
+inputDir="/export/d00/scratch/"$USER"/GJT-out/results/"
+inputDirClosure="/export/d00/scratch/"$USER"/GJT-out/results/closure/"
 
 ##./run-js-plot-results.sh 60 9999 30 1 0 2 pbpbdata data $inputDir DUMMY
 
