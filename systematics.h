@@ -92,8 +92,14 @@ float th1_average_content_FF(TH1D* h, int binFirst = 1, int binLast = 0) {
     for (int i=1; i<=h->GetNbinsX(); ++i) {
 
         if (binFirst <= binLast && !(binFirst <= i && i <= binLast))  continue;
-        if (!(h->GetBinLowEdge(i) >= 0.5)) continue;
-        if (h->GetBinLowEdge(i) >= 4.5) continue;
+        if (std::string(h->GetName()).find("hff") == 0) {
+            if (!(h->GetBinLowEdge(i) >= 0.5)) continue;
+            if (h->GetBinLowEdge(i) >= 4.5) continue;
+        }
+        else if (std::string(h->GetName()).find("hjs") == 0) {
+            if (!(h->GetBinLowEdge(i) >= 0)) continue;
+            if (h->GetBinLowEdge(i) >= 0.3) continue;
+        }
 
         if (h->GetBinContent(i) < 3 && h->GetBinWidth(i) / h->GetBinWidth(1) < 5) {
             sum += h->GetBinContent(i);
