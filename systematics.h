@@ -134,7 +134,7 @@ private:
     TH1D* hratio_fit = 0;
 
     TH1D* hdiff_abs_fit = 0;
-    TH1D* hratio_abs_fit = 0;
+    TH1D* hratio_fit_diff = 0;
 
     TH2D* h2D_fitBand_ratio = 0;
     TH1D* hratio_fitBand = 0;
@@ -206,8 +206,8 @@ sys_var_t::sys_var_t(sys_var_t* sys_var1, sys_var_t* sys_var2) {
 
     this->hdiff_abs_fit = (TH1D*)sys_var1->hdiff_abs_fit->Clone(Form("%s_diff_abs_fit", this->hist_name.c_str()));
     th1_max_of_2_th1(sys_var1->hdiff_abs_fit, sys_var2->hdiff_abs_fit, this->hdiff_abs_fit);
-    this->hratio_abs_fit = (TH1D*)sys_var1->hratio_abs_fit->Clone(Form("%s_ratio_abs_fit", this->hist_name.c_str()));
-    th1_max_of_2_th1(sys_var1->hratio_abs_fit, sys_var2->hratio_abs_fit, this->hratio_abs_fit);
+    this->hratio_fit_diff = (TH1D*)sys_var1->hratio_fit_diff->Clone(Form("%s_ratio_abs_fit", this->hist_name.c_str()));
+    th1_max_of_2_th1(sys_var1->hratio_fit_diff, sys_var2->hratio_fit_diff, this->hratio_fit_diff);
 
     this->hdiff_abs_fitBand = (TH1D*)sys_var1->hdiff_abs_fitBand->Clone(Form("%s_diff_abs_fitBand", this->hist_name.c_str()));
     th1_max_of_2_th1(sys_var1->hdiff_abs_fitBand, sys_var2->hdiff_abs_fitBand, this->hdiff_abs_fitBand);
@@ -239,7 +239,7 @@ void sys_var_t::scale_sys(float factor) {
     if (hdiff_abs_fitBand)  hdiff_abs_fitBand->Scale(factor);
 
     if (hratio_abs) hratio_abs->Scale(factor);
-    if (hratio_abs_fit) hratio_abs_fit->Scale(factor);
+    if (hratio_fit_diff) hratio_fit_diff->Scale(factor);
     if (hratio_abs_fitBand) hratio_abs_fitBand->Scale(factor);
 }
 
@@ -267,10 +267,10 @@ void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, d
     th1_from_tf1(hdiff_abs_fit, fdiff);
     th1_abs(hdiff_abs_fit);
 
-    hratio_abs_fit = (TH1D*)hnominal->Clone(Form("%s_ratio_abs_fit", hist_name.c_str()));
-    hratio_abs_fit->Multiply(hratio_fit);
-    hratio_abs_fit->Add(hnominal, -1);
-    th1_abs(hratio_abs_fit);
+    hratio_fit_diff = (TH1D*)hnominal->Clone(Form("%s_ratio_fit_diff", hist_name.c_str()));
+    hratio_fit_diff->Multiply(hratio_fit);
+    hratio_fit_diff->Add(hnominal, -1);
+    th1_abs(hratio_fit_diff);
 }
 
 /*
@@ -433,7 +433,7 @@ void sys_var_t::write() {
     if (hratio_fit != 0)  hratio_fit->Write("", TObject::kOverwrite);
 
     if (hdiff_abs_fit != 0)  hdiff_abs_fit->Write("", TObject::kOverwrite);
-    if (hratio_abs_fit != 0)  hratio_abs_fit->Write("", TObject::kOverwrite);
+    if (hratio_fit_diff != 0)  hratio_fit_diff->Write("", TObject::kOverwrite);
 
     if (h2D_fitBand_ratio != 0)  h2D_fitBand_ratio->Write("", TObject::kOverwrite);
     if (hratio_fitBand != 0)  hratio_fitBand->Write("", TObject::kOverwrite);
@@ -517,10 +517,10 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option, int method) {
         case 0:
             add_sqrt_sum_squares_dataRatio(sys_var->hdiff_abs);
             add_sqrt_sum_squares_fitBand(sys_var->hdiff_abs_fitBand);
-            add_sqrt_sum_squares_fit(sys_var->hratio_abs_fit);
+            add_sqrt_sum_squares_fit(sys_var->hratio_fit_diff);
             if (method == 0)  add_sqrt_sum_squares(sys_var->hdiff_abs);
             else if (method == 1)  add_sqrt_sum_squares(sys_var->hdiff_abs_fitBand);
-            else if (method == 2)  add_sqrt_sum_squares(sys_var->hratio_abs_fit);
+            else if (method == 2)  add_sqrt_sum_squares(sys_var->hratio_fit_diff);
 
             break;
         case 1: {
@@ -536,7 +536,7 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option, int method) {
             add_sqrt_sum_squares_fitBand(htmp);
             if (method == 1)  add_sqrt_sum_squares(htmp);
 
-            htmp = (TH1D*)sys_var->hratio_abs_fit->Clone("htmp");
+            htmp = (TH1D*)sys_var->hratio_fit_diff->Clone("htmp");
             htmp->Multiply(hnominal);
             add_sqrt_sum_squares_fit(htmp);
             if (method == 2)  add_sqrt_sum_squares(htmp);
@@ -547,16 +547,16 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option, int method) {
             if (!sys_var->hdiff_abs_fit) {printf("no fit found!\n"); return;}
             add_sqrt_sum_squares_dataRatio(sys_var->hdiff_abs_fit);
             add_sqrt_sum_squares_fitBand(sys_var->hdiff_abs_fitBand);
-            add_sqrt_sum_squares_fit(sys_var->hratio_abs_fit);
+            add_sqrt_sum_squares_fit(sys_var->hratio_fit_diff);
             if (method == 0)  add_sqrt_sum_squares(sys_var->hdiff_abs_fit);
             else if (method == 1)  add_sqrt_sum_squares(sys_var->hdiff_abs_fitBand);
-            else if (method == 2)  add_sqrt_sum_squares(sys_var->hratio_abs_fit);
+            else if (method == 2)  add_sqrt_sum_squares(sys_var->hratio_fit_diff);
             break;
         case 3: {
-            if (!sys_var->hratio_abs_fit) {printf("no fit found!\n"); return;}
+            if (!sys_var->hratio_fit_diff) {printf("no fit found!\n"); return;}
             TH1D* htmp = 0;
 
-            htmp = (TH1D*)sys_var->hratio_abs_fit->Clone("htmp");
+            htmp = (TH1D*)sys_var->hratio_fit_diff->Clone("htmp");
             htmp->Multiply(hnominal);
             add_sqrt_sum_squares_dataRatio(htmp);
             if (method == 0)  add_sqrt_sum_squares(htmp);
@@ -566,7 +566,7 @@ void total_sys_var_t::add_sys_var(sys_var_t* sys_var, int option, int method) {
             add_sqrt_sum_squares_fitBand(htmp);
             if (method == 1)  add_sqrt_sum_squares(htmp);
 
-            htmp = (TH1D*)sys_var->hratio_abs_fit->Clone("htmp");
+            htmp = (TH1D*)sys_var->hratio_fit_diff->Clone("htmp");
             htmp->Multiply(hnominal);
             add_sqrt_sum_squares_fit(htmp);
             if (method == 2)  add_sqrt_sum_squares(htmp);
