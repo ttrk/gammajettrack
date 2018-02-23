@@ -40,7 +40,7 @@ std::string sys_types[kN_SYS] = {
 };
 
 std::string fit_funcs[kN_SYS] = {
-    "pol1", "pol2", "pol2", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
+    "pol1", "pol2", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
 };
 
 int options[kN_SYS] = {
@@ -66,19 +66,14 @@ std::string sys_observables[kN_SYS] = {
     "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "JES Q/G", "long range", "xi nonclosure", "bkg subtraction"
 };
 
-double range_low_fnc = 0.5;
-double range_high_fnc = 4.5;
-
-double fractionToySys = 0.6827;
-
-int calc_ratio_systematics(const char* observable, const char* filelist, const char* histlist, const char* label) {
+int calc_ratio_systematics(std::string observable, std::string filelist, std::string histlist, std::string label) {
     TH1::AddDirectory(kFALSE);
     TH1::SetDefaultSumw2(kTRUE);
 
     std::string line;
 
     std::vector<std::string> hist_list;
-    std::ifstream hist_stream(histlist);
+    std::ifstream hist_stream(histlist.c_str());
     if (!hist_stream) return 1;
     while (std::getline(hist_stream, line))
         hist_list.push_back(line);
@@ -87,7 +82,7 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
     if (!nhists) {printf("0 total hists!\n"); return 1;}
 
     std::vector<std::string> file_list;
-    std::ifstream file_stream(filelist);
+    std::ifstream file_stream(filelist.c_str());
     if (!file_stream) return 1;
     while (std::getline(file_stream, line))
         file_list.push_back(line);
@@ -95,7 +90,23 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
     int nfiles = file_list.size();
     if (nfiles != 2) {printf("please only provide 2 files: 1 pbpb and 1 pp!\n"); return 1;}
 
-    bool isxijet = (std::string(file_list[0]).find("gxi0") != std::string::npos);
+    bool isjetBased = (std::string(file_list[0]).find("gxi0") != std::string::npos);
+
+    bool is_ff = (observable.find("ff") != std::string::npos);
+    bool is_js = (observable.find("js") != std::string::npos);
+
+    double range_low_fnc = 0;
+    double range_high_fnc = -1;
+    if (is_ff) {
+        range_low_fnc = 0.5;
+        range_high_fnc = 4.5;
+        }
+    else if (is_js) {
+        range_low_fnc = 0;
+        range_high_fnc = 0.3;
+    }
+
+    double fractionToySys = 0.6827;
 
     TFile* fsys[nfiles] = {0};
     for (int i=0; i<nfiles; ++i)
@@ -111,30 +122,42 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
 
     for (int i=0; i<nhists; ++i) {
 
-        hpbpb[i] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_recoreco_%s_jes_up_nominal", observable, hist_list[i].c_str()));
-        hpp[i] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_srecoreco_%s_jes_up_nominal", observable, hist_list[i].c_str()));
-        hnominals[i] = (TH1D*)hpbpb[i]->Clone(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()));
+        std::cout << "i = " << i << std::endl;
+
+        hpbpb[i] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_corrjsrecoreco_%s_jes_up_nominal", observable.c_str(), hist_list[i].c_str()));
+        hpp[i] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_scorrjsrecoreco_%s_jes_up_nominal", observable.c_str(), hist_list[i].c_str()));
+        std::cout << "hpbpb[i] = " << hpbpb[i]->GetName() << std::endl;
+        std::cout << "hpp[i] = " << hpp[i]->GetName() << std::endl;
+
+        hnominals[i] = (TH1D*)hpbpb[i]->Clone(Form("h%s_final_ratio_recoreco_%s", observable.c_str(), hist_list[i].c_str()));
         hnominals[i]->Divide(hpp[i]);
 
         for (int j=0; j<kN_SYS; ++j) {
 
-            hpbpb_sys[i][j] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_recoreco_%s_%s_variation", observable, hist_list[i].c_str(), sys_types[j].c_str()));
-            hpp_sys[i][j] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_srecoreco_%s_%s_variation", observable, hist_list[i].c_str(), sys_types[j].c_str()));
-            hratio_sys[i][j] = (TH1D*)hpbpb_sys[i][j]->Clone(Form("h%s_final_ratio_%s_%s", observable, hist_list[i].c_str(), sys_types[j].c_str()));
+            if (is_js && j == k_xi_nonclosure)  continue;
+
+            std::cout << "j = " << j << std::endl;
+            std::cout << "sys_types[j] = " << sys_types[j].c_str() << std::endl;
+
+            hpbpb_sys[i][j] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_corrjsrecoreco_%s_%s_variation", observable.c_str(), hist_list[i].c_str(), sys_types[j].c_str()));
+            hpp_sys[i][j] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_scorrjsrecoreco_%s_%s_variation", observable.c_str(), hist_list[i].c_str(), sys_types[j].c_str()));
+            hratio_sys[i][j] = (TH1D*)hpbpb_sys[i][j]->Clone(Form("h%s_final_ratio_%s_%s", observable.c_str(), hist_list[i].c_str(), sys_types[j].c_str()));
             hratio_sys[i][j]->Divide(hpp_sys[i][j]);
         }
     }
 
-    TFile* fout = new TFile(Form("%s-systematics.root", label), "update");
+    TFile* fout = new TFile(Form("%s-systematics.root", label.c_str()), "update");
 
     total_sys_var_t* total_sys_vars[nhists] = {0};
     sys_var_t* sys_vars[nhists][kN_SYS] = {0};
     for (int i=0; i<nhists; ++i) {
-        total_sys_vars[i] = new total_sys_var_t(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()), hnominals[i]);
+        total_sys_vars[i] = new total_sys_var_t(Form("h%s_final_ratio_%s", observable.c_str(), hist_list[i].c_str()), hnominals[i]);
 
         for (int j=0; j<kN_SYS; ++j) {
 
-            sys_vars[i][j] = new sys_var_t(Form("h%s_final_ratio_%s", observable, hist_list[i].c_str()), sys_types[j], hnominals[i], hratio_sys[i][j]);
+            if (is_js && j == k_xi_nonclosure)  continue;
+
+            sys_vars[i][j] = new sys_var_t(Form("h%s_final_ratio_%s", observable.c_str(), hist_list[i].c_str()), sys_types[j], hnominals[i], hratio_sys[i][j]);
             sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), fit_funcs[j].c_str(), range_low_fnc, range_high_fnc);
             sys_vars[i][j]->calculate_h2D_fitBand_ratio(50000, range_low_fnc, range_high_fnc);
             sys_vars[i][j]->calculate_hratio_fitBand(fractionToySys);
@@ -161,11 +184,13 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
 
     TCanvas* c1 = 0;
     for (int i=0; i<nhists; ++i) {
-        c1 = new TCanvas(Form("sys_%s", Form("h%s_final_pbpbdata_%s", observable, hist_list[i].c_str())), "", 900, 900);
+        c1 = new TCanvas(Form("sys_%s", Form("h%s_final_pbpbdata_%s", observable.c_str(), hist_list[i].c_str())), "", 900, 900);
 
         int p = 1;
         c1->Divide(3, 3);
-        for (int j=0; j<kN_SYS; ++j) {
+        for (int j=kN_SYS; j<kN_SYS; ++j) {
+            if (is_js && j == k_xi_nonclosure)  continue;
+
             c1->cd(p);
             if (options[j] != 4) {
                 sys_vars[i][j]->get_diff_abs()->SetStats(0);
@@ -181,140 +206,149 @@ int calc_ratio_systematics(const char* observable, const char* filelist, const c
             total_sys_vars[i]->get_total()->Draw();
         }
 
-        c1->SaveAs(Form("sys_%s-%s.png", Form("h%s_final_pbpbdata_%s", observable, hist_list[i].c_str()), label));
+        c1->SaveAs(Form("sys_%s-%s.png", Form("h%s_final_pbpbdata_%s", observable.c_str(), hist_list[i].c_str()), label.c_str()));
     }
 
     TLegend* leg = 0;
-      TLatex* latexTmp = 0;
-      for (int iSys=0; iSys<kN_SYS; ++iSys) {
-          for (int iCnv = 0; iCnv < 2; ++iCnv) {
+    TLatex* latexTmp = 0;
+    for (int iSys=kN_SYS; iSys<kN_SYS; ++iSys) {
+        if (is_js && iSys == k_xi_nonclosure)  continue;
+        for (int iCnv = 0; iCnv < 2; ++iCnv) {
 
-              int rows = 2;
-              int columns = 4;
+            int rows = 2;
+            int columns = 4;
 
-              float margin = 0.2; // left/bottom margins (with labels)
-              float edge = 0.12;    // right/top edges (no labels)
+            float margin = 0.2; // left/bottom margins (with labels)
+            float edge = 0.12;    // right/top edges (no labels)
 
-              float row_scale_factor = (rows > 1) ? 1.0/(1.0-margin) + 1.0/(1.0-edge) + rows - 2 : 1.0/(1.0-margin-edge);
-              float column_scale_factor = (columns > 1) ? 1.0/(1.0-margin) + 1.0/(1.0-edge) + columns - 2 : 1.0/(1.0-margin-edge);
+            float row_scale_factor = (rows > 1) ? 1.0/(1.0-margin) + 1.0/(1.0-edge) + rows - 2 : 1.0/(1.0-margin-edge);
+            float column_scale_factor = (columns > 1) ? 1.0/(1.0-margin) + 1.0/(1.0-edge) + columns - 2 : 1.0/(1.0-margin-edge);
 
-              float pad_width = 250 * column_scale_factor;
-              float pad_height = 250 * row_scale_factor;
+            float pad_width = 250 * column_scale_factor;
+            float pad_height = 250 * row_scale_factor;
 
-              std::string labelTmp = Form("ratio_%s", label);
-              std::string cnvName = Form("cnv_sys_%s_%s", sys_types[iSys].c_str(), labelTmp.c_str());
-              if (iCnv == 1)  cnvName = Form("cnv_sys_%s_%s_toy", sys_types[iSys].c_str(), labelTmp.c_str());
+            std::string labelTmp = Form("ratio_%s", label.c_str());
+            std::string cnvName = Form("cnv_sys_%s_%s", sys_types[iSys].c_str(), labelTmp.c_str());
+            if (iCnv == 1)  cnvName = Form("cnv_sys_%s_%s_toy", sys_types[iSys].c_str(), labelTmp.c_str());
 
-              c1 = new TCanvas(cnvName.c_str(), "", pad_width, pad_height);
-              divide_canvas(c1, rows, columns, margin, edge, row_scale_factor, column_scale_factor);
+            c1 = new TCanvas(cnvName.c_str(), "", pad_width, pad_height);
+            divide_canvas(c1, rows, columns, margin, edge, row_scale_factor, column_scale_factor);
 
-              double xi_low = 0.5;
-              double xi_high = 4;
+            double xLow = 0;
+            double xHigh = -1;
+            if (is_ff) {
+                xLow = 0.5;
+                xHigh = 4;
+            }
+            else if (is_js) {
+                xLow = 0;
+                xHigh = 0.2999;
+            }
 
-              int min_hiBin[4] = {100, 60, 20, 0};
-              int max_hiBin[4] = {200, 100, 60, 20};
+            int min_hiBin[4] = {100, 60, 20, 0};
+            int max_hiBin[4] = {200, 100, 60, 20};
 
-              for (int iHist = 0; iHist < columns; ++iHist) {
+            for (int iHist = 0; iHist < columns; ++iHist) {
 
-                  c1->cd(iHist+1);
-                  set_axis_title(sys_vars[iHist][iSys]->get_hnominal(), isxijet);
-                  sys_vars[iHist][iSys]->get_hnominal()->GetYaxis()->SetTitle("PbPb / pp");
-                  set_axis_style(sys_vars[iHist][iSys]->get_hnominal());
-                  sys_vars[iHist][iSys]->get_hnominal()->SetAxisRange(xi_low, xi_high, "X");
-                  sys_vars[iHist][iSys]->get_hnominal()->SetAxisRange(0, 2.0, "Y");
-                  if (!isxijet)
-                      sys_vars[iHist][iSys]->get_hnominal()->SetAxisRange(0, 3.0, "Y");
-                  sys_vars[iHist][iSys]->get_hnominal()->SetStats(false);
-                  sys_vars[iHist][iSys]->get_hnominal()->GetXaxis()->CenterTitle();
-                  sys_vars[iHist][iSys]->get_hnominal()->GetYaxis()->CenterTitle();
-                  sys_vars[iHist][iSys]->get_hnominal()->SetMarkerColor(kBlack);
-                  sys_vars[iHist][iSys]->get_hnominal()->SetMarkerStyle(kFullCircle);
-                  sys_vars[iHist][iSys]->get_hnominal()->Draw("e");
+                c1->cd(iHist+1);
+                set_axis_title(sys_vars[iHist][iSys]->get_hnominal(), isjetBased);
+                sys_vars[iHist][iSys]->get_hnominal()->GetYaxis()->SetTitle("PbPb / pp");
+                set_axis_style(sys_vars[iHist][iSys]->get_hnominal());
+                sys_vars[iHist][iSys]->get_hnominal()->SetAxisRange(xLow, xHigh, "X");
+                sys_vars[iHist][iSys]->get_hnominal()->SetAxisRange(0, 2.0, "Y");
+                if (!isjetBased)
+                    sys_vars[iHist][iSys]->get_hnominal()->SetAxisRange(0, 3.0, "Y");
+                sys_vars[iHist][iSys]->get_hnominal()->SetStats(false);
+                sys_vars[iHist][iSys]->get_hnominal()->GetXaxis()->CenterTitle();
+                sys_vars[iHist][iSys]->get_hnominal()->GetYaxis()->CenterTitle();
+                sys_vars[iHist][iSys]->get_hnominal()->SetMarkerColor(kBlack);
+                sys_vars[iHist][iSys]->get_hnominal()->SetMarkerStyle(kFullCircle);
+                sys_vars[iHist][iSys]->get_hnominal()->Draw("e");
 
-                  set_axis_title(sys_vars[iHist][iSys]->get_hvariation(), isxijet);
-                  set_axis_style(sys_vars[iHist][iSys]->get_hvariation());
-                  sys_vars[iHist][iSys]->get_hvariation()->SetStats(false);
-                  sys_vars[iHist][iSys]->get_hvariation()->SetMarkerColor(kBlue);
-                  sys_vars[iHist][iSys]->get_hvariation()->SetMarkerStyle(kFullCircle);
-                  sys_vars[iHist][iSys]->get_hvariation()->Draw("e same");
+                set_axis_title(sys_vars[iHist][iSys]->get_hvariation(), isjetBased);
+                set_axis_style(sys_vars[iHist][iSys]->get_hvariation());
+                sys_vars[iHist][iSys]->get_hvariation()->SetStats(false);
+                sys_vars[iHist][iSys]->get_hvariation()->SetMarkerColor(kBlue);
+                sys_vars[iHist][iSys]->get_hvariation()->SetMarkerStyle(kFullCircle);
+                sys_vars[iHist][iSys]->get_hvariation()->Draw("e same");
 
-                  if (iHist == 0) {
-                      leg = new TLegend(0.24, 0.70, 0.65, 0.84);
-                      leg->SetTextFont(43);
-                      leg->SetTextSize(15);
-                      leg->SetBorderSize(0);
-                      leg->SetFillStyle(0);
+                if (iHist == 0) {
+                    leg = new TLegend(0.24, 0.70, 0.65, 0.84);
+                    leg->SetTextFont(43);
+                    leg->SetTextSize(15);
+                    leg->SetBorderSize(0);
+                    leg->SetFillStyle(0);
 
-                      leg->AddEntry(sys_vars[iHist][iSys]->get_hnominal(), "PbPb/pp nominal", "plf");
-                      leg->AddEntry(sys_vars[iHist][iSys]->get_hvariation(), sys_types[iSys].c_str(), "plf");
-                      leg->Draw();
-                  }
+                    leg->AddEntry(sys_vars[iHist][iSys]->get_hnominal(), "PbPb/pp nominal", "plf");
+                    leg->AddEntry(sys_vars[iHist][iSys]->get_hvariation(), sys_types[iSys].c_str(), "plf");
+                    leg->Draw();
+                }
 
-                  latexTmp = new TLatex();
-                  latexTmp->SetTextFont(43);
-                  latexTmp->SetTextSize(17);
-                  latexTmp->SetTextAlign(31);
-                  box_t info_box = (box_t) {0, 0, 0.96, 0.9};
-                  adjust_coordinates(info_box, margin, edge, iHist, 0, rows, columns);
-                  latexTmp->DrawLatexNDC(info_box.x2, info_box.y2, Form("%i - %i%%", min_hiBin[iHist]/2, max_hiBin[iHist]/2));
+                latexTmp = new TLatex();
+                latexTmp->SetTextFont(43);
+                latexTmp->SetTextSize(17);
+                latexTmp->SetTextAlign(31);
+                box_t info_box = (box_t) {0, 0, 0.96, 0.9};
+                adjust_coordinates(info_box, margin, edge, iHist, 0, rows, columns);
+                latexTmp->DrawLatexNDC(info_box.x2, info_box.y2, Form("%i - %i%%", min_hiBin[iHist]/2, max_hiBin[iHist]/2));
 
-                  c1->cd(iHist+1 + 4);
+                c1->cd(iHist+1 + 4);
 
-                  set_axis_title(sys_vars[iHist][iSys]->get_hratio(), isxijet);
-                  set_axis_style(sys_vars[iHist][iSys]->get_hratio());
-                  sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(xi_low, xi_high, "X");
-                  sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(0.4, 1.6, "Y");
-                  sys_vars[iHist][iSys]->get_hratio()->SetStats(false);
-                  sys_vars[iHist][iSys]->get_hratio()->GetXaxis()->CenterTitle();
-                  sys_vars[iHist][iSys]->get_hratio()->GetYaxis()->CenterTitle();
-                  sys_vars[iHist][iSys]->get_hratio()->SetYTitle("var / nominal");
-                  sys_vars[iHist][iSys]->get_hratio()->SetLineColor(kBlack);
-                  sys_vars[iHist][iSys]->get_hratio()->SetMarkerColor(kBlack);
-                  sys_vars[iHist][iSys]->get_hratio()->SetMarkerStyle(kFullCircle);
-                  sys_vars[iHist][iSys]->get_hratio()->Draw("e");
+                set_axis_title(sys_vars[iHist][iSys]->get_hratio(), isjetBased);
+                set_axis_style(sys_vars[iHist][iSys]->get_hratio());
+                sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(xLow, xHigh, "X");
+                sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(0.4, 1.6, "Y");
+                sys_vars[iHist][iSys]->get_hratio()->SetStats(false);
+                sys_vars[iHist][iSys]->get_hratio()->GetXaxis()->CenterTitle();
+                sys_vars[iHist][iSys]->get_hratio()->GetYaxis()->CenterTitle();
+                sys_vars[iHist][iSys]->get_hratio()->SetYTitle("var / nominal");
+                sys_vars[iHist][iSys]->get_hratio()->SetLineColor(kBlack);
+                sys_vars[iHist][iSys]->get_hratio()->SetMarkerColor(kBlack);
+                sys_vars[iHist][iSys]->get_hratio()->SetMarkerStyle(kFullCircle);
+                sys_vars[iHist][iSys]->get_hratio()->Draw("e");
 
-                  if (iCnv == 1) {
-                      sys_vars[iHist][iSys]->get_h2D_fitBand_ratio()->Draw("colz same");
-                      sys_vars[iHist][iSys]->get_hratio()->Draw("e same");
-                      sys_vars[iHist][iSys]->get_hratio_fitBand()->Draw("e same");
-                      if (iHist == 0) {
-                          leg = new TLegend(0.44, 0.90, 0.72, 0.96);
-                          leg->SetTextFont(43);
-                          leg->SetTextSize(15);
-                          leg->SetBorderSize(0);
-                          leg->SetFillStyle(0);
+                if (iCnv == 1) {
+                    sys_vars[iHist][iSys]->get_h2D_fitBand_ratio()->Draw("colz same");
+                    sys_vars[iHist][iSys]->get_hratio()->Draw("e same");
+                    sys_vars[iHist][iSys]->get_hratio_fitBand()->Draw("e same");
+                    if (iHist == 0) {
+                        leg = new TLegend(0.44, 0.90, 0.72, 0.96);
+                        leg->SetTextFont(43);
+                        leg->SetTextSize(15);
+                        leg->SetBorderSize(0);
+                        leg->SetFillStyle(0);
 
-                          leg->AddEntry(sys_vars[iHist][iSys]->get_hratio_fitBand(), Form("width for %.0f%% fraction", fractionToySys*100), "lp");
-                          leg->Draw();
-                      }
-                  }
-                  sys_vars[iHist][iSys]->get_fratio()->SetLineColor(kRed);
-                  sys_vars[iHist][iSys]->get_fratio()->Draw("same");
-                  if (iCnv == 0) {
-                      if (iHist == 0) {
-                          leg = new TLegend(0.44, 0.90, 0.72, 0.96);
-                          leg->SetTextFont(43);
-                          leg->SetTextSize(15);
-                          leg->SetBorderSize(0);
-                          leg->SetFillStyle(0);
+                        leg->AddEntry(sys_vars[iHist][iSys]->get_hratio_fitBand(), Form("width for %.0f%% fraction", fractionToySys*100), "lp");
+                        leg->Draw();
+                    }
+                }
+                sys_vars[iHist][iSys]->get_fratio()->SetLineColor(kRed);
+                sys_vars[iHist][iSys]->get_fratio()->Draw("same");
+                if (iCnv == 0) {
+                    if (iHist == 0) {
+                        leg = new TLegend(0.44, 0.90, 0.72, 0.96);
+                        leg->SetTextFont(43);
+                        leg->SetTextSize(15);
+                        leg->SetBorderSize(0);
+                        leg->SetFillStyle(0);
 
-                          leg->AddEntry(sys_vars[iHist][iSys]->get_fratio(), Form("fit %s",
-                                  sys_vars[iHist][iSys]->get_formula_ratio().c_str()), "l");
-                          leg->Draw();
-                      }
-                  }
+                        leg->AddEntry(sys_vars[iHist][iSys]->get_fratio(), Form("fit %s",
+                                sys_vars[iHist][iSys]->get_formula_ratio().c_str()), "l");
+                        leg->Draw();
+                    }
+                }
 
-                  gPad->Update();
-                  TLine lineTmp(gPad->GetUxmin(), 1, gPad->GetUxmax(), 1);
-                  lineTmp.SetLineStyle(kDashed);
-                  lineTmp.DrawClone();
-              }
+                gPad->Update();
+                TLine lineTmp(gPad->GetUxmin(), 1, gPad->GetUxmax(), 1);
+                lineTmp.SetLineStyle(kDashed);
+                lineTmp.DrawClone();
+            }
 
-              c1->Write("", TObject::kOverwrite);
-              if (leg != 0)  leg->Delete();
-              c1->Close();
-          }
-      }
+            c1->Write("", TObject::kOverwrite);
+            if (leg != 0)  leg->Delete();
+            c1->Close();
+        }
+    }
 
     fout->Write("", TObject::kOverwrite);
     fout->Close();
