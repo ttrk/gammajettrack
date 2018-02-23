@@ -143,6 +143,8 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
         for (int j=0; j<nfiles; ++j) {
 
+            if (is_js && j == k_longrange)  continue;
+
             std::cout << "j = " << j << std::endl;
             std::cout << "sys_types[j] = " << sys_types[j].c_str() << std::endl;
             std::cout << "special[j] = " << special[j] << std::endl;
@@ -306,6 +308,8 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         int p = 1;
         c1->Divide(3, 3);
         for (int j=nfiles; j<nfiles; ++j) {
+            if (is_js && j == k_longrange)  continue;
+
             c1->cd(p);
             if (options[j] != 4) {
                 sys_vars[i][j]->get_diff_abs()->SetStats(0);
@@ -328,6 +332,8 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     TLegend* leg = 0;
     TLatex* latexTmp = 0;
     for (int iSys=nfiles; iSys<nfiles; ++iSys) {
+        if (is_js && iSys == k_longrange)  continue;
+
         if (isPP && !isSmeared)  continue;
         for (int iCnv = 0; iCnv < 2; ++iCnv) {
 
