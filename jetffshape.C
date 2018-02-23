@@ -122,6 +122,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   }
 
   bool doSysLR = (systematic == sysLR);
+  bool doSysTrkUp = (systematic == 9);
+  bool doSysTrkDown = (systematic == 10);
+  bool doSysTrkJS = (doSysTrkUp && defnFF == k_jetShape);
 
   if (fChain == 0) return;
   int64_t nentries = fChain->GetEntries();
@@ -706,7 +709,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_gen0_part = (partLevel.find("gen0") != std::string::npos);
   bool is_gen1_part = (partLevel.find("gen1") != std::string::npos);
   bool is_reco_part = (partLevel.find("reco") != std::string::npos);
-  bool is_part_unweighted = (partLevel.find("w0") != std::string::npos);
+  bool is_part_unweighted = (partLevel.find("w0") != std::string::npos) || doSysTrkJS;
   bool is_ignoreCh_part = (partLevel.find("Ch01") != std::string::npos);
   bool is_reco_part_matched2gen = (partLevel.find("matchg") != std::string::npos);
   bool is_reco_part_matched2gen0 = (partLevel.find("matchg0") != std::string::npos);
@@ -829,8 +832,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   //double uescale200inv[200] = {1.007826, 1.006836, 1.007444, 1.008432, 1.008382, 1.009704, 1.010265, 1.009308, 1.009725, 1.011801, 1.010526, 1.010024, 1.01203, 1.010866, 1.012846, 1.010021, 1.013833, 1.013349, 1.012276, 1.014408, 1.012822, 1.01472, 1.01319, 1.014776, 1.015426, 1.014441, 1.014353, 1.01463, 1.015929, 1.01731, 1.016522, 1.017386, 1.017182, 1.018875, 1.019525, 1.018203, 1.0195, 1.018974, 1.020188, 1.020142, 1.022642, 1.020556, 1.021607, 1.021638, 1.024336, 1.023574, 1.024303, 1.025667, 1.026033, 1.026128, 1.027263, 1.025886, 1.02667, 1.028742, 1.02932, 1.02871, 1.029645, 1.031794, 1.030677, 1.03327, 1.032645, 1.035043, 1.035609, 1.034957, 1.038485, 1.036461, 1.038941, 1.039968, 1.041356, 1.038346, 1.041493, 1.046947, 1.046979, 1.047493, 1.044439, 1.049776, 1.054286, 1.05415, 1.053061, 1.055751, 1.056267, 1.060836, 1.058935, 1.064854, 1.063638, 1.067368, 1.066955, 1.066797, 1.072064, 1.076592, 1.075398, 1.080911, 1.083797, 1.088547, 1.085556, 1.091805, 1.099809, 1.102054, 1.105299, 1.106199, 1.105222, 1.112381, 1.11616, 1.120393, 1.124079, 1.13294, 1.133716, 1.145952, 1.144149, 1.155665, 1.167826, 1.169406, 1.178609, 1.18691, 1.194281, 1.20143, 1.217726, 1.225896, 1.249379, 1.256386, 1.274459, 1.284303, 1.293413, 1.309747, 1.339318, 1.374955, 1.39107, 1.428849, 1.458144, 1.481833, 1.491583, 1.534227, 1.527517, 1.568639, 1.566404, 1.621691, 1.648063, 1.70208, 1.735089, 1.805262, 1.866601, 1.937125, 1.971179, 2.03756, 2.095317, 2.115386, 2.101013, 2.101421, 2.03884, 1.976384, 1.869506, 1.788474, 1.644195, 1.543256, 1.437144, 1.302561, 1.242403, 1.14168, 1.10015, 1.083415, 1.038474, 1.02281, 1.018449, 1.016693, 1.001561, 1.00489, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
   float tracking_sys = isHI ? 0.05 : 0.04;
-  if (systematic == 9) { tracking_sys = 1 + tracking_sys; }
-  else if (systematic == 10) { tracking_sys = 1 - tracking_sys; }
+  if (doSysTrkUp && !doSysTrkJS) { tracking_sys = 1 + tracking_sys; }
+  else if (doSysTrkDown) { tracking_sys = 1 - tracking_sys; }
   else tracking_sys = 1;
 
   // main loop
