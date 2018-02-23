@@ -264,9 +264,9 @@ elif [[ $label == "sysall" ]]; then
 
     if [[ $sample == "pbpbdata" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
-      #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange xi_nonclosure)
+      #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
       sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
-      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
+      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure)
       sysVarTitles=(
       "JES quark-jet"
       "JES DOWN"
@@ -277,8 +277,8 @@ elif [[ $label == "sysall" ]]; then
       "electron rejection"
       "purity UP"
       "purity DOWN"
-      "Long range"
-      #"xi nonclosure"
+      #"Long range"
+      "js nonclosure"
        )
 
       echo -e "PbPb - nominal" >> $PLOTLIST
@@ -301,8 +301,10 @@ elif [[ $label == "sysall" ]]; then
     rm $PLOTLIST
     
     elif [[ $sample == "ppdata" ]]; then
+      #sysVarIndices=(0 1 2 3 4 5 6 7 8)
+      #sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
       sysVarIndices=(0 1 2 3 4 5 6 7 8)
-      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
+      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
@@ -312,7 +314,8 @@ elif [[ $label == "sysall" ]]; then
       "electron rejection"
       "purity UP"
       "purity DOWN"
-      "Long range"
+      #"Long range"
+      "js_nonclosure"
        )
 
       echo -e "pp - nominal" >> $PLOTLIST
@@ -344,9 +347,9 @@ elif [[ $label == "sysalltot" ]]; then
 
     if [[ $sample == "pbpbdata" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
-      #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange xi_nonclosure)
+      #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
       sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
-      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
+      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure)
       sysVarTitles=(
       "JES quark-jet"
       "JES DOWN"
@@ -357,8 +360,8 @@ elif [[ $label == "sysalltot" ]]; then
       "electron rejection"
       "purity UP"
       "purity DOWN"
-      "Long range"
-      #"xi nonclosure"
+      #"Long range"
+      "js nonclosure"
        )
 
       echo -e "PbPb - nominal" >> $PLOTLIST
@@ -387,8 +390,10 @@ elif [[ $label == "sysalltot" ]]; then
       rm $PLOTLIST
     
     elif [[ $sample == "ppdata" ]]; then
+      #sysVarIndices=(0 1 2 3 4 5 6 7 8)
+      #sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
       sysVarIndices=(0 1 2 3 4 5 6 7 8)
-      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
+      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
@@ -398,7 +403,8 @@ elif [[ $label == "sysalltot" ]]; then
       "electron rejection"
       "purity UP"
       "purity DOWN"
-      "Long range"
+      #"Long range"
+      "js nonclosure"
        )
 
       echo -e "pp - nominal" >> $PLOTLIST
@@ -436,9 +442,9 @@ elif [[ $label == "sysalltotpercnt" ]]; then
 
     if [[ $sample == "pbpbdata" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
-      #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange xi_nonclosure)
-      sysVarIndices=(0 1 2 3 4 5 6 7 8)
-      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down)
+      #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
+      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure)
       sysVarTitles=(
       "JES quark-jet"
       "JES DOWN"
@@ -450,9 +456,9 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "purity UP"
       "purity DOWN"
       #"Long range"
-      #"xi nonclosure"
+      "js nonclosure"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1 1 1)
+      sysMethodIndices=(1 1 1 1 1 1 1 1 1 1 0)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -488,7 +494,7 @@ elif [[ $label == "sysalltotpercnt" ]]; then
     elif [[ $sample == "ppdata" ]]; then
       sysVarIndices=(0 1 2 3 4 5 6 7 8)
       #sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
-      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down)
+      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
@@ -499,8 +505,9 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "purity UP"
       "purity DOWN"
       #"Long range"
+       "js nonclosure"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1)
+      sysMethodIndices=(1 1 1 1 1 1 1 1 0)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -535,9 +542,9 @@ elif [[ $label == "sysalltotpercnt" ]]; then
     elif [[ $sample == "ratio" ]]; then
 
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
-      #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange xi_nonclosure)
-      sysVarIndices=(0 1 2 3 4 5 6 7 8)
-      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down)
+      #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
+      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure)
       sysVarTitles=(
       "JES quark-jet"
       "JES DOWN"
@@ -549,9 +556,9 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "purity UP"
       "purity DOWN"
       #"Long range"
-      #"xi nonclosure"
+      "js nonclosure"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1 1 1)
+      sysMethodIndices=(1 1 1 1 1 1 1 1 1 1 0)
       sysMethodSuffices=(
       "ratio"
       "ratio_fit"
