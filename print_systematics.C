@@ -67,7 +67,7 @@ std::string sample[kN_SYSCOLUMNS] = {
 };
 
 std::string jsreco[kN_SYSCOLUMNS] = {
-    "_recoreco", "_srecoreco", "", "_recoreco", "_srecoreco", ""
+    "_corrjsrecoreco", "_scorrjsrecoreco", "", "_corrjsrecoreco", "_scorrjsrecoreco", ""
 };
 
 std::string ffreco[kN_SYSCOLUMNS] = {
@@ -100,8 +100,10 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
         fsys[i] = new TFile(file_list[i].c_str(), "read");
     }
 
+    bool is_js = (strcmp(label, "js") == 0);
+
     std::string *reco = new std::string[kN_SYSCOLUMNS];
-    if (strcmp(label, "js") == 0)
+    if (is_js)
         reco = jsreco;
     else
         reco = ffreco;
@@ -112,24 +114,43 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
 
     std::vector<double> sys_uncTot(kN_SYSCOLUMNS, 0);
     // print systematics in Latex format
-    std::cout << "\\begin{tabular}{lcccc}" << std::endl;
-    std::cout << "\\hline" << std::endl;
-    if (!printRatio) {
-        std::cout << "Systematic             & \\multicolumn{2}{c}{\\xijet} & \\multicolumn{2}{c}{\\xigamma} \\\\" << std::endl;
-        std::cout << "uncertainty            & PbPb        & pp           & PbPb         & pp            \\\\" << std::endl;
+    if (is_js) {
+        std::cout << "\\begin{tabular}{lcccc}" << std::endl;
+        std::cout << "\\hline" << std::endl;
+        if (!printRatio) {
+            std::cout << "Systematic             & \\multicolumn{2}{c}{\\rhor} \\\\" << std::endl;
+            std::cout << "uncertainty            & PbPb        & pp             \\\\" << std::endl;
+        }
+        else {
+            std::cout << "Systematic             & \\multicolumn{3}{c}{\\rhor} \\\\" << std::endl;
+            std::cout << "uncertainty            & PbPb   &  pp   & PbPb/pp    \\\\" << std::endl;
+        }
     }
     else {
-        std::cout << "Systematic             & \\multicolumn{3}{c}{\\xijet} & \\multicolumn{3}{c}{\\xigamma} \\\\" << std::endl;
-        std::cout << "uncertainty            & PbPb   &  pp   & PbPb/pp   & PbPb &  pp  && PbPb/pp       \\\\" << std::endl;
+        std::cout << "\\begin{tabular}{lcccc}" << std::endl;
+        std::cout << "\\hline" << std::endl;
+        if (!printRatio) {
+            std::cout << "Systematic             & \\multicolumn{2}{c}{\\xijet} & \\multicolumn{2}{c}{\\xigamma} \\\\" << std::endl;
+            std::cout << "uncertainty            & PbPb        & pp           & PbPb         & pp            \\\\" << std::endl;
+        }
+        else {
+            std::cout << "Systematic             & \\multicolumn{3}{c}{\\xijet} & \\multicolumn{3}{c}{\\xigamma} \\\\" << std::endl;
+            std::cout << "uncertainty            & PbPb   &  pp   & PbPb/pp   & PbPb &  pp  && PbPb/pp       \\\\" << std::endl;
+        }
     }
     std::cout << "\\hline" << std::endl;
     std::cout << "\\hline" << std::endl;
 
     for (int iSys=0; iSys<SYSUNC::kN_SYSUNC; ++iSys) {
 
+        //if (iSys == k_JER)  continue;
+        if (iSys == k_xi_nonclosure)  continue;
+
         std::cout << sys_titles[iSys];
         std::vector<float> sys_uncs(kN_SYSCOLUMNS);
         for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
+
+            if (is_js && iCol >= 3)  continue;
 
             if (!printRatio) {
                 if (iCol == k_xijet_ratio) continue;
@@ -182,6 +203,8 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     std::cout << "\\hline" << std::endl;
     std::cout << sys_title_tot.c_str();
     for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
+
+        if (is_js && iCol >= 3)  continue;
 
         if (!printRatio) {
             if (iCol == k_xijet_ratio) continue;
