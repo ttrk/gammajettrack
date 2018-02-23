@@ -40,7 +40,7 @@ std::string sys_types[kN_SYSVAR] = {
 };
 
 std::string fit_funcs[kN_SYSVAR] = {
-    "pol1", "pol2", "pol2", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
+    "pol1", "pol2", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
 };
 
 int options[kN_SYSVAR] = {
@@ -67,11 +67,6 @@ std::string sys_labels[kN_SYSVAR] = {
     "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long-range correlations", "tracking PbPb/pp"
 };
 
-double range_low_fnc = 0.5;
-double range_high_fnc = 4.5;
-
-double fractionToySys = 0.6827;
-
 int calc_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label);
 
 int calc_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label) {
@@ -88,9 +83,26 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
     int nhists = hist_list.size();
     if (!nhists) {printf("0 total hists!\n"); return 1;}
+    std::cout << "nhists = " << nhists << std::endl;
 
     bool isPP    = (hist_list[0].find("ppdata") != std::string::npos || hist_list[0].find("ppmc") != std::string::npos);
-    bool isxijet = (std::string(nominal_file).find("gxi0") != std::string::npos);
+    bool isSmeared = (std::string(label).find("s") == 0);
+    bool isjetBased = (std::string(nominal_file).find("gxi0") != std::string::npos);
+    bool is_ff = (hist_list[0].find("hff") == 0);
+    bool is_js = (hist_list[0].find("hjs") == 0);
+
+    double range_low_fnc = 0;
+    double range_high_fnc = -1;
+    if (is_ff) {
+        range_low_fnc = 0.5;
+        range_high_fnc = 4.5;
+        }
+    else if (is_js) {
+        range_low_fnc = 0;
+        range_high_fnc = 0.3;
+    }
+
+    double fractionToySys = 0.6827;
 
     std::vector<std::string> file_list;
     std::ifstream file_stream(filelist);
@@ -100,6 +112,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
     int nfiles = file_list.size();
     if (!nfiles) {printf("0 total files!\n"); return 1;}
+    std::cout << "nfiles = " << nfiles << std::endl;
 
     TFile* fnominal = new TFile(nominal_file, "read");
     TH1D* hnominals[nhists] = {0};
@@ -117,9 +130,16 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     TH1D* hsys_bkgsub[nhists] = {0};
     TH1D* hsys_xi_nonclosure[nhists] = {0};
     for (int i=0; i<nhists; ++i) {
+        std::cout << "i = " << i << std::endl;
+        std::cout << "hist_list[i] = " << hist_list[i].c_str() << std::endl;
+
         total_sys_vars[i] = new total_sys_var_t(hist_list[i], hnominals[i]);
 
         for (int j=0; j<nfiles; ++j) {
+
+            std::cout << "j = " << j << std::endl;
+            std::cout << "sys_types[j] = " << sys_types[j].c_str() << std::endl;
+            std::cout << "special[j] = " << special[j] << std::endl;
 
             sys_vars[i][j] = new sys_var_t(hist_list[i], sys_types[j], hnominals[i], (TH1D*)fsys[j]->Get(hist_list[i].c_str()));
             sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), fit_funcs[j].c_str(), range_low_fnc, range_high_fnc);
@@ -148,6 +168,8 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 total_sys_vars[i]->add_sys_var(sys_vars[i][j], options[j], sysMethod[j]);
             }
         }
+
+        //std::cout << "add systematics for bkg subtraction" << std::endl;
         // add systematics for bkg subtraction
         hsys_bkgsub[i] = (TH1D*)hnominals[i]->Clone(Form("%s_bkgsub", hnominals[i]->GetName()));
         if (!isPP) {
@@ -164,44 +186,47 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         sysVar_bkgsub->write();
         total_sys_vars[i]->add_sys_var(sysVar_bkgsub, 0, 0);
 
-        // add systematics for non-closure in xi_jet < 1 and for some of the high xi_jet bins
-        hsys_xi_nonclosure[i] = (TH1D*)hnominals[i]->Clone(Form("%s_xi_nonclosure", hnominals[i]->GetName()));
-        if (!isPP) {
-            if (isxijet) {
-                int lowxiBin = hsys_xi_nonclosure[i]->FindBin(0.5);
-                hsys_xi_nonclosure[i]->SetBinContent(lowxiBin, hsys_xi_nonclosure[i]->GetBinContent(lowxiBin)*1.11);
-            }
+        if (is_ff) {
+            // add systematics for non-closure in xi_jet < 1 and for some of the high xi_jet bins
+            hsys_xi_nonclosure[i] = (TH1D*)hnominals[i]->Clone(Form("%s_xi_nonclosure", hnominals[i]->GetName()));
+            if (!isPP) {
+                if (isjetBased) {
+                    int lowxiBin = hsys_xi_nonclosure[i]->FindBin(0.5);
+                    hsys_xi_nonclosure[i]->SetBinContent(lowxiBin, hsys_xi_nonclosure[i]->GetBinContent(lowxiBin)*1.11);
+                }
 
-            double const_nonClosure = 0;
-            if (isxijet) {
-                if (hist_list[i].find("_0_20") != std::string::npos) const_nonClosure = 0.043;
-                else if (hist_list[i].find("_20_60") != std::string::npos) const_nonClosure = 0.036;
-                else if (hist_list[i].find("_0_60") != std::string::npos) const_nonClosure = 0.040; // weight_0_20 = 4, weight_20_60 = 3
-                else if (hist_list[i].find("_60_100") != std::string::npos) const_nonClosure = 0.032;
-                else if (hist_list[i].find("_100_200") != std::string::npos) const_nonClosure = 0.003;
-                else if (hist_list[i].find("_60_200") != std::string::npos) const_nonClosure = 0.026; // weight_60_100 = 4, weight_100_200 = 1
+                double const_nonClosure = 0;
+                if (isjetBased) {
+                    if (hist_list[i].find("_0_20") != std::string::npos) const_nonClosure = 0.043;
+                    else if (hist_list[i].find("_20_60") != std::string::npos) const_nonClosure = 0.036;
+                    else if (hist_list[i].find("_0_60") != std::string::npos) const_nonClosure = 0.040; // weight_0_20 = 4, weight_20_60 = 3
+                    else if (hist_list[i].find("_60_100") != std::string::npos) const_nonClosure = 0.032;
+                    else if (hist_list[i].find("_100_200") != std::string::npos) const_nonClosure = 0.003;
+                    else if (hist_list[i].find("_60_200") != std::string::npos) const_nonClosure = 0.026; // weight_60_100 = 4, weight_100_200 = 1
+                }
+                else {
+                    if (hist_list[i].find("_0_20") != std::string::npos) const_nonClosure = 0.070;
+                    else if (hist_list[i].find("_20_60") != std::string::npos) const_nonClosure = 0.024;
+                    else if (hist_list[i].find("_0_60") != std::string::npos) const_nonClosure = 0.050; // weight_0_20 = 4, weight_20_60 = 3
+                    else if (hist_list[i].find("_60_100") != std::string::npos) const_nonClosure = 0.024;
+                    else if (hist_list[i].find("_100_200") != std::string::npos) const_nonClosure = 0.006;
+                    else if (hist_list[i].find("_60_200") != std::string::npos) const_nonClosure = 0.020; // weight_60_100 = 4, weight_100_200 = 1
+                }
+                std::vector<double> highXis = {2.75, 3.25, 3.75, 4.25};
+                for (int iTmp = 0; iTmp < (int)highXis.size(); ++iTmp) {
+                    int highxiBin = hsys_xi_nonclosure[i]->FindBin(highXis[iTmp]);
+                    hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*(1+const_nonClosure));
+                }
             }
-            else {
-                if (hist_list[i].find("_0_20") != std::string::npos) const_nonClosure = 0.070;
-                else if (hist_list[i].find("_20_60") != std::string::npos) const_nonClosure = 0.024;
-                else if (hist_list[i].find("_0_60") != std::string::npos) const_nonClosure = 0.050; // weight_0_20 = 4, weight_20_60 = 3
-                else if (hist_list[i].find("_60_100") != std::string::npos) const_nonClosure = 0.024;
-                else if (hist_list[i].find("_100_200") != std::string::npos) const_nonClosure = 0.006;
-                else if (hist_list[i].find("_60_200") != std::string::npos) const_nonClosure = 0.020; // weight_60_100 = 4, weight_100_200 = 1
-            }
-            std::vector<double> highXis = {2.75, 3.25, 3.75, 4.25};
-            for (int iTmp = 0; iTmp < (int)highXis.size(); ++iTmp) {
-                int highxiBin = hsys_xi_nonclosure[i]->FindBin(highXis[iTmp]);
-                hsys_xi_nonclosure[i]->SetBinContent(highxiBin, hsys_xi_nonclosure[i]->GetBinContent(highxiBin)*(1+const_nonClosure));
-            }
+            sys_var_t* sysVar_xi = new sys_var_t(hist_list[i], "xi_nonclosure", hnominals[i], hsys_xi_nonclosure[i]);
+            sysVar_xi->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
+            sysVar_xi->write();
+            total_sys_vars[i]->add_sys_var(sysVar_xi, 0, 0);
         }
-        sys_var_t* sysVar_xi = new sys_var_t(hist_list[i], "xi_nonclosure", hnominals[i], hsys_xi_nonclosure[i]);
-        sysVar_xi->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
-        sysVar_xi->write();
-        total_sys_vars[i]->add_sys_var(sysVar_xi, 0, 0);
 
         total_sys_vars[i]->write();
     }
+    std::cout << "total_sys_vars[i]->write();" << std::endl;
 
     for (int i=0; i<nfiles; ++i)
         fsys[i]->Close();
@@ -212,7 +237,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
         int p = 1;
         c1->Divide(3, 3);
-        for (int j=0; j<nfiles; ++j) {
+        for (int j=nfiles; j<nfiles; ++j) {
             c1->cd(p);
             if (options[j] != 4) {
                 sys_vars[i][j]->get_diff_abs()->SetStats(0);
@@ -234,7 +259,8 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
     TLegend* leg = 0;
     TLatex* latexTmp = 0;
-    for (int iSys=0; iSys<nfiles; ++iSys) {
+    for (int iSys=nfiles; iSys<nfiles; ++iSys) {
+        if (isPP && !isSmeared)  continue;
         for (int iCnv = 0; iCnv < 2; ++iCnv) {
 
             int rows = 2;
@@ -258,8 +284,16 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             c1 = new TCanvas(cnvName.c_str(), "", pad_width, pad_height);
             divide_canvas(c1, rows, columns, margin, edge, row_scale_factor, column_scale_factor);
 
-            double xi_low = 0.5;
-            double xi_high = 4;
+            double xLow = 0;
+            double xHigh = -1;
+            if (is_ff) {
+                xLow = 0.5;
+                xHigh = 4;
+            }
+            else if (is_js) {
+                xLow = 0;
+                xHigh = 0.3;
+            }
 
             int min_hiBin[4] = {100, 60, 20, 0};
             int max_hiBin[4] = {200, 100, 60, 20};
@@ -267,9 +301,9 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             for (int iHist = 0; iHist < columns; ++iHist) {
 
                 c1->cd(iHist+1);
-                set_axis_title(sys_vars[iHist][iSys]->get_hnominal(), isxijet);
+                set_axis_title(sys_vars[iHist][iSys]->get_hnominal(), isjetBased);
                 set_axis_style(sys_vars[iHist][iSys]->get_hnominal());
-                sys_vars[iHist][iSys]->get_hnominal()->SetAxisRange(xi_low, xi_high, "X");
+                sys_vars[iHist][iSys]->get_hnominal()->SetAxisRange(xLow, xHigh, "X");
                 sys_vars[iHist][iSys]->get_hnominal()->SetAxisRange(0, 4, "Y");
                 sys_vars[iHist][iSys]->get_hnominal()->SetStats(false);
                 sys_vars[iHist][iSys]->get_hnominal()->GetXaxis()->CenterTitle();
@@ -278,7 +312,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 sys_vars[iHist][iSys]->get_hnominal()->SetMarkerStyle(kFullCircle);
                 sys_vars[iHist][iSys]->get_hnominal()->Draw("e");
 
-                set_axis_title(sys_vars[iHist][iSys]->get_hvariation(), isxijet);
+                set_axis_title(sys_vars[iHist][iSys]->get_hvariation(), isjetBased);
                 set_axis_style(sys_vars[iHist][iSys]->get_hvariation());
                 sys_vars[iHist][iSys]->get_hvariation()->SetStats(false);
                 sys_vars[iHist][iSys]->get_hvariation()->SetMarkerColor(kBlue);
@@ -308,9 +342,9 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
                 c1->cd(iHist+1 + 4);
 
-                set_axis_title(sys_vars[iHist][iSys]->get_hratio(), isxijet);
+                set_axis_title(sys_vars[iHist][iSys]->get_hratio(), isjetBased);
                 set_axis_style(sys_vars[iHist][iSys]->get_hratio());
-                sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(xi_low, xi_high, "X");
+                sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(xLow, xHigh, "X");
                 sys_vars[iHist][iSys]->get_hratio()->SetAxisRange(0.4, 1.6, "Y");
                 sys_vars[iHist][iSys]->get_hratio()->SetStats(false);
                 sys_vars[iHist][iSys]->get_hratio()->GetXaxis()->CenterTitle();
