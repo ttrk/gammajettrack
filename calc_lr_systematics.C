@@ -11,7 +11,7 @@ int calc_lr_systematics(const char* nominal, const char* variation, const char* 
 
     std::vector<int> min_hiBin = {0, 20, 60, 100, 0, 60};
     std::vector<int> max_hiBin = {20, 60, 100, 200, 60, 200};
-    if (std::string(sample).find("pp") == 0) {
+    if (std::string(sample).find("pp") == 0 && std::string(type).find("s") != 0) {
         min_hiBin = {100};
         max_hiBin = {200};
     }
@@ -28,7 +28,7 @@ int calc_lr_systematics(const char* nominal, const char* variation, const char* 
     std::vector<TH1D*> hlongrange_raw(nCentBins, 0);
 
     TFile* foutput = 0;
-    foutput = new TFile(Form("longrange_%s_%i_%i_gxi%i_defnFF1_ff_final.root", sample, phoetmin, jetptmin, gammaxi), "recreate");
+    foutput = new TFile(Form("longrange_%s_%i_%i_gxi%i_defnFF1_ff_final.root", sample, phoetmin, jetptmin, gammaxi), "update");
     std::vector<TH1D*> hratio(nCentBins, 0);
     std::vector<TH1D*> hsys(nCentBins, 0);
 
