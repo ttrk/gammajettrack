@@ -30,13 +30,13 @@ enum SYS
     //k_jes_qg_up,
     k_jes_qg_down,
     k_longrange,
-    k_xi_nonclosure,
+    k_nonclosure,
     k_bkgsub,
     kN_SYS
 };
 
 std::string sys_types[kN_SYS] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_ratio", "jes_qg_down", "longrange", "xi_nonclosure", "bkgsub"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_ratio", "jes_qg_down", "longrange", "nonclosure", "bkgsub"
 };
 
 std::string fit_funcs[kN_SYS] = {
@@ -63,7 +63,7 @@ int sysMethod[kN_SYS] = {
 };
 
 std::string sys_observables[kN_SYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "JES Q/G", "long range", "xi nonclosure", "bkg subtraction"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "JES Q/G", "long range", "nonclosure", "bkg subtraction"
 };
 
 int calc_ratio_systematics(std::string observable, std::string filelist, std::string histlist, std::string label) {
@@ -100,10 +100,14 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
     if (is_ff) {
         range_low_fnc = 0.5;
         range_high_fnc = 4.5;
+        sys_types[k_nonclosure] = "xi_nonclosure";
+        sys_observables[k_nonclosure] = "xi nonclosure";
         }
     else if (is_js) {
         range_low_fnc = 0;
         range_high_fnc = 0.3;
+        sys_types[k_nonclosure] = "js_nonclosure";
+        sys_observables[k_nonclosure] = "js nonclosure";
     }
 
     double fractionToySys = 0.6827;
@@ -134,7 +138,7 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
 
         for (int j=0; j<kN_SYS; ++j) {
 
-            if (is_js && j == k_xi_nonclosure)  continue;
+            if (is_js && j == k_longrange)  continue;
 
             std::cout << "j = " << j << std::endl;
             std::cout << "sys_types[j] = " << sys_types[j].c_str() << std::endl;
@@ -155,7 +159,7 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
 
         for (int j=0; j<kN_SYS; ++j) {
 
-            if (is_js && j == k_xi_nonclosure)  continue;
+            if (is_js && j == k_longrange)  continue;
 
             sys_vars[i][j] = new sys_var_t(Form("h%s_final_ratio_%s", observable.c_str(), hist_list[i].c_str()), sys_types[j], hnominals[i], hratio_sys[i][j]);
             sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), fit_funcs[j].c_str(), range_low_fnc, range_high_fnc);
@@ -189,7 +193,6 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
         int p = 1;
         c1->Divide(3, 3);
         for (int j=kN_SYS; j<kN_SYS; ++j) {
-            if (is_js && j == k_xi_nonclosure)  continue;
 
             c1->cd(p);
             if (options[j] != 4) {
@@ -212,7 +215,8 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
     TLegend* leg = 0;
     TLatex* latexTmp = 0;
     for (int iSys=kN_SYS; iSys<kN_SYS; ++iSys) {
-        if (is_js && iSys == k_xi_nonclosure)  continue;
+        if (is_js && iSys == k_longrange)  continue;
+
         for (int iCnv = 0; iCnv < 2; ++iCnv) {
 
             int rows = 2;
