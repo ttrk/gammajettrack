@@ -1036,6 +1036,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
+          tmpjetpt = (*j_pt)[ij];
+          tmpjeteta = (*j_eta)[ij];
+          tmpjetphi = (*j_phi)[ij];
+
         if (is_smeared_jet && !is_jet_smeared_using_hist) {
             do {
                 tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
@@ -1842,6 +1846,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
+          tmpjetpt = (*j_pt_mix)[ij_mix];
+          tmpjeteta = (*j_eta_mix)[ij_mix];
+          tmpjetphi = (*j_phi_mix)[ij_mix];
+
         if (is_smeared_jet && !is_jet_smeared_using_hist) {
           do {
               tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
