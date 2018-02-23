@@ -437,8 +437,8 @@ elif [[ $label == "sysalltotpercnt" ]]; then
     if [[ $sample == "pbpbdata" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange xi_nonclosure)
-      sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
-      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8)
+      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down)
       sysVarTitles=(
       "JES quark-jet"
       "JES DOWN"
@@ -449,10 +449,10 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "electron rejection"
       "purity UP"
       "purity DOWN"
-      "Long range"
+      #"Long range"
       #"xi nonclosure"
        )
-      sysMethodIndices=(1 1 1 0 1 1 1 1 1 1 0)
+      sysMethodIndices=(1 1 1 1 1 1 1 1 1 1)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -487,7 +487,8 @@ elif [[ $label == "sysalltotpercnt" ]]; then
     
     elif [[ $sample == "ppdata" ]]; then
       sysVarIndices=(0 1 2 3 4 5 6 7 8)
-      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
+      #sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
+      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
@@ -497,9 +498,9 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "electron rejection"
       "purity UP"
       "purity DOWN"
-      "Long range"
+      #"Long range"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1 0)
+      sysMethodIndices=(1 1 1 1 1 1 1 1)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -535,8 +536,8 @@ elif [[ $label == "sysalltotpercnt" ]]; then
 
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange xi_nonclosure)
-      sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
-      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8)
+      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down)
       sysVarTitles=(
       "JES quark-jet"
       "JES DOWN"
@@ -547,10 +548,10 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "electron rejection"
       "purity UP"
       "purity DOWN"
-      "Long range"
+      #"Long range"
       #"xi nonclosure"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1 1 1 0)
+      sysMethodIndices=(1 1 1 1 1 1 1 1 1 1)
       sysMethodSuffices=(
       "ratio"
       "ratio_fit"
