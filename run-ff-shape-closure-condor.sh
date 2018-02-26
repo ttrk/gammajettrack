@@ -63,7 +63,7 @@ for rgLevel in $recogenLevels; do
     do
       hiBinMin=${hiBinMins[i1]}
       hiBinMax=${hiBinMaxs[i1]}
-     ./condor/condorSubmit_jetffshape.sh $SKIM $sample $hiBinMin $hiBinMax $phoetMin $phoetMax $jetptMin $trkptMin $gammaxi jsclosure 0 $obs $rgLevel $outputDir
+     ./condor/condorSubmit_jetffshape.sh $SKIM $sample $hiBinMin $hiBinMax $phoetMin $phoetMax $jetptMin $trkptMin $gammaxi $label 0 $obs $rgLevel $outputDir
     done
   fi
 done
