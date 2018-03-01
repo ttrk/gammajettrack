@@ -74,9 +74,9 @@ std::string ffreco[kN_SYSCOLUMNS] = {
     "_recoreco", "_srecoreco", "", "_recoreco", "_srecoreco", ""
 };
 
-int print_systematics(const char* filelist, const char* label = "", int hiBinMin = 0, int hiBinMax = 20, float xiBinMin = 0, float xiBinMax = -1, bool printRatio = false);
+int print_systematics(const char* filelist, const char* label = "", int hiBinMin = 0, int hiBinMax = 20, float binMin = 0, float binMax = -1, bool printRatio = false);
 
-int print_systematics(const char* filelist, const char* label, int hiBinMin, int hiBinMax, float xiBinMin, float xiBinMax, bool printRatio) {
+int print_systematics(const char* filelist, const char* label, int hiBinMin, int hiBinMax, float binMin, float binMax, bool printRatio) {
     std::string line;
 
     std::vector<std::string> file_list;
@@ -123,8 +123,8 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
         std::cout << "\\begin{tabular}{lcccc}" << std::endl;
         std::cout << "\\hline" << std::endl;
         if (!printRatio) {
-            if (xiBinMin <= xiBinMax) {
-                std::cout << Form("Systematic             & \\multicolumn{2}{c}{\\rhor, %.1f $<$ r $<$ %.1f} \\\\", xiBinMin, xiBinMax) << std::endl;
+            if (binMin <= binMax) {
+                std::cout << Form("Systematic             & \\multicolumn{2}{c}{\\rhor, %.1f $<$ r $<$ %.1f} \\\\", binMin, binMax) << std::endl;
             }
             else {
                 std::cout << "Systematic             & \\multicolumn{2}{c}{\\rhor} \\\\" << std::endl;
@@ -132,8 +132,8 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             std::cout << "uncertainty            & PbPb        & pp             \\\\" << std::endl;
         }
         else {
-            if (xiBinMin <= xiBinMax) {
-                std::cout << Form("Systematic             & \\multicolumn{3}{c}{\\rhor, %.1f $<$ r $<$ %.1f} \\\\", xiBinMin, xiBinMax) << std::endl;
+            if (binMin <= binMax) {
+                std::cout << Form("Systematic             & \\multicolumn{3}{c}{\\rhor, %.1f $<$ r $<$ %.1f} \\\\", binMin, binMax) << std::endl;
             }
             else {
                 std::cout << "Systematic             & \\multicolumn{3}{c}{\\rhor} \\\\" << std::endl;
@@ -217,9 +217,9 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             }
             int binFirst = 1;
             int binLast = 0;
-            if (xiBinMin <= xiBinMax) {
-                binFirst = h_ratio_abs->FindBin(xiBinMin);
-                binLast = h_ratio_abs->FindBin(xiBinMax) - 1;
+            if (binMin <= binMax) {
+                binFirst = h_ratio_abs->FindBin(binMin);
+                binLast = h_ratio_abs->FindBin(binMax) - 1;
             }
             sys_uncs[iCol] = 100 * th1_average_content_FF((TH1D*)h_ratio_abs, binFirst, binLast);
             sys_uncTot[iCol] += sys_uncs[iCol]*sys_uncs[iCol];
@@ -256,9 +256,9 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     std::cout << "\\end{table}" << std::endl;
 
     // bin by bin cross-check with total systematics
-    if (xiBinMin <= xiBinMax) {
-        int binFirst = h_ratio_abs->FindBin(xiBinMin);
-        int binLast = h_ratio_abs->FindBin(xiBinMax) - 1;
+    if (binMin <= binMax) {
+        int binFirst = h_ratio_abs->FindBin(binMin);
+        int binLast = h_ratio_abs->FindBin(binMax) - 1;
 
         if (binFirst == binLast) {
             for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
@@ -282,7 +282,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
 
                 double uncTotHist = 100 * diffTotTmp / nominalTmp;
 
-                std::cout << "iCol = " << iCol << ", xiBinMin = " << xiBinMin << ", xiBinMax = " << xiBinMax;
+                std::cout << "iCol = " << iCol << ", binMin = " << binMin << ", binMax = " << binMax;
                 std::cout << ", uncTotTmp = " << uncTotTmp << ", uncTotHist = " << uncTotHist;
                 std::cout << ", uncTotTmp - uncTotHist = " << uncTotTmp - uncTotHist << ". ";
                 if (std::fabs(uncTotTmp - uncTotHist) < 0.000001) {

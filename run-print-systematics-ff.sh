@@ -16,31 +16,31 @@ if [ -f $SYSFILELIST ]; then
 fi
 echo "SYSFILELIST : $SYSFILELIST"
 
-printRatio=1
+printRatio=0
 
 hiBinMins=(0 20 60 100)
 hiBinMaxs=(20 60 100 200)
 
-xiBinMins=(1 0.5 1.5 3.5)
-xiBinMaxs=(0 1.5 3.5 4.5)
+binMins=(1 0.5 1.5 3.5)
+binMaxs=(0 1.5 3.5 4.5)
 
 doBinByBinCheck=0
 if (( $doBinByBinCheck > 0 )); then
 
-  xiBinMins=(0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0)
-  xiBinMaxs=(1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5)
+  binMins=(0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0)
+  binMaxs=(1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5)
 fi
 
-sysDir="/export/d00/scratch/tatar/GJT-out/results/sys/"
+sysDir="/home/kaya/Documents/EclipseWorkSpace/GJT/gammajettrack/results/sys/"
 
 for i1 in ${!hiBinMins[*]}
 do
   hiBinMin=${hiBinMins[i1]}
   hiBinMax=${hiBinMaxs[i1]}
-  for i2 in ${!xiBinMins[*]}
+  for i2 in ${!binMins[*]}
   do
-    xiBinMin=${xiBinMins[i2]}
-    xiBinMax=${xiBinMaxs[i2]}
+    binMin=${binMins[i2]}
+    binMax=${binMaxs[i2]}
     #echo "hiBinMin :"$hiBinMin
     #echo "hiBinMax :"$hiBinMax
 
@@ -52,10 +52,10 @@ do
     echo -e $sysDir"data_60_30_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
     echo -e $sysDir"data_60_30_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
     echo -e $sysDir"data_60_30_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
-    ./print_systematics.exe $SYSFILELIST ff $hiBinMin $hiBinMax $xiBinMin $xiBinMax $printRatio
+    ./print_systematics.exe $SYSFILELIST ff $hiBinMin $hiBinMax $binMin $binMax $printRatio
     rm $SYSFILELIST
 
-#    ## phoEt80, jetpt40
+    ## phoEt80, jetpt40
 #    touch $SYSFILELIST
 #    echo -e $sysDir"data_80_40_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
 #    echo -e $sysDir"data_80_40_gxi0_defnFF1-systematics.root" >> $SYSFILELIST
@@ -63,7 +63,7 @@ do
 #    echo -e $sysDir"data_80_40_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
 #    echo -e $sysDir"data_80_40_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
 #    echo -e $sysDir"data_80_40_gxi1_defnFF1-systematics.root" >> $SYSFILELIST
-#    ./print_systematics.exe $SYSFILELIST ff $hiBinMin $hiBinMax $xiBinMin $xiBinMax $printRatio
+#    ./print_systematics.exe $SYSFILELIST ff $hiBinMin $hiBinMax $binMin $binMax $printRatio
 #    rm $SYSFILELIST
   done
 done
