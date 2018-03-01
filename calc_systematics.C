@@ -101,6 +101,11 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     else if (is_js) {
         range_low_fnc = 0;
         range_high_fnc = 0.3;
+        //add2Total[k_tracking_up] = 1;
+        //add2Total[k_tracking_down] = 0;
+        //options[k_tracking_up] = 0;
+        //special[k_tracking_down] = 0;
+        //sysMethod[k_tracking_up] = 2;
     }
 
     double fractionToySys = 0.6827;
@@ -135,6 +140,9 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     TH1D* hsys_js_nonclosure[nhists] = {0};
     TH1D* hsys_js_nc_corrjs1[nhists] = {0};
     TH1D* hsys_js_nc_corrjs3[nhists] = {0};
+
+    TH1D* hTmp = 0;
+    TF1*  f1Tmp = 0;
     for (int i=0; i<nhists; ++i) {
         std::cout << "i = " << i << std::endl;
         std::cout << "hist_list[i] = " << hist_list[i].c_str() << std::endl;
@@ -181,13 +189,37 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         // add systematics for bkg subtraction
         hsys_bkgsub[i] = (TH1D*)hnominals[i]->Clone(Form("%s_bkgsub", hnominals[i]->GetName()));
         if (!isPP) {
-            float uncTmp = 1;
-            if (hist_list[i].find("_0_20") != std::string::npos) uncTmp = 1.034;
-            else if (hist_list[i].find("_20_60") != std::string::npos) uncTmp = 1.028;
-            else if (hist_list[i].find("_0_60") != std::string::npos) uncTmp = 1.031;
-            else uncTmp = 1.01;
+            if (is_ff) {
+                float uncTmp = 1;
+                if (hist_list[i].find("_0_20") != std::string::npos) uncTmp = 1.034;
+                else if (hist_list[i].find("_20_60") != std::string::npos) uncTmp = 1.028;
+                else if (hist_list[i].find("_0_60") != std::string::npos) uncTmp = 1.031;
+                else uncTmp = 1.01;
 
-            hsys_bkgsub[i]->Scale(uncTmp);
+                hsys_bkgsub[i]->Scale(uncTmp);
+            }
+            else if (is_js) {
+
+                f1Tmp = 0;
+                if (hist_list[i].find("_100_200") != std::string::npos)
+                    f1Tmp = new TF1("f1Tmp", "((0.965920 + 0.453233*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                else if (hist_list[i].find("_60_100") != std::string::npos)
+                    f1Tmp = new TF1("f1Tmp", "((0.987712 + 0.147736*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                else if (hist_list[i].find("_20_60") != std::string::npos)
+                    f1Tmp = new TF1("f1Tmp", "((0.958176 + 0.563025*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                else if (hist_list[i].find("_0_20") != std::string::npos)
+                    f1Tmp = new TF1("f1Tmp", "((0.902737 + 1.06041*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                else if (hist_list[i].find("_0_60") != std::string::npos)
+                    f1Tmp = new TF1("f1Tmp", "((0.926496 + 0.84724*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                else if (hist_list[i].find("_60_200") != std::string::npos)
+                    f1Tmp = new TF1("f1Tmp", "((0.978372 + 0.278663*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                else
+                    f1Tmp = new TF1("f1Tmp", "1", range_low_fnc, range_high_fnc);
+
+                hTmp = (TH1D*)hsys_bkgsub[i]->Clone(Form("%s_hTmp", hsys_bkgsub[i]->GetName()));
+                th1_from_tf1(hTmp, f1Tmp);
+                hsys_bkgsub[i]->Multiply(hTmp);
+            }
         }
         sys_var_t* sysVar_bkgsub = new sys_var_t(hist_list[i], "bkgsub", hnominals[i], hsys_bkgsub[i]);
         sysVar_bkgsub->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
@@ -248,7 +280,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
                 if (hist_list[i].find("_0_20") != std::string::npos) uncTmp = 1.06;
                 else if (hist_list[i].find("_20_60") != std::string::npos) uncTmp = 1.02;
-                else if (hist_list[i].find("_0_60") != std::string::npos) uncTmp = 1.04;
+                else if (hist_list[i].find("_0_60") != std::string::npos) uncTmp = 1.043;
                 else uncTmp = 1.01;
 
                 hsys_js_nc_corrjs1[i]->SetBinContent(binTmp, binContentTmp * uncTmp);
