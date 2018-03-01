@@ -18,7 +18,7 @@ enum SYSUNC
     k_Tracking,
     k_LongRange,
     k_BkgSub,
-    k_xi_nonclosure,
+    k_nonclosure,
     kN_SYSUNC
 };
 
@@ -103,10 +103,15 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     bool is_js = (strcmp(label, "js") == 0);
 
     std::string *reco = new std::string[kN_SYSCOLUMNS];
-    if (is_js)
+    if (is_js) {
         reco = jsreco;
-    else
+        sys_labels[k_nonclosure] = "js_nonclosure";
+        sys_labels_ratio[k_nonclosure] = "js_nonclosure";
+        sys_titles[k_nonclosure] = "Non-closure in $r$      ";
+    }
+    else {
         reco = ffreco;
+    }
 
     TH1D* h_nom = 0;
     TH1D* h_ratio_abs = 0;
@@ -118,11 +123,21 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
         std::cout << "\\begin{tabular}{lcccc}" << std::endl;
         std::cout << "\\hline" << std::endl;
         if (!printRatio) {
-            std::cout << "Systematic             & \\multicolumn{2}{c}{\\rhor} \\\\" << std::endl;
+            if (xiBinMin <= xiBinMax) {
+                std::cout << Form("Systematic             & \\multicolumn{2}{c}{\\rhor, %.1f $<$ r $<$ %.1f} \\\\", xiBinMin, xiBinMax) << std::endl;
+            }
+            else {
+                std::cout << "Systematic             & \\multicolumn{2}{c}{\\rhor} \\\\" << std::endl;
+            }
             std::cout << "uncertainty            & PbPb        & pp             \\\\" << std::endl;
         }
         else {
-            std::cout << "Systematic             & \\multicolumn{3}{c}{\\rhor} \\\\" << std::endl;
+            if (xiBinMin <= xiBinMax) {
+                std::cout << Form("Systematic             & \\multicolumn{3}{c}{\\rhor, %.1f $<$ r $<$ %.1f} \\\\", xiBinMin, xiBinMax) << std::endl;
+            }
+            else {
+                std::cout << "Systematic             & \\multicolumn{3}{c}{\\rhor} \\\\" << std::endl;
+            }
             std::cout << "uncertainty            & PbPb   &  pp   & PbPb/pp    \\\\" << std::endl;
         }
     }
@@ -144,7 +159,8 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     for (int iSys=0; iSys<SYSUNC::kN_SYSUNC; ++iSys) {
 
         //if (iSys == k_JER)  continue;
-        if (iSys == k_xi_nonclosure)  continue;
+        if (is_js && iSys == k_LongRange)  continue;
+        //if (iSys == k_nonclosure)  continue;
 
         std::cout << sys_titles[iSys];
         std::vector<float> sys_uncs(kN_SYSCOLUMNS);
@@ -158,6 +174,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             }
 
             std::string hist_name_nom = Form("h%s_final%s%s_%d_%d_nominal", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+            h_nom = 0;
             h_nom = (TH1D*)fsys[iCol]->Get(hist_name_nom.c_str());
 
             std::string sysMethodStr = "";
@@ -170,6 +187,15 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
 
             std::string hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
                     sys_label.c_str(), sysMethodStr.c_str());
+            if (is_js) {
+                hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
+                        sys_label.c_str());
+                if (sysMethod[iSys] == 0)
+                    hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
+                        sys_label.c_str());
+            }
+
+            h_ratio_abs = 0;
             h_ratio_abs = (TH1D*)fsys[iCol]->Get(hist_name_sys.c_str());
 
             if (sysMethod[iSys] == 2) h_ratio_abs->Divide(h_nom);
@@ -179,6 +205,11 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
 
                 std::string hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax,
                         sysMethodStr.c_str());
+                if (is_js) {
+                    hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+                    if (sysMethod[iSys] == 0)
+                        hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMin, hiBinMax);
+                }
                 hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
 
                 if (sysMethod[iSys] == 2) hTmp->Divide(h_nom);
@@ -194,7 +225,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             sys_uncTot[iCol] += sys_uncs[iCol]*sys_uncs[iCol];
             if (sys_uncs[iCol] >= 10)        std::cout << Form("& %.1f\\%%    ", sys_uncs[iCol]);
             else if (sys_uncs[iCol] >= 0.1)  std::cout << Form("& %.1f\\%%     ", sys_uncs[iCol]);
-            else if ((iSys == k_BkgSub || iSys == k_xi_nonclosure) && (iCol == k_xijet_pp || iCol == k_xigamma_pp))
+            else if ((iSys == k_PES || iSys == k_BkgSub || iSys == k_nonclosure) && (iCol == k_xijet_pp || iCol == k_xigamma_pp))
                 std::cout << Form("& $--$      ");
             else                             std::cout <<      "& $<$0.1\\%    ";
         }
@@ -231,6 +262,8 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
 
         if (binFirst == binLast) {
             for (int iCol = 0; iCol < kN_SYSCOLUMNS; ++iCol) {
+
+                if (is_js && iCol >= 3)  continue;
 
                 if (!printRatio) {
                     if (iCol == k_xijet_ratio) continue;
