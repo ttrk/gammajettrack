@@ -20,7 +20,7 @@ int calc_iso_systematics(std::string nominal, std::string variation, std::string
     std::cout << "nomtype = " << nomtype.c_str() << std::endl;
     std::cout << "vartype = " << vartype.c_str() << std::endl;
 
-    bool isFF = (nominal.find("js") == std::string::npos);
+    bool isFF = (nominal.find("hff") != std::string::npos);
 
     std::string histPrefix = isFF ? "hff_final" : "hjs_final";
     int ncent              =        isFF ?           6 : 6;
