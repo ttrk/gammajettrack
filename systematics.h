@@ -234,7 +234,7 @@ void sys_var_t::calc_sys() {
     hratio->Divide(hnominal);
     th1_copy_bin_errors4ratio(hratio, hnominal);
     hratio_abs = (TH1D*)hratio->Clone(Form("%s_ratio_abs", hist_name.c_str()));
-    th1_ratio_abs(hratio_abs, true);
+    th1_ratio_abs(hratio_abs);
 }
 
 void sys_var_t::scale_sys(float factor) {
