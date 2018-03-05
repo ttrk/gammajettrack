@@ -310,6 +310,8 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
 
             bool isJetShape = (inputObs[iObs].find("hjs") != std::string::npos);
             if (isJetShape) {
+                hgjt[s][s][s]->Write(Form("%s_normJet_final_%s", outputObs[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
+
                 hgjt[s][s][s]->Scale(1.0 / hgjt[s][s][s]->Integral(1, hgjt[s][s][s]->FindBin(0.3)-1), "width");
             }
 
