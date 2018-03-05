@@ -14,6 +14,8 @@ int calc_spectra_weights(const char* file_pp, const char* file_pbpb, const char*
 
     TFile* output = new TFile(output_file, "update");
 
+    bool isJS = (std::string(file_pbpb).find("obs2") != std::string::npos);
+
     TH1::SetDefaultSumw2();
 
     enum hiBins {
@@ -48,17 +50,20 @@ int calc_spectra_weights(const char* file_pp, const char* file_pbpb, const char*
 
                 std::string hppName = Form("%s_%s_ppdata_srecoreco_%d_%d", spectraNames[i].c_str(), phoRegions[k].c_str(), min_hiBin[j], max_hiBin[j]);
                 std::string hpbpbName = Form("%s_%s_pbpbdata_recoreco_%d_%d", spectraNames[i].c_str(), phoRegions[k].c_str(), min_hiBin[j], max_hiBin[j]);
+                if (isJS) {
+                    hppName = Form("%s_%s_ppdata_recoreco_100_200", spectraNames[i].c_str(), phoRegions[k].c_str());
+                }
 
                 std::cout << "reading pp histogram   : " << hppName.c_str() << std::endl;
                 std::cout << "reading pbpb histogram : " << hpbpbName.c_str() << std::endl;
 
-                hpp = (TH1D*)input_pp->Get(hppName.c_str());
+                hpp = (TH1D*)input_pp->Get(hppName.c_str())->Clone();
                 hpbpb = (TH1D*)input_pbpb->Get(hpbpbName.c_str());
 
                 if (hpp == 0) continue;
                 if (hpbpb == 0) continue;
 
-                // hpp adn hpbpb were scaled by bin width (bin contents/error were divided by bin width)
+                // hpp and hpbpb were scaled by bin width (bin contents/error were divided by bin width)
                 // revert that back.
                 scaleInvBinWidth(hpp);
                 scaleInvBinWidth(hpbpb);
