@@ -387,14 +387,14 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
             hgj[b][r]->Scale(1.0/hphopt[b]->Integral(), "width");
             hgj[b][b]->Scale(1.0/hphopt[b]->Integral(), "width");
 
-            hgj[r][s] = (TH1D*)hgj[r][r]->Clone(Form("%s_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
-            hgj[b][s] = (TH1D*)hgj[b][r]->Clone(Form("%s_sb_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()));
+            hgj[r][s] = (TH1D*)hgj[r][r]->Clone(Form("%s_signal_%s", outputObsgj[iObs].c_str(), tag.c_str()));
+            hgj[b][s] = (TH1D*)hgj[b][r]->Clone(Form("%s_sideband_%s", outputObsgj[iObs].c_str(), tag.c_str()));
 
             hgj[r][s]->Add(hgj[r][b], -1);
-            hgj[r][s]->Write(Form("%s_raw_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
+            hgj[r][s]->Write(Form("%s_raw_signal_%s", outputObsgj[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
 
             hgj[b][s]->Add(hgj[b][b], -1);
-            hgj[b][s]->Write(Form("%s_raw_sub_sub_%s", outputObsgj[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
+            hgj[b][s]->Write(Form("%s_raw_sideband_%s", outputObsgj[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
 
             hgj[s][s] = (TH1D*)hgj[r][s]->Clone(Form("%s_final_%s", outputObsgj[iObs].c_str(), tag.c_str()));
 
