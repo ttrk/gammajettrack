@@ -38,7 +38,9 @@ int calc_ff_js_ratio(std::string inputFile, std::string ppType, std::string pbpb
         std::string hppName = Form("%s_final_%s_%d_%d", histPrefix.c_str(), ppType.c_str(), min_hiBin[j], max_hiBin[j]);
         std::string hpbpbName = Form("%s_final_%s_%d_%d", histPrefix.c_str(), pbpbType.c_str(), min_hiBin[j], max_hiBin[j]);
 
-        if (ppType.find("_s") == std::string::npos) hppName = Form("%s_final_%s_100_200", histPrefix.c_str(), ppType.c_str());
+        if (ppType.find("_s") == std::string::npos && ppType.find("reweight") == std::string::npos) {
+            hppName = Form("%s_final_%s_100_200", histPrefix.c_str(), ppType.c_str());
+        }
 
         std::cout << "reading pp histogram   : " << hppName.c_str() << std::endl;
         std::cout << "reading pbpb histogram : " << hpbpbName.c_str() << std::endl;
@@ -52,10 +54,14 @@ int calc_ff_js_ratio(std::string inputFile, std::string ppType, std::string pbpb
         std::string hratioName = Form("%s_final_ratio_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
         if (ppType == "ppdata_recoreco")
             hratioName = Form("%s_final_ratio_recoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
-        else if (ppType == "ppdatareweight_srecoreco")
-            hratioName = Form("%s_final_ratio_reweight_srecoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
         else if (ppType == "ppdata_srecoreco")
             hratioName = Form("%s_final_ratio_srecoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+        else if (ppType == "ppdatareweight_corrjsrecoreco")
+            hratioName = Form("%s_final_ratio_reweight_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+        else if (ppType == "ppdatareweight_recoreco")
+            hratioName = Form("%s_final_ratio_reweight_recoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+        else if (ppType == "ppdatareweight_srecoreco")
+            hratioName = Form("%s_final_ratio_reweight_srecoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
 
         hRatio = (TH1D*)hpbpb->Clone(hratioName.c_str());
         hRatio->Divide(hpp);

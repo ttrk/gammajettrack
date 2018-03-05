@@ -52,6 +52,17 @@ for rgLevel in $recogenLevels; do
 done
 wait
 
+finalAllreweight=${outputDir}/${label}_${sample}reweight_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_ffjs_final.root
+finalPPreweight=${outputDir}/${label}_pp${sample}reweight_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_ffjs_final.root
+
+hadd -f $finalAllreweight $finalPPreweight $finalPBPB
+for rgLevel in $recogenLevels; do
+  rgLevelPP=$rgLevel
+  ./calc_ff_js_ratio.exe $finalAll pp${sample}reweight_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll
+  ./calc_ff_js_ratio.exe $finalAll pp${sample}reweight_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
+done
+wait
+
 SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrangecalc tracking_ratio eta_reflection etagt0p3)
 SYSTEMATICPP=(NOM       jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down NOM       NOM         longrangecalc NOM            NOM            NOM)
 
