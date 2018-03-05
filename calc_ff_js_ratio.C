@@ -6,7 +6,7 @@
 #include <string>
 #include <iostream>
 
-int calc_ff_js_ratio(std::string inputFile, std::string ppType, std::string pbpbType, std::string outputFile) {
+int calc_ff_js_ratio(std::string inputFile, std::string ppType, std::string pbpbType, std::string outputFile, std::string histPrefix = "hjs") {
     TFile* input = new TFile(inputFile.c_str(), "read");
 
     TFile* output = new TFile(outputFile.c_str(), "update");
@@ -35,7 +35,6 @@ int calc_ff_js_ratio(std::string inputFile, std::string ppType, std::string pbpb
         hpp = 0;
         hpbpb = 0;
 
-        std::string histPrefix = "hjs";
         std::string hppName = Form("%s_final_%s_%d_%d", histPrefix.c_str(), ppType.c_str(), min_hiBin[j], max_hiBin[j]);
         std::string hpbpbName = Form("%s_final_%s_%d_%d", histPrefix.c_str(), pbpbType.c_str(), min_hiBin[j], max_hiBin[j]);
 
@@ -74,7 +73,9 @@ int calc_ff_js_ratio(std::string inputFile, std::string ppType, std::string pbpb
 }
 
 int main(int argc, char* argv[]) {
-    if (argc == 5)
+    if (argc == 6)
+        return calc_ff_js_ratio(argv[1], argv[2], argv[3], argv[4], argv[5]);
+    else if (argc == 5)
         return calc_ff_js_ratio(argv[1], argv[2], argv[3], argv[4]);
     else
         return 1;

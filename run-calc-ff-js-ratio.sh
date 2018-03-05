@@ -48,6 +48,7 @@ for rgLevel in $recogenLevels; do
     rgLevelPP="scorrjsrecoreco"
   fi
   ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll
+  ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
 done
 wait
 
@@ -77,9 +78,8 @@ for SYS in ${sysIndices}; do
       rgLevelPP="scorrjsrecoreco"
     fi
     ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll
+    ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
   done
 done
 wait
-
-
 
