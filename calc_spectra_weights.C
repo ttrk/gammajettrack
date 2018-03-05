@@ -50,15 +50,18 @@ int calc_spectra_weights(const char* file_pp, const char* file_pbpb, const char*
 
                 std::string hppName = Form("%s_%s_ppdata_srecoreco_%d_%d", spectraNames[i].c_str(), phoRegions[k].c_str(), min_hiBin[j], max_hiBin[j]);
                 std::string hpbpbName = Form("%s_%s_pbpbdata_recoreco_%d_%d", spectraNames[i].c_str(), phoRegions[k].c_str(), min_hiBin[j], max_hiBin[j]);
+                std::string hppNameRead = hppName;
+                std::string hpbpbNameRead = hpbpbName;
                 if (isJS) {
-                    hppName = Form("%s_%s_ppdata_recoreco_100_200", spectraNames[i].c_str(), phoRegions[k].c_str());
+                    hppName = Form("%s_%s_ppdata_recoreco_%d_%d", spectraNames[i].c_str(), phoRegions[k].c_str(), min_hiBin[j], max_hiBin[j]);
+                    hppNameRead = Form("%s_%s_ppdata_recoreco_100_200", spectraNames[i].c_str(), phoRegions[k].c_str());
                 }
 
-                std::cout << "reading pp histogram   : " << hppName.c_str() << std::endl;
-                std::cout << "reading pbpb histogram : " << hpbpbName.c_str() << std::endl;
+                std::cout << "reading pp histogram   : " << hppNameRead.c_str() << std::endl;
+                std::cout << "reading pbpb histogram : " << hpbpbNameRead.c_str() << std::endl;
 
-                hpp = (TH1D*)input_pp->Get(hppName.c_str())->Clone();
-                hpbpb = (TH1D*)input_pbpb->Get(hpbpbName.c_str());
+                hpp = (TH1D*)(input_pp->Get(hppNameRead.c_str()))->Clone("hpp");
+                hpbpb = (TH1D*)(input_pbpb->Get(hpbpbNameRead.c_str()))->Clone("hpbpb");
 
                 if (hpp == 0) continue;
                 if (hpbpb == 0) continue;
