@@ -115,8 +115,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TFile* file_reweightPP = 0;
   TH1D* hReweightPP[kN_PHO_SIGBKG];
   bool doReweightPP = (sample.find("pp") != std::string::npos && sample.find("reweight") != std::string::npos);
-  if (doReweightPP) {
+  if (doReweightPP && defnFF == k_jetFF) {
       file_reweightPP = TFile::Open("data_60_30_gxi0_defnFF1_ff_spectra_weights.root");
+      hReweightPP[k_sigPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_signal_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
+      hReweightPP[k_bkgPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_sideband_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
+  }
+  else if (doReweightPP && defnFF == k_jetShape) {
+      file_reweightPP = TFile::Open("jsdata_data_60_30_gxi0_obs2_ffjs_spectra_weights.root");
       hReweightPP[k_sigPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_signal_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
       hReweightPP[k_bkgPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_sideband_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
   }
@@ -520,7 +525,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
   }
 
-  if (sample == "ppmc" || sample == "ppdata") {
+  if (sample == "ppmc" || sample == "ppdata" || sample == "ppdatareweight") {
       min_hiBin_js_corr = {100};
       max_hiBin_js_corr = {200};
   }
@@ -536,8 +541,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           for (int iCent = 0; iCent < nCentBins_js_corr; ++iCent) {
 
               std::string tmpSample = sample;
-              if (sample == "ppdata") tmpSample = "ppmc";
-              if (sample == "pbpbdata") tmpSample = "pbpbmc";
+              if (sample.find("ppdata") == 0) tmpSample = "ppmc";
+              if (sample.find("pbpbdata") == 0) tmpSample = "pbpbmc";
 
               if (tmpSample == "ppmc" && iCent > 0) continue;
 
@@ -562,8 +567,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               for (int iCent = 0; iCent < nCentBins_js_corr; ++iCent) {
 
                   std::string tmpSample = sample;
-                  if (sample == "ppdata") tmpSample = "ppmc";
-                  if (sample == "pbpbdata") tmpSample = "pbpbmc";
+                  if (sample.find("ppdata") == 0) tmpSample = "ppmc";
+                  if (sample.find("pbpbdata") == 0) tmpSample = "pbpbmc";
 
                   if (tmpSample == "ppmc" && iCent > 0) continue;
 
