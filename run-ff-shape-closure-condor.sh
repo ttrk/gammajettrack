@@ -38,6 +38,11 @@ fi
 
 if [ $sample = "pbpbmc" ]; then
     SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_skim_20180115_merged/job0.root"
+    if [[ $outputDir = *flt50* ]]; then
+      SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_Flt50_skim_20180115_merged/job0.root"
+    elif [[ $outputDir = *0302* ]]; then
+      SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_skim_20180302_merged/job0.root"
+    fi
 elif [ $sample = "ppmc" ]; then
     SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/pp-MC-skim-180115.root"
 else
