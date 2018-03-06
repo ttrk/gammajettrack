@@ -266,13 +266,17 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
         if (is_js) {
             total_sys_vars_js_nc[i] = new total_sys_var_t(hist_list[i], hnominals[i]);
+            bool isnorm1 = (hist_list[i].find("hjs_final") == 0);
 
             // systematics for non-closure remaining at r=0.3 after step 1 of js corrections
             hsys_js_nc_corrjs1[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjs1", hnominals[i]->GetName()));
             if (!isPP) {
                 float uncTmp = 1;
-                std::string hnominal_raw_name = replaceAll(hist_list[i], "hjs_", "hjs_raw_");
-                hsys_js_nc_corrjs1[i] = (TH1D*)fnominal->Get(hnominal_raw_name.c_str());
+                std::string hnominal_raw_name = hist_list[i];
+                if (isnorm1) {
+                    hnominal_raw_name = replaceAll(hist_list[i], "hjs_", "hjs_raw_");
+                }
+                hsys_js_nc_corrjs1[i] = (TH1D*)(fnominal->Get(hnominal_raw_name.c_str()))->Clone();
 
                 int binTmp = hsys_js_nc_corrjs1[i]->GetBin(0.3);
                 double binContentTmp = hsys_js_nc_corrjs1[i]->GetBinContent(binTmp);
@@ -285,7 +289,9 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
                 hsys_js_nc_corrjs1[i]->SetBinContent(binTmp, binContentTmp * uncTmp);
                 hsys_js_nc_corrjs1[i]->SetBinError(binTmp, binErrorTmp * uncTmp);
-                hsys_js_nc_corrjs1[i]->Scale(1.0 / hsys_js_nc_corrjs1[i]->Integral(1, hsys_js_nc_corrjs1[i]->FindBin(0.3)-1), "width");
+                if (isnorm1) {
+                    hsys_js_nc_corrjs1[i]->Scale(1.0 / hsys_js_nc_corrjs1[i]->Integral(1, hsys_js_nc_corrjs1[i]->FindBin(0.3)-1), "width");
+                }
             }
             sys_var_t* sysVar_js_nc_corrjs1 = new sys_var_t(hist_list[i], "js_nonclosure_corrjs1", hnominals[i], hsys_js_nc_corrjs1[i]);
             sysVar_js_nc_corrjs1->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
@@ -295,8 +301,11 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             // systematics for non-closure remaining at r<0.1 for gluon jets after step 3 of js corrections
             hsys_js_nc_corrjs3[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjs3", hnominals[i]->GetName()));
             {
-                std::string hnominal_raw_name = replaceAll(hist_list[i], "hjs_", "hjs_raw_");
-                hsys_js_nc_corrjs3[i] = (TH1D*)fnominal->Get(hnominal_raw_name.c_str());
+                std::string hnominal_raw_name = hist_list[i];
+                if (isnorm1) {
+                    hnominal_raw_name = replaceAll(hist_list[i], "hjs_", "hjs_raw_");
+                }
+                hsys_js_nc_corrjs3[i] = (TH1D*)(fnominal->Get(hnominal_raw_name.c_str()))->Clone();
 
                 for (int binTmp = 0; binTmp < hsys_js_nc_corrjs3[i]->GetNbinsX(); ++binTmp) {
                     if (hsys_js_nc_corrjs3[i]->GetBinLowEdge(binTmp+1) < 0.1) {
@@ -310,7 +319,9 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                     }
                 }
 
-                hsys_js_nc_corrjs3[i]->Scale(1.0 / hsys_js_nc_corrjs3[i]->Integral(1, hsys_js_nc_corrjs3[i]->FindBin(0.3)-1), "width");
+                if (isnorm1) {
+                    hsys_js_nc_corrjs3[i]->Scale(1.0 / hsys_js_nc_corrjs3[i]->Integral(1, hsys_js_nc_corrjs3[i]->FindBin(0.3)-1), "width");
+                }
             }
             sys_var_t* sysVar_js_nc_corrjs3 = new sys_var_t(hist_list[i], "js_nonclosure_corrjs3", hnominals[i], hsys_js_nc_corrjs3[i]);
             sysVar_js_nc_corrjs3->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
