@@ -53,6 +53,7 @@ bool is_ppmc = false;
 bool is_pbpbmc = false;
 bool is_ppdata = false;
 bool is_pbpbdata = false;
+bool is_pbpb_pp_ratio = false;
 
 int fillColors[2] = {38, 46};
 float fillAlpha = 0.7;
@@ -76,6 +77,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         is_pbpbmc = is_pbpbmc || (hist_names[i].find("pbpbmc") != std::string::npos);
         is_ppdata = is_ppdata || (hist_names[i].find("ppdata") != std::string::npos);
         is_pbpbdata = is_pbpbdata || (hist_names[i].find("pbpbdata") != std::string::npos);
+        is_pbpb_pp_ratio = (hist_names[i].find("final_ratio") != std::string::npos);
     }
     if (is_sysvar) {
         mode = k_data_sysvar;
@@ -155,7 +157,9 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         c1->cd(i+1);
         switch (option) {
             case kJS_r_lt_1: case kJS_r_lt_0p3:
-                gPad->SetLogy();
+                if (!is_pbpb_pp_ratio ) {
+                    gPad->SetLogy();
+                }
                 break;
             default:
                 break;
@@ -365,7 +369,9 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             TLine* line1 = new TLine(gPad->GetUxmin(), 1, gPad->GetUxmax(), 1);
             line1->SetLineWidth(1);
             line1->SetLineStyle(2);
-            line1->Draw();
+            if (mode != k_data_sysalltotpercnt)  {
+                line1->Draw();
+            }
         }
     }
 
@@ -468,9 +474,15 @@ void set_hist_style(TH1D* h1, int k) {
             h1->SetMarkerColor(kYellow+3);
             break;
         case 10:
-            h1->SetLineColor(kCyan);
+            h1->SetLineColor(kGray+1);
             h1->SetMarkerSize(0.64);
             h1->SetMarkerStyle(kFullDiamond);
+            h1->SetMarkerColor(kGray+1);
+            break;
+        case 11:
+            h1->SetLineColor(kCyan);
+            h1->SetMarkerSize(0.64);
+            h1->SetMarkerStyle(kFullCircle);
             h1->SetMarkerColor(kCyan);
             break;
         default:
@@ -481,7 +493,7 @@ void set_hist_style(TH1D* h1, int k) {
             break;
     }
 
-    if (mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) {
+    if (mode == k_data_sysvar || mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) {
         h1->SetLineWidth(2);
         h1->SetMarkerSize(h1->GetMarkerSize()*1.5);
     }
@@ -573,6 +585,10 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
             else {
                 if (gammaxi > 0) h1->SetYTitle("#rho_{#gamma} (r)");
                 else             h1->SetYTitle("#rho (r)");
+                if (is_pbpb_pp_ratio) {
+                    if (gammaxi > 0) h1->SetYTitle("#rho_{#gamma}^{PbPb} (r) / #rho_{#gamma}^{pp} (r)");
+                    else             h1->SetYTitle("#rho^{PbPb} (r) / #rho^{pp} (r)");
+                }
             }
             h1->SetXTitle("r");
             break;
@@ -608,31 +624,43 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
         case kJS_r_lt_1:
             if (isRatio) {
                 if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 3, "Y");
-                else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
+                else if (mode == k_data_sysvar)  {
+                    h1->SetAxisRange(0.6, 1.4, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0.8, 1.2, "Y");
+                }
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltotpercnt)  {
-                    h1->SetAxisRange(0, 30, "Y");
-                    if (is_ppdata)  h1->SetAxisRange(0, 14, "Y");
+                    h1->SetAxisRange(0, 20, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 6, "Y");
                 }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
-            else         h1->SetAxisRange(0.2, 90, "Y");
+            else  {
+                h1->SetAxisRange(0.2, 90, "Y");
+                if (is_pbpb_pp_ratio)  h1->SetAxisRange(0, 5, "Y");
+            }
             break;
         case kJS_r_lt_0p3:
             h1->SetAxisRange(0, 0.3 - 0.001, "X");
             if (isRatio) {
                 if (mode == k_data_pp_pbpb)      h1->SetAxisRange(0, 3, "Y");
-                else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
+                else if (mode == k_data_sysvar)  {
+                    h1->SetAxisRange(0.6, 1.4, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0.8, 1.2, "Y");
+                }
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltotpercnt)  {
-                    h1->SetAxisRange(0, 30, "Y");
-                    if (is_ppdata)  h1->SetAxisRange(0, 14, "Y");
+                    h1->SetAxisRange(0, 20, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 6, "Y");
                 }
                 else if (mode == k_mc_reco_gen)  h1->SetAxisRange(0.2, 1.8, "Y");
             }
-            else         h1->SetAxisRange(0.2, 90, "Y");
+            else  {
+                h1->SetAxisRange(0.2, 90, "Y");
+                if (is_pbpb_pp_ratio)  h1->SetAxisRange(0, 5, "Y");
+            }
             break;
         case kFF_xi_gt_0:
             if (isRatio) {
