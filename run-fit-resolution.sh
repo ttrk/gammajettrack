@@ -28,7 +28,7 @@ echo "sample    = $sample"
 echo "label     = $label"
 echo "recogenLevels = $recogenLevels"
 
-mkdir -p outputDir
+mkdir -p $outputDir
 
 g++ fit_resolution.C $(root-config --cflags --libs) -Werror -Wall -O2 -o fit_resolution.exe || exit 1
 echo "g++ fit_resolution.C $(root-config --cflags --libs) -Werror -Wall -O2 -o fit_resolution.exe || exit 1"
