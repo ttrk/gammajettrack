@@ -267,9 +267,8 @@ elif [[ $label == "sysall" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
       sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
-      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure)
+      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure jes_qg_down)
       sysVarTitles=(
-      "JES quark-jet"
       "JES DOWN"
       "JES UP"
       "JER"
@@ -280,6 +279,7 @@ elif [[ $label == "sysall" ]]; then
       "purity DOWN"
       #"Long range"
       "nonclosure"
+      "JES quark-jet"
        )
 
       echo -e "PbPb - nominal" >> $PLOTLIST
@@ -350,9 +350,8 @@ elif [[ $label == "sysalltot" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
       sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
-      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure)
+      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure jes_qg_down)
       sysVarTitles=(
-      "JES quark-jet"
       "JES DOWN"
       "JES UP"
       "JER"
@@ -363,6 +362,7 @@ elif [[ $label == "sysalltot" ]]; then
       "purity DOWN"
       #"Long range"
       "nonclosure"
+      "JES quark-jet"
        )
 
       echo -e "PbPb - nominal" >> $PLOTLIST
@@ -445,9 +445,8 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
       sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11)
-      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure tracking_up bkgsub)
+      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure tracking_up jes_qg_down bkgsub)
       sysVarTitles=(
-      "JES quark-jet"
       "JES DOWN"
       "JES UP"
       "JER"
@@ -459,9 +458,10 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       #"Long range"
       "nonclosure"
       "tracking eff."
+      "JES quark-jet"
       "bkg sub"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1 1 0 1 0)
+      sysMethodIndices=(1 1 1 1 1 1 1 1 0 1 1 0)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -548,9 +548,8 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
       sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11)
-      sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure tracking_ratio bkgsub)
+      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure tracking_ratio jes_qg_down bkgsub)
       sysVarTitles=(
-      "JES quark-jet"
       "JES DOWN"
       "JES UP"
       "JER"
@@ -562,9 +561,10 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       #"Long range"
       "nonclosure"
       "tracking eff."
+      "JES quark-jet"
       "bkg sub"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1 1 1 0 1 0)
+      sysMethodIndices=(1 1 1 1 1 1 1 1 1 0 1 1 0)
       sysMethodSuffices=(
       "ratio"
       "ratio_fit"
