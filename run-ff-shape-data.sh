@@ -30,7 +30,7 @@ echo "recogenLevels = $recogenLevels"
 
 if [ $sample = "pbpbdata" ]; then
     SKIM="/export/d00/scratch/tatar/GJT-out/PbPb-Data-skim-170911.root"
-elif [ $sample = "ppdata" ]; then
+elif [ $sample = "ppdata" ] || [ $sample = "ppdatareweight" ]; then
     SKIM="/export/d00/scratch/tatar/GJT-out/pp-Data-skim-170911.root"
 else
     echo "invalid sample"
