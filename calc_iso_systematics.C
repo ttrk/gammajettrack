@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-int calc_iso_systematics(std::string nominal, std::string variation, std::string data, std::string sample, std::string output_sample, std::string type, int phoetmin, int jetptmin, int gammaxi, std::string label = "iso", std::string nomtype = "", std::string vartype = "") {
+int calc_iso_systematics(std::string nominal, std::string variation, std::string data, std::string sample, std::string output_sample, std::string type, int phoetmin, int jetptmin, int gammaxi, std::string label = "iso", std::string nomtype = "", std::string vartype = "", std::string histPrefix = "") {
     TH1::SetDefaultSumw2(kTRUE);
 
     std::cout << "nominal = " << nominal.c_str() << std::endl;
@@ -20,11 +20,13 @@ int calc_iso_systematics(std::string nominal, std::string variation, std::string
     std::cout << "nomtype = " << nomtype.c_str() << std::endl;
     std::cout << "vartype = " << vartype.c_str() << std::endl;
 
-    bool isFF = (nominal.find("hff") != std::string::npos);
+    bool isFF = (nominal.find("js") == std::string::npos);
 
-    std::string histPrefix = isFF ? "hff_final" : "hjs_final";
-    int ncent              =        isFF ?           6 : 6;
+    if (histPrefix == "") {
+        histPrefix = isFF ? "hff_final" : "hjs_final";
+    }
 
+    int ncent = 6;
     std::string centsuffix[6] = {
         "0_20", "20_60", "60_100", "100_200", "0_60", "60_200"
     };
@@ -94,6 +96,8 @@ int main(int argc, char* argv[]) {
             return calc_iso_systematics(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], atoi(argv[7]), atoi(argv[8]), atoi(argv[9]), argv[10]);
     else if (argc == 13)
         return calc_iso_systematics(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], atoi(argv[7]), atoi(argv[8]), atoi(argv[9]), argv[10], argv[11], argv[12]);
+    else if (argc == 14)
+        return calc_iso_systematics(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], atoi(argv[7]), atoi(argv[8]), atoi(argv[9]), argv[10], argv[11], argv[12], argv[13]);
     else
         return 1;
 }
