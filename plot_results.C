@@ -306,7 +306,12 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             for (std::size_t r=1; r<layers; ++r) {
                 hratio[i][r] = (TH1D*)h1[i][r]->Clone(Form("hratio_%i_%zu", i, r));
                 hratio[i][r]->Divide(h1[i][0]);
-                if (mode == k_data_sysalltot && r == layers-1)
+                if (mode == k_data_sysvar) {
+                    for (int iBin=1; iBin<=hratio[i][r]->GetNbinsX(); ++iBin) {
+                        hratio[i][r]->SetBinError(iBin, hratio[i][r]->GetBinContent(iBin)*h1[i][0]->GetBinError(iBin)/h1[i][0]->GetBinContent(iBin));
+                    }
+                }
+                else if (mode == k_data_sysalltot && r == layers-1)
                 {
                     hratio[i][r] = (TH1D*)h1[i][r]->Clone(Form("hratio_%i_%zu", i, r));
                     hratio[i][r]->SetMarkerColor(kBlack);
