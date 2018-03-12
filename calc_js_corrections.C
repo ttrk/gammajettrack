@@ -43,19 +43,25 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
     int nPtTypes = ptTypes.size();
 
     std::vector<std::string> recoGenStepsNum   = {"recogen0", "reco0gen0", "sref0gen0", "ref0gen0",  "srndTHref0gen0", "ref0gen0",
-            "ref0gen0", "ref0gen0",  "reco0gen0",        "reco0gen0",       "reco0gen",  "reco0gen",  "reco0gen0", "reco0gen0"};
+            "ref0gen0", "ref0gen0",  "reco0gen0",        "reco0gen0",       "reco0gen",  "reco0gen",  "reco0gen0", "reco0gen0",
+            "ref0Qgen0", "ref0Ggen0"};
     std::vector<std::string> recoGenStepsDenom = {"recoreco", "reco0reco", "reco0gen0", "sref0gen0", "reco0gen0",      "srndTHref0gen0",
-            "ref0gen",  "reco0gen0", "reco0recomatchg0", "reco0gen0matchr", "reco0reco", "reco0reco", "reco0gen",  "reco0gen"};
+            "ref0gen",  "reco0gen0", "reco0recomatchg0", "reco0gen0matchr", "reco0reco", "reco0reco", "reco0gen",  "reco0gen",
+            "reco0Qgen0", "reco0Ggen0"};
 
     std::vector<std::string> rawbkgsigNum   = {"",       "",       "", "", "", "",
-            "",       "", "", "", "", "", "", ""};
+            "",       "", "", "", "", "", "", "",
+            "", ""};
     std::vector<std::string> rawbkgsigDenom = {"subtrk", "subtrk", "", "", "", "",
-            "subtrk", "", "", "", "", "", "",  "subtrk"};
+            "subtrk", "", "", "", "", "", "", "subtrk",
+            "", ""};
 
     std::vector<std::string> stepsNumPrefixes   = {"hjs", "hjs", "hjs", "hjs", "hjs", "hjs",
-            "hjs", "hjs", "hjs", "hjs", "hjs", "hjsuemix", "hjs", "hjs"};
+            "hjs", "hjs", "hjs", "hjs", "hjs", "hjsuemix", "hjs", "hjs",
+            "hjs", "hjs"};
     std::vector<std::string> stepsDenomPrefixes = {"hjs", "hjs", "hjs", "hjs", "hjs", "hjs",
-            "hjs", "hjs", "hjs", "hjs", "hjs", "hjsuemix", "hjs", "hjs"};
+            "hjs", "hjs", "hjs", "hjs", "hjs", "hjsuemix", "hjs", "hjs",
+            "hjs", "hjs"};
 
     int nSteps = recoGenStepsNum.size();
     int nStepsDenom = recoGenStepsDenom.size();
@@ -79,6 +85,8 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
                 for (int iPtType = 0; iPtType < nPtTypes; ++iPtType) {
                     for (int iTrkPt = 0; iTrkPt < nTrkPtBins + 1; ++iTrkPt) {
 
+                        std::cout << "iPt=" << iPt << " ieta=" << iEta << " icent="<<iCent << " ipttype="<<iPtType << " itrkpt="<<iTrkPt<< std::endl;
+
                         std::string strTrkPt = "";
                         if (iTrkPt < nTrkPtBins) strTrkPt = Form("_trkPtBin%d", iTrkPt);
 
@@ -91,12 +99,15 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
                                     sample.c_str(), recoGenStepsDenom[i].c_str(),
                                     ptTypes[iPtType].c_str(), iPt, iEta, strTrkPt.c_str(), min_hiBin[iCent], max_hiBin[iCent]);
 
+                            hTmp = 0;
+
                             hNum = 0;
                             hNum = (TH1D*)finput->Get(histNumName.c_str());
                             if (!hNum) {
                                 std::cout << "histogram not found : " << histNumName.c_str() << std::endl;
                                 continue;
                             }
+
                             if (rawbkgsigNum[i].find("subtrk") != std::string::npos) {
                                 std::string histTmpName = Form("%suemix_%s_%s_%sptBin%d_etaBin%d%s_%d_%d", stepsNumPrefixes[i].c_str(),
                                         sample.c_str(), recoGenStepsNum[i].c_str(),
@@ -157,10 +168,10 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
                             hCorrection->Write("",TObject::kOverwrite);
                             std::cout << "saved histogram " << histCorrName.c_str() << std::endl;
 
-                            hNum->Delete();
-                            hDenom->Delete();
-                            hCorrection->Delete();
-                            if (!hTmp) hTmp->Delete();
+                            if (!hNum) hNum->Delete();
+                            if (!hDenom) hDenom->Delete();
+                            if (!hCorrection) hCorrection->Delete();
+                            if (hTmp != 0) hTmp->Delete();
                         }
                     }
                 }
