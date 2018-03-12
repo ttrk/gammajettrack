@@ -377,6 +377,10 @@ public :
    Int_t           phoisEle;
    Int_t           pho_genMatchedIndex;
    Float_t         phoMCIsolation;
+   Float_t         phoMCPt;
+   Float_t         phoMCEta;
+   Float_t         phoMCPhi;
+   int             phoMCPID;
    Int_t           nMC;
    std::vector<int>     *mcPID;
    std::vector<float>   *mcCalIsoDR04;
@@ -510,6 +514,10 @@ public :
    TBranch        *b_phoisEle;   //!
    TBranch        *b_pho_genMatchedIndex;   //!
    TBranch        *b_phoMCIsolation;   //!
+   TBranch        *b_phoMCPt;   //!
+   TBranch        *b_phoMCEta;   //!
+   TBranch        *b_phoMCPhi;   //!
+   TBranch        *b_phoMCPID;   //!
    TBranch        *b_nMC;   //!
    TBranch        *b_mcPID;   //!
    TBranch        *b_mcCalIsoDR04;   //!
@@ -777,6 +785,10 @@ void photonjettrack::Init(std::string file, std::string bkg_file)
    fChain->SetBranchAddress("phoisEle", &phoisEle, &b_phoisEle);
    fChain->SetBranchAddress("pho_genMatchedIndex", &pho_genMatchedIndex, &b_pho_genMatchedIndex);
    fChain->SetBranchAddress("phoMCIsolation", &phoMCIsolation, &b_phoMCIsolation);
+   fChain->SetBranchAddress("phoMCPt", &phoMCPt, &b_phoMCPt);
+   fChain->SetBranchAddress("phoMCEta", &phoMCEta, &b_phoMCEta);
+   fChain->SetBranchAddress("phoMCPhi", &phoMCPhi, &b_phoMCPhi);
+   fChain->SetBranchAddress("phoMCPID", &phoMCPID, &b_phoMCPID);
    //fChain->SetBranchAddress("nMC", &nMC, &b_nMC);
    //fChain->SetBranchAddress("mcPID", &mcPID, &b_mcPID);
    //fChain->SetBranchAddress("mcCalIsoDR04", &mcCalIsoDR04, &b_mcCalIsoDR04);
