@@ -147,6 +147,8 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
     else if (sample == "ppmc")
         purity_sample = 3;
 
+    std::cout << "purity_sample = " << purity_sample << std::endl;
+
     int purity_pt = 0;
     switch (phoetmin) {
         case 60:
@@ -164,6 +166,8 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
             purity_pt = 1;
             break;
     }
+
+    std::cout << "purity_pt = " << purity_pt << std::endl;
 
     int purity_factors[3] = {0, 0, 0};
     switch (purity_group) {
@@ -419,6 +423,66 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
             hgj[b][s]->Write("",TObject::kOverwrite);
 
             hgj[s][s]->Write("",TObject::kOverwrite);
+        }
+    }
+
+
+    // photon observables
+    TH1D* hg[kN_RBS] = {0};
+
+    std::vector<std::string> inputObsg = {"hphopt"};
+    std::vector<std::string> outputObsg = {"hphopt"};
+
+    if (inputObsg.size() != outputObsg.size()) {
+        std::cout << "mismatching number of input and output gamma observables" << std::endl;
+        std::cout << "exiting." << std::endl;
+        return 1;
+    }
+    int nObsg = inputObsg.size();
+
+    for (int iObs = 0; iObs < nObsg; ++iObs) {
+
+        for (int i=0; i<6; ++i) {
+            std::string tag = Form("%s_%s_%i_%i", sample.c_str(), type.c_str(), min_hiBin[i], max_hiBin[i]);
+
+            if (!finput->Get(Form("hphopt_%s", tag.c_str())))  continue;
+
+            hphopt[r] = (TH1D*)finput->Get(Form("hphopt_%s", tag.c_str()))->Clone();
+            hphopt[b] = (TH1D*)finput->Get(Form("hphoptsideband_%s", tag.c_str()))->Clone();
+
+            hg[r] = 0;
+            hg[r] = (TH1D*)finput->Get(Form("%s_%s", inputObsg[iObs].c_str(), tag.c_str()));
+            if (hg[r] == 0)  continue;
+            else if (i == 0) {
+                std::cout << "working on gamma obs = " << inputObsg[iObs].c_str() << std::endl;
+            }
+            hg[r]->Write("",TObject::kOverwrite);
+
+            hg[b] = (TH1D*)finput->Get(Form("%ssideband_%s", inputObsg[iObs].c_str(), tag.c_str()));
+
+            if (sample == "pbpbmc" || sample == "ppmc") {
+                // write original objects as well
+                hg[r]->Write("",TObject::kOverwrite);
+                hg[b]->Write("",TObject::kOverwrite);
+            }
+
+            // normalize by the number of photons
+            hg[r]->Scale(1.0/hphopt[r]->Integral(), "width");
+            hg[b]->Scale(1.0/hphopt[b]->Integral(), "width");
+
+            hg[s] = (TH1D*)hg[r]->Clone(Form("%s_final_%s", outputObsg[iObs].c_str(), tag.c_str()));
+
+            hg[s]->Scale(1.0/purity[i]);
+            hg[s]->Add(hg[b], (purity[i] - 1.0)/purity[i]);
+
+            //hg[s]->Write(Form("%s_raw_final_%s", outputObsg[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
+
+            // write the objects explicitly
+            // normalized versions of the histograms in "_merged.root" file.
+            hg[r]->Write(Form("%s_norm", hg[r]->GetName()),TObject::kOverwrite);
+            hg[b]->Write(Form("%s_norm", hg[b]->GetName()),TObject::kOverwrite);
+
+            hg[s]->Write("",TObject::kOverwrite);
         }
     }
 
