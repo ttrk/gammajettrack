@@ -543,6 +543,15 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       recoGenStepsDenom = {"reco0recomatchg0", "reco0gen0", "srndTHref0gen0"};
   }
 
+  if (genlevel.find("corrqjs") != std::string::npos) {
+      recoGenStepsNum   = {"reco0gen",  "reco0gen0", "ref0Qgen0", "ref0gen0"};
+      recoGenStepsDenom = {"reco0reco", "reco0gen",  "reco0Qgen0", "sref0gen0"};
+  }
+  else if (genlevel.find("corrgjs") != std::string::npos) {
+      recoGenStepsNum   = {"reco0gen",  "reco0gen0", "ref0Ggen0", "ref0gen0"};
+      recoGenStepsDenom = {"reco0reco", "reco0gen",  "reco0Ggen0", "sref0gen0"};
+  }
+
   TH1D* hgammaffjs_corr_pt_eta_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nCentBins_js_corr][nSteps_js_corr];
   for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
       for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
@@ -689,13 +698,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_QG_jet = (jetLevel.find("QG") != std::string::npos);
   bool is_Q_jet = (!is_QG_jet && jetLevel.find("Q") != std::string::npos);
   bool is_G_jet = (!is_QG_jet && jetLevel.find("G") != std::string::npos);
-  bool is_corrected_js = (jetLevel.find("corrjs") != std::string::npos);
+  bool is_corrected_qjs = (jetLevel.find("corrqjs") != std::string::npos);
+  bool is_corrected_gjs = (jetLevel.find("corrgjs") != std::string::npos);
+  bool is_corrected_js = (jetLevel.find("corrjs") != std::string::npos) || is_corrected_qjs || is_corrected_gjs;
   bool is_corrected_js_step1 = (jetLevel.find("corrjs1") != std::string::npos);
   bool is_corrected_js_step2 = (jetLevel.find("corrjs2") != std::string::npos);
   bool is_corrected_js_step3 = (jetLevel.find("corrjs3") != std::string::npos);
   bool is_corrected_js_step4 = (jetLevel.find("corrjs4") != std::string::npos);
   bool is_corrected_js_ue0 = (jetLevel.find("corrjsue0") != std::string::npos);
   bool is_wta_jet = (jetLevel.find("WTA") != std::string::npos);
+  bool is_gen_pho = (jetLevel.find("gPho") != std::string::npos);
 
   if (is_smeared_jet && !is_ptsmeared_jet && !is_phismeared_jet && !is_etasmeared_jet) {
       is_ptsmeared_jet = true;
@@ -748,6 +760,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   }
   else if (is_corrected_js_step4) {
       corr_js_stepLast = 3;
+  }
+
+  if (is_corrected_qjs || is_corrected_gjs) {
+      corr_js_stepFirst = 2;
+      corr_js_stepLast = 2;
   }
 
   int corr_js_stepFirst_UE = 1;     // no reco track 2 gen track for UE tracks
@@ -866,12 +883,15 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     if (!isPP) { if (hiBin < centmin || hiBin >= centmax) continue; }
     if (phoNoise == 0) continue;
 
+    float phoEtTmp = phoEtCorrected;
+    if (is_gen_pho) phoEtTmp = phoMCPt;
+
     // photon energy systematics
     if (systematic == 4) {
       if (isPP) { ; }
-      else { phoEtCorrected = (hiBin < 60) ? phoEtCorrected * (90.94649 / 90.00079) : phoEtCorrected * (90.94943 / 90.64840); }
+      else if (!is_gen_pho) { phoEtTmp = (hiBin < 60) ? phoEtTmp * (90.94649 / 90.00079) : phoEtTmp * (90.94943 / 90.64840); }
     }
-    if (phoEtCorrected < phoetmin || phoEtCorrected > phoetmax) continue;
+    if (phoEtTmp < phoetmin || phoEtTmp > phoetmax) continue;
 
     // photon isolation systematics
     if (systematic == 5) {
@@ -897,7 +917,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     bool phoBkg = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
     if (!phoSig && !phoBkg) continue;
 
-    hphopt[phoBkg]->Fill(phoEtCorrected, weight);
+    hphopt[phoBkg]->Fill(phoEtTmp, weight);
 
     if (is_reco_jet || is_ref_jet) {
       nij = njet;
@@ -1190,7 +1210,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             break; }
           case 11: {
             float flavor_factor = 0;
-            if (!isPP && phoEtCorrected < 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
+            if (!isPP && phoEtTmp < 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
             tmpjetpt = tmpjetpt * (1 + flavor_factor);
             break; }
           case 12: {
@@ -1229,7 +1249,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         hjetpt[phoBkg][k_rawJet]->Fill(tmpjetpt, weight_jet);
         hjetptrebin[phoBkg][k_rawJet]->Fill(tmpjetpt, weight_jet);
         hjeteta[phoBkg][k_rawJet]->Fill(fabs(tmpjeteta), weight_jet);
-        hxjg[phoBkg][k_rawJet]->Fill(tmpjetpt/phoEtCorrected, weight_jet);
+        hxjg[phoBkg][k_rawJet]->Fill(tmpjetpt/phoEtTmp, weight_jet);
         if (is_ref_jet || is_reco_jet) {
             h2ptRatiorefrecoJet[phoBkg][k_rawJet]->Fill((*gjetpt)[ij], tmpjetpt/(*gjetpt)[ij], weight_jet);
             float dphi_refrecojet = getDPHI(tmpjetphi, (*gjetphi)[ij]);
@@ -1260,11 +1280,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         TLorentzVector vJet;
         vJet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
         TLorentzVector vPho;
-        vPho.SetPtEtaPhiM(phoEtCorrected, 0, phoPhi, 0);
+        vPho.SetPtEtaPhiM(phoEtTmp, 0, phoPhi, 0);
 
         float refP = -1;
-        if (defnFF == k_jetFF)  refP = gammaxi ? phoEtCorrected : vJet.P();
-        else if (defnFF == k_jetShape) refP = gammaxi ? phoEtCorrected : tmpjetpt;
+        if (defnFF == k_jetFF)  refP = gammaxi ? phoEtTmp : vJet.P();
+        else if (defnFF == k_jetShape) refP = gammaxi ? phoEtTmp : tmpjetpt;
 
         Nch = 0;
         phi_moment1 = 0;
@@ -2006,7 +2026,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             break; }
           case 11: {
             float flavor_factor = 0;
-            if (!isPP && phoEtCorrected < 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
+            if (!isPP && phoEtTmp < 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
             tmpjetpt = tmpjetpt * (1 + flavor_factor);
             break; }
           case 12: {
@@ -2045,7 +2065,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         hjetpt[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight_jet);
         hjetptrebin[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight_jet);
         hjeteta[phoBkg][k_bkgJet]->Fill(fabs(tmpjeteta), weight_jet);
-        hxjg[phoBkg][k_bkgJet]->Fill(tmpjetpt/phoEtCorrected, weight_jet);
+        hxjg[phoBkg][k_bkgJet]->Fill(tmpjetpt/phoEtTmp, weight_jet);
         if (is_ref_jet || is_reco_jet) {
             h2ptRatiorefrecoJet[phoBkg][k_bkgJet]->Fill((*gjetpt_mix)[ij_mix], tmpjetpt/(*gjetpt_mix)[ij_mix], weight_jet);
             float dphi_refrecojet = getDPHI(tmpjetphi, (*gjetphi_mix)[ij_mix]);
@@ -2076,11 +2096,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         TLorentzVector vJet;
         vJet.SetPtEtaPhiM(tmpjetpt, tmpjeteta, tmpjetphi, 0);
         TLorentzVector vPho;
-        vPho.SetPtEtaPhiM(phoEtCorrected, 0, phoPhi, 0);
+        vPho.SetPtEtaPhiM(phoEtTmp, 0, phoPhi, 0);
 
-        float refP = gammaxi ? phoEtCorrected : tmpjetpt;
-        if (defnFF == k_jetFF) refP = gammaxi ? phoEtCorrected : vJet.P();
-        else if (defnFF == k_jetShape) refP = gammaxi ? phoEtCorrected : tmpjetpt;
+        float refP = gammaxi ? phoEtTmp : tmpjetpt;
+        if (defnFF == k_jetFF) refP = gammaxi ? phoEtTmp : vJet.P();
+        else if (defnFF == k_jetShape) refP = gammaxi ? phoEtTmp : tmpjetpt;
 
         Nch = 0;
         phi_moment1 = 0;
