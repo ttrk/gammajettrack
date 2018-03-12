@@ -38,6 +38,10 @@ class photonJetTrackTree {
         pho_sumIsoCorrected = 0;
         pho_genMatchedIndex = 0;
         phoMCIsolation = 0;
+        phoMCPt = 0;
+        phoMCEta = 0;
+        phoMCPhi = 0;
+        phoMCPID = 0;
         phoSigmaIEtaIEta_2012 = 0;
         phoNoise = 0;
         phoisEle = 0;
@@ -89,6 +93,7 @@ class photonJetTrackTree {
     std::vector<float> pt;
     std::vector<float> eta;
     std::vector<float> phi;
+    std::vector<int> pdg;
     std::vector<int> chg;
     std::vector<int> sube;
 
@@ -140,6 +145,10 @@ class photonJetTrackTree {
     float pho_sumIsoCorrected;
     float pho_genMatchedIndex;
     float phoMCIsolation;
+    float phoMCPt;
+    float phoMCEta;
+    float phoMCPhi;
+    int phoMCPID;
     float phoSigmaIEtaIEta_2012;
     int phoNoise;
     int phoisEle;
@@ -183,6 +192,7 @@ void photonJetTrackTree::create_tree(TTree* t) {
     t->Branch("pt", &pt);
     t->Branch("eta", &eta);
     t->Branch("phi", &phi);
+    t->Branch("pdg", &pdg);
     t->Branch("chg", &chg);
     t->Branch("sube", &sube);
 
@@ -234,6 +244,10 @@ void photonJetTrackTree::create_tree(TTree* t) {
     t->Branch("pho_sumIsoCorrected", &pho_sumIsoCorrected, "pho_sumIsoCorrected/F");
     t->Branch("pho_genMatchedIndex", &pho_genMatchedIndex, "pho_genMatchedIndex/F");
     t->Branch("phoMCIsolation", &phoMCIsolation, "phoMCIsolation/F");
+    t->Branch("phoMCPt", &phoMCPt, "phoMCPt/F");
+    t->Branch("phoMCEta", &phoMCEta, "phoMCEta/F");
+    t->Branch("phoMCPhi", &phoMCPhi, "phoMCPhi/F");
+    t->Branch("phoMCPID", &phoMCPID, "phoMCPID/I");
     t->Branch("phoSigmaIEtaIEta_2012", &phoSigmaIEtaIEta_2012, "phoSigmaIEtaIEta_2012/F");
     t->Branch("phoNoise", &phoNoise, "phoNoise/I");
     t->Branch("phoisEle", &phoisEle, "phoisEle/I");
@@ -263,6 +277,7 @@ void photonJetTrackTree::clear_vectors() {
     pt.clear();
     eta.clear();
     phi.clear();
+    pdg.clear();
     chg.clear();
     sube.clear();
 

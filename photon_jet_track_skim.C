@@ -447,10 +447,19 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     pjtt.pho_sumIso = sumIso;
     pjtt.pho_sumIsoCorrected = sumIsoCorrected;
     pjtt.phoMCIsolation = 0;
+    pjtt.phoMCPt = -1;
+    pjtt.phoMCEta = 999;
+    pjtt.phoMCPhi = 999;
+    pjtt.phoMCPID = 0;
     if (isMC) {
       pjtt.pho_genMatchedIndex = (*pt.pho_genMatchedIndex)[maxPhoIndex];
-      if (pjtt.pho_genMatchedIndex != -1)
-        pjtt.phoMCIsolation = (*pt.mcCalIsoDR04)[pjtt.pho_genMatchedIndex];
+      if (pjtt.pho_genMatchedIndex != -1) {
+          pjtt.phoMCIsolation = (*pt.mcCalIsoDR04)[pjtt.pho_genMatchedIndex];
+          pjtt.phoMCPt = (*pt.mcPt)[pjtt.pho_genMatchedIndex];
+          pjtt.phoMCEta = (*pt.mcEta)[pjtt.pho_genMatchedIndex];
+          pjtt.phoMCPhi = (*pt.mcPhi)[pjtt.pho_genMatchedIndex];
+          pjtt.phoMCPID = (*pt.mcPID)[pjtt.pho_genMatchedIndex];
+      }
     }
 
     pjtt.phoSigmaIEtaIEta_2012 = (*pt.phoSigmaIEtaIEta_2012)[maxPhoIndex];
@@ -553,6 +562,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
         pjtt.pt.push_back((*gpt.pt)[igenp]);
         pjtt.eta.push_back((*gpt.eta)[igenp]);
         pjtt.phi.push_back((*gpt.phi)[igenp]);
+        pjtt.pdg.push_back((*gpt.pdg)[igenp]);
         pjtt.chg.push_back((*gpt.chg)[igenp]);
         pjtt.sube.push_back((*gpt.sube)[igenp]);
       }
