@@ -356,6 +356,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 th1_ratio_abs(hcorrqjs, true);
                 th1_ratio_abs(hcorrgjs, true);
 
+                hcorrgjs->Reset();
                 th1_max_of_2_th1(hcorrqjs, hcorrgjs, hsys_js_nc_corrjs3[i]);
                 hsys_js_nc_corrjs3[i]->Multiply(hnominals[i]);
             }
