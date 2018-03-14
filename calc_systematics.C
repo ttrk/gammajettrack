@@ -129,6 +129,10 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     for (int i=0; i<nfiles; ++i)
         fsys[i] = new TFile(file_list[i].c_str(), "read");
 
+    TFile* file_jsqgcorr = 0;
+    if (isPP)  file_jsqgcorr = new TFile("jsclosure_ppmc_60_30_gxi0_obs2_ffjs_finaljsqgcorr.root", "read");
+    else       file_jsqgcorr = new TFile("jsclosure_pbpbmc_60_30_gxi0_obs2_ffjs_finaljsqgcorr.root", "read");
+
     TFile* fout = new TFile(Form("%s-systematics.root", label), "update");
 
     total_sys_var_t* total_sys_vars[nhists] = {0};
@@ -301,6 +305,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             // systematics for non-closure remaining at r<0.1 for gluon jets after step 3 of js corrections
             hsys_js_nc_corrjs3[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjs3", hnominals[i]->GetName()));
             {
+                /*
                 std::string hnominal_raw_name = hist_list[i];
                 if (isnorm1) {
                     hnominal_raw_name = replaceAll(hist_list[i], "hjs_", "hjs_raw_");
@@ -322,11 +327,61 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 if (isnorm1) {
                     hsys_js_nc_corrjs3[i]->Scale(1.0 / hsys_js_nc_corrjs3[i]->Integral(1, hsys_js_nc_corrjs3[i]->FindBin(0.3)-1), "width");
                 }
+                */
+
+                std::string recogenlevel = "corrjsrecoreco";
+                std::string hNameTmp = replaceAll(hist_list[i], "data", "mc");
+                std::string hName_corrqjs = replaceAll(hNameTmp, recogenlevel, "corrqjsreco0gen0");
+                std::string hName_corrgjs = replaceAll(hNameTmp, recogenlevel, "corrgjsreco0gen0");
+                std::string hName_corrjs = replaceAll(hNameTmp, recogenlevel, "corrjsreco0gen0");
+                if (isPP) {
+                    hName_corrqjs = "hjs_ppmc_corrqjsreco0gen0_100_200";
+                    hName_corrgjs = "hjs_ppmc_corrgjsreco0gen0_100_200";
+                    hName_corrjs = "hjs_ppmc_corrjsreco0gen0_100_200";
+                }
+                else {
+                    hName_corrqjs = replaceAll(hName_corrqjs, "_60_200", "_60_100");
+                    hName_corrqjs = replaceAll(hName_corrqjs, "_0_60", "_0_20");
+                    hName_corrgjs = replaceAll(hName_corrqjs, "corrqjsreco0gen0", "corrgjsreco0gen0");
+                    hName_corrjs = replaceAll(hName_corrqjs, "corrqjsreco0gen0", "corrjsreco0gen0");
+                }
+
+                std::cout << "hName_corrqjs = " << hName_corrqjs.c_str() << std::endl;
+                std::cout << "hName_corrgjs = " << hName_corrgjs.c_str() << std::endl;
+                std::cout << "hName_corrjs = " << hName_corrjs.c_str() << std::endl;
+
+                TH1D* hcorrqjs = (TH1D*)file_jsqgcorr->Get(hName_corrqjs.c_str());
+                TH1D* hcorrgjs = (TH1D*)file_jsqgcorr->Get(hName_corrgjs.c_str());
+                TH1D* hcorrjs = (TH1D*)file_jsqgcorr->Get(hName_corrjs.c_str());
+
+                std::cout << "hcorrqjs = " <<  std::endl;
+                hcorrqjs->Print();
+                std::cout << "hcorrgjs = " <<  std::endl;
+                hcorrgjs->Print();
+                std::cout << "hcorrjs = " <<  std::endl;
+                hcorrjs->Print();
+
+                hcorrqjs->Divide(hcorrjs);
+                hcorrgjs->Divide(hcorrjs);
+
+                th1_ratio_abs(hcorrqjs, true);
+                th1_ratio_abs(hcorrgjs, true);
+
+                hcorrqjs->Print("all");
+                hcorrgjs->Print("all");
+                th1_max_of_2_th1(hcorrqjs, hcorrgjs, hsys_js_nc_corrjs3[i]);
+                std::cout << "th1_max_of_2_th1(hcorrqjs, hcorrgjs, hsys_js_nc_corrjs3[i]);" <<  std::endl;
+                hsys_js_nc_corrjs3[i]->Print("all");
+                hsys_js_nc_corrjs3[i]->Multiply(hnominals[i]);
+                std::cout << "hsys_js_nc_corrjs3[i]->Multiply(hnominals[i]);" <<  std::endl;
+                hsys_js_nc_corrjs3[i]->Print("all");
+
+                //file_jsqgcorr->Close();
             }
             sys_var_t* sysVar_js_nc_corrjs3 = new sys_var_t(hist_list[i], "js_nonclosure_corrjs3", hnominals[i], hsys_js_nc_corrjs3[i]);
             sysVar_js_nc_corrjs3->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
             sysVar_js_nc_corrjs3->write();
-            total_sys_vars_js_nc[i]->add_sys_var(sysVar_js_nc_corrjs3, 0, 2);
+            total_sys_vars_js_nc[i]->add_sys_var(sysVar_js_nc_corrjs3, 0, 0);
 
             hsys_js_nonclosure[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure", hnominals[i]->GetName()));
             hsys_js_nonclosure[i]->Add(total_sys_vars_js_nc[i]->get_total(), 1);
@@ -343,6 +398,8 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
     for (int i=0; i<nfiles; ++i)
         fsys[i]->Close();
+
+    file_jsqgcorr->Close();
 
     TCanvas* c1 = 0;
     for (int i=0; i<nhists; ++i) {
