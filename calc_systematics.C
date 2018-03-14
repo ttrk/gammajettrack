@@ -346,20 +346,9 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                     hName_corrjs = replaceAll(hName_corrqjs, "corrqjsreco0gen0", "corrjsreco0gen0");
                 }
 
-                std::cout << "hName_corrqjs = " << hName_corrqjs.c_str() << std::endl;
-                std::cout << "hName_corrgjs = " << hName_corrgjs.c_str() << std::endl;
-                std::cout << "hName_corrjs = " << hName_corrjs.c_str() << std::endl;
-
                 TH1D* hcorrqjs = (TH1D*)file_jsqgcorr->Get(hName_corrqjs.c_str());
                 TH1D* hcorrgjs = (TH1D*)file_jsqgcorr->Get(hName_corrgjs.c_str());
                 TH1D* hcorrjs = (TH1D*)file_jsqgcorr->Get(hName_corrjs.c_str());
-
-                std::cout << "hcorrqjs = " <<  std::endl;
-                hcorrqjs->Print();
-                std::cout << "hcorrgjs = " <<  std::endl;
-                hcorrgjs->Print();
-                std::cout << "hcorrjs = " <<  std::endl;
-                hcorrjs->Print();
 
                 hcorrqjs->Divide(hcorrjs);
                 hcorrgjs->Divide(hcorrjs);
@@ -367,16 +356,8 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 th1_ratio_abs(hcorrqjs, true);
                 th1_ratio_abs(hcorrgjs, true);
 
-                hcorrqjs->Print("all");
-                hcorrgjs->Print("all");
                 th1_max_of_2_th1(hcorrqjs, hcorrgjs, hsys_js_nc_corrjs3[i]);
-                std::cout << "th1_max_of_2_th1(hcorrqjs, hcorrgjs, hsys_js_nc_corrjs3[i]);" <<  std::endl;
-                hsys_js_nc_corrjs3[i]->Print("all");
                 hsys_js_nc_corrjs3[i]->Multiply(hnominals[i]);
-                std::cout << "hsys_js_nc_corrjs3[i]->Multiply(hnominals[i]);" <<  std::endl;
-                hsys_js_nc_corrjs3[i]->Print("all");
-
-                //file_jsqgcorr->Close();
             }
             sys_var_t* sysVar_js_nc_corrjs3 = new sys_var_t(hist_list[i], "js_nonclosure_corrjs3", hnominals[i], hsys_js_nc_corrjs3[i]);
             sysVar_js_nc_corrjs3->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
