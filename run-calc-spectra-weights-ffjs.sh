@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -lt 1 ]; then
+if [ $# -lt 2 ]; then
   echo "Usage: ./run-calc-spectra-weights-ffjs.sh [input] [output]"
   echo "Example: ./run-calc-spectra-weights-ffjs.sh /export/d00/scratch/tatar/GJT-out/results//jsdata_data_60_30_gxi0_obs2_ffjs_final.root /export/d00/scratch/tatar/GJT-out/results//jsdata_data_60_30_gxi0_obs2_ffjs_spectra_weights.root"
   exit 1
