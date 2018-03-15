@@ -43,6 +43,7 @@ enum MODES {
     k_data_sysvar,
     k_data_sysall,
     k_data_sysalltot,
+    k_data_sysallpercnt,
     k_data_sysalltotpercnt,
     k_mc_reco_gen,
     kN_modes
@@ -79,15 +80,16 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         is_pbpbdata = is_pbpbdata || (hist_names[i].find("pbpbdata") != std::string::npos);
         is_pbpb_pp_ratio = (hist_names[i].find("final_ratio") != std::string::npos);
     }
-    if (is_sysvar) {
-        mode = k_data_sysvar;
-        if (std::string(plot_name).find("sysall") != std::string::npos)
-            mode = k_data_sysall;
-        if (std::string(plot_name).find("sysalltot") != std::string::npos)
-            mode = k_data_sysalltot;
-        if (std::string(plot_name).find("sysalltotpercnt") != std::string::npos)
-            mode = k_data_sysalltotpercnt;
-    }
+    if (is_sysvar) mode = k_data_sysvar;
+    if (std::string(plot_name).find("sysall") != std::string::npos)
+        mode = k_data_sysall;
+    if (std::string(plot_name).find("sysalltot") != std::string::npos)
+        mode = k_data_sysalltot;
+    if (std::string(plot_name).find("sysallpercnt") != std::string::npos)
+        mode = k_data_sysallpercnt;
+    if (std::string(plot_name).find("sysalltotpercnt") != std::string::npos)
+        mode = k_data_sysalltotpercnt;
+
     else if (is_ppmc)  {
         mode = k_mc_reco_gen;
         mcSampleStr = "Pythia";
@@ -202,7 +204,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             if ((mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) && l == layers-1)  continue;
 
             hTmp = (TH1D*)h1[i][l]->Clone("hTmp");
-            if (mode == k_data_sysalltotpercnt) {
+            if (mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt) {
                 hTmp->Multiply(h1[i][0]);
                 th1_copy_bin_errors(hTmp, h1[i][0]);
             }
@@ -243,28 +245,29 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         if ((mode == k_data_pp_pbpb && i == 1) || (mode == k_data_sysvar && i == 0)
                                                || (mode == k_data_sysall && i == 0)
                                                || (mode == k_data_sysalltot && i == 0)
+                                               || (mode == k_data_sysallpercnt && i == 0)
                                                || (mode == k_data_sysalltotpercnt && i == 0)
                                                || (mode == k_mc_reco_gen && i == 0)) {
             float legX1 = 0.10;
             float legWidth = 0.45;
-            if ((mode == k_data_sysvar || mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt || mode == k_mc_reco_gen) && (option == kJS_r_lt_1 || option == kJS_r_lt_0p3)) {
+            if ((mode == k_data_sysvar || mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt || mode == k_mc_reco_gen) && (option == kJS_r_lt_1 || option == kJS_r_lt_0p3)) {
                 legX1 = 0.25;
                 legWidth = 0.30;
-                if (mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) {
+                if (mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt) {
                     legX1 = 0.22;
                     legWidth = 0.30*2.4;
                 }
             }
-            else if ((mode == k_data_sysvar || mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt || mode == k_mc_reco_gen) && (option == kFF_xi_gt_0p5_lt_4p5 || option == kFF_xi_gt_0p5_lt_4p5)) {
+            else if ((mode == k_data_sysvar || mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt || mode == k_mc_reco_gen) && (option == kFF_xi_gt_0p5_lt_4p5 || option == kFF_xi_gt_0p5_lt_4p5)) {
                 legX1 = 0.25;
                 legWidth = 0.30;
-                if (mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) {
+                if (mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt) {
                     legX1 = 0.22;
                     legWidth = 0.30*2.4;
                 }
             }
             l1 = new TLegend(legX1, 0.84-layers*0.08, legX1+legWidth, 0.84);
-            if (mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) {
+            if (mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysallpercnt|| mode == k_data_sysalltotpercnt) {
                 l1 = new TLegend(legX1, 0.78-layers*0.08/2, legX1+legWidth, 0.78);
                 l1->SetNColumns(2);
             }
@@ -280,7 +283,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                 if (mcSampleStr.size() > 0)
                     l1->SetHeader(mcSampleStr.c_str());
                 for (std::size_t m=0; m<layers; ++m) {
-                    if ((mode == k_data_sysalltot || mode == k_data_sysalltotpercnt)&& m == layers-1)  continue;
+                    if ((mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) && m == layers-1)  continue;
 
                     l1->AddEntry(h1[0][m], hist_names[5*m].c_str(), legendOptions[m].c_str());
                 }
@@ -325,7 +328,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                     if (l2 != 0)
                         l2->AddEntry(hratio[i][r], hist_names[5*r].c_str(), "l");
                 }
-                else if (mode == k_data_sysalltotpercnt && r < layers -1) {
+                else if ((mode == k_data_sysallpercnt && r < layers) || (mode == k_data_sysalltotpercnt && r < layers -1)) {
                     hratio[i][r] = (TH1D*)h1[i][r]->Clone(Form("hratio_%i_%zu", i, r));
 
                     for (int iBin = 1; iBin <= hratio[i][r]->GetNbinsX(); ++iBin) {
@@ -352,7 +355,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                 set_axis_range(hratio[i][r], gammaxi, true, option);
                 set_axis_title(hratio[i][r], gammaxi, true, option);
 
-                if (mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) {
+                if (mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt) {
                     hratio[i][r]->Draw("hist same l");
                 }
                 else {
@@ -374,7 +377,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             TLine* line1 = new TLine(gPad->GetUxmin(), 1, gPad->GetUxmax(), 1);
             line1->SetLineWidth(1);
             line1->SetLineStyle(2);
-            if (mode != k_data_sysalltotpercnt)  {
+            if (mode != k_data_sysallpercnt && mode != k_data_sysalltotpercnt)  {
                 line1->Draw();
             }
         }
@@ -498,7 +501,7 @@ void set_hist_style(TH1D* h1, int k) {
             break;
     }
 
-    if (mode == k_data_sysvar || mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) {
+    if (mode == k_data_sysvar || mode == k_data_sysall || mode == k_data_sysalltot || mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt) {
         h1->SetLineWidth(2);
         h1->SetMarkerSize(h1->GetMarkerSize()*1.5);
     }
@@ -584,7 +587,7 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
                 if (mode == k_data_pp_pbpb)      h1->SetYTitle("PbPb/pp");
                 else if (mode == k_data_sysvar || mode == k_data_sysall
                                                || mode == k_data_sysalltot)  h1->SetYTitle("var / nominal");
-                else if (mode == k_data_sysalltotpercnt)  h1->SetYTitle("Systematics in %");
+                else if (mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt)  h1->SetYTitle("Systematics in %");
                 else if (mode == k_mc_reco_gen)  h1->SetYTitle("reco / gen");
             }
             else {
@@ -602,7 +605,7 @@ void set_axis_title(TH1D* h1, int gammaxi, bool isRatio, int option)
                 if (mode == k_data_pp_pbpb)      h1->SetYTitle("PbPb/pp");
                 else if (mode == k_data_sysvar || mode == k_data_sysall
                                                || mode == k_data_sysalltot)  h1->SetYTitle("var / nominal");
-                else if (mode == k_data_sysalltotpercnt)  h1->SetYTitle("Systematics in %");
+                else if (mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt)  h1->SetYTitle("Systematics in %");
                 else if (mode == k_mc_reco_gen)  h1->SetYTitle("reco/gen");
             }
             else {
@@ -635,6 +638,10 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 }
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
+                else if (mode == k_data_sysallpercnt)  {
+                    h1->SetAxisRange(0, 12, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 3, "Y");
+                }
                 else if (mode == k_data_sysalltotpercnt)  {
                     h1->SetAxisRange(0, 20, "Y");
                     if (is_ppdata)  h1->SetAxisRange(0, 6, "Y");
@@ -656,6 +663,10 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 }
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
+                else if (mode == k_data_sysallpercnt)  {
+                    h1->SetAxisRange(0, 12, "Y");
+                    if (is_ppdata)  h1->SetAxisRange(0, 3, "Y");
+                }
                 else if (mode == k_data_sysalltotpercnt)  {
                     h1->SetAxisRange(0, 20, "Y");
                     if (is_ppdata)  h1->SetAxisRange(0, 6, "Y");
@@ -673,7 +684,7 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
-                else if (mode == k_data_sysalltotpercnt)  {
+                else if (mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt)  {
                     h1->SetAxisRange(0, 30, "Y");
                     if (is_ppdata)  h1->SetAxisRange(0, 14, "Y");
                 }
@@ -691,7 +702,7 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
                 else if (mode == k_data_sysvar)  h1->SetAxisRange(0.4, 1.6, "Y");
                 else if (mode == k_data_sysall)  h1->SetAxisRange(0.8, 1.3, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0.8, 1.3, "Y");
-                else if (mode == k_data_sysalltotpercnt)  {
+                else if (mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt)  {
                     h1->SetAxisRange(0, 30, "Y");
                     if (is_ppdata)  h1->SetAxisRange(0, 14, "Y");
                 }
@@ -700,7 +711,7 @@ void set_axis_range(TH1D* h1, int gammaxi, bool isRatio, int option)
             else  {
                 if (mode == k_data_sysall)  h1->SetAxisRange(0, 6, "Y");
                 else if (mode == k_data_sysalltot)  h1->SetAxisRange(0, 6, "Y");
-                else if (mode == k_data_sysalltotpercnt)  h1->SetAxisRange(0, 6, "Y");
+                else if (mode == k_data_sysallpercnt || mode == k_data_sysalltotpercnt)  h1->SetAxisRange(0, 6, "Y");
                 else h1->SetAxisRange(0, 4, "Y");
             }
             break;
