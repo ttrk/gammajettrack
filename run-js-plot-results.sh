@@ -445,12 +445,11 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
       sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11)
-      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure tracking_up jes_qg_down bkgsub)
+      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down js_nonclosure tracking_up pes jes_qg_down bkgsub)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
       "JER"
-      "PES"
       "isolation"
       "electron rejection"
       "purity UP"
@@ -458,10 +457,11 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       #"Long range"
       "nonclosure"
       "tracking eff."
+      "PES"
       "JES quark-jet"
       "bkg sub"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1 0 1 1 0)
+      sysMethodIndices=(1 1 1 1 1 1 1 0 1 1 1 0)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -495,14 +495,13 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       rm $PLOTLIST
     
     elif [[ $sample == "ppdata" ]]; then
-      sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8)
       #sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
-      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure tracking_up)
+      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down js_nonclosure tracking_up)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
       "JER"
-      "PES"
       "isolation"
       "electron rejection"
       "purity UP"
@@ -511,7 +510,7 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "nonclosure"
       "tracking eff."
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1 0 1)
+      sysMethodIndices=(1 1 1 1 1 1 1 0 1)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -548,12 +547,11 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
       sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11)
-      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure tracking_ratio jes_qg_down bkgsub)
+      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down js_nonclosure tracking_ratio pes jes_qg_down bkgsub)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
       "JER"
-      "PES"
       "isolation"
       "electron rejection"
       "purity UP"
@@ -561,6 +559,7 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       #"Long range"
       "nonclosure"
       "tracking eff."
+      "PES"
       "JES quark-jet"
       "bkg sub"
        )
@@ -570,7 +569,7 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "ratio_fit"
       )
 
-      echo -e "PbPb - nominal" >> $PLOTLIST
+      echo -e "PbPb/pp - nominal" >> $PLOTLIST
       echo -e "hjs_final_ratio_100_200_nominal" >> $PLOTLIST
       echo -e "hjs_final_ratio_60_100_nominal" >> $PLOTLIST
       echo -e "hjs_final_ratio_20_60_nominal" >> $PLOTLIST
@@ -595,6 +594,358 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       echo -e "hjs_final_ratio_0_20_systematics" >> $PLOTLIST
 
       ./plot_results.exe $sysFile ${outPrefix}_ratio_sysalltotpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      rm $PLOTLIST
+    fi
+elif [[ $label == "sysallpercnt_phosys" ]]; then
+    echo "running $label"
+    set -x
+    outPrefix=$outDir"data_sysvar_phosys"
+
+    sysFile=${inDir}sys/jssys_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs-systematics.root
+    echo "sysFile : $sysFile"
+
+    if [[ $sample == "pbpbdata" ]]; then
+      sysVarIndices=(0 1 2 3 4)
+      sysVarLabels=(iso ele_rej purity_up purity_down pes)
+      sysVarTitles=(
+      "isolation"
+      "electron rejection"
+      "purity UP"
+      "purity DOWN"
+      "PES"
+       )
+      sysMethodIndices=(1 1 1 1 1)
+      sysMethodSuffices=(
+      "ratio" 
+      "ratio_fit"
+      )
+
+      echo -e "PbPb - nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_60_100_nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_20_60_nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_nominal" >> $PLOTLIST
+      for i1 in ${!sysVarIndices[*]}
+      do
+        iSys=${sysVarIndices[i1]}
+        sysVarLabel=${sysVarLabels[iSys]}
+        sysVarTitle=${sysVarTitles[iSys]}
+        iSysMethod=${sysMethodIndices[i1]}
+        sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_60_100_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_20_60_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+      done
+
+      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      rm $PLOTLIST
+    
+    elif [[ $sample == "ppdata" ]]; then
+      sysVarIndices=(0 1 2 3)
+      sysVarLabels=(iso ele_rej purity_up purity_down)
+      sysVarTitles=(
+      "isolation"
+      "electron rejection"
+      "purity UP"
+      "purity DOWN"
+       )
+      sysMethodIndices=(1 1 1 1)
+      sysMethodSuffices=(
+      "ratio" 
+      "ratio_fit"
+      )
+
+      echo -e "pp - nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_100_200_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_60_100_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_20_60_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_0_20_nominal" >> $PLOTLIST
+      for i1 in ${!sysVarIndices[*]}
+      do
+        iSys=${sysVarIndices[i1]}
+        sysVarLabel=${sysVarLabels[iSys]}
+        sysVarTitle=${sysVarTitles[iSys]}
+        iSysMethod=${sysMethodIndices[i1]}
+        sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_60_100_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_20_60_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+      done
+
+      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      rm $PLOTLIST
+    elif [[ $sample == "ratio" ]]; then
+
+      sysVarIndices=(0 1 2 3 4)
+      sysVarLabels=(iso ele_rej purity_up purity_down pes)
+      sysVarTitles=(
+      "isolation"
+      "electron rejection"
+      "purity UP"
+      "purity DOWN"
+      "PES"
+       )
+      sysMethodIndices=(1 1 1 1 1)
+      sysMethodSuffices=(
+      "ratio"
+      "ratio_fit"
+      )
+
+      echo -e "PbPb/pp - nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_100_200_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_60_100_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_20_60_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_0_20_nominal" >> $PLOTLIST
+      for i1 in ${!sysVarIndices[*]}
+      do
+        iSys=${sysVarIndices[i1]}
+        sysVarLabel=${sysVarLabels[iSys]}
+        sysVarTitle=${sysVarTitles[iSys]}
+        iSysMethod=${sysMethodIndices[i1]}
+        sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hjs_final_ratio_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ratio_60_100_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ratio_20_60_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ratio_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+      done
+
+      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      rm $PLOTLIST
+    fi
+elif [[ $label == "sysallpercnt_jetsys" ]]; then
+    echo "running $label"
+    set -x
+    outPrefix=$outDir"data_sysvar_jetsys"
+
+    sysFile=${inDir}sys/jssys_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs-systematics.root
+    echo "sysFile : $sysFile"
+
+    if [[ $sample == "pbpbdata" ]]; then
+      sysVarIndices=(0 1 2 3)
+      sysVarLabels=(jes_down jes_up jer jes_qg_down)
+      sysVarTitles=(
+      "JES DOWN"
+      "JES UP"
+      "JER"
+      "JES quark-jet"
+       )
+      sysMethodIndices=(1 1 1 1)
+      sysMethodSuffices=(
+      "ratio" 
+      "ratio_fit"
+      )
+
+      echo -e "PbPb - nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_60_100_nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_20_60_nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_nominal" >> $PLOTLIST
+      for i1 in ${!sysVarIndices[*]}
+      do
+        iSys=${sysVarIndices[i1]}
+        sysVarLabel=${sysVarLabels[iSys]}
+        sysVarTitle=${sysVarTitles[iSys]}
+        iSysMethod=${sysMethodIndices[i1]}
+        sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_60_100_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_20_60_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+      done
+
+      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      rm $PLOTLIST
+    
+    elif [[ $sample == "ppdata" ]]; then
+      sysVarIndices=(0 1 2)
+      sysVarLabels=(jes_down jes_up jer)
+      sysVarTitles=(
+      "JES DOWN"
+      "JES UP"
+      "JER"
+       )
+      sysMethodIndices=(1 1 1)
+      sysMethodSuffices=(
+      "ratio" 
+      "ratio_fit"
+      )
+
+      echo -e "pp - nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_100_200_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_60_100_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_20_60_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_0_20_nominal" >> $PLOTLIST
+      for i1 in ${!sysVarIndices[*]}
+      do
+        iSys=${sysVarIndices[i1]}
+        sysVarLabel=${sysVarLabels[iSys]}
+        sysVarTitle=${sysVarTitles[iSys]}
+        iSysMethod=${sysMethodIndices[i1]}
+        sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_60_100_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_20_60_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+      done
+
+      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      rm $PLOTLIST
+    elif [[ $sample == "ratio" ]]; then
+      sysVarIndices=(0 1 2 3)
+      sysVarLabels=(jes_down jes_up jer jes_qg_down)
+      sysVarTitles=(
+      "JES DOWN"
+      "JES UP"
+      "JER"
+      "JES quark-jet"
+       )
+      sysMethodIndices=(1 1 1 1)
+      sysMethodSuffices=(
+      "ratio" 
+      "ratio_fit"
+      )
+
+      echo -e "PbPb/pp - nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_100_200_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_60_100_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_20_60_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_0_20_nominal" >> $PLOTLIST
+      for i1 in ${!sysVarIndices[*]}
+      do
+        iSys=${sysVarIndices[i1]}
+        sysVarLabel=${sysVarLabels[iSys]}
+        sysVarTitle=${sysVarTitles[iSys]}
+        iSysMethod=${sysMethodIndices[i1]}
+        sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hjs_final_ratio_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ratio_60_100_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ratio_20_60_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ratio_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+      done
+
+      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      rm $PLOTLIST
+    fi
+elif [[ $label == "sysallpercnt_othersys" ]]; then
+    echo "running $label"
+    set -x
+    outPrefix=$outDir"data_sysvar_othersys"
+
+    sysFile=${inDir}sys/jssys_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs-systematics.root
+    echo "sysFile : $sysFile"
+
+    if [[ $sample == "pbpbdata" ]]; then
+      sysVarIndices=(0 1 2)
+      sysVarLabels=(js_nonclosure tracking_up bkgsub)
+      sysVarTitles=(
+      "nonclosure"
+      "tracking eff."
+      "bkg sub"
+       )
+      sysMethodIndices=(0 1 0)
+      sysMethodSuffices=(
+      "ratio" 
+      "ratio_fit"
+      )
+
+      echo -e "PbPb - nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_60_100_nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_20_60_nominal" >> $PLOTLIST
+      echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_nominal" >> $PLOTLIST
+      for i1 in ${!sysVarIndices[*]}
+      do
+        iSys=${sysVarIndices[i1]}
+        sysVarLabel=${sysVarLabels[iSys]}
+        sysVarTitle=${sysVarTitles[iSys]}
+        iSysMethod=${sysMethodIndices[i1]}
+        sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_60_100_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_20_60_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+      done
+
+      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      rm $PLOTLIST
+    
+    elif [[ $sample == "ppdata" ]]; then
+      sysVarIndices=(0 1)
+      sysVarLabels=(js_nonclosure tracking_up)
+      sysVarTitles=(
+      "nonclosure"
+      "tracking eff."
+       )
+      sysMethodIndices=(0 1)
+      sysMethodSuffices=(
+      "ratio" 
+      "ratio_fit"
+      )
+
+      echo -e "pp - nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_100_200_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_60_100_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_20_60_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ppdata_scorrjsrecoreco_0_20_nominal" >> $PLOTLIST
+      for i1 in ${!sysVarIndices[*]}
+      do
+        iSys=${sysVarIndices[i1]}
+        sysVarLabel=${sysVarLabels[iSys]}
+        sysVarTitle=${sysVarTitles[iSys]}
+        iSysMethod=${sysMethodIndices[i1]}
+        sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_60_100_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_20_60_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ppdata_scorrjsrecoreco_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+      done
+
+      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      rm $PLOTLIST
+    elif [[ $sample == "ratio" ]]; then
+      sysVarIndices=(0 1 2)
+      sysVarLabels=(js_nonclosure tracking_ratio bkgsub)
+      sysVarTitles=(
+      "nonclosure"
+      "tracking eff."
+      "bkg sub"
+       )
+      sysMethodIndices=(0 1 0)
+      sysMethodSuffices=(
+      "ratio" 
+      "ratio_fit"
+      )
+
+      echo -e "PbPb/pp - nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_100_200_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_60_100_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_20_60_nominal" >> $PLOTLIST
+      echo -e "hjs_final_ratio_0_20_nominal" >> $PLOTLIST
+      for i1 in ${!sysVarIndices[*]}
+      do
+        iSys=${sysVarIndices[i1]}
+        sysVarLabel=${sysVarLabels[iSys]}
+        sysVarTitle=${sysVarTitles[iSys]}
+        iSysMethod=${sysMethodIndices[i1]}
+        sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hjs_final_ratio_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ratio_60_100_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ratio_20_60_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+        echo -e "hjs_final_ratio_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
+      done
+
+      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
       rm $PLOTLIST
     fi
 else
