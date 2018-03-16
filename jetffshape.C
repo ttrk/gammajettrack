@@ -76,6 +76,7 @@ std::vector<std::string> recoGenStepsDenom = {"reco0reco", "reco0gen",  "reco0ge
 //std::vector<std::string> recoGenStepsDenom = {"reco0recomatchg0", "reco0gen0", "sref0gen0"};
 const int nSteps_js_corr = 4;
 
+double getPhoPtReweight(float phopt, TH1D* h);
 double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[]);
 double getDPHI(double phi1, double phi2);
 double getShiftedDPHI(double dphi);
@@ -124,6 +125,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       file_reweightPP = TFile::Open("jsdata_data_60_30_gxi0_obs2_ffjs_spectra_weights.root");
       hReweightPP[k_sigPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_signal_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
       hReweightPP[k_bkgPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_sideband_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
+  }
+
+  bool doPhoPtReweightPP = (sample.find("pp") != std::string::npos && sample.find("phoptrw") != std::string::npos);
+  bool doPhoPtReweightPbPb = (sample.find("pbpb") != std::string::npos && sample.find("phoptrw") != std::string::npos);
+  TFile* file_PhoPtreweight = 0;
+  TH1D* hPhoPtReweight = 0;
+  if (doPhoPtReweightPP || doPhoPtReweightPbPb) {
+      file_PhoPtreweight = TFile::Open("jsdata_data_60_30_gxi0_obs2_ffjs_phopt_spectra_weights.root");
+      hPhoPtReweight = (TH1D*)file_PhoPtreweight->Get(Form("hphopt_final_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
+      //hPhoPtReweight = (TH1D*)file_PhoPtreweightPP->Get(Form("hphopt_final_ratio_recoreco_0_20"));
   }
 
   bool doSysLR = (systematic == sysLR);
@@ -533,7 +544,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
   }
 
-  if (sample == "ppmc" || sample == "ppdata" || sample == "ppdatareweight") {
+  if (sample == "ppmc" || sample == "ppdata" || sample == "ppdatareweight" || sample == "ppdataphoptrw") {
       min_hiBin_js_corr = {100};
       max_hiBin_js_corr = {200};
   }
@@ -916,6 +927,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     bool phoSig = (phoSigmaIEtaIEta_2012 < 0.010);
     bool phoBkg = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
     if (!phoSig && !phoBkg) continue;
+
+    if (doPhoPtReweightPP) {
+        weight *= getPhoPtReweight(phoEtTmp, hPhoPtReweight);
+    }
+    if (doPhoPtReweightPbPb) {
+        weight /= getPhoPtReweight(phoEtTmp, hPhoPtReweight);
+    }
 
     hphopt[phoBkg]->Fill(phoEtTmp, weight);
 
@@ -2748,6 +2766,22 @@ int main(int argc, char* argv[]) {
     t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]), argv[8], std::atof(argv[9]), std::atoi(argv[10]), argv[11], std::atoi(argv[12]), std::atoi(argv[13]));
 
   return 0;
+}
+
+double getPhoPtReweight(float phopt, TH1D* h)
+{
+    int iBin = h->FindBin(phopt);
+    if (iBin >= 1 && iBin <= h->GetNbinsX()) {
+        if (h->GetBinContent(iBin) > 0) {
+            return h->GetBinContent(iBin);
+        }
+        else {
+            return 1;
+        }
+    }
+    else {
+        return 1;
+    }
 }
 
 double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[])

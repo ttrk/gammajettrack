@@ -59,6 +59,7 @@ echo "directory for condor output     : $condorLogsDir"
 cp $progFile $submitDir
 cp PbPb-weights.root $submitDir
 cp pp-weights.root $submitDir
+cp jsdata_data_60_30_gxi0_obs2_ffjs_phopt_spectra_weights.root $submitDir
 cp "condor/myRun.sh" $submitDir
 
 ## customizations for submit-hi2.mit.edu and submit.mit.edu machines ##
@@ -90,7 +91,7 @@ requirements = GLIDEIN_Site == "MIT_CampusFactory" && BOSCOGroup == "bosco_cmshi
 job_lease_duration = 240
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = /tmp/$proxyFile,myRun.sh,$progFile,PbPb-weights.root,pp-weights.root
+transfer_input_files = /tmp/$proxyFile,myRun.sh,$progFile,PbPb-weights.root,pp-weights.root,jsdata_data_60_30_gxi0_obs2_ffjs_phopt_spectra_weights.root
 
 Queue $nJobs
 
