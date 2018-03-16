@@ -444,8 +444,8 @@ elif [[ $label == "sysalltotpercnt" ]]; then
     if [[ $sample == "pbpbdata" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
-      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11)
-      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down js_nonclosure tracking_up pes jes_qg_down bkgsub)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11 12)
+      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down js_nonclosure tracking_up pes phoeff jes_qg_down bkgsub)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
@@ -458,10 +458,11 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "nonclosure"
       "tracking eff."
       "PES"
+      "photon efficiency"
       "JES quark-jet"
       "bkg sub"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 0 1 1 1 0)
+      sysMethodIndices=(1 1 1 1 1 1 1 0 1 1 0 1 0)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -546,8 +547,8 @@ elif [[ $label == "sysalltotpercnt" ]]; then
 
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
-      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11)
-      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down js_nonclosure tracking_ratio pes jes_qg_down bkgsub)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11 12)
+      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down js_nonclosure tracking_ratio pes phoeff jes_qg_down bkgsub)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
@@ -560,10 +561,11 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "nonclosure"
       "tracking eff."
       "PES"
+      "photon efficiency"
       "JES quark-jet"
       "bkg sub"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1 1 0 1 1 0)
+      sysMethodIndices=(1 1 1 1 1 1 1 1 1 0 1 0 1 0)
       sysMethodSuffices=(
       "ratio"
       "ratio_fit"
@@ -605,16 +607,17 @@ elif [[ $label == "sysallpercnt_phosys" ]]; then
     echo "sysFile : $sysFile"
 
     if [[ $sample == "pbpbdata" ]]; then
-      sysVarIndices=(0 1 2 3 4)
-      sysVarLabels=(iso ele_rej purity_up purity_down pes)
+      sysVarIndices=(0 1 2 3 4 5)
+      sysVarLabels=(iso ele_rej purity_up purity_down pes phoeff)
       sysVarTitles=(
       "isolation"
       "electron rejection"
       "purity UP"
       "purity DOWN"
       "PES"
+      "photon efficiency"
        )
-      sysMethodIndices=(1 1 1 1 1)
+      sysMethodIndices=(1 1 1 1 1 0)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -680,16 +683,17 @@ elif [[ $label == "sysallpercnt_phosys" ]]; then
       rm $PLOTLIST
     elif [[ $sample == "ratio" ]]; then
 
-      sysVarIndices=(0 1 2 3 4)
-      sysVarLabels=(iso ele_rej purity_up purity_down pes)
+      sysVarIndices=(0 1 2 3 4 5)
+      sysVarLabels=(iso ele_rej purity_up purity_down pes phoeff)
       sysVarTitles=(
       "isolation"
       "electron rejection"
       "purity UP"
       "purity DOWN"
       "PES"
+      "photon efficiency"
        )
-      sysMethodIndices=(1 1 1 1 1)
+      sysMethodIndices=(1 1 1 1 1 0)
       sysMethodSuffices=(
       "ratio"
       "ratio_fit"
