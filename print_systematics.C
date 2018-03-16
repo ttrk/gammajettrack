@@ -13,6 +13,7 @@ enum SYSUNC
     k_PhoIso,
     k_PhoPurity,
     k_EleRej,
+    k_phoeff,
     k_JES,
     k_JER,
     k_Tracking,
@@ -23,17 +24,17 @@ enum SYSUNC
 };
 
 std::string sys_labels[kN_SYSUNC] = {
-     "pes", "iso", "purity_up_plus", "ele_rej",
+     "pes", "iso", "purity_up_plus", "ele_rej", "phoeff",
      "jes_up_plus", "jer", "tracking_up_plus", "longrange", "bkgsub", "xi_nonclosure"
 };
 
 std::string sys_labels_ratio[kN_SYSUNC] = {
-     "pes", "iso", "purity_up_plus", "ele_rej",
+     "pes", "iso", "purity_up_plus", "ele_rej", "phoeff",
      "jes_up_plus", "jer", "tracking_ratio", "longrange", "bkgsub", "xi_nonclosure"
 };
 
 int sysMethod[kN_SYSUNC] = {
-    2, 2, 2, 2,
+    2, 2, 2, 2, 0,
     2, 2, 0, 0, 0, 0
 };
 
@@ -42,6 +43,7 @@ std::string sys_titles[kN_SYSUNC] = {
     "Photon isolation        ",
     "Photon purity           ",
     "Electron contamination  ",
+    "Photon efficiency       ",
     "Jet energy scale        ",
     "Jet energy resolution   ",
     "Tracking efficiency     ",
@@ -225,7 +227,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             sys_uncTot[iCol] += sys_uncs[iCol]*sys_uncs[iCol];
             if (sys_uncs[iCol] >= 10)        std::cout << Form("& %.1f\\%%    ", sys_uncs[iCol]);
             else if (sys_uncs[iCol] >= 0.1)  std::cout << Form("& %.1f\\%%     ", sys_uncs[iCol]);
-            else if ((iSys == k_PES || iSys == k_BkgSub || iSys == k_nonclosure) && (iCol == k_xijet_pp || iCol == k_xigamma_pp))
+            else if ((iSys == k_PES || iSys == k_phoeff || iSys == k_BkgSub || iSys == k_nonclosure) && (iCol == k_xijet_pp || iCol == k_xigamma_pp))
                 std::cout << Form("& $--$      ");
             else                             std::cout <<      "& $<$0.1\\%    ";
         }
