@@ -493,6 +493,12 @@ void set_hist_style(TH1D* h1, int k) {
             h1->SetMarkerStyle(kFullCircle);
             h1->SetMarkerColor(kCyan);
             break;
+        case 12:
+            h1->SetLineColor(kMagenta+3);
+            h1->SetMarkerSize(0.64);
+            h1->SetMarkerStyle(kFullCross);
+            h1->SetMarkerColor(kMagenta+3);
+            break;
         default:
             h1->SetLineColor(kBlue-7);
             h1->SetMarkerSize(0.64);
