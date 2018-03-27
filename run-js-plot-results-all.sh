@@ -9,6 +9,10 @@ inputDirClosure="/export/d00/scratch/"$USER"/GJT-out/results/closure/"
 ./run-js-plot-results.sh 60 9999 30 1 0 2 pbpbdata sysvar $inputDir DUMMY
 ./run-js-plot-results.sh 60 9999 30 1 0 2 ppdata sysvar $inputDir DUMMY
 
+## sys var plots
+./run-js-plot-results.sh 60 9999 30 1 0 2 pbpbdata sysvar_fitfnc $inputDir DUMMY
+./run-js-plot-results.sh 60 9999 30 1 0 2 ppdata sysvar_fitfnc $inputDir DUMMY
+
 ## sys var plots - All variation together
 ./run-js-plot-results.sh 60 9999 30 1 0 2 pbpbdata sysall $inputDir DUMMY
 ./run-js-plot-results.sh 60 9999 30 1 0 2 ppdata sysall $inputDir DUMMY
