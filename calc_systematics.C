@@ -41,7 +41,7 @@ std::string sys_types[kN_SYSVAR] = {
 };
 
 std::string fit_funcs[kN_SYSVAR] = {
-    "pol1", "pol2", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
+    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
 };
 
 int options[kN_SYSVAR] = {
@@ -212,17 +212,17 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
                 f1Tmp = 0;
                 if (hist_list[i].find("_100_200") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.965920 + 0.453233*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.987862 - 0.0759894*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else if (hist_list[i].find("_60_100") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.987712 + 0.147736*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.996064 - 0.00679715*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else if (hist_list[i].find("_20_60") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.958176 + 0.563025*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.967185 + 0.407108*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else if (hist_list[i].find("_0_20") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.902737 + 1.06041*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.930719 + 0.626752*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else if (hist_list[i].find("_0_60") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.926496 + 0.84724*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.951556 + 0.501241*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else if (hist_list[i].find("_60_200") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.978372 + 0.278663*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.994423 - 0.0206356*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else
                     f1Tmp = new TF1("f1Tmp", "1", range_low_fnc, range_high_fnc);
 
@@ -298,7 +298,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 else uncTmp = 1.01;
 
                 hsys_js_nc_corrjs1[i]->SetBinContent(binTmp, binContentTmp * uncTmp);
-                hsys_js_nc_corrjs1[i]->SetBinError(binTmp, binErrorTmp * uncTmp);
+                hsys_js_nc_corrjs1[i]->SetBinError(binTmp, binErrorTmp * TMath::Sqrt(uncTmp));
                 if (isnorm1) {
                     hsys_js_nc_corrjs1[i]->Scale(1.0 / hsys_js_nc_corrjs1[i]->Integral(1, hsys_js_nc_corrjs1[i]->FindBin(0.3)-1), "width");
                 }
@@ -339,31 +339,31 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 std::string hNameTmp = replaceAll(hist_list[i], "data", "mc");
                 std::string hName_corrqjs = replaceAll(hNameTmp, recogenlevel, "corrqjsreco0gen0");
                 std::string hName_corrgjs = replaceAll(hNameTmp, recogenlevel, "corrgjsreco0gen0");
-                std::string hName_corrjs = replaceAll(hNameTmp, recogenlevel, "corrjsreco0gen0");
+                //std::string hName_corrjs = replaceAll(hNameTmp, recogenlevel, "corrjsreco0gen0");
                 if (isPP) {
                     hName_corrqjs = "hjs_ppmc_corrqjsreco0gen0_100_200";
                     hName_corrgjs = "hjs_ppmc_corrgjsreco0gen0_100_200";
-                    hName_corrjs = "hjs_ppmc_corrjsreco0gen0_100_200";
+                    //hName_corrjs = "hjs_ppmc_corrjsreco0gen0_100_200";
                 }
                 else {
                     hName_corrqjs = replaceAll(hName_corrqjs, "_60_200", "_60_100");
                     hName_corrqjs = replaceAll(hName_corrqjs, "_0_60", "_0_20");
                     hName_corrgjs = replaceAll(hName_corrqjs, "corrqjsreco0gen0", "corrgjsreco0gen0");
-                    hName_corrjs = replaceAll(hName_corrqjs, "corrqjsreco0gen0", "corrjsreco0gen0");
+                    //hName_corrjs = replaceAll(hName_corrqjs, "corrqjsreco0gen0", "corrjsreco0gen0");
                 }
 
                 TH1D* hcorrqjs = (TH1D*)file_jsqgcorr->Get(hName_corrqjs.c_str());
                 TH1D* hcorrgjs = (TH1D*)file_jsqgcorr->Get(hName_corrgjs.c_str());
-                TH1D* hcorrjs = (TH1D*)file_jsqgcorr->Get(hName_corrjs.c_str());
+                //TH1D* hcorrjs = (TH1D*)file_jsqgcorr->Get(hName_corrjs.c_str());
 
-                hcorrqjs->Divide(hcorrjs);
-                hcorrgjs->Divide(hcorrjs);
+                hcorrqjs->Divide(hcorrgjs);
+                //hcorrgjs->Divide(hcorrjs);
 
                 th1_ratio_abs(hcorrqjs, true);
-                th1_ratio_abs(hcorrgjs, true);
+                //th1_ratio_abs(hcorrgjs, true);
 
-                hcorrgjs->Reset();
-                th1_max_of_2_th1(hcorrqjs, hcorrgjs, hsys_js_nc_corrjs3[i]);
+                //th1_max_of_2_th1(hcorrqjs, hcorrgjs, hsys_js_nc_corrjs3[i]);
+                hsys_js_nc_corrjs3[i] = (TH1D*)hcorrqjs->Clone(hsys_js_nc_corrjs3[i]->GetName());
                 hsys_js_nc_corrjs3[i]->Multiply(hnominals[i]);
             }
             sys_var_t* sysVar_js_nc_corrjs3 = new sys_var_t(hist_list[i], "js_nonclosure_corrjs3", hnominals[i], hsys_js_nc_corrjs3[i]);
