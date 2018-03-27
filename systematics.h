@@ -79,6 +79,46 @@ void th1_copy_bin_errors4ratio(TH1D* hRatio, TH1D* hDenom) {
     }
 }
 
+void th1_set_bin_errors4ratio_partialCorr(TH1D* hRatio, TH1D* hNum, TH1D* hDenom) {
+    // reference : https://www.phenix.bnl.gov/WWW/publish/elke/EIC/Files-for-Wiki/lara.02-008.errors.pdf
+    for (int i=1; i<=hRatio->GetNbinsX(); ++i) {
+
+        double nA = hNum->GetBinContent(i);
+        double errA = hNum->GetBinError(i);
+
+        double nB = hDenom->GetBinContent(i);
+        double errB= hDenom->GetBinError(i);
+
+        double errA2 = errA*errA;
+        double errB2 = errB*errB;
+
+        // entries that left the bin
+        double nBminusA = 0;
+        // entries that entered the bin
+        double nAminusB = 0;
+
+        // Assumption : entries that left the bin = entries that entered the bin
+        nBminusA = TMath::Abs(nA - nB) / 2;
+        nAminusB = nBminusA;
+
+        double nAintersectB = 0.5 * (nA + nB - nBminusA - nAminusB);
+        /*
+         * 2 linear equation, 2 unknowns : errBminusA2, errAintersectB2
+         * nB / errB2 = nBminusA / errBminusA2 + nAintersectB / errAintersectB2
+         *  1 / errB2 =        1 / errBminusA2 +            1 / errAintersectB2
+         */
+         double invErrB2 = 1./errB2;
+         double invErrBminusA2 = invErrB2 * ((nB - nAintersectB) / (nBminusA - nAintersectB));
+         double invErrAintersectB2 = 0.5/nAintersectB *  (invErrB2*(nB + nAintersectB) - invErrBminusA2*(nBminusA + nAintersectB));
+
+         double binError = nA / nB * TMath::Sqrt(TMath::Abs(errA2/(nA*nA) + errB2/(nB*nB) - 2/(nA*nB) * errA2 * errB2 * invErrAintersectB2));
+         if (binError < 0.000001)
+             binError = 0.000001;   // protect against absolute 0.
+
+         hRatio->SetBinError(i, binError);
+    }
+}
+
 float th1_average_content(TH1D* h) {
     float sum = 0;
     for (int i=1; i<=h->GetNbinsX(); ++i)
@@ -232,7 +272,8 @@ void sys_var_t::calc_sys() {
 
     hratio = (TH1D*)hvariation->Clone(Form("%s_ratio", hist_name.c_str()));
     hratio->Divide(hnominal);
-    th1_copy_bin_errors4ratio(hratio, hnominal);
+    //th1_copy_bin_errors4ratio(hratio, hnominal);
+    th1_set_bin_errors4ratio_partialCorr(hratio, hvariation, hnominal);
     hratio_abs = (TH1D*)hratio->Clone(Form("%s_ratio_abs", hist_name.c_str()));
     th1_ratio_abs(hratio_abs);
 }
