@@ -1885,6 +1885,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     // mix jet loop
     float nmixedevents_jet = nmix - (nmix + 2) / 3;
     for (int ij_mix = 0; ij_mix < nij_mix; ij_mix++) {
+      // if the previous jet was from a different MB event, then fill the nJet now.
+      if (ij_mix > 0 && (*j_ev_mix)[ij_mix-1] != (*j_ev_mix)[ij_mix]) {
+        hnPhoJet[phoBkg][k_bkgJet]->Fill(nPhoJet_mix, weight);
+        nPhoJet_mix = 0;
+      }
       if ((*j_ev_mix)[ij_mix] % 3 == 0) continue;
 
       float tmpjetpt = (*j_pt_mix)[ij_mix];
@@ -2679,8 +2684,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
       }
     }
-    nPhoJet_mix = std::round(nPhoJet_mix / (nsmear * nmixedevents_jet));
-    hnPhoJet[phoBkg][k_bkgJet]->Fill(nPhoJet_mix, weight);
   }
   if (nsmear > 0 && nsmear != 1) {
       // Bin values were already corrected when filling the histograms.
