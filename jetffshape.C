@@ -143,18 +143,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool doPhoEffCorrPP = (sample.find("pp") != std::string::npos && sample.find("phoeffcorr") != std::string::npos);
   bool doPhoEffCorrPbPb = (sample.find("pbpb") != std::string::npos && sample.find("phoeffcorr") != std::string::npos);
   TFile* file_Phoeffcorr = 0;
-  TH1D* hPhoeffcorr[kN_PHO_SIGBKG][4];
+  TH1D* hPhoeffcorr[4];
   if (doPhoEffCorrPP || doPhoEffCorrPbPb) {
       file_Phoeffcorr = TFile::Open("jsdata_data_60_30_gxi0_obs2_ffjs_phopt_spectra_weights.root");
       for (int i = 0; i < 4; ++i) {
           if (doPhoEffCorrPP) {
-              hPhoeffcorr[k_sigPho][0] = (TH1D*)file_Phoeffcorr->Get("hphopt_ppdata_recoreco_100_200_effcorr");
-              hPhoeffcorr[k_bkgPho][0] = (TH1D*)file_Phoeffcorr->Get("hphoptsideband_ppdata_recoreco_100_200_effcorr");
+              hPhoeffcorr[0] = (TH1D*)file_Phoeffcorr->Get("hphopt_ppdata_recoreco_100_200_effcorr");
               break;
           }
           else if (doPhoEffCorrPbPb) {
-              hPhoeffcorr[k_sigPho][i] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pbpbdata_recoreco_%d_%d_effcorr", min_hiBin[i],  max_hiBin[i]));
-              hPhoeffcorr[k_bkgPho][i] = (TH1D*)file_Phoeffcorr->Get(Form("hphoptsideband_pbpbdata_recoreco_%d_%d_effcorr", min_hiBin[i],  max_hiBin[i]));
+              hPhoeffcorr[i] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pbpbdata_recoreco_%d_%d_effcorr", min_hiBin[i],  max_hiBin[i]));
           }
       }
   }
@@ -958,10 +956,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         weight /= getPhoPtReweight(phoEtTmp, hPhoPtReweight);
     }
     else if (doPhoEffCorrPP) {
-        weight *= getPhoPtReweight(phoEtTmp, hPhoeffcorr[k_sigPho][0]);
+        weight *= getPhoPtReweight(phoEtTmp, hPhoeffcorr[0]);
     }
     else if (doPhoEffCorrPbPb) {
-        weight *= getPhoPtReweight(phoEtTmp, hPhoeffcorr[k_sigPho][getCentralityBin4(hiBin)]);
+        weight *= getPhoPtReweight(phoEtTmp, hPhoeffcorr[getCentralityBin4(hiBin)]);
     }
 
     hphopt[phoBkg]->Fill(phoEtTmp, weight);
