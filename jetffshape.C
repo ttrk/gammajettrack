@@ -130,16 +130,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       hReweightPP[k_bkgPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_sideband_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
   }
 
-  bool doPhoPtReweightPP = (sample.find("pp") != std::string::npos && sample.find("phoptrw") != std::string::npos);
-  bool doPhoPtReweightPbPb = (sample.find("pbpb") != std::string::npos && sample.find("phoptrw") != std::string::npos);
-  TFile* file_PhoPtreweight = 0;
-  TH1D* hPhoPtReweight = 0;
-  if (doPhoPtReweightPP || doPhoPtReweightPbPb) {
-      file_PhoPtreweight = TFile::Open("jsdata_data_60_30_gxi0_obs2_ffjs_phopt_spectra_weights.root");
-      hPhoPtReweight = (TH1D*)file_PhoPtreweight->Get(Form("hphopt_final_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
-      //hPhoPtReweight = (TH1D*)file_PhoPtreweightPP->Get(Form("hphopt_final_ratio_recoreco_0_20"));
-  }
-
   bool doPhoEffCorrPP = (sample.find("pp") != std::string::npos && sample.find("phoeffcorr") != std::string::npos);
   bool doPhoEffCorrPbPb = (sample.find("pbpb") != std::string::npos && sample.find("phoeffcorr") != std::string::npos);
   TFile* file_Phoeffcorr = 0;
@@ -564,7 +554,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
   }
 
-  if (sample == "ppmc" || sample == "ppdata" || sample == "ppdatareweight" || sample == "ppdataphoptrw" || sample == "ppdataphoeffcorr") {
+  if (sample == "ppmc" || sample == "ppdata" || sample == "ppdatareweight" || sample == "ppdataphoeffcorr") {
       min_hiBin_js_corr = {100};
       max_hiBin_js_corr = {200};
   }
@@ -949,13 +939,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     bool phoBkg = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
     if (!phoSig && !phoBkg) continue;
 
-    if (doPhoPtReweightPP) {
-        weight *= getPhoEffCorr(phoEtTmp, hPhoPtReweight);
-    }
-    else if (doPhoPtReweightPbPb) {
-        weight /= getPhoEffCorr(phoEtTmp, hPhoPtReweight);
-    }
-    else if (doPhoEffCorrPP) {
+    if (doPhoEffCorrPP) {
         weight *= getPhoEffCorr(phoEtTmp, hPhoeffcorr[0]);
     }
     else if (doPhoEffCorrPbPb) {
