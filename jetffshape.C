@@ -60,6 +60,9 @@ int sysDetaDphiJetTrk = 24;
 int trkPtsLow[8] = {1, 2, 3, 4, 8, 12, 16, 20};
 int trkPtsUp[8] = {2, 3, 4, 8, 12, 16, 20, 9999};
 
+std::vector<int> min_hiBin = {0, 20, 60, 100};
+std::vector<int> max_hiBin = {20, 60, 100, 200};
+
 std::vector<int> ptBins_js_corr = {0, 10, 20, 30, 45, 60, 80, 120, 9999};
 const int nPtBins_js_corr = 8;
 std::vector<double> etaBins_js_corr = {0, 1.0, 1.6};
@@ -137,6 +140,25 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       //hPhoPtReweight = (TH1D*)file_PhoPtreweightPP->Get(Form("hphopt_final_ratio_recoreco_0_20"));
   }
 
+  bool doPhoEffCorrPP = (sample.find("pp") != std::string::npos && sample.find("phoeffcorr") != std::string::npos);
+  bool doPhoEffCorrPbPb = (sample.find("pbpb") != std::string::npos && sample.find("phoeffcorr") != std::string::npos);
+  TFile* file_Phoeffcorr = 0;
+  TH1D* hPhoeffcorr[kN_PHO_SIGBKG][4];
+  if (doPhoEffCorrPP || doPhoEffCorrPbPb) {
+      file_Phoeffcorr = TFile::Open("jsdata_data_60_30_gxi0_obs2_ffjs_phopt_spectra_weights.root");
+      for (int i = 0; i < 4; ++i) {
+          if (doPhoEffCorrPP) {
+              hPhoeffcorr[k_sigPho][0] = (TH1D*)file_Phoeffcorr->Get("hphopt_ppdata_recoreco_100_200_effcorr");
+              hPhoeffcorr[k_bkgPho][0] = (TH1D*)file_Phoeffcorr->Get("hphoptsideband_ppdata_recoreco_100_200_effcorr");
+              break;
+          }
+          else if (doPhoEffCorrPbPb) {
+              hPhoeffcorr[k_sigPho][i] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pbpbdata_recoreco_%d_%d_effcorr", min_hiBin[i],  max_hiBin[i]));
+              hPhoeffcorr[k_bkgPho][i] = (TH1D*)file_Phoeffcorr->Get(Form("hphoptsideband_pbpbdata_recoreco_%d_%d_effcorr", min_hiBin[i],  max_hiBin[i]));
+          }
+      }
+  }
+
   bool doSysLR = (systematic == sysLR);
   bool doSysTrkUp = (systematic == 9);
   bool doSysTrkDown = (systematic == 10);
@@ -191,7 +213,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   if (isHI && isMC) titleCent = Form("Cent:%d-%d%%", abs(centmin)/2, abs(centmax)/2);
 
   for (int i = 0; i < kN_PHO_SIGBKG; ++i) {
-      hphopt[i] = new TH1D(Form("hphopt%s_%s_%s_%d_%d", pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{#gamma}_{T};", 60, 0, 600);
+      hphopt[i] = new TH1D(Form("hphopt%s_%s_%s_%d_%d", pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{#gamma}_{T};", 120, 0, 600);
 
       for (int j = 0; j < kN_JET_SIGBKG; ++j) {
           hjetpt[i][j] = new TH1D(Form("hjetpt%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{jet}_{T};", 20, 0, 600);
@@ -544,7 +566,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
   }
 
-  if (sample == "ppmc" || sample == "ppdata" || sample == "ppdatareweight" || sample == "ppdataphoptrw") {
+  if (sample == "ppmc" || sample == "ppdata" || sample == "ppdatareweight" || sample == "ppdataphoptrw" || sample == "ppdataphoeffcorr") {
       min_hiBin_js_corr = {100};
       max_hiBin_js_corr = {200};
   }
@@ -880,6 +902,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   float tracking_sys_init = tracking_sys;
 
   // main loop
+  bool isPhotonOnly = (std::string(fChain->GetFile()->GetName()).find("photonOnly") != std::string::npos);
   for (int64_t jentry = 0; jentry < nentries; jentry++) {
     if (jentry % 10000 == 0) { printf("%li/%li\n", jentry, nentries); }
     int64_t ientry = LoadTree(jentry);
@@ -888,7 +911,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     fChain->GetEntry(jentry);
 
     // check for number of mixed events
-    if (!isPP && nmix < 3) continue;
+    if (!isPP && nmix < 3 && !isPhotonOnly) continue;
 
     // event selections
     if (!isPP) { if (hiBin < centmin || hiBin >= centmax) continue; }
@@ -931,8 +954,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     if (doPhoPtReweightPP) {
         weight *= getPhoPtReweight(phoEtTmp, hPhoPtReweight);
     }
-    if (doPhoPtReweightPbPb) {
+    else if (doPhoPtReweightPbPb) {
         weight /= getPhoPtReweight(phoEtTmp, hPhoPtReweight);
+    }
+    else if (doPhoEffCorrPP) {
+        weight *= getPhoPtReweight(phoEtTmp, hPhoeffcorr[k_sigPho][0]);
+    }
+    else if (doPhoEffCorrPbPb) {
+        weight *= getPhoPtReweight(phoEtTmp, hPhoeffcorr[k_sigPho][getCentralityBin4(hiBin)]);
     }
 
     hphopt[phoBkg]->Fill(phoEtTmp, weight);
