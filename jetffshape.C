@@ -79,7 +79,7 @@ std::vector<std::string> recoGenStepsDenom = {"reco0reco", "reco0gen",  "reco0ge
 //std::vector<std::string> recoGenStepsDenom = {"reco0recomatchg0", "reco0gen0", "sref0gen0"};
 const int nSteps_js_corr = 4;
 
-double getPhoPtReweight(float phopt, TH1D* h);
+double getPhoEffCorr(float phopt, TH1D* h);
 double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[]);
 double getDPHI(double phi1, double phi2);
 double getShiftedDPHI(double dphi);
@@ -950,16 +950,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     if (!phoSig && !phoBkg) continue;
 
     if (doPhoPtReweightPP) {
-        weight *= getPhoPtReweight(phoEtTmp, hPhoPtReweight);
+        weight *= getPhoEffCorr(phoEtTmp, hPhoPtReweight);
     }
     else if (doPhoPtReweightPbPb) {
-        weight /= getPhoPtReweight(phoEtTmp, hPhoPtReweight);
+        weight /= getPhoEffCorr(phoEtTmp, hPhoPtReweight);
     }
     else if (doPhoEffCorrPP) {
-        weight *= getPhoPtReweight(phoEtTmp, hPhoeffcorr[0]);
+        weight *= getPhoEffCorr(phoEtTmp, hPhoeffcorr[0]);
     }
     else if (doPhoEffCorrPbPb) {
-        weight *= getPhoPtReweight(phoEtTmp, hPhoeffcorr[getCentralityBin4(hiBin)]);
+        weight *= getPhoEffCorr(phoEtTmp, hPhoeffcorr[getCentralityBin4(hiBin)]);
     }
 
     hphopt[phoBkg]->Fill(phoEtTmp, weight);
@@ -2798,7 +2798,7 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-double getPhoPtReweight(float phopt, TH1D* h)
+double getPhoEffCorr(float phopt, TH1D* h)
 {
     int iBin = h->FindBin(phopt);
     if (iBin >= 1 && iBin <= h->GetNbinsX()) {
