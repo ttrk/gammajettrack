@@ -137,9 +137,6 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     TFile* file_jsqgFracDataMC = 0;
     if (!isPP)  file_jsqgFracDataMC = new TFile("pbpbmc_calc_varied_qg_fraction.root", "read");
 
-    TFile* file_pbpbdataphoptrw = 0;
-    if (!isPP) file_pbpbdataphoptrw = new TFile("/export/d00/scratch/tatar/GJT-out/results//jsdata_pbpbdataphoptrw_60_30_gxi0_obs2_ffjs_final.root", "read");
-
     TFile* fout = new TFile(Form("%s-systematics.root", label), "update");
 
     total_sys_var_t* total_sys_vars[nhists] = {0};
@@ -379,11 +376,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
             // add systematics for photon selection efficiency
             hsys_js_phoeff[i] = (TH1D*)hnominals[i]->Clone(Form("%s_phoeff", hnominals[i]->GetName()));
-            if (!isPP) {
-                std::string hNameTmp = replaceAll(hist_list[i], "pbpbdata", "pbpbdataphoptrw");
 
-                hsys_js_phoeff[i] = (TH1D*)file_pbpbdataphoptrw->Get(hNameTmp.c_str());
-            }
             sys_var_t* sysVar_phoeff = new sys_var_t(hist_list[i], "phoeff", hnominals[i], hsys_js_phoeff[i]);
             sysVar_phoeff->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
             sysVar_phoeff->write();
@@ -399,7 +392,6 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
     file_jsqgcorr->Close();
     if (file_jsqgFracDataMC != 0) file_jsqgFracDataMC->Close();
-    if (file_pbpbdataphoptrw !=0 ) file_pbpbdataphoptrw->Close();
 
     TCanvas* c1 = 0;
     for (int i=0; i<nhists; ++i) {
