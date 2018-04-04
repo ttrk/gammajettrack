@@ -68,6 +68,7 @@ std::string sys_labels[kN_SYSVAR] = {
     "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long-range correlations", "tracking PbPb/pp"
 };
 
+std::string getCentText(std::string objName);
 int calc_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label);
 
 int calc_systematics(const char* nominal_file, const char* filelist, const char* histlist, const char* label) {
@@ -355,13 +356,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             if (!isPP) {
                 std::string recogenlevel = "corrjsrecoreco";
 
-                std::string centSuffix = "";
-                if (hist_list[i].find("_0_20") != std::string::npos) centSuffix = "0_20";
-                else if (hist_list[i].find("_20_60") != std::string::npos) centSuffix = "20_60";
-                else if (hist_list[i].find("_0_60") != std::string::npos) centSuffix = "0_60";
-                else if (hist_list[i].find("_60_100") != std::string::npos) centSuffix = "60_100";
-                else if (hist_list[i].find("_100_200") != std::string::npos) centSuffix = "100_200";
-                else if (hist_list[i].find("_60_200") != std::string::npos) centSuffix = "60_200";
+                std::string centSuffix = getCentText(hist_list[i]);
 
                 std::string hName_ratio_fracMCData = Form("hjs_pbpbmc_ratio_fracMCData_ref0QGgen0_%s", centSuffix.c_str());
 
@@ -591,3 +586,18 @@ int main(int argc, char* argv[]) {
         return 1;
 }
 
+/*
+ * extract centrality info from object name
+ */
+std::string getCentText(std::string objName)
+{
+    std::string text = "";
+    if (objName.find("_0_20") != std::string::npos) text = "0_20";
+    else if (objName.find("_20_60") != std::string::npos) text = "20_60";
+    else if (objName.find("_0_60") != std::string::npos) text = "0_60";
+    else if (objName.find("_60_100") != std::string::npos) text = "60_100";
+    else if (objName.find("_100_200") != std::string::npos) text = "100_200";
+    else if (objName.find("_60_200") != std::string::npos) text = "60_200";
+
+    return text;
+}
