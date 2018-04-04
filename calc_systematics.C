@@ -102,11 +102,6 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     else if (is_js) {
         range_low_fnc = 0;
         range_high_fnc = 0.3;
-        //add2Total[k_tracking_up] = 1;
-        //add2Total[k_tracking_down] = 0;
-        //options[k_tracking_up] = 0;
-        //special[k_tracking_down] = 0;
-        //sysMethod[k_tracking_up] = 2;
     }
 
     double fractionToySys = 0.6827;
@@ -351,10 +346,8 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             // systematics for non-closure due to jet quenching
             hsys_js_nc_corrjsQGFrac[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjsQGFrac", hnominals[i]->GetName()));
             if (!isPP) {
-                std::string recogenlevel = "corrjsrecoreco";
 
                 std::string centSuffix = getCentText(hist_list[i]);
-
                 std::string hName_ratio_fracMCData = Form("hjs_pbpbmc_ratio_fracMCData_ref0QGgen0_%s", centSuffix.c_str());
 
                 TH1D* hjs_ratio_fracMCData = (TH1D*)file_jsqgFracDataMC->Get(hName_ratio_fracMCData.c_str());
