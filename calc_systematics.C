@@ -133,6 +133,9 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     if (isPP)  file_jsqgcorr = new TFile("jsclosure_ppmc_60_30_gxi0_obs2_ffjs_finaljsqgcorr.root", "read");
     else       file_jsqgcorr = new TFile("jsclosure_pbpbmc_60_30_gxi0_obs2_ffjs_finaljsqgcorr.root", "read");
 
+    TFile* file_jsqgFracDataMC = 0;
+    if (!isPP)  file_jsqgFracDataMC = new TFile("pbpbmc_calc_varied_qg_fraction.root", "read");
+
     TFile* file_pbpbdataphoptrw = 0;
     if (!isPP) file_pbpbdataphoptrw = new TFile("/export/d00/scratch/tatar/GJT-out/results//jsdata_pbpbdataphoptrw_60_30_gxi0_obs2_ffjs_final.root", "read");
 
@@ -148,6 +151,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     TH1D* hsys_js_nonclosure[nhists] = {0};
     TH1D* hsys_js_nc_corrjs1[nhists] = {0};
     TH1D* hsys_js_nc_corrjs3[nhists] = {0};
+    TH1D* hsys_js_nc_corrjsQGFrac[nhists] = {0};
 
     TH1D* hsys_js_phoeff[nhists] = {0};
 
@@ -308,7 +312,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             sysVar_js_nc_corrjs1->write();
             total_sys_vars_js_nc[i]->add_sys_var(sysVar_js_nc_corrjs1, 0, 2);
 
-            // systematics for non-closure remaining due to model dependence
+            // systematics for non-closure due to model dependence
             // take full difference between corrections derived using quark jets and gluon jets
             hsys_js_nc_corrjs3[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjs3", hnominals[i]->GetName()));
             {
@@ -346,6 +350,30 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             sysVar_js_nc_corrjs3->write();
             total_sys_vars_js_nc[i]->add_sys_var(sysVar_js_nc_corrjs3, 0, 0);
 
+            // systematics for non-closure due to jet quenching
+            hsys_js_nc_corrjsQGFrac[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjsQGFrac", hnominals[i]->GetName()));
+            if (!isPP) {
+                std::string recogenlevel = "corrjsrecoreco";
+
+                std::string centSuffix = "";
+                if (hist_list[i].find("_0_20") != std::string::npos) centSuffix = "0_20";
+                else if (hist_list[i].find("_20_60") != std::string::npos) centSuffix = "20_60";
+                else if (hist_list[i].find("_0_60") != std::string::npos) centSuffix = "0_60";
+                else if (hist_list[i].find("_60_100") != std::string::npos) centSuffix = "60_100";
+                else if (hist_list[i].find("_100_200") != std::string::npos) centSuffix = "100_200";
+                else if (hist_list[i].find("_60_200") != std::string::npos) centSuffix = "60_200";
+
+                std::string hName_ratio_fracMCData = Form("hjs_pbpbmc_ratio_fracMCData_ref0QGgen0_%s", centSuffix.c_str());
+
+                TH1D* hjs_ratio_fracMCData = (TH1D*)file_jsqgFracDataMC->Get(hName_ratio_fracMCData.c_str());
+
+                hsys_js_nc_corrjsQGFrac[i]->Multiply(hjs_ratio_fracMCData);
+            }
+            sys_var_t* sysVar_js_nc_corrjsQGFrac = new sys_var_t(hist_list[i], "js_nonclosure_corrjsQGFrac", hnominals[i], hsys_js_nc_corrjsQGFrac[i]);
+            sysVar_js_nc_corrjsQGFrac->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
+            sysVar_js_nc_corrjsQGFrac->write();
+            total_sys_vars_js_nc[i]->add_sys_var(sysVar_js_nc_corrjsQGFrac, 0, 0);
+
             hsys_js_nonclosure[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure", hnominals[i]->GetName()));
             hsys_js_nonclosure[i]->Add(total_sys_vars_js_nc[i]->get_total(), 1);
 
@@ -375,6 +403,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         fsys[i]->Close();
 
     file_jsqgcorr->Close();
+    if (file_jsqgFracDataMC != 0) file_jsqgFracDataMC->Close();
     if (file_pbpbdataphoptrw !=0 ) file_pbpbdataphoptrw->Close();
 
     TCanvas* c1 = 0;
