@@ -308,7 +308,8 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             sysVar_js_nc_corrjs1->write();
             total_sys_vars_js_nc[i]->add_sys_var(sysVar_js_nc_corrjs1, 0, 2);
 
-            // systematics for non-closure remaining at r<0.1 for gluon jets after step 3 of js corrections
+            // systematics for non-closure remaining due to model dependence
+            // take full difference between corrections derived using quark jets and gluon jets
             hsys_js_nc_corrjs3[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjs3", hnominals[i]->GetName()));
             {
                 std::string recogenlevel = "corrjsrecoreco";
