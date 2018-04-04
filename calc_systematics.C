@@ -311,29 +311,6 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             // systematics for non-closure remaining at r<0.1 for gluon jets after step 3 of js corrections
             hsys_js_nc_corrjs3[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjs3", hnominals[i]->GetName()));
             {
-                /*
-                std::string hnominal_raw_name = hist_list[i];
-                if (isnorm1) {
-                    hnominal_raw_name = replaceAll(hist_list[i], "hjs_", "hjs_raw_");
-                }
-                hsys_js_nc_corrjs3[i] = (TH1D*)(fnominal->Get(hnominal_raw_name.c_str()))->Clone();
-
-                for (int binTmp = 0; binTmp < hsys_js_nc_corrjs3[i]->GetNbinsX(); ++binTmp) {
-                    if (hsys_js_nc_corrjs3[i]->GetBinLowEdge(binTmp+1) < 0.1) {
-                        double binContentTmp = hsys_js_nc_corrjs3[i]->GetBinContent(binTmp);
-                        double binErrorTmp = hsys_js_nc_corrjs3[i]->GetBinError(binTmp);
-
-                        float uncTmp = 1.05;
-                        if (isPP) uncTmp = 1.02;
-                        hsys_js_nc_corrjs3[i]->SetBinContent(binTmp, binContentTmp * uncTmp);
-                        hsys_js_nc_corrjs3[i]->SetBinError(binTmp, binErrorTmp * uncTmp);
-                    }
-                }
-
-                if (isnorm1) {
-                    hsys_js_nc_corrjs3[i]->Scale(1.0 / hsys_js_nc_corrjs3[i]->Integral(1, hsys_js_nc_corrjs3[i]->FindBin(0.3)-1), "width");
-                }
-                */
 
                 std::string recogenlevel = "corrjsrecoreco";
                 std::string hNameTmp = replaceAll(hist_list[i], "data", "mc");
