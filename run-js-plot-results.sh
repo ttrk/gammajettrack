@@ -67,8 +67,8 @@ if [[ $label == "data" ]]; then
     echo -e "hjs_final_pbpbdata_corrjsrecoreco_20_60" >> $PLOTLIST
     echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20" >> $PLOTLIST
 
-
-    ./plot_results.exe ${inPrefix}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_data_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption $sysFile
+    nCols=4
+    ./plot_results.exe ${inPrefix}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_data_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption $sysFile $nCols
 elif [[ $label == "closure" ]]; then
     echo "running $label"
     set -x
@@ -87,7 +87,8 @@ elif [[ $label == "closure" ]]; then
       echo -e "hjs_final_pbpbmc_recoreco_20_60" >> $PLOTLIST
       echo -e "hjs_final_pbpbmc_recoreco_0_20" >> $PLOTLIST
 
-      ./plot_results.exe ${inPrefix}_pbpbmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_pbpbmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe ${inPrefix}_pbpbmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_pbpbmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
 
       echo -e "smeared signal gen jets, tracks" >> $PLOTLIST
@@ -101,7 +102,8 @@ elif [[ $label == "closure" ]]; then
       echo -e "hjs_final_pbpbmc_sgengen_20_60" >> $PLOTLIST
       echo -e "hjs_final_pbpbmc_sgengen_0_20" >> $PLOTLIST
 
-      ./plot_results.exe ${inPrefix}_pbpbmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_pbpbmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin}_sgengen $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe ${inPrefix}_pbpbmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_pbpbmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin}_sgengen $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
 
       echo -e "signal gen jets, tracks" >> $PLOTLIST
@@ -115,7 +117,8 @@ elif [[ $label == "closure" ]]; then
       echo -e "hjs_final_pbpbmc_gengen_20_60" >> $PLOTLIST
       echo -e "hjs_final_pbpbmc_gengen_0_20" >> $PLOTLIST
 
-      ./plot_results.exe ${inPrefix}_pbpbmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_pbpbmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin}_gengen $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe ${inPrefix}_pbpbmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_pbpbmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin}_gengen $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     elif [[ $sample == "ppmc" ]]; then
       echo -e "gen jets, tracks" >> $PLOTLIST
@@ -129,7 +132,8 @@ elif [[ $label == "closure" ]]; then
       echo -e "hjs_final_ppmc_recoreco_20_60" >> $PLOTLIST
       echo -e "hjs_final_ppmc_recoreco_0_20" >> $PLOTLIST
 
-      ./plot_results.exe ${inPrefix}_ppmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_ppmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe ${inPrefix}_ppmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_ppmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     fi
 elif [[ $label == "closure4" ]]; then
@@ -160,7 +164,8 @@ elif [[ $label == "closure4" ]]; then
       echo -e "hjs_final_pbpbmc_recoreco_20_60" >> $PLOTLIST 
       echo -e "hjs_final_pbpbmc_recoreco_0_20" >> $PLOTLIST 
 
-      ./plot_results.exe ${inPrefix}_pbpbmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_pbpbmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin}_4 $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe ${inPrefix}_pbpbmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_pbpbmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin}_4 $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     elif [[ $sample == "ppmc" ]]; then
       echo -e "Pythia gen jets, tracks" >> $PLOTLIST
@@ -174,7 +179,8 @@ elif [[ $label == "closure4" ]]; then
       echo -e "hjs_final_ppmc_recoreco_20_60" >> $PLOTLIST
       echo -e "hjs_final_ppmc_recoreco_0_20" >> $PLOTLIST
 
-      ./plot_results.exe ${inPrefix}_ppmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_ppmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe ${inPrefix}_ppmc_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${outPrefix}_ppmc_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     fi
 elif [[ $label == "sysvar" ]]; then
@@ -231,27 +237,20 @@ elif [[ $label == "sysvar" ]]; then
           echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
         fi
 
-        ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_${sysVarName}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+        nCols=4
+        ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_${sysVarName}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       elif [[ $sample == "ppdata" ]]; then
         echo -e "pp (smeared) - nominal" >> $PLOTLIST
         echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_nominal" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_nominal" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_nominal" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_nominal" >> $PLOTLIST
         echo -e $sysVarTitle >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
         echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
         if [[ $sysVarUpDown > 0 ]]; then
           echo -e ${sysVarTitles[$((iSys+1))]} >> $PLOTLIST
           echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
-          echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
-          echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
-          echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
         fi
 
-        ./plot_results.exe $sysFile ${outPrefix}_ppdata_${sysVarName}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+        nCols=1
+        ./plot_results.exe $sysFile ${outPrefix}_ppdata_${sysVarName}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       fi
       rm $PLOTLIST
     done
@@ -309,27 +308,20 @@ elif [[ $label == "sysvar_fitfnc" ]]; then
           echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
         fi
 
-        ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_${sysVarName}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+        nCols=4
+        ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_${sysVarName}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       elif [[ $sample == "ppdata" ]]; then
         echo -e "pp (smeared) - nominal" >> $PLOTLIST
         echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_nominal" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_nominal" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_nominal" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_nominal" >> $PLOTLIST
         echo -e $sysVarTitle >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
         echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
         if [[ $sysVarUpDown > 0 ]]; then
           echo -e ${sysVarTitles[$((iSys+1))]} >> $PLOTLIST
           echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
-          echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
-          echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
-          echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
         fi
 
-        ./plot_results.exe $sysFile ${outPrefix}_ppdata_${sysVarName}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+        nCols=1
+        ./plot_results.exe $sysFile ${outPrefix}_ppdata_${sysVarName}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       fi
       rm $PLOTLIST
     done
@@ -376,7 +368,9 @@ elif [[ $label == "sysall" ]]; then
         echo -e "hjs_final_pbpbdata_corrjsrecoreco_20_60_"$sysVarLabel"_variation" >> $PLOTLIST
         echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_"$sysVarLabel"_variation" >> $PLOTLIST
       done
-    ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysall_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+
+    nCols=4
+    ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysall_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
     rm $PLOTLIST
     
     elif [[ $sample == "ppdata" ]]; then
@@ -399,9 +393,6 @@ elif [[ $label == "sysall" ]]; then
 
       echo -e "pp - nominal" >> $PLOTLIST
       echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
       for i1 in ${!sysVarIndices[*]}
       do
         iSys=${sysVarIndices[i1]}
@@ -409,11 +400,10 @@ elif [[ $label == "sysall" ]]; then
         sysVarTitle=${sysVarTitles[iSys]}
         echo -e $sysVarTitle >> $PLOTLIST
         echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
       done
-    ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysall_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+
+    nCols=1
+    ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysall_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
     rm $PLOTLIST
     fi
 elif [[ $label == "sysalltot" ]]; then
@@ -465,7 +455,8 @@ elif [[ $label == "sysalltot" ]]; then
       echo -e "hjs_final_pbpbdata_corrjsrecoreco_20_60_systematics" >> $PLOTLIST
       echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_systematics" >> $PLOTLIST
 
-      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysalltot_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysalltot_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     
     elif [[ $sample == "ppdata" ]]; then
@@ -488,9 +479,6 @@ elif [[ $label == "sysalltot" ]]; then
 
       echo -e "pp - nominal" >> $PLOTLIST
       echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
       for i1 in ${!sysVarIndices[*]}
       do
         iSys=${sysVarIndices[i1]}
@@ -498,17 +486,12 @@ elif [[ $label == "sysalltot" ]]; then
         sysVarTitle=${sysVarTitles[iSys]}
         echo -e $sysVarTitle >> $PLOTLIST
         echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
       done
       echo -e "total sys" >> $PLOTLIST
       echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_systematics" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_systematics" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_systematics" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_systematics" >> $PLOTLIST
 
-      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysalltot_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=1
+      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysalltot_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     fi
 elif [[ $label == "sysalltotpercnt" ]]; then
@@ -570,7 +553,8 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       echo -e "hjs_final_pbpbdata_corrjsrecoreco_20_60_systematics" >> $PLOTLIST
       echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_systematics" >> $PLOTLIST
 
-      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysalltotpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysalltotpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     
     elif [[ $sample == "ppdata" ]]; then
@@ -597,9 +581,6 @@ elif [[ $label == "sysalltotpercnt" ]]; then
 
       echo -e "pp - nominal" >> $PLOTLIST
       echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
       for i1 in ${!sysVarIndices[*]}
       do
         iSys=${sysVarIndices[i1]}
@@ -609,17 +590,12 @@ elif [[ $label == "sysalltotpercnt" ]]; then
         sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
         echo -e $sysVarTitle >> $PLOTLIST
         echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
       done
       echo -e "total sys" >> $PLOTLIST
       echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_systematics" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_systematics" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_systematics" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_systematics" >> $PLOTLIST
 
-      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysalltotpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=1
+      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysalltotpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     elif [[ $sample == "ratio" ]]; then
 
@@ -673,7 +649,8 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       echo -e "hjs_final_ratio_20_60_systematics" >> $PLOTLIST
       echo -e "hjs_final_ratio_0_20_systematics" >> $PLOTLIST
 
-      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysalltotpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysalltotpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     fi
 elif [[ $label == "sysallpercnt_phosys" ]]; then
@@ -720,7 +697,8 @@ elif [[ $label == "sysallpercnt_phosys" ]]; then
         echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
       done
 
-      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     
     elif [[ $sample == "ppdata" ]]; then
@@ -740,9 +718,6 @@ elif [[ $label == "sysallpercnt_phosys" ]]; then
 
       echo -e "pp - nominal" >> $PLOTLIST
       echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
       for i1 in ${!sysVarIndices[*]}
       do
         iSys=${sysVarIndices[i1]}
@@ -752,12 +727,10 @@ elif [[ $label == "sysallpercnt_phosys" ]]; then
         sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
         echo -e $sysVarTitle >> $PLOTLIST
         echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
       done
 
-      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=1
+      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     elif [[ $sample == "ratio" ]]; then
 
@@ -796,7 +769,8 @@ elif [[ $label == "sysallpercnt_phosys" ]]; then
         echo -e "hjs_final_ratio_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
       done
 
-      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     fi
 elif [[ $label == "sysallpercnt_jetsys" ]]; then
@@ -841,7 +815,8 @@ elif [[ $label == "sysallpercnt_jetsys" ]]; then
         echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
       done
 
-      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     
     elif [[ $sample == "ppdata" ]]; then
@@ -860,9 +835,6 @@ elif [[ $label == "sysallpercnt_jetsys" ]]; then
 
       echo -e "pp - nominal" >> $PLOTLIST
       echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
       for i1 in ${!sysVarIndices[*]}
       do
         iSys=${sysVarIndices[i1]}
@@ -872,12 +844,10 @@ elif [[ $label == "sysallpercnt_jetsys" ]]; then
         sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
         echo -e $sysVarTitle >> $PLOTLIST
         echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
       done
 
-      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=1
+      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     elif [[ $sample == "ratio" ]]; then
       sysVarIndices=(0 1 2 3)
@@ -913,7 +883,8 @@ elif [[ $label == "sysallpercnt_jetsys" ]]; then
         echo -e "hjs_final_ratio_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
       done
 
-      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     fi
 elif [[ $label == "sysallpercnt_othersys" ]]; then
@@ -957,7 +928,8 @@ elif [[ $label == "sysallpercnt_othersys" ]]; then
         echo -e "hjs_final_pbpbdata_corrjsrecoreco_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
       done
 
-      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     
     elif [[ $sample == "ppdata" ]]; then
@@ -975,9 +947,6 @@ elif [[ $label == "sysallpercnt_othersys" ]]; then
 
       echo -e "pp - nominal" >> $PLOTLIST
       echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
-      echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_nominal" >> $PLOTLIST
       for i1 in ${!sysVarIndices[*]}
       do
         iSys=${sysVarIndices[i1]}
@@ -987,12 +956,10 @@ elif [[ $label == "sysallpercnt_othersys" ]]; then
         sysMethodSuffix=${sysMethodSuffices[iSysMethod]}
         echo -e $sysVarTitle >> $PLOTLIST
         echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
-        echo -e "hjs_final_ppdata_corrjsrecoreco_100_200_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
       done
 
-      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=1
+      ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     elif [[ $sample == "ratio" ]]; then
       sysVarIndices=(0 1 2)
@@ -1027,7 +994,8 @@ elif [[ $label == "sysallpercnt_othersys" ]]; then
         echo -e "hjs_final_ratio_0_20_"$sysVarLabel"_"$sysMethodSuffix >> $PLOTLIST
       done
 
-      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+      nCols=4
+      ./plot_results.exe $sysFile ${outPrefix}_ratio_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     fi
 else
@@ -1043,7 +1011,8 @@ else
       echo -e "hjs_final_${sample}_${i}_100_200" >> $PLOTLIST
     done
 
-    ./plot_results.exe ${label}_${sample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${label}_${sample}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS
+    nCols=4
+    ./plot_results.exe ${label}_${sample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root ${label}_${sample}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
 fi
 
 rm $PLOTLIST

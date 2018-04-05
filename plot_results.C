@@ -61,20 +61,23 @@ bool is_pbpb_pp_ratio = false;
 int fillColors[2] = {38, 46};
 float fillAlpha = 0.7;
 
-int plot_results(const char* input, const char* plot_name, const char* hist_list, int draw_ratio = 0, int gammaxi = 0, int phoetmin = 60, int jetptmin = 30, int option = 0, const char* sys = "") {
+int plot_results(const char* input, const char* plot_name, const char* hist_list, int draw_ratio = 0, int gammaxi = 0, int phoetmin = 60, int jetptmin = 30, int option = 0, const char* sys = "", int nCols = 4) {
     TFile* finput = new TFile(input, "read");
 
     std::vector<std::string> hist_names;
     std::ifstream file_stream(hist_list);
     if (!file_stream) return 1;
     std::string line;
-    while (std::getline(file_stream, line))
+    while (std::getline(file_stream, line)) {
         hist_names.push_back(line);
-    if (hist_names.size() % 5 != 0) return 1;
+    }
+
+    columns = nCols;
+    if (hist_names.size() % (columns+1) != 0) return 1;
 
     // set the plotting mode based on histogram names
     std::string mcSampleStr = "";
-    for (int i = 1; i < (int)hist_names.size(); i+=5) {
+    for (int i = 1; i < (int)hist_names.size(); i+=(columns+1)) {
         is_sysvar = is_sysvar || (hist_names[i].find("variation") != std::string::npos) || (hist_names[i].find("systematics") != std::string::npos);
         is_ppmc = is_ppmc || (hist_names[i].find("ppmc") != std::string::npos);
         is_pbpbmc = is_pbpbmc || (hist_names[i].find("pbpbmc") != std::string::npos);
@@ -110,10 +113,10 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     bool is_data_plot = ((bool)file_stream_SYS && sys != NULL && sys[0] != '\0');
 
     TFile* fsys = 0;
-    TH1D* hsys[4][2];
-    TH1D* hsys_ratio[4];
+    TH1D* hsys[columns][2];
+    TH1D* hsys_ratio[columns];
     TH1D* hTmp = 0;
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < columns; ++i) {
         for (int j = 0; j < 2; ++j) {
             hsys[i][j] = 0;
         }
@@ -121,9 +124,9 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     }
     if (is_data_plot) {
         fsys = new TFile(sys, "read");
-        for (int i=0; i<4; ++i) {
+        for (int i=0; i<columns; ++i) {
             hsys[i][0] = (TH1D*)fsys->Get((hist_names[i+1] + "_systematics").c_str());
-            hsys[i][1] = (TH1D*)fsys->Get((hist_names[i+6] + "_systematics").c_str());
+            hsys[i][1] = (TH1D*)fsys->Get((hist_names[i+(columns+2)] + "_systematics").c_str());
 
             std::string ratio_sys_name = hist_names[i+1];
             std::size_t pbpb_pos = ratio_sys_name.find("ppdata_srecoreco");
@@ -134,7 +137,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     TGraph* gr = new TGraph();
     gr->SetFillStyle(1001);
 
-    std::size_t layers = hist_names.size() / 5;
+    std::size_t layers = hist_names.size() / (columns+1);
     if (layers < 2) draw_ratio = 0;
     if (draw_ratio) rows = 2;
 
@@ -153,13 +156,13 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     TLegend* l1 = 0;
     TLegend* l2 = 0;
 
-    TH1D* h1[4][layers];
-    TH1D* hratio[4][layers-1];
-    for (int i = 0; i < 4; ++i) {
+    TH1D* h1[columns][layers];
+    TH1D* hratio[columns][layers-1];
+    for (int i = 0; i < columns; ++i) {
         for (int j = 0; j < (int)layers; ++j)   h1[i][j] = 0;
         for (int j = 0; j < (int)layers-1; ++j) hratio[i][j] = 0;
     }
-    for (int i=0; i<4; ++i) {
+    for (int i=0; i<columns; ++i) {
         c1->cd(i+1);
         switch (option) {
             case kJS_r_lt_1: case kJS_r_lt_0p3:
@@ -181,8 +184,8 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             std::fill(legendOptions.begin(), legendOptions.end(), "plf");
 
         for (std::size_t k=0; k<layers; ++k) {
-            h1[i][k] = (TH1D*)finput->Get(hist_names[5*k+i+1].c_str());
-            if (hist_names[5*k+i+1].find("gen") != std::string::npos && layers <= 2) {
+            h1[i][k] = (TH1D*)finput->Get(hist_names[(columns+1)*k+i+1].c_str());
+            if (hist_names[(columns+1)*k+i+1].find("gen") != std::string::npos && layers <= 2) {
                 drawOptions[k] = "hist";
                 legendOptions[k] = "l";
             }
@@ -222,13 +225,15 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         }
         h1[i][0]->Draw(Form("%s same", drawOptions[0].c_str()));
 
-        TLatex* centInfo = new TLatex();
-        centInfo->SetTextFont(43);
-        centInfo->SetTextSize(15);
-        centInfo->SetTextAlign(31);
-        box_t info_box = (box_t) {0, 0, 0.96, 0.9};
-        adjust_coordinates(info_box, margin, edge, i, 0, rows, columns);
-        centInfo->DrawLatexNDC(info_box.x2, info_box.y2, Form("%i - %i%%", min_hiBin[i]/2, max_hiBin[i]/2));
+        if (columns > 1) {
+            TLatex* centInfo = new TLatex();
+            centInfo->SetTextFont(43);
+            centInfo->SetTextSize(15);
+            centInfo->SetTextAlign(31);
+            box_t info_box = (box_t) {0, 0, 0.96, 0.9};
+            adjust_coordinates(info_box, margin, edge, i, 0, rows, columns);
+            centInfo->DrawLatexNDC(info_box.x2, info_box.y2, Form("%i - %i%%", min_hiBin[i]/2, max_hiBin[i]/2));
+        }
 
         if (i == 0 && mode == k_data_pp_pbpb) {
             TLatex* latexCMS = new TLatex();
@@ -282,7 +287,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
             l1->SetFillStyle(0);
 
             if (is_data_plot) {
-                l1->AddEntry(h1[0][1], hist_names[5].c_str(), legendOptions[1].c_str());
+                l1->AddEntry(h1[0][1], hist_names[columns+1].c_str(), legendOptions[1].c_str());
                 l1->AddEntry(h1[0][0], hist_names[0].c_str(), legendOptions[0].c_str());
             } else {
                 if (mcSampleStr.size() > 0)
@@ -290,7 +295,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                 for (std::size_t m=0; m<layers; ++m) {
                     if ((mode == k_data_sysalltot || mode == k_data_sysalltotpercnt) && m == layers-1)  continue;
 
-                    l1->AddEntry(h1[0][m], hist_names[5*m].c_str(), legendOptions[m].c_str());
+                    l1->AddEntry(h1[0][m], hist_names[(columns+1)*m].c_str(), legendOptions[m].c_str());
                 }
             }
 
@@ -298,7 +303,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
         }
 
         if (draw_ratio) {
-            c1->cd(i+5);
+            c1->cd(i+(columns+1));
 
             l2 = 0;
             if (i == 0 && (mode == k_data_sysvar_fitfnc || mode == k_data_sysalltot || mode == k_data_sysalltotpercnt)) {
@@ -331,7 +336,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                     }
 
                     if (l2 != 0)
-                        l2->AddEntry(hratio[i][r], hist_names[5*r].c_str(), "l");
+                        l2->AddEntry(hratio[i][r], hist_names[(columns+1)*r].c_str(), "l");
                 }
                 else if ((mode == k_data_sysallpercnt && r < layers) || (mode == k_data_sysalltotpercnt && r < layers -1)) {
                     hratio[i][r] = (TH1D*)h1[i][r]->Clone(Form("hratio_%i_%zu", i, r));
@@ -353,7 +358,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                     hratio[i][r]->Scale(100);
 
                     if (l2 != 0)
-                        l2->AddEntry(hratio[i][r], hist_names[5*r].c_str(), "l");
+                        l2->AddEntry(hratio[i][r], hist_names[(columns+1)*r].c_str(), "l");
                 }
 
                 set_axis_style(hratio[i][r], i, 1, option);
@@ -381,7 +386,7 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
                     hTmp->Draw("hist same l");
 
                     if (l2 != 0)
-                        l2->AddEntry(hTmp->Clone(), Form("fit var/nominal, %s", hist_names[5*r].c_str()), "l");
+                        l2->AddEntry(hTmp->Clone(), Form("fit var/nominal, %s", hist_names[(columns+1)*r].c_str()), "l");
                 }
 
                 if (l2 != 0)
@@ -421,13 +426,22 @@ int plot_results(const char* input, const char* plot_name, const char* hist_list
     lumiLatex->SetTextFont(43);
     lumiLatex->SetTextSize(15);
     lumiLatex->SetTextAlign(31);
-    lumiLatex->DrawLatexNDC(1-canvas_right_margin-0.01, canvas_top_edge, "PbPb 404 #mub^{-1}, pp 27.4 pb^{-1}");
+    std::string lumiStr = "";
+    if (is_ppdata && is_pbpbdata)
+        lumiStr = "PbPb 404 #mub^{-1}, pp 27.4 pb^{-1}";
+    else if (is_ppdata)
+        lumiStr = "pp 27.4 pb^{-1}";
+    else if (is_pbpbdata)
+            lumiStr = "PbPb 404 #mub^{-1}";
+    lumiLatex->DrawLatexNDC(1-canvas_right_margin-0.01, canvas_top_edge,lumiStr.c_str());
 
-    TLatex* infoLatex = new TLatex();
-    infoLatex->SetTextFont(43);
-    infoLatex->SetTextSize(15);
-    infoLatex->SetTextAlign(21);
-    infoLatex->DrawLatexNDC((canvas_left_margin+1-canvas_right_margin)/2, canvas_top_edge, Form("p_{T}^{trk} > 1 GeV/c, anti-k_{T} jet R = 0.3, p_{T}^{jet} > %i GeV/c, #left|#eta^{jet}#right| < 1.6, p_{T}^{#gamma} > %i GeV/c, |#eta^{#gamma}| < 1.44, #Delta#phi_{j#gamma} > #frac{7#pi}{8}", jetptmin, phoetmin));
+    if (columns > 1) {
+        TLatex* infoLatex = new TLatex();
+        infoLatex->SetTextFont(43);
+        infoLatex->SetTextSize(15);
+        infoLatex->SetTextAlign(21);
+        infoLatex->DrawLatexNDC((canvas_left_margin+1-canvas_right_margin)/2, canvas_top_edge, Form("p_{T}^{trk} > 1 GeV/c, anti-k_{T} jet R = 0.3, p_{T}^{jet} > %i GeV/c, #left|#eta^{jet}#right| < 1.6, p_{T}^{#gamma} > %i GeV/c, |#eta^{#gamma}| < 1.44, #Delta#phi_{j#gamma} > #frac{7#pi}{8}", jetptmin, phoetmin));
+    }
 
     cover_axis(margin, edge, column_scale_factor, row_scale_factor);
 
@@ -794,8 +808,10 @@ int main(int argc, char* argv[]) {
         return plot_results(argv[1], argv[2], argv[3], atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), atoi(argv[7]), atoi(argv[8]));
     else if (argc == 10)
         return plot_results(argv[1], argv[2], argv[3], atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), atoi(argv[7]), atoi(argv[8]), argv[9]);
+    else if (argc == 11)
+        return plot_results(argv[1], argv[2], argv[3], atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), atoi(argv[7]), atoi(argv[8]), argv[9], atoi(argv[10]));
     else
-        printf("./plot_results [input] [output] [histogram list] [draw ratio] [gammaxi] [phoetmin] [jetptmin] [systematics file] [draw r < 0.3]\n");
+        std::cout << "wrong number of arguments" << std::endl;
 
     return 1;
 }
