@@ -91,6 +91,7 @@ bool isGluon(int id);
 double getjscorrection(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& max_hiBins, int stepFirst, int stepLast);
 double getjscorrectionv2(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, float trkPt, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& trkPtBins, std::vector<int>& max_hiBins, int stepFirst, int stepLast);
 float trackingDataMCDiffUncert(float trkPt = -1, int cent = -1, bool isRatio = 1, bool isPP = 0);
+double getTrkEffDiffPtDep(TF1* f, double trkPt);
 
 // systematic:
 // 1: JES_UP
@@ -637,6 +638,15 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   f_JES_G[2] = new TF1("f_JES_G_5", "0.021607+0.295396/sqrt(x)", 30, 300);
   f_JES_G[3] = new TF1("f_JES_G_6", "0.021607+0.213359/sqrt(x)", 30, 300);
 
+  /*
+   *  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE
+   1  p0           9.12737e-01   1.56947e-02   1.56442e-06  -5.67737e-10
+   2  p1           5.49498e-03   1.69762e-03   8.46078e-07   2.20449e-08
+   */
+  TF1* f_trkEffDiffPtDep = new TF1("f_trkEffDiffPtDep", "0.912737 + 0.00549498 * x", 0, 200);
+  //TF1* f_trkEffDiffPtDep_up = new TF1("f_trkEffDiffPtDep_up", "0.912737 + 0.0071926 * x", 0, 200);
+  //TF1* f_trkEffDiffPtDep_down = new TF1("f_trkEffDiffPtDep_down", "0.912737 + 0.00379736 * x", 0, 200);
+
   // generic pointers
 
   int nij;
@@ -886,8 +896,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   if (doSysTrkUp) { tracking_sys = 1 + tracking_sys; }
   else if (doSysTrkDown) { tracking_sys = 1 - tracking_sys; }
   else tracking_sys = 1;
-
-  float tracking_sys_init = tracking_sys;
 
   // main loop
   bool isPhotonOnly = (std::string(fChain->GetFile()->GetName()).find("photonOnly") != std::string::npos);
@@ -1377,7 +1385,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               tracking_sys = 1 + trackingDataMCDiffUncert((*p_pt)[ip], hiBin/2, 1, 0);
           }
           if (doSysTrkJS) {
-              tracking_sys = ((*p_pt)[ip] > 4) ? tracking_sys_init : 1;
+              double trkEffDiff = getTrkEffDiffPtDep(f_trkEffDiffPtDep, (*p_pt)[ip]);
+              tracking_sys = (doSysTrkUp) ? 1 + trkEffDiff : 1 - trkEffDiff;
           }
           double weight_rawJet_rawTrk = weight * (*p_weight)[ip] * tracking_sys * smear_weight * reweightPP;
 
@@ -1691,7 +1700,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               tracking_sys = 1 + trackingDataMCDiffUncert((*p_pt_UE)[ip_UE], hiBin/2, 1, 0);
           }
           if (doSysTrkJS) {
-              tracking_sys = ((*p_pt_UE)[ip_UE] > 4) ? tracking_sys_init : 1;
+              double trkEffDiff = getTrkEffDiffPtDep(f_trkEffDiffPtDep, (*p_pt_UE)[ip_UE]);
+              tracking_sys = (doSysTrkUp) ? 1 + trkEffDiff : 1 - trkEffDiff;
           }
           double weight_rawJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight * reweightPP / nmixedevents_ue * uescale[centBin4];
 
@@ -2193,7 +2203,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               tracking_sys = 1 + trackingDataMCDiffUncert((*p_pt_mix)[ip_mix], hiBin/2, 1, 0);
           }
           if (doSysTrkJS) {
-              tracking_sys = ((*p_pt_mix)[ip_mix] > 4) ? tracking_sys_init : 1;
+              double trkEffDiff = getTrkEffDiffPtDep(f_trkEffDiffPtDep, (*p_pt_mix)[ip_mix]);
+              tracking_sys = (doSysTrkUp) ? 1 + trkEffDiff : 1 - trkEffDiff;
           }
           double weight_bkgJet_rawTrk = weight * (*p_weight_mix)[ip_mix] * tracking_sys * smear_weight * reweightPP / nmixedevents_jet;
 
@@ -2501,7 +2512,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               tracking_sys = 1 + trackingDataMCDiffUncert((*p_pt_UE)[ip_UE], hiBin/2 , 1, 0);
           }
           if (doSysTrkJS) {
-              tracking_sys = ((*p_pt_UE)[ip_UE] > 4) ? tracking_sys_init : 1;
+              double trkEffDiff = getTrkEffDiffPtDep(f_trkEffDiffPtDep, (*p_pt_UE)[ip_UE]);
+              tracking_sys = (doSysTrkUp) ? 1 + trkEffDiff : 1 - trkEffDiff;
           }
           double weight_bkgJet_ueTrk = weight * (*p_weight_UE)[ip_UE] * tracking_sys * smear_weight * reweightPP / nmixedevents_jet_ue * uescale[centBin4];
 
@@ -2978,4 +2990,10 @@ float trackingDataMCDiffUncert(float trkPt, int cent, bool isRatio, bool isPP)
   if(cent<50) return 0.05;
   if(cent<70) return 0.03;
   return 0.02;
+}
+
+double getTrkEffDiffPtDep(TF1* f, double trkPt)
+{
+    double ptFractionInv = 3 / 2;
+    return (1 - f->Eval(trkPt * ptFractionInv));
 }
