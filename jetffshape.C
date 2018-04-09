@@ -1086,7 +1086,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if (isPP) {
             if (is_reco_jet) {
               res_pt = getSigmaRelPt(centmin, centmax, tmpjetpt);
-              //res_phi = getSigmaRelPhi(centmin, centmax, tmpjetpt);
+              res_phi = getSigmaRelPhi(centmin, centmax, tmpjetpt);
               //res_eta = getSigmaRelEta(centmin, centmax, tmpjetpt);
             }
             else if (is_gen_jet || is_ref_jet) {
