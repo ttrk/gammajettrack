@@ -131,20 +131,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       hReweightPP[k_bkgPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_sideband_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
   }
 
-  bool doPhoEffCorrPP = (sample.find("pp") != std::string::npos && sample.find("phoeffcorr") != std::string::npos);
-  bool doPhoEffCorrPbPb = (sample.find("pbpb") != std::string::npos && sample.find("phoeffcorr") != std::string::npos);
   TFile* file_Phoeffcorr = 0;
   TH1D* hPhoeffcorr[4];
-  if (doPhoEffCorrPP || doPhoEffCorrPbPb) {
-      file_Phoeffcorr = TFile::Open("jsdata_data_60_30_gxi0_obs2_ffjs_phopt_spectra_weights.root");
-      for (int i = 0; i < 4; ++i) {
-          if (doPhoEffCorrPP) {
-              hPhoeffcorr[0] = (TH1D*)file_Phoeffcorr->Get("hphopt_ppdata_recoreco_100_200_effcorr");
-              break;
-          }
-          else if (doPhoEffCorrPbPb) {
-              hPhoeffcorr[i] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pbpbdata_recoreco_%d_%d_effcorr", min_hiBin[i],  max_hiBin[i]));
-          }
+  file_Phoeffcorr = TFile::Open("jsdata_data_60_30_gxi0_obs2_ffjs_phopt_spectra_weights.root");
+  for (int i = 0; i < 4; ++i) {
+      if (!isHI) {
+          hPhoeffcorr[0] = (TH1D*)file_Phoeffcorr->Get("hphopt_ppdata_recoreco_100_200_effcorr");
+          break;
+      }
+      else {
+          hPhoeffcorr[i] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pbpbdata_recoreco_%d_%d_effcorr", min_hiBin[i],  max_hiBin[i]));
       }
   }
 
@@ -947,10 +943,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     bool phoBkg = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
     if (!phoSig && !phoBkg) continue;
 
-    if (doPhoEffCorrPP) {
+    if (!isHI) {
         weight *= getPhoEffCorr(phoEtTmp, hPhoeffcorr[0]);
     }
-    else if (doPhoEffCorrPbPb) {
+    else {
         weight *= getPhoEffCorr(phoEtTmp, hPhoeffcorr[getCentralityBin4(hiBin)]);
     }
 
