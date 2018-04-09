@@ -735,6 +735,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_corrected_js_ue0 = (jetLevel.find("corrjsue0") != std::string::npos);
   bool is_wta_jet = (jetLevel.find("WTA") != std::string::npos);
   bool is_gen_pho = (jetLevel.find("gPho") != std::string::npos);
+  bool noPhoEffCorr = (jetLevel.find("noPhoEff") != std::string::npos);
 
   if (is_smeared_jet && !is_ptsmeared_jet && !is_phismeared_jet && !is_etasmeared_jet) {
       is_ptsmeared_jet = true;
@@ -943,11 +944,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     bool phoBkg = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
     if (!phoSig && !phoBkg) continue;
 
-    if (!isHI) {
-        weight *= getPhoEffCorr(phoEtTmp, hPhoeffcorr[0]);
-    }
-    else {
-        weight *= getPhoEffCorr(phoEtTmp, hPhoeffcorr[getCentralityBin4(hiBin)]);
+    if (!noPhoEffCorr) {
+        if (!isHI) {
+            weight *= getPhoEffCorr(phoEtTmp, hPhoeffcorr[0]);
+        }
+        else {
+            weight *= getPhoEffCorr(phoEtTmp, hPhoeffcorr[getCentralityBin4(hiBin)]);
+        }
     }
 
     hphopt[phoBkg]->Fill(phoEtTmp, weight);
