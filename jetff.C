@@ -52,10 +52,14 @@ int sysFFdepJEC = 25;
 int trkPtsLow[8] = {1, 2, 3, 4, 8, 12, 16, 20};
 int trkPtsUp[8] = {2, 3, 4, 8, 12, 16, 20, 9999};
 
+std::vector<int> min_hiBin = {0, 20, 60, 100};
+std::vector<int> max_hiBin = {20, 60, 100, 200};
+
 // corrections for FF dep. JEC
 float lowxicorr[4] = {1.073 , 1.079 , 1.083 , 1.074};
 float midxicorr[4] = {1.0514 , 1.0478 , 1.0483 , 1.0471};
 
+double getPhoEffCorr(float phopt, TH1D* h);
 double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[]);
 double getDPHI(double phi1, double phi2);
 double getShiftedDPHI(double dphi);
@@ -95,6 +99,19 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       file_reweightPP = TFile::Open("data_60_30_gxi0_defnFF1_ff_spectra_weights.root");
       hReweightPP[k_sigPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_signal_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
       hReweightPP[k_bkgPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_sideband_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
+  }
+
+  TFile* file_Phoeffcorr = 0;
+  TH1D* hPhoeffcorr[4];
+  file_Phoeffcorr = TFile::Open("jsdata_data_60_30_gxi0_obs2_ffjs_phopt_spectra_weights.root");
+  for (int i = 0; i < 4; ++i) {
+      if (!isHI) {
+          hPhoeffcorr[0] = (TH1D*)file_Phoeffcorr->Get("hphopt_ppdata_recoreco_100_200_effcorr");
+          break;
+      }
+      else {
+          hPhoeffcorr[i] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pbpbdata_recoreco_%d_%d_effcorr", min_hiBin[i],  max_hiBin[i]));
+      }
   }
 
   if (fChain == 0) return;
@@ -352,6 +369,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     bool phoSig = (phoSigmaIEtaIEta_2012 < 0.010);
     bool phoBkg = (phoSigmaIEtaIEta_2012 > 0.011 && phoSigmaIEtaIEta_2012 < 0.017);
     if (!phoSig && !phoBkg) continue;
+
+    if (!isHI) {
+        weight *= getPhoEffCorr(phoEtCorrected, hPhoeffcorr[0]);
+    }
+    else {
+        weight *= getPhoEffCorr(phoEtCorrected, hPhoeffcorr[getCentralityBin4(hiBin)]);
+    }
 
     hphopt[phoBkg]->Fill(phoEtCorrected, weight);
 
@@ -1214,6 +1238,22 @@ int main(int argc, char* argv[]) {
     t->jetshape(argv[2], std::atoi(argv[3]), std::atoi(argv[4]), std::atof(argv[5]), std::atof(argv[6]), std::atof(argv[7]), argv[8], std::atof(argv[9]), std::atoi(argv[10]), argv[11], std::atoi(argv[12]), std::atoi(argv[13]));
 
   return 0;
+}
+
+double getPhoEffCorr(float phopt, TH1D* h)
+{
+    int iBin = h->FindBin(phopt);
+    if (iBin >= 1 && iBin <= h->GetNbinsX()) {
+        if (h->GetBinContent(iBin) > 0) {
+            return h->GetBinContent(iBin);
+        }
+        else {
+            return 1;
+        }
+    }
+    else {
+        return 1;
+    }
 }
 
 double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[])
