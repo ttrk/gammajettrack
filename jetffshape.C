@@ -133,14 +133,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   TFile* file_Phoeffcorr = 0;
   TH1D* hPhoeffcorr[4];
-  file_Phoeffcorr = TFile::Open("jsdata_data_60_30_gxi0_obs2_ffjs_phopt_spectra_weights.root");
+  file_Phoeffcorr = TFile::Open("phoeffcorr.root");
   for (int i = 0; i < 4; ++i) {
       if (!isHI) {
-          hPhoeffcorr[0] = (TH1D*)file_Phoeffcorr->Get("hphopt_ppdata_recoreco_100_200_effcorr");
+          hPhoeffcorr[0] = (TH1D*)file_Phoeffcorr->Get("hphopt_pp_effcorr");
           break;
       }
       else {
-          hPhoeffcorr[i] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pbpbdata_recoreco_%d_%d_effcorr", min_hiBin[i],  max_hiBin[i]));
+          hPhoeffcorr[i] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pbpb_%d_%d_effcorr", min_hiBin[i],  max_hiBin[i]));
       }
   }
 
