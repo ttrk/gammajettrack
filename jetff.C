@@ -98,7 +98,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   }
 
   if (fChain == 0) return;
-  int64_t nentries = fChain->GetEntriesFast();
+  int64_t nentries = fChain->GetEntries();
 
   TFile* fout = new TFile(Form("%s_%s_%s_%d_%d_%i_%d_%d_%d.root", label.data(), sample.data(), genlevel.data(), (int)phoetmin, (int)jetptcut, gammaxi, defnFF, abs(centmin), abs(centmax)), "recreate");
 
