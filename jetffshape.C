@@ -737,7 +737,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_corrected_js_step3 = (jetLevel.find("corrjs3") != std::string::npos);
   bool is_corrected_js_step4 = (jetLevel.find("corrjs4") != std::string::npos);
   bool is_corrected_js_ue0 = (jetLevel.find("corrjsue0") != std::string::npos);
-  bool is_wta_jet = (jetLevel.find("WTA") != std::string::npos);
   bool is_gen_pho = (jetLevel.find("gPho") != std::string::npos);
   bool noPhoEffCorr = (jetLevel.find("noPhoEff") != std::string::npos);
 
@@ -1206,39 +1205,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             tmpjetpt = (*j_pt)[ij] * smear_rand.Gaus(1, res_pt);
             if (is_phismeared_jet) tmpjetphi = (*j_phi)[ij] + x1;
             if (is_etasmeared_jet) tmpjeteta = (*j_eta)[ij] + x2;
-        }
-        if (is_wta_jet) {
-            int wta_part_index = -1;
-            double wta_part_pt = 0;
-            for (int ip = 0; ip < nip; ++ip) {
-                if ((*p_pt)[ip] < trkptmin) continue;
-                if (is_gen0_part) {
-                    if ((*sube)[ip] != 0) continue;
-                }
-                if (is_gen1_part) {
-                    if ((*sube)[ip] == 0) continue;
-                }
-                if (is_gen_part && !is_ignoreCh_part) {
-                    if ((*chg)[ip] == 0) continue;
-                }
-
-                float dphi = getDPHI(tmpjetphi, (*p_phi)[ip]);
-                float deta = tmpjeteta - (*p_eta)[ip];
-                float deltar2 = (dphi * dphi) + (deta * deta);
-                if ((defnFF == k_jetFF && deltar2 < 0.09) ||
-                    (defnFF == k_jetShape && deltar2 < js_r2Max)) {
-
-                    if ((*p_pt)[ip] > wta_part_pt) {
-                        wta_part_pt = (*p_pt)[ip];
-                        wta_part_index = ip;
-                    }
-                }
-            }
-
-            if (wta_part_index > 0) {
-                tmpjetphi = (*p_phi)[wta_part_index];
-                tmpjeteta = (*p_eta)[wta_part_index];
-            }
         }
 
         switch (systematic) {
@@ -2034,35 +2000,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             tmpjetpt = (*j_pt_mix)[ij_mix] * smear_rand.Gaus(1, res_pt);
             if (is_phismeared_jet) tmpjetphi = (*j_phi_mix)[ij_mix] + x1;
             if (is_etasmeared_jet) tmpjeteta = (*j_eta_mix)[ij_mix] + x2;
-        }
-        if (is_wta_jet) {
-            int wta_part_index = -1;
-            double wta_part_pt = 0;
-            for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
-                // tracks and jet must come from same mixed event
-                if ((*j_ev_mix)[ij_mix] != (*p_ev_mix)[ip_mix]) continue;
-                if ((*p_pt_mix)[ip_mix] < trkptmin) continue;
-                if (is_gen_part && !is_ignoreCh_part) {
-                    if ((*chg_mix)[ip_mix] == 0) continue;
-                }
-
-                float dphi = getDPHI(tmpjetphi, (*p_phi_mix)[ip_mix]);
-                float deta = tmpjeteta - (*p_eta_mix)[ip_mix];
-                float deltar2 = (dphi * dphi) + (deta * deta);
-                if ((defnFF == k_jetFF && deltar2 < 0.09) ||
-                        (defnFF == k_jetShape && deltar2 < js_r2Max)) {
-
-                    if ((*p_pt_mix)[ip_mix] > wta_part_pt) {
-                        wta_part_pt = (*p_pt_mix)[ip_mix];
-                        wta_part_index = ip_mix;
-                    }
-                }
-            }
-
-            if (wta_part_index > 0) {
-                tmpjetphi = (*p_phi_mix)[wta_part_index];
-                tmpjeteta = (*p_eta_mix)[wta_part_index];
-            }
         }
 
         switch (systematic) {
