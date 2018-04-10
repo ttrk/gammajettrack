@@ -117,6 +117,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   bool isMC = (sample.find("mc") != std::string::npos);
 
+  std::cout << "isHI = " << isHI << std::endl;
+  std::cout << "isMC = " << isMC << std::endl;
+
   TFile* file_reweightPP = 0;
   TH1D* hReweightPP[kN_PHO_SIGBKG];
   bool doReweightPP = (sample.find("pp") != std::string::npos && sample.find("reweight") != std::string::npos);
@@ -854,6 +857,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   // main loop
   bool isPhotonOnly = (std::string(fChain->GetFile()->GetName()).find("photonOnly") != std::string::npos);
+  bool isFlt50Sample = (std::string(fChain->GetFile()->GetName()).find("Flt50") != std::string::npos);
+  std::cout << "isFlt50Sample = " << isFlt50Sample << std::endl;
   for (int64_t jentry = 0; jentry < nentries; jentry++) {
     if (jentry % 10000 == 0) { printf("%li/%li\n", jentry, nentries); }
     int64_t ientry = LoadTree(jentry);
@@ -892,6 +897,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     }
 
     if (!isMC)  weight = 1;
+    /*
+    else if (isMC && isFlt50Sample) {
+    }
+    */
     if (isMC) weight = weight * hvzweight->GetBinContent(hvzweight->FindBin(vz));
     if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
 
