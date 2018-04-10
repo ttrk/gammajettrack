@@ -42,9 +42,16 @@ if [ $sample = "pbpbmc" ]; then
       SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_Flt50_skim_20180115_merged/job0.root"
     elif [[ $outputDir = *0302* ]]; then
       SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_skim_20180302_merged/job0.root"
+    elif [[ $outputDir = *0309* ]]; then
+      SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_skim_20180309_merged/job0.root"
+    elif [[ $outputDir = *photonOnly* ]]; then
+      SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_skim_photonOnly_merged/job0.root"
     fi
 elif [ $sample = "ppmc" ]; then
     SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/pp-MC-skim-180115.root"
+    if [[ $outputDir = *stdPho* ]]; then
+      SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/pp_MC_stdPho_skim_20180309_merged/job0.root"
+    fi
 else
     echo "invalid sample"
     exit 1
