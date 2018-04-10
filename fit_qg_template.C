@@ -89,6 +89,14 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
     TH1D* hOutG_fracData = 0;
     TH1D* hOutQG_Data = 0;
 
+    TH1D* hOutQ_fracData_varUp = 0;
+    TH1D* hOutG_fracData_varUp = 0;
+    TH1D* hOutQG_Data_varUp = 0;
+
+    TH1D* hOutQ_fracData_varDown = 0;
+    TH1D* hOutG_fracData_varDown = 0;
+    TH1D* hOutQG_Data_varDown = 0;
+
     std::vector<std::string> hInputPrefixesMC = {
             "hjs_ppmc",
             "hjs_pbpbmc",
@@ -177,6 +185,20 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
             hOutQ_fracData->Scale(1 / hOutQ_fracData->Integral(binxMin, binxMax), "width");
             hOutG_fracData->Scale(1 / hOutG_fracData->Integral(binxMin, binxMax), "width");
 
+            std::string hOutPathQfracTemplateVarUp = Form("%s_%s_frac_template_varUp_%d_%d", hInputPrefixesMC[i].c_str(), recogenQ[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            std::string hOutPathGfracTemplateVarUp = Form("%s_%s_frac_template_varUp_%d_%d", hInputPrefixesMC[i].c_str(), recogenG[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQ_fracData_varUp = (TH1D*)hOutQ_fracData->Clone(hOutPathQfracTemplateVarUp.c_str());
+            hOutG_fracData_varUp = (TH1D*)hOutG_fracData->Clone(hOutPathGfracTemplateVarUp.c_str());
+
+            std::string hOutPathQfracTemplateVarDown = Form("%s_%s_frac_template_varDown_%d_%d", hInputPrefixesMC[i].c_str(), recogenQ[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            std::string hOutPathGfracTemplateVarDown = Form("%s_%s_frac_template_varDown_%d_%d", hInputPrefixesMC[i].c_str(), recogenG[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQ_fracData_varDown = (TH1D*)hOutQ_fracData->Clone(hOutPathQfracTemplateVarDown.c_str());
+            hOutG_fracData_varDown = (TH1D*)hOutG_fracData->Clone(hOutPathGfracTemplateVarDown.c_str());
+
             qgTemplate = new Template(hInData, hOutQ_fracData, hOutG_fracData);
 
             std::string f1Name = Form("%s_f1_qg_template", hInPathData.c_str());
@@ -216,6 +238,32 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
             std::cout << "written hist q  Data :" << hOutQ_fracData->GetName() << std::endl;
             std::cout << "written hist g  Data :" << hOutG_fracData->GetName() << std::endl;
             std::cout << "written hist qg Data :" << hOutQG_Data->GetName() << std::endl;
+
+            hOutQ_fracData_varUp->Scale(par0*(par1+par1Err));
+            hOutG_fracData_varUp->Scale(par0*(1 - (par1+par1Err)));
+
+            std::string hOutPathQGTemplateVarUp = Form("%s_QG_template_varUp_%d_%d", hInputPrefixesMC[i].c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQG_Data_varUp = (TH1D*)hOutQ_fracData_varUp->Clone(hOutPathQGTemplateVarUp.c_str());
+            hOutQG_Data_varUp->Add(hOutG_fracData_varUp);
+
+            hOutQ_fracData_varUp->Write("",TObject::kOverwrite);
+            hOutG_fracData_varUp->Write("",TObject::kOverwrite);
+            hOutQG_Data_varUp->Write("",TObject::kOverwrite);
+
+            std::cout << "wrote hist for up variation" << std::endl;
+
+            hOutQ_fracData_varDown->Scale(par0*(par1-par1Err));
+            hOutG_fracData_varDown->Scale(par0*(1 - (par1-par1Err)));
+
+            std::string hOutPathQGTemplateVarDown = Form("%s_QG_template_varDown_%d_%d", hInputPrefixesMC[i].c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQG_Data_varDown = (TH1D*)hOutQ_fracData_varDown->Clone(hOutPathQGTemplateVarDown.c_str());
+            hOutQG_Data_varDown->Add(hOutG_fracData_varDown);
+
+            hOutQ_fracData_varDown->Write("",TObject::kOverwrite);
+            hOutG_fracData_varDown->Write("",TObject::kOverwrite);
+            hOutQG_Data_varDown->Write("",TObject::kOverwrite);
+
+            std::cout << "wrote hist for Down variation" << std::endl;
         }
     }
 
