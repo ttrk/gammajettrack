@@ -89,7 +89,6 @@ void correctBinError(TH1D* h, int nSmear);
 void correctBinError(TH2D* h, int nSmear);
 bool isQuark(int id);
 bool isGluon(int id);
-double getjscorrection(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& max_hiBins, int stepFirst, int stepLast);
 double getjscorrectionv2(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, float trkPt, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& trkPtBins, std::vector<int>& max_hiBins, int stepFirst, int stepLast);
 float trackingDataMCDiffUncert(float trkPt = -1, int cent = -1, bool isRatio = 1, bool isPP = 0);
 double getTrkEffDiffPtDep(TF1* f, double trkPt);
@@ -2881,36 +2880,6 @@ bool isQuark(int id)
 bool isGluon(int id)
 {
     return (std::fabs(id) == 21);
-}
-
-double getjscorrection(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& max_hiBins, int stepFirst, int stepLast)
-{
-    double corr = 1;
-    for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
-        if (ptBins[iPt] <= jetpt && jetpt < ptBins[iPt+1]) {
-            for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
-                if (etaBins[iEta] <= TMath::Abs(jeteta) && TMath::Abs(jeteta) < etaBins[iEta+1]) {
-                    for (int iHiBin = 0; iHiBin < nCentBins_js_corr; ++iHiBin) {
-                        if (hiBin < max_hiBins[iHiBin]) {
-
-                            int binR = h[0][0][iPt][iEta][iHiBin][0]->FindBin(r);
-                            if (binR > 0 && binR <= h[0][0][iPt][iEta][iHiBin][0]->GetNbinsX()) {
-                                for (int iStep = stepFirst; iStep <= stepLast; ++iStep) {
-                                    double corrTmp = h[0][0][iPt][iEta][iHiBin][iStep]->GetBinContent(binR);
-                                    if (corrTmp > 0) {
-                                        corr *= corrTmp;
-                                    }
-                                }
-                            }
-
-                            return corr;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return corr;
 }
 
 double getjscorrectionv2(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, float trkPt, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& trkPtBins, std::vector<int>& max_hiBins, int stepFirst, int stepLast)
