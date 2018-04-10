@@ -132,20 +132,20 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       hReweightPP[k_bkgPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_sideband_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
   }
 
-  TFile* file_Phoeffcorr = 0;
-  TH1D* hPhoeffcorr[4];
-  file_Phoeffcorr = TFile::Open("phoeffcorr.root");
+  TFile* file_phoeffcorr = 0;
+  TH1D* hphoeffcorr[4];
+  file_phoeffcorr = TFile::Open("phoeffcorr.root");
   for (int i = 0; i < 4; ++i) {
       std::string tmpSuffix = "effcorr";
       if (systematic == sysPhoEffCorr) {
           tmpSuffix = "effcorr_sysvar";
       }
       if (!isHI) {
-          hPhoeffcorr[0] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pp_%s", tmpSuffix.c_str()));
+          hphoeffcorr[0] = (TH1D*)file_phoeffcorr->Get(Form("hphopt_pp_%s", tmpSuffix.c_str()));
           break;
       }
       else {
-          hPhoeffcorr[i] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pbpb_%d_%d_%s", min_hiBin[i],  max_hiBin[i], tmpSuffix.c_str()));
+          hphoeffcorr[i] = (TH1D*)file_phoeffcorr->Get(Form("hphopt_pbpb_%d_%d_%s", min_hiBin[i],  max_hiBin[i], tmpSuffix.c_str()));
       }
   }
 
@@ -951,10 +951,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
     if (!noPhoEffCorr) {
         if (!isHI) {
-            weight *= getPhoEffCorr(phoEtTmp, hPhoeffcorr[0]);
+            weight *= getPhoEffCorr(phoEtTmp, hphoeffcorr[0]);
         }
         else {
-            weight *= getPhoEffCorr(phoEtTmp, hPhoeffcorr[getCentralityBin4(hiBin)]);
+            weight *= getPhoEffCorr(phoEtTmp, hphoeffcorr[getCentralityBin4(hiBin)]);
         }
     }
 
