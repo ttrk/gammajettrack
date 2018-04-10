@@ -130,7 +130,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     else       file_jsqgcorr = new TFile("jsclosure_pbpbmc_60_30_gxi0_obs2_ffjs_finaljsqgcorr.root", "read");
 
     TFile* file_jsqgFracDataMC = 0;
-    if (!isPP)  file_jsqgFracDataMC = new TFile("pbpbmc_calc_varied_qg_fraction.root", "read");
+    if (!isPP)  file_jsqgFracDataMC = new TFile("fit_qg_template_pbpb_gxi0_obs2.root", "read");
 
     TFile* fout = new TFile(Form("%s-systematics.root", label), "update");
 
@@ -350,9 +350,22 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 std::string centSuffix = getCentText(hist_list[i]);
                 std::string hName_ratio_fracMCData = Form("hjs_pbpbmc_ratio_fracMCData_ref0QGgen0_%s", centSuffix.c_str());
 
-                TH1D* hjs_ratio_fracMCData = (TH1D*)file_jsqgFracDataMC->Get(hName_ratio_fracMCData.c_str());
+                std::string hName_qg_template = Form("hjs_pbpbmc_QG_template_%s", centSuffix.c_str());
+                std::string hName_qg_template_varUp = Form("hjs_pbpbmc_QG_template_varUp_%s", centSuffix.c_str());
+                std::string hName_qg_template_varDown = Form("hjs_pbpbmc_QG_template_varDown_%s", centSuffix.c_str());
 
-                hsys_js_nc_corrjsQGFrac[i]->Multiply(hjs_ratio_fracMCData);
+                TH1D* hjs_qg_template = (TH1D*)file_jsqgFracDataMC->Get(hName_qg_template.c_str());
+                TH1D* hjs_qg_template_varUp = (TH1D*)file_jsqgFracDataMC->Get(hName_qg_template_varUp.c_str());
+                TH1D* hjs_qg_template_varDown = (TH1D*)file_jsqgFracDataMC->Get(hName_qg_template_varDown.c_str());
+
+                hjs_qg_template_varUp->Divide(hjs_qg_template);
+                hjs_qg_template_varDown->Divide(hjs_qg_template);
+
+                th1_ratio_abs(hjs_qg_template_varUp, true);
+                th1_ratio_abs(hjs_qg_template_varDown, true);
+
+                th1_max_of_2_th1(hjs_qg_template_varUp, hjs_qg_template_varDown, hsys_js_nc_corrjsQGFrac[i]);
+                hsys_js_nc_corrjsQGFrac[i]->Multiply(hnominals[i]);
             }
             sys_var_t* sysVar_js_nc_corrjsQGFrac = new sys_var_t(hist_list[i], "js_nonclosure_corrjsQGFrac", hnominals[i], hsys_js_nc_corrjsQGFrac[i]);
             sysVar_js_nc_corrjsQGFrac->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
