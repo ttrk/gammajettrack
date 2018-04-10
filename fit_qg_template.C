@@ -137,7 +137,13 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
         for (int iCent = 0; iCent < 6; ++iCent) {
 
             std::string hInPathQ = Form("%s_%s_%d_%d", hInputPrefixesMC[i].c_str(), recogenQ[i].c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+            if (recogenQ[i].find("ref0") != std::string::npos) {
+                hInPathQ = Form("%s_%s_100_200", hInputPrefixesMC[i].c_str(), recogenQ[i].c_str());
+            }
             std::string hInPathG = Form("%s_%s_%d_%d", hInputPrefixesMC[i].c_str(), recogenG[i].c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+            if (recogenG[i].find("ref0") != std::string::npos) {
+                hInPathG = Form("%s_%s_100_200", hInputPrefixesMC[i].c_str(), recogenG[i].c_str());
+            }
 
             std::cout << "reading hist MC q :" << hInPathQ.c_str() << std::endl;
             std::cout << "reading hist MC g :" << hInPathG.c_str() << std::endl;
@@ -159,7 +165,6 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
 
             if (hInData == 0) continue;
             hInData->Write("",TObject::kOverwrite);
-
 
             double xMin = 0;
             double xMax = 0.3;
