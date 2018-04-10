@@ -42,6 +42,7 @@ std::string jet_sigbkg_labels[kN_JET_SIGBKG] = {"", "jetmix"};
 
 int sysLR = 13;
 int sysTrackingRatio = 14;
+int sysPhoEffCorr = 17;
 int sysBkgEtagt0p3 = 21;
 int sysBkgEtaReflection = 22;
 int sysDphiProjection = 30;
@@ -105,12 +106,16 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hPhoeffcorr[4];
   file_Phoeffcorr = TFile::Open("phoeffcorr.root");
   for (int i = 0; i < 4; ++i) {
+      std::string tmpSuffix = "effcorr";
+      if (systematic == sysPhoEffCorr) {
+          tmpSuffix = "effcorr_sysvar";
+      }
       if (!isHI) {
-          hPhoeffcorr[0] = (TH1D*)file_Phoeffcorr->Get("hphopt_pp_effcorr");
+          hPhoeffcorr[0] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pp_%s", tmpSuffix.c_str()));
           break;
       }
       else {
-          hPhoeffcorr[i] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pbpb_%d_%d_effcorr", min_hiBin[i],  max_hiBin[i]));
+          hPhoeffcorr[i] = (TH1D*)file_Phoeffcorr->Get(Form("hphopt_pbpb_%d_%d_%s", min_hiBin[i],  max_hiBin[i], tmpSuffix.c_str()));
       }
   }
 
