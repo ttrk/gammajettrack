@@ -735,11 +735,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool use_recoEta = (jetLevel.find("rEta") != std::string::npos);
   bool use_recoPhi = (jetLevel.find("rPhi") != std::string::npos);
 
-  int nPhoJetMax = -1;
-  if ((jetLevel.find("nJ1") != std::string::npos)) nPhoJetMax = 1;
-  else if ((jetLevel.find("nJ2") != std::string::npos)) nPhoJetMax = 2;
-  else if ((jetLevel.find("nJ3") != std::string::npos)) nPhoJetMax = 3;
-
   if ((use_recoPt || use_recoEta || use_recoPhi) && !(is_reco_jet || is_ref_jet)) {
       std::cout << "The reco kinematics can be used only if the jet level is reco or ref." << std::endl;
       std::cout << "Exiting" << std::endl;
@@ -971,54 +966,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     } else {
       nip = mult;
       nip_mix = mult_mix;
-    }
-
-    if (nPhoJetMax > 0) {
-        int nPhoJetTmp = 0;
-        for (int ij = 0; ij < nij; ij++) {
-            if (is_gen0_jet) {
-                if ((*gensubid)[ij] != 0) continue;
-            }
-            else if (is_reco0_jet || is_ref0_jet) {
-                if ((*subid)[ij] != 0) continue;
-            }
-            else if (is_reco1_jet) {
-                if ((*subid)[ij] == 0) continue;
-            }
-
-            if (is_QG_jet) {
-                if ( !isQuark((*gjetflavor)[ij]) && !isGluon((*gjetflavor)[ij]) ) continue;
-            }
-            else if (is_Q_jet) {
-                if ( !isQuark((*gjetflavor)[ij]) ) continue;
-            }
-            else if (is_G_jet) {
-                if ( !isGluon((*gjetflavor)[ij]) ) continue;
-            }
-
-            float tmpjetpt = (*j_pt)[ij];
-            float tmpjeteta = (*j_eta)[ij];
-            float tmpjetphi = (*j_phi)[ij];
-
-            // jet eta cut
-            if (fabs(tmpjeteta) > 1.6) continue;
-
-            tmpjetpt = (*j_pt)[ij];
-            tmpjetphi = (*j_phi)[ij];
-
-            // jet pt cut
-            if (tmpjetpt < jetptcut) continue;
-
-            double dphijg = acos(cos(tmpjetphi - phoPhi));
-            double detajg = tmpjeteta - phoEta;
-            if (dphijg*dphijg + detajg*detajg <= 0.64) continue;
-
-            // jet phi cut
-            if (dphijg < 7 * pi / 8) continue;
-
-            nPhoJetTmp += 1;
-        }
-        if (nPhoJetTmp > nPhoJetMax) continue;
     }
 
     // jet subtructure variables
