@@ -89,7 +89,7 @@ void correctBinError(TH1D* h, int nSmear);
 void correctBinError(TH2D* h, int nSmear);
 bool isQuark(int id);
 bool isGluon(int id);
-double getjscorrectionv2(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, float trkPt, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& trkPtBins, std::vector<int>& max_hiBins, int stepFirst, int stepLast);
+double getjscorrection(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, float trkPt, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& trkPtBins, std::vector<int>& max_hiBins, int stepFirst, int stepLast);
 float trackingDataMCDiffUncert(float trkPt = -1, int cent = -1, bool isRatio = 1, bool isPP = 0);
 double getTrkEffDiffPtDep(TF1* f, double trkPt);
 
@@ -1431,7 +1431,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if (is_corrected_js) {
                 //weight_rawJet_rawTrk *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                 //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
-                weight_rawJet_rawTrk *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt)[ip], hiBin,
+                weight_rawJet_rawTrk *= getjscorrection(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt)[ip], hiBin,
                         ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst, corr_js_stepLast);
             }
 
@@ -1484,7 +1484,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     if (is_corrected_js) {
                         //weight_part *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                         //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
-                        weight_part *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt)[ip], hiBin,
+                        weight_part *= getjscorrection(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt)[ip], hiBin,
                                 ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst, corr_js_stepLast);
                     }
                     double weight_part_pt = (*p_pt)[ip] * weight_part;
@@ -1741,7 +1741,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if (is_corrected_js) {
                 //weight_rawJet_ueTrk *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                 //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
-                weight_rawJet_ueTrk *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
+                weight_rawJet_ueTrk *= getjscorrection(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
                         ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst_UE, corr_js_stepLast_UE);
             }
 
@@ -1794,7 +1794,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     if (is_corrected_js) {
                         //weight_part *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                         //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
-                        weight_part *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
+                        weight_part *= getjscorrection(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
                                 ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst_UE, corr_js_stepLast_UE);
                     }
                     double weight_part_pt = (*p_pt_UE)[ip_UE] * weight_part;
@@ -2250,7 +2250,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if (is_corrected_js) {
                 //weight_bkgJet_rawTrk *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                 //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
-                weight_bkgJet_rawTrk *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_mix)[ip_mix], hiBin,
+                weight_bkgJet_rawTrk *= getjscorrection(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_mix)[ip_mix], hiBin,
                         ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst, corr_js_stepLast);
             }
 
@@ -2303,7 +2303,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     if (is_corrected_js) {
                         //weight_part *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                         //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
-                        weight_part *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_mix)[ip_mix], hiBin,
+                        weight_part *= getjscorrection(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_mix)[ip_mix], hiBin,
                                 ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst, corr_js_stepLast);
                     }
                     double weight_part_pt = (*p_pt_mix)[ip_mix] * weight_part;
@@ -2554,7 +2554,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if (is_corrected_js) {
                 //weight_bkgJet_ueTrk *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                 //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
-                weight_bkgJet_ueTrk *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
+                weight_bkgJet_ueTrk *= getjscorrection(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
                         ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst_UE, corr_js_stepLast_UE);
             }
 
@@ -2607,7 +2607,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     if (is_corrected_js) {
                         //weight_part *= getjscorrection(hgammaffjs_corr_pt_eta_bins, val, tmpjetpt, tmpjeteta, hiBin,
                         //        ptBins_js_corr, etaBins_js_corr, max_hiBin_js_corr);
-                        weight_part *= getjscorrectionv2(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
+                        weight_part *= getjscorrection(hgammaffjs_corr_pt_eta_trkPt_bins, sqrt(deltar2), tmpjetpt, tmpjeteta, (*p_pt_UE)[ip_UE], hiBin,
                                 ptBins_js_corr, etaBins_js_corr, trkPtBins_js_corr, max_hiBin_js_corr, corr_js_stepFirst_UE, corr_js_stepLast_UE);
                     }
                     double weight_part_pt = (*p_pt_UE)[ip_UE] * weight_part;
@@ -2882,7 +2882,7 @@ bool isGluon(int id)
     return (std::fabs(id) == 21);
 }
 
-double getjscorrectionv2(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, float trkPt, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& trkPtBins, std::vector<int>& max_hiBins, int stepFirst, int stepLast)
+double getjscorrection(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, float trkPt, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& trkPtBins, std::vector<int>& max_hiBins, int stepFirst, int stepLast)
 {
     double corr = 1;
     for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
