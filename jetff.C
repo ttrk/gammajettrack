@@ -42,7 +42,7 @@ std::string jet_sigbkg_labels[kN_JET_SIGBKG] = {"", "jetmix"};
 
 int sysLR = 13;
 int sysTrackingRatio = 14;
-int sysPhoEffCorr = 17;
+int sysPhoEffCorr = 15;
 int sysBkgEtagt0p3 = 21;
 int sysBkgEtaReflection = 22;
 int sysDphiProjection = 30;
