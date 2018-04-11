@@ -111,7 +111,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1::SetDefaultSumw2();
 
   bool isHI = (sample.find("pbpb") != std::string::npos);
-  TFile* fweight = (isHI) ? TFile::Open("PbPb-weights.root") : TFile::Open("pp-weights.root");
+  std::string weightsFile = (isHI) ? "PbPb-weights.root" : "pp-weights.root";
+  TFile* fweight = TFile::Open(weightsFile.c_str());
   TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
   TH1D* hcentweight = (TH1D*)fweight->Get("hcent");
 
