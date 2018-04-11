@@ -60,6 +60,7 @@ int save_dphidetarefrecoJet_ptBin(std::string inputFile, std::string outputFile,
         }
     }
 
+    /*
     std::vector<double> ptDispBins_dphidetarefrecoJet = {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 1, 1.1};
     int nPtDispBins_dphidetarefrecoJet = ptDispBins_dphidetarefrecoJet.size() - 1;
 
@@ -85,6 +86,7 @@ int save_dphidetarefrecoJet_ptBin(std::string inputFile, std::string outputFile,
             }
         }
     }
+    */
 
     fout->Write("", TObject::kOverwrite);
     fout->Close();
