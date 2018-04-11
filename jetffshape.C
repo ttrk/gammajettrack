@@ -74,11 +74,11 @@ const int nTrkPtBins_js_corr = 5;
 std::vector<int> min_hiBin_js_corr = {0, 20, 60, 100};
 std::vector<int> max_hiBin_js_corr = {20, 60, 100, 200};
 const int nCentBins_js_corr = 4;
-std::vector<std::string> recoGenStepsNum   = {"reco0gen",  "reco0gen0", "sref0gen0", "ref0gen0"};
-std::vector<std::string> recoGenStepsDenom = {"reco0reco", "reco0gen",  "reco0gen0", "sref0gen0"};
+std::vector<std::string> recoGenStepsNum   = {"reco0gen",  "reco0gen0", "ref0gen0"};
+std::vector<std::string> recoGenStepsDenom = {"reco0reco", "reco0gen",  "reco0gen0"};
 //std::vector<std::string> recoGenStepsNum   = {"reco0gen0", "sref0gen0", "ref0gen0"};
 //std::vector<std::string> recoGenStepsDenom = {"reco0recomatchg0", "reco0gen0", "sref0gen0"};
-const int nSteps_js_corr = 4;
+const int nSteps_js_corr = 3;
 
 double getPhoEffCorr(float phopt, TH1D* h);
 double getReweightPP(float jetpt, bool isPhoSig, TH1D* h[]);
@@ -555,12 +555,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   }
 
   if (genlevel.find("corrqjs") != std::string::npos) {
-      recoGenStepsNum   = {"reco0gen",  "reco0gen0", "ref0Qgen0", "ref0gen0"};
-      recoGenStepsDenom = {"reco0reco", "reco0gen",  "reco0Qgen0", "sref0gen0"};
+      recoGenStepsNum   = {"reco0gen",  "reco0gen0", "ref0Qgen0"};
+      recoGenStepsDenom = {"reco0reco", "reco0gen",  "reco0Qgen0"};
   }
   else if (genlevel.find("corrgjs") != std::string::npos) {
-      recoGenStepsNum   = {"reco0gen",  "reco0gen0", "ref0Ggen0", "ref0gen0"};
-      recoGenStepsDenom = {"reco0reco", "reco0gen",  "reco0Ggen0", "sref0gen0"};
+      recoGenStepsNum   = {"reco0gen",  "reco0gen0", "ref0Ggen0"};
+      recoGenStepsDenom = {"reco0reco", "reco0gen",  "reco0Ggen0"};
   }
 
   TH1D* hgammaffjs_corr_pt_eta_trkPt_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr][nCentBins_js_corr][nSteps_js_corr];
@@ -698,7 +698,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_corrected_js_step1 = (jetLevel.find("corrjs1") != std::string::npos);
   bool is_corrected_js_step2 = (jetLevel.find("corrjs2") != std::string::npos);
   bool is_corrected_js_step3 = (jetLevel.find("corrjs3") != std::string::npos);
-  bool is_corrected_js_step4 = (jetLevel.find("corrjs4") != std::string::npos);
   bool is_corrected_js_ue0 = (jetLevel.find("corrjsue0") != std::string::npos);
   bool is_gen_pho = (jetLevel.find("gPho") != std::string::npos);
   bool noPhoEffCorr = (jetLevel.find("noPhoEff") != std::string::npos);
@@ -746,9 +745,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   }
   else if (is_corrected_js_step3) {
       corr_js_stepLast = 2;
-  }
-  else if (is_corrected_js_step4) {
-      corr_js_stepLast = 3;
   }
 
   if (is_corrected_qjs || is_corrected_gjs) {
