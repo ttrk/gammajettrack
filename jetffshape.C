@@ -112,6 +112,19 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   bool isHI = (sample.find("pbpb") != std::string::npos);
   std::string weightsFile = (isHI) ? "PbPb-weights.root" : "pp-weights.root";
+  if (isHI && label.find("flt30flt50all") != std::string::npos) {
+      weightsFile = "PbPb-weights-flt30flt50all.root";
+  }
+  else if (isHI && label.find("flt50ext") != std::string::npos) {
+      weightsFile = "PbPb-weights-flt50ext.root";
+  }
+  else if (isHI && label.find("flt30") != std::string::npos) {
+      weightsFile = "PbPb-weights-flt30.root";
+  }
+  else if (isHI && label.find("flt50") != std::string::npos) {
+      weightsFile = "PbPb-weights-flt50.root";
+  }
+  std::cout << "weightsFile = " << weightsFile.c_str() << std::endl;
   TFile* fweight = TFile::Open(weightsFile.c_str());
   TH1D* hvzweight = (TH1D*)fweight->Get("hvz");
   TH1D* hcentweight = (TH1D*)fweight->Get("hcent");
