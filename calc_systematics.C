@@ -345,14 +345,14 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
             // systematics for non-closure due to jet quenching
             hsys_js_nc_corrjsQGFrac[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjsQGFrac", hnominals[i]->GetName()));
-            if (!isPP) {
-
+            if (true) {
                 std::string centSuffix = getCentText(hist_list[i]);
-                std::string hName_ratio_fracMCData = Form("hjs_pbpbmc_ratio_fracMCData_ref0QGgen0_%s", centSuffix.c_str());
 
-                std::string hName_qg_template = Form("hjs_pbpbmc_QG_template_%s", centSuffix.c_str());
-                std::string hName_qg_template_varUp = Form("hjs_pbpbmc_QG_template_varUp_%s", centSuffix.c_str());
-                std::string hName_qg_template_varDown = Form("hjs_pbpbmc_QG_template_varDown_%s", centSuffix.c_str());
+                std::string collStr = (isPP) ? "ppmc" : "pbpbmc";
+
+                std::string hName_qg_template = Form("hjs_%s_QG_template_%s", collStr.c_str(), centSuffix.c_str());
+                std::string hName_qg_template_varUp = Form("hjs_%s_QG_template_varUp_centDep_%s", collStr.c_str(), centSuffix.c_str());
+                std::string hName_qg_template_varDown = Form("hjs_%s_QG_template_varDown_centDep_%s", collStr.c_str(), centSuffix.c_str());
 
                 TH1D* hjs_qg_template = (TH1D*)file_jsqgFracDataMC->Get(hName_qg_template.c_str());
                 TH1D* hjs_qg_template_varUp = (TH1D*)file_jsqgFracDataMC->Get(hName_qg_template_varUp.c_str());
