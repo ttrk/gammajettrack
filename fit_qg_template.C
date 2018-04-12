@@ -132,6 +132,13 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
             "recoreco"
     };
 
+    // histogram with centrality dependence of the fits
+    std::vector<double> binsVecTmp = {0, 10, 30, 50, 100, 150};
+    double binsArrTmp[5+1];
+    std::copy(binsVecTmp.begin(), binsVecTmp.end(), binsArrTmp);
+    TH1D* hOutCentDep = new TH1D("hjs_ref0Qgen0_centDep", ";Centrality (%);quark fraction", 5, binsArrTmp);
+    TF1* f1OutCentDep = new TF1("hjs_ref0Qgen0_centDep_fitpol1", "pol1", hOutCentDep->GetBinCenter(1), hOutCentDep->GetBinCenter(5));
+
     int nInputPrefixes = hInputPrefixesMC.size();
     for (int i = 0; i < nInputPrefixes; ++i) {
         for (int iCent = 0; iCent < 6; ++iCent) {
@@ -269,8 +276,22 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
             hOutQG_Data_varDown->Write("",TObject::kOverwrite);
 
             std::cout << "wrote hist for Down variation" << std::endl;
+
+            if (hInputPrefixesMC[i].find("hjs") == 0) {
+                if (hInputPrefixesMC[i].find("pp") != std::string::npos) {
+                    hOutCentDep->SetBinContent(5, par1);
+                    hOutCentDep->SetBinError(5, par1Err);
+                }
+                else if (hInputPrefixesMC[i].find("pbpb") != std::string::npos && iCent < 4) {
+                    hOutCentDep->SetBinContent(iCent+1, par1);
+                    hOutCentDep->SetBinError(iCent+1, par1Err);
+                }
+            }
         }
     }
+    //hOutCentDep->Fit(f1OutCentDep->GetName(), "Q R M");
+    hOutCentDep->Write("",TObject::kOverwrite);
+    f1OutCentDep->Write("",TObject::kOverwrite);
 
     std::cout<<"Closing the output file."<<std::endl;
     output->Close();
