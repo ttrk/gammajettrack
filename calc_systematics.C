@@ -309,6 +309,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             // take full difference between corrections derived using quark jets and gluon jets
             hsys_js_nc_corrjs3[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjs3", hnominals[i]->GetName()));
             {
+                /*
                 std::string recogenlevel = "corrjsrecoreco";
                 std::string hNameTmp = replaceAll(hist_list[i], "data", "mc");
                 std::string hName_corrqjs = replaceAll(hNameTmp, recogenlevel, "corrqjsreco0gen0");
@@ -337,13 +338,14 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 //th1_max_of_2_th1(hcorrqjs, hcorrgjs, hsys_js_nc_corrjs3[i]);
                 hsys_js_nc_corrjs3[i] = (TH1D*)hcorrjs->Clone(hsys_js_nc_corrjs3[i]->GetName());
                 hsys_js_nc_corrjs3[i]->Multiply(hnominals[i]);
+                */
             }
             sys_var_t* sysVar_js_nc_corrjs3 = new sys_var_t(hist_list[i], "js_nonclosure_corrjs3", hnominals[i], hsys_js_nc_corrjs3[i]);
             sysVar_js_nc_corrjs3->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
             sysVar_js_nc_corrjs3->write();
             total_sys_vars_js_nc[i]->add_sys_var(sysVar_js_nc_corrjs3, 0, 0);
 
-            // systematics for non-closure due to jet quenching
+            // systematics for non-closure due to model dependence
             hsys_js_nc_corrjsQGFrac[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjsQGFrac", hnominals[i]->GetName()));
             if (true) {
                 std::string centSuffix = getCentText(hist_list[i]);
