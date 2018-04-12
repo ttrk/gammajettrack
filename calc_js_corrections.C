@@ -75,7 +75,9 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
     }
 
     TH1D* hNum = 0;
+    TH1D* hNumOut = 0;
     TH1D* hDenom = 0;
+    TH1D* hDenomOut = 0;
     TH1D* hCorrection = 0;
 
     TH1D* hTmp = 0;
@@ -101,12 +103,14 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
 
                             hTmp = 0;
 
-                            hNum = 0;
-                            hNum = (TH1D*)finput->Get(histNumName.c_str());
-                            if (!hNum) {
+                            hNumOut = 0;
+                            hNumOut = (TH1D*)finput->Get(histNumName.c_str());
+                            if (hNumOut == 0) {
                                 std::cout << "histogram not found : " << histNumName.c_str() << std::endl;
                                 continue;
                             }
+                            hNum = 0;
+                            hNum = (TH1D*)hNumOut->Clone(Form("%s_tmp", histNumName.c_str()));
 
                             if (rawbkgsigNum[i].find("subtrk") != std::string::npos) {
                                 std::string histTmpName = Form("%suemix_%s_%s_%sptBin%d_etaBin%d%s_%d_%d", stepsNumPrefixes[i].c_str(),
@@ -125,12 +129,15 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
                                 hNum->Add(hTmp, -1);
                             }
 
-                            hDenom = 0;
-                            hDenom = (TH1D*)finput->Get(histDenomName.c_str());
-                            if (!hDenom) {
+                            hDenomOut = 0;
+                            hDenomOut = (TH1D*)finput->Get(histDenomName.c_str());
+                            if (hDenomOut == 0) {
                                 std::cout << "histogram not found : " << histDenomName.c_str() << std::endl;
                                 continue;
                             }
+                            hDenom = 0;
+                            hDenom = (TH1D*)hDenomOut->Clone(Form("%s_tmp", histDenomName.c_str()));
+
                             if (rawbkgsigDenom[i].find("subtrk") != std::string::npos) {
                                 std::string histTmpName = Form("%suemix_%s_%s_%sptBin%d_etaBin%d%s_%d_%d", stepsDenomPrefixes[i].c_str(),
                                         sample.c_str(), recoGenStepsDenom[i].c_str(),
@@ -148,10 +155,10 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
                                 hDenom->Add(hTmp, -1);
                             }
 
-                            hNum->Write("",TObject::kOverwrite);
+                            hNumOut->Write("",TObject::kOverwrite);
                             std::cout << "saved histogram " << histNumName.c_str() << std::endl;
 
-                            hDenom->Write("",TObject::kOverwrite);
+                            hDenomOut->Write("",TObject::kOverwrite);
                             std::cout << "saved histogram " << histDenomName.c_str() << std::endl;
 
                             std::string histCorrName = Form("%s_corr_%s_%s2%s_%sptBin%d_etaBin%d%s_%d_%d", stepsDenomPrefixes[i].c_str(),
@@ -168,9 +175,6 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
                             hCorrection->Write("",TObject::kOverwrite);
                             std::cout << "saved histogram " << histCorrName.c_str() << std::endl;
 
-                            if (!hNum) hNum->Delete();
-                            if (!hDenom) hDenom->Delete();
-                            if (!hCorrection) hCorrection->Delete();
                             if (hTmp != 0) hTmp->Delete();
                         }
                     }
