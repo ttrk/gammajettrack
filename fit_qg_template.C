@@ -97,6 +97,14 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
     TH1D* hOutG_fracData_varDown = 0;
     TH1D* hOutQG_Data_varDown = 0;
 
+    TH1D* hOutQ_fracData_varUp_centDep = 0;
+    TH1D* hOutG_fracData_varUp_centDep = 0;
+    TH1D* hOutQG_Data_varUp_centDep = 0;
+
+    TH1D* hOutQ_fracData_varDown_centDep = 0;
+    TH1D* hOutG_fracData_varDown_centDep = 0;
+    TH1D* hOutQG_Data_varDown_centDep = 0;
+
     std::vector<std::string> hInputPrefixesMC = {
             "hjs_ppmc",
             "hjs_pbpbmc",
@@ -137,7 +145,10 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
     double binsArrTmp[5+1];
     std::copy(binsVecTmp.begin(), binsVecTmp.end(), binsArrTmp);
     TH1D* hOutCentDep = new TH1D("hjs_ref0Qgen0_centDep", ";Centrality (%);quark fraction", 5, binsArrTmp);
-    TF1* f1OutCentDep = new TF1("hjs_ref0Qgen0_centDep_fitpol1", "pol1", hOutCentDep->GetBinCenter(1), hOutCentDep->GetBinCenter(5));
+
+    TF1* f1CentDepNominal = new TF1("f1CentDepNominal", "0.516622+0.00109379*x", 5, 125);
+    TF1* f1CentDepVaried = new TF1("f1CentDepVaried", "(0.516622+0.0670612)-5*[0] + [0]*x", 5, 125);
+    f1CentDepVaried->SetParameter(0, 0.000569570);
 
     int nInputPrefixes = hInputPrefixesMC.size();
     for (int i = 0; i < nInputPrefixes; ++i) {
@@ -211,6 +222,20 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
             hOutQ_fracData_varDown = (TH1D*)hOutQ_fracData->Clone(hOutPathQfracTemplateVarDown.c_str());
             hOutG_fracData_varDown = (TH1D*)hOutG_fracData->Clone(hOutPathGfracTemplateVarDown.c_str());
 
+            std::string hOutPathQfracTemplateVarUpCentDep = Form("%s_%s_frac_template_varUp_centDep_%d_%d", hInputPrefixesMC[i].c_str(), recogenQ[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            std::string hOutPathGfracTemplateVarUpCentDep = Form("%s_%s_frac_template_varUp_centDep_%d_%d", hInputPrefixesMC[i].c_str(), recogenG[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQ_fracData_varUp_centDep = (TH1D*)hOutQ_fracData->Clone(hOutPathQfracTemplateVarUpCentDep.c_str());
+            hOutG_fracData_varUp_centDep = (TH1D*)hOutG_fracData->Clone(hOutPathGfracTemplateVarUpCentDep.c_str());
+
+            std::string hOutPathQfracTemplateVarDownCentDep = Form("%s_%s_frac_template_varDown_centDep_%d_%d", hInputPrefixesMC[i].c_str(), recogenQ[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            std::string hOutPathGfracTemplateVarDownCentDep = Form("%s_%s_frac_template_varDown_centDep_%d_%d", hInputPrefixesMC[i].c_str(), recogenG[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQ_fracData_varDown_centDep = (TH1D*)hOutQ_fracData->Clone(hOutPathQfracTemplateVarDownCentDep.c_str());
+            hOutG_fracData_varDown_centDep = (TH1D*)hOutG_fracData->Clone(hOutPathGfracTemplateVarDownCentDep.c_str());
+
             qgTemplate = new Template(hInData, hOutQ_fracData, hOutG_fracData);
 
             std::string f1Name = Form("%s_f1_qg_template", hInPathData.c_str());
@@ -277,6 +302,37 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
 
             std::cout << "wrote hist for Down variation" << std::endl;
 
+            double centXaxis = (max_hiBin[iCent]/2 + min_hiBin[iCent]/2)/2;
+            double errFromCentDep = TMath::Abs(f1CentDepNominal->Eval(centXaxis) - f1CentDepVaried->Eval(centXaxis));
+            if (hInputPrefixesMC[i].find("pp") != std::string::npos) {
+                errFromCentDep = par1Err;
+            }
+            hOutQ_fracData_varUp_centDep->Scale(par0*(par1+errFromCentDep));
+            hOutG_fracData_varUp_centDep->Scale(par0*(1 - (par1+errFromCentDep)));
+
+            std::string hOutPathQGTemplateVarUpCentDep = Form("%s_QG_template_varUp_centDep_%d_%d", hInputPrefixesMC[i].c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQG_Data_varUp_centDep = (TH1D*)hOutQ_fracData_varUp_centDep->Clone(hOutPathQGTemplateVarUpCentDep.c_str());
+            hOutQG_Data_varUp_centDep->Add(hOutG_fracData_varUp_centDep);
+
+            hOutQ_fracData_varUp_centDep->Write("",TObject::kOverwrite);
+            hOutG_fracData_varUp_centDep->Write("",TObject::kOverwrite);
+            hOutQG_Data_varUp_centDep->Write("",TObject::kOverwrite);
+
+            std::cout << "wrote hist for up variation - Cent Dep" << std::endl;
+
+            hOutQ_fracData_varDown_centDep->Scale(par0*(par1-errFromCentDep));
+            hOutG_fracData_varDown_centDep->Scale(par0*(1 - (par1-errFromCentDep)));
+
+            std::string hOutPathQGTemplateVarDownCentDep = Form("%s_QG_template_varDown_centDep_%d_%d", hInputPrefixesMC[i].c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQG_Data_varDown_centDep = (TH1D*)hOutQ_fracData_varDown_centDep->Clone(hOutPathQGTemplateVarDownCentDep.c_str());
+            hOutQG_Data_varDown_centDep->Add(hOutG_fracData_varDown_centDep);
+
+            hOutQ_fracData_varDown_centDep->Write("",TObject::kOverwrite);
+            hOutG_fracData_varDown_centDep->Write("",TObject::kOverwrite);
+            hOutQG_Data_varDown_centDep->Write("",TObject::kOverwrite);
+
+            std::cout << "wrote hist for Down variation - Cent Dep" << std::endl;
+
             if (hInputPrefixesMC[i].find("hjs") == 0) {
                 if (hInputPrefixesMC[i].find("pp") != std::string::npos) {
                     hOutCentDep->SetBinContent(5, par1);
@@ -289,9 +345,7 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
             }
         }
     }
-    //hOutCentDep->Fit(f1OutCentDep->GetName(), "Q R M");
     hOutCentDep->Write("",TObject::kOverwrite);
-    f1OutCentDep->Write("",TObject::kOverwrite);
 
     std::cout<<"Closing the output file."<<std::endl;
     output->Close();
