@@ -32,12 +32,12 @@ enum SYS
     k_longrange,
     k_nonclosure,
     k_bkgsub,
-    k_phoeff,
+    k_phoeffcorr,
     kN_SYS
 };
 
 std::string sys_types[kN_SYS] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_ratio", "jes_qg_down", "longrange", "nonclosure", "bkgsub", "phoeff"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_ratio", "jes_qg_down", "longrange", "nonclosure", "bkgsub", "phoeffcorr"
 };
 
 std::string fit_funcs[kN_SYS] = {
@@ -57,7 +57,7 @@ int add2Total[kN_SYS] = {
 };
 
 int sysMethod[kN_SYS] = {
-      2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0, 0
+      2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0, 2
     //1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0
         //1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0
         //1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0
@@ -139,7 +139,6 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
 
         for (int j=0; j<kN_SYS; ++j) {
 
-            if (is_ff && j == k_phoeff)  continue;
             if (is_js && j == k_longrange)  continue;
 
             std::cout << "j = " << j << std::endl;
@@ -161,7 +160,6 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
 
         for (int j=0; j<kN_SYS; ++j) {
 
-            if (is_ff && j == k_phoeff)  continue;
             if (is_js && j == k_longrange)  continue;
 
             sys_vars[i][j] = new sys_var_t(Form("h%s_final_ratio_%s", observable.c_str(), hist_list[i].c_str()), sys_types[j], hnominals[i], hratio_sys[i][j]);
@@ -218,7 +216,6 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
     TLegend* leg = 0;
     TLatex* latexTmp = 0;
     for (int iSys=kN_SYS; iSys<kN_SYS; ++iSys) {
-        if (is_ff && iSys == k_phoeff)  continue;
         if (is_js && iSys == k_longrange)  continue;
 
         for (int iCnv = 0; iCnv < 2; ++iCnv) {
