@@ -33,31 +33,32 @@ enum SYSVAR
     k_jes_qg_down,
     k_longrange,
     k_tracking_ratio,
+    k_phoeffcorr,
     kN_SYSVAR
 };
 
 std::string sys_types[kN_SYSVAR] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_qg_down", "longrange", "tracking_ratio"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_qg_down", "longrange", "tracking_ratio", "phoeffcorr"
 };
 
 std::string fit_funcs[kN_SYSVAR] = {
-    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
+    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
 };
 
 int options[kN_SYSVAR] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0
+    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0
 };
 
 int special[kN_SYSVAR] = {
-    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 0
+    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 0, 0
 };
 
 int add2Total[kN_SYSVAR] = {
-    0, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0
+    0, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1
 };
 
 int sysMethod[kN_SYSVAR] = {
-    2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 0
+    2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 0, 2
     //1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0
         //1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0
         //0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -65,7 +66,7 @@ int sysMethod[kN_SYSVAR] = {
 };
 
 std::string sys_labels[kN_SYSVAR] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long-range correlations", "tracking PbPb/pp"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long-range correlations", "tracking PbPb/pp", "photon efficiency"
 };
 
 std::string getCentText(std::string objName);
@@ -129,8 +130,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     if (isPP)  file_jsqgcorr = new TFile("jsclosure_ppmc_60_30_gxi0_obs2_ffjs_finaljsqgcorr.root", "read");
     else       file_jsqgcorr = new TFile("jsclosure_pbpbmc_60_30_gxi0_obs2_ffjs_finaljsqgcorr.root", "read");
 
-    TFile* file_jsqgFracDataMC = 0;
-    if (!isPP)  file_jsqgFracDataMC = new TFile("fit_qg_template_pbpb_gxi0_obs2.root", "read");
+    TFile* file_jsqgFracDataMC = new TFile("fit_qg_template_pp_pbpb_gxi0_obs2.root", "read");
 
     TFile* fout = new TFile(Form("%s-systematics.root", label), "update");
 
@@ -145,8 +145,6 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     TH1D* hsys_js_nc_corrjs1[nhists] = {0};
     TH1D* hsys_js_nc_corrjs3[nhists] = {0};
     TH1D* hsys_js_nc_corrjsQGFrac[nhists] = {0};
-
-    TH1D* hsys_js_phoeff[nhists] = {0};
 
     TH1D* hTmp = 0;
     TF1*  f1Tmp = 0;
@@ -381,14 +379,6 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             sysVar_js_nonclosure->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
             sysVar_js_nonclosure->write();
             total_sys_vars[i]->add_sys_var(sysVar_js_nonclosure, 0, 0);
-
-            // add systematics for photon selection efficiency
-            hsys_js_phoeff[i] = (TH1D*)hnominals[i]->Clone(Form("%s_phoeff", hnominals[i]->GetName()));
-
-            sys_var_t* sysVar_phoeff = new sys_var_t(hist_list[i], "phoeff", hnominals[i], hsys_js_phoeff[i]);
-            sysVar_phoeff->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
-            sysVar_phoeff->write();
-            total_sys_vars[i]->add_sys_var(sysVar_phoeff, 0, 0);
         }
 
         total_sys_vars[i]->write();
