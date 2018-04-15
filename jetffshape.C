@@ -1007,12 +1007,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     }
 
     // jet subtructure variables
+    /*
     double Nch = 0;
     double phi_moment1 = 0;
     double phi_moment2 = 0;
     double eta_moment1 = 0;
     double eta_moment2 = 0;
     double ptDisp_num = 0;
+    */
     double girth = 0;
     double weight_part_pt_sum = 0;
 
@@ -1235,12 +1237,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         if (defnFF == k_jetFF)  refP = gammaxi ? phoEtTmp : vJet.P();
         else if (defnFF == k_jetShape) refP = gammaxi ? phoEtTmp : tmpjetpt;
 
+        /*
         Nch = 0;
         phi_moment1 = 0;
         phi_moment2 = 0;
         eta_moment1 = 0;
         eta_moment2 = 0;
         ptDisp_num = 0;
+        */
         girth = 0;
         weight_part_pt_sum = 0;
 
@@ -1365,6 +1369,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     }
                     double weight_part_pt = (*p_pt)[ip] * weight_part;
 
+                    /*
                     Nch += weight_part;
                     phi_moment1 += (*p_phi)[ip] * weight_part_pt;
                     phi_moment2 += (*p_phi)[ip] * (*p_phi)[ip] * weight_part_pt;
@@ -1372,6 +1377,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     eta_moment2 += (*p_eta)[ip] * (*p_eta)[ip] * weight_part_pt;
 
                     ptDisp_num += (*p_pt)[ip] * weight_part_pt;
+                    */
                     girth += sqrt(deltar2) * weight_part_pt;
 
                     weight_part_pt_sum += weight_part_pt;
@@ -1527,12 +1533,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             p_chg_UE = chg;
         }
 
+        /*
         Nch = 0;
         phi_moment1 = 0;
         phi_moment2 = 0;
         eta_moment1 = 0;
         eta_moment2 = 0;
         ptDisp_num = 0;
+        */
         girth = 0;
         weight_part_pt_sum = 0;
         for (int ip_UE = 0; ip_UE < nip_UE; ++ip_UE) {
@@ -1646,6 +1654,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     }
                     double weight_part_pt = (*p_pt_UE)[ip_UE] * weight_part;
 
+                    /*
                     Nch += weight_part;
                     phi_moment1 += (*p_phi_UE)[ip_UE] * weight_part_pt;
                     phi_moment2 += (*p_phi_UE)[ip_UE] * (*p_phi_UE)[ip_UE] * weight_part_pt;
@@ -1653,6 +1662,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     eta_moment2 += (*p_eta_UE)[ip_UE] * (*p_eta_UE)[ip_UE] * weight_part_pt;
 
                     ptDisp_num += (*p_pt_UE)[ip_UE] * weight_part_pt;
+                    */
                     girth += sqrt(deltar2) * weight_part_pt;
 
                     weight_part_pt_sum += weight_part_pt;
@@ -1949,12 +1959,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         if (defnFF == k_jetFF) refP = gammaxi ? phoEtTmp : vJet.P();
         else if (defnFF == k_jetShape) refP = gammaxi ? phoEtTmp : tmpjetpt;
 
+        /*
         Nch = 0;
         phi_moment1 = 0;
         phi_moment2 = 0;
         eta_moment1 = 0;
         eta_moment2 = 0;
         ptDisp_num = 0;
+        */
         girth = 0;
         weight_part_pt_sum = 0;
 
@@ -2075,6 +2087,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     }
                     double weight_part_pt = (*p_pt_mix)[ip_mix] * weight_part;
 
+                    /*
                     Nch += weight_part;
                     phi_moment1 += (*p_phi_mix)[ip_mix] * weight_part_pt;
                     phi_moment2 += (*p_phi_mix)[ip_mix] * (*p_phi_mix)[ip_mix] * weight_part_pt;
@@ -2082,6 +2095,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     eta_moment2 += (*p_eta_mix)[ip_mix] * (*p_eta_mix)[ip_mix] * weight_part_pt;
 
                     ptDisp_num += (*p_pt_mix)[ip_mix] * weight_part_pt;
+                    */
                     girth += sqrt(deltar2) * weight_part_pt;
 
                     weight_part_pt_sum += weight_part_pt;
@@ -2226,12 +2240,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             nmixedevents_jet_ue = nmixedevents_jet;
         }
 
+        /*
         Nch = 0;
         phi_moment1 = 0;
         phi_moment2 = 0;
         eta_moment1 = 0;
         eta_moment2 = 0;
         ptDisp_num = 0;
+        */
         girth = 0;
         weight_part_pt_sum = 0;
         for (int ip_UE = 0; ip_UE < nip_UE; ++ip_UE) {
@@ -2350,6 +2366,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     }
                     double weight_part_pt = (*p_pt_UE)[ip_UE] * weight_part;
 
+                    /*
                     Nch += weight_part;
                     phi_moment1 += (*p_phi_UE)[ip_UE] * weight_part_pt;
                     phi_moment2 += (*p_phi_UE)[ip_UE] * (*p_phi_UE)[ip_UE] * weight_part_pt;
@@ -2357,6 +2374,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     eta_moment2 += (*p_eta_UE)[ip_UE] * (*p_eta_UE)[ip_UE] * weight_part_pt;
 
                     ptDisp_num += (*p_pt_UE)[ip_UE] * weight_part_pt;
+                    */
                     girth += sqrt(deltar2) * weight_part_pt;
 
                     weight_part_pt_sum += weight_part_pt;
