@@ -265,12 +265,14 @@ public :
    Int_t           hiBin;
    Float_t         vz;
    Float_t         weight;
+   Float_t         pthat;
    Float_t         hiEvtPlanes[29];   //[hiNevtPlane]
    Int_t           njet;
    std::vector<float>   *jetptCorr;
    std::vector<float>   *jetpt;
    std::vector<float>   *jeteta;
    std::vector<float>   *jetphi;
+   std::vector<float>   *rawpt;
    std::vector<float>   *gjetpt;
    std::vector<float>   *gjeteta;
    std::vector<float>   *gjetphi;
@@ -315,6 +317,7 @@ public :
    std::vector<float>   *jetpt_mix;
    std::vector<float>   *jeteta_mix;
    std::vector<float>   *jetphi_mix;
+   std::vector<float>   *rawpt_mix;
    std::vector<float>   *gjetpt_mix;
    std::vector<float>   *gjeteta_mix;
    std::vector<float>   *gjetphi_mix;
@@ -402,12 +405,14 @@ public :
    TBranch        *b_hiBin;   //!
    TBranch        *b_vz;   //!
    TBranch        *b_weight;   //!
+   TBranch        *b_pthat;   //!
    TBranch        *b_hiEvtPlanes;   //!
    TBranch        *b_njet;   //!
    TBranch        *b_jetptCorr;   //!
    TBranch        *b_jetpt;   //!
    TBranch        *b_jeteta;   //!
    TBranch        *b_jetphi;   //!
+   TBranch        *b_rawpt;   //!
    TBranch        *b_gjetpt;   //!
    TBranch        *b_gjeteta;   //!
    TBranch        *b_gjetphi;   //!
@@ -452,6 +457,7 @@ public :
    TBranch        *b_jetpt_mix;   //!
    TBranch        *b_jeteta_mix;   //!
    TBranch        *b_jetphi_mix;   //!
+   TBranch        *b_rawpt_mix;   //!
    TBranch        *b_gjetpt_mix;   //!
    TBranch        *b_gjeteta_mix;   //!
    TBranch        *b_gjetphi_mix;   //!
@@ -586,6 +592,7 @@ void photonjettrack::Init(std::string file, std::string bkg_file)
    jetpt = 0;
    jeteta = 0;
    jetphi = 0;
+   rawpt = 0;
    gjetpt = 0;
    gjeteta = 0;
    gjetphi = 0;
@@ -622,6 +629,7 @@ void photonjettrack::Init(std::string file, std::string bkg_file)
    jetpt_mix = 0;
    jeteta_mix = 0;
    jetphi_mix = 0;
+   rawpt_mix = 0;
    gjetpt_mix = 0;
    gjeteta_mix = 0;
    gjetphi_mix = 0;
@@ -673,12 +681,14 @@ void photonjettrack::Init(std::string file, std::string bkg_file)
    fChain->SetBranchAddress("hiBin", &hiBin, &b_hiBin);
    fChain->SetBranchAddress("vz", &vz, &b_vz);
    fChain->SetBranchAddress("weight", &weight, &b_weight);
+   fChain->SetBranchAddress("pthat", &pthat, &b_pthat);
    fChain->SetBranchAddress("hiEvtPlanes", hiEvtPlanes, &b_hiEvtPlanes);
    fChain->SetBranchAddress("njet", &njet, &b_njet);
    fChain->SetBranchAddress("jetptCorr", &jetptCorr, &b_jetptCorr);
    fChain->SetBranchAddress("jetpt", &jetpt, &b_jetpt);
    fChain->SetBranchAddress("jeteta", &jeteta, &b_jeteta);
    fChain->SetBranchAddress("jetphi", &jetphi, &b_jetphi);
+   fChain->SetBranchAddress("rawpt", &rawpt, &b_rawpt);
    fChain->SetBranchAddress("gjetpt", &gjetpt, &b_gjetpt);
    fChain->SetBranchAddress("gjeteta", &gjeteta, &b_gjeteta);
    fChain->SetBranchAddress("gjetphi", &gjetphi, &b_gjetphi);
@@ -723,6 +733,7 @@ void photonjettrack::Init(std::string file, std::string bkg_file)
    fChain->SetBranchAddress("jetpt_mix", &jetpt_mix, &b_jetpt_mix);
    fChain->SetBranchAddress("jeteta_mix", &jeteta_mix, &b_jeteta_mix);
    fChain->SetBranchAddress("jetphi_mix", &jetphi_mix, &b_jetphi_mix);
+   fChain->SetBranchAddress("rawpt_mix", &rawpt_mix, &b_rawpt_mix);
    fChain->SetBranchAddress("gjetpt_mix", &gjetpt_mix, &b_gjetpt_mix);
    fChain->SetBranchAddress("gjeteta_mix", &gjeteta_mix, &b_gjeteta_mix);
    fChain->SetBranchAddress("gjetphi_mix", &gjetphi_mix, &b_gjetphi_mix);

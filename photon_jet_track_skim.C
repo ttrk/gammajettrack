@@ -389,6 +389,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
     if (!passed) continue;
 
     if (isMC) {
+      pjtt.pthat = pthat;
       if (isHI) {
         if (pthat >= 14.95 && pthat < 30.)
           pjtt.weight = 0.999245;
@@ -504,6 +505,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
       pjtt.jetpt.push_back(jt.jtpt[ij]);
       pjtt.jeteta.push_back(jt.jteta[ij]);
       pjtt.jetphi.push_back(jt.jtphi[ij]);
+      pjtt.rawpt.push_back(jt.rawpt[ij]);
       pjtt.gjetpt.push_back(jt.refpt[ij]);
       pjtt.gjeteta.push_back(jt.refeta[ij]);
       pjtt.gjetphi.push_back(jt.refphi[ij]);
@@ -663,6 +665,7 @@ int photon_jet_track_skim(std::string input, std::string output, std::string jet
                     pjtt.jetpt_mix.push_back(jt_mix[iMixFile].jtpt[ijetmix]);
                     pjtt.jeteta_mix.push_back(jt_mix[iMixFile].jteta[ijetmix]);
                     pjtt.jetphi_mix.push_back(jt_mix[iMixFile].jtphi[ijetmix]);
+                    pjtt.rawpt_mix.push_back(jt_mix[iMixFile].rawpt[ijetmix]);
                     pjtt.gjetpt_mix.push_back(jt_mix[iMixFile].refpt[ijetmix]);
                     pjtt.gjeteta_mix.push_back(jt_mix[iMixFile].refeta[ijetmix]);
                     pjtt.gjetphi_mix.push_back(jt_mix[iMixFile].refphi[ijetmix]);

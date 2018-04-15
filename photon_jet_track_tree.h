@@ -17,6 +17,7 @@ class photonJetTrackTree {
         hiBin = -1;
         vz = -99;
         weight = -1;
+        pthat = -1;
 
         njet = 0;
         ngen = 0;
@@ -63,6 +64,7 @@ class photonJetTrackTree {
     int hiBin;
     float vz;
     float weight;
+    float pthat;
 
     float hiEvtPlanes[29];
 
@@ -71,6 +73,7 @@ class photonJetTrackTree {
     std::vector<float> jetpt;
     std::vector<float> jeteta;
     std::vector<float> jetphi;
+    std::vector<float> rawpt;
     std::vector<float> gjetpt;
     std::vector<float> gjeteta;
     std::vector<float> gjetphi;
@@ -110,6 +113,7 @@ class photonJetTrackTree {
     std::vector<float> jetpt_mix;
     std::vector<float> jeteta_mix;
     std::vector<float> jetphi_mix;
+    std::vector<float> rawpt_mix;
     std::vector<float> gjetpt_mix;
     std::vector<float> gjeteta_mix;
     std::vector<float> gjetphi_mix;
@@ -162,6 +166,7 @@ void photonJetTrackTree::create_tree(TTree* t) {
     t->Branch("hiBin", &hiBin, "hiBin/I");
     t->Branch("vz", &vz, "vz/F");
     t->Branch("weight", &weight, "weight/F");
+    t->Branch("pthat", &pthat, "pthat/F");
 
     t->Branch("hiEvtPlanes", hiEvtPlanes, "hiEvtPlanes[29]/F");
 
@@ -170,6 +175,7 @@ void photonJetTrackTree::create_tree(TTree* t) {
     t->Branch("jetpt", &jetpt);
     t->Branch("jeteta", &jeteta);
     t->Branch("jetphi", &jetphi);
+    t->Branch("rawpt", &rawpt);
     t->Branch("gjetpt", &gjetpt);
     t->Branch("gjeteta", &gjeteta);
     t->Branch("gjetphi", &gjetphi);
@@ -209,6 +215,7 @@ void photonJetTrackTree::create_tree(TTree* t) {
     t->Branch("jetpt_mix", &jetpt_mix);
     t->Branch("jeteta_mix", &jeteta_mix);
     t->Branch("jetphi_mix", &jetphi_mix);
+    t->Branch("rawpt_mix", &rawpt_mix);
     t->Branch("gjetpt_mix", &gjetpt_mix);
     t->Branch("gjeteta_mix", &gjeteta_mix);
     t->Branch("gjetphi_mix", &gjetphi_mix);
@@ -258,6 +265,7 @@ void photonJetTrackTree::clear_vectors() {
     jetpt.clear();
     jeteta.clear();
     jetphi.clear();
+    rawpt.clear();
     gjetpt.clear();
     gjeteta.clear();
     gjetphi.clear();
@@ -285,6 +293,7 @@ void photonJetTrackTree::clear_vectors() {
     jetpt_mix.clear();
     jeteta_mix.clear();
     jetphi_mix.clear();
+    rawpt_mix.clear();
     gjetpt_mix.clear();
     gjeteta_mix.clear();
     gjetphi_mix.clear();
