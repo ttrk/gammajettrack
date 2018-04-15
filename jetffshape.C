@@ -922,10 +922,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     }
 
     if (!isMC)  weight = 1;
-    /*
     else if (isMC && isFlt50Sample) {
+        if (pthat >= 30. && pthat < 50.)
+          weight = 0.999577;
+        else if (pthat >= 50. && pthat < 80.)
+          weight = 0.377152;
+        else if (pthat >= 80. && pthat < 120.)
+          weight = 0.129224;
+        else if (pthat >= 120.)
+          weight = 0.0444307;
+        else
+          weight = 0;
     }
-    */
     if (isMC) weight = weight * hvzweight->GetBinContent(hvzweight->FindBin(vz));
     if (isMC && !isPP) weight = weight * hcentweight->GetBinContent(hcentweight->FindBin(hiBin));
 
