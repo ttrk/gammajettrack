@@ -1415,6 +1415,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         if (is_ref_jet || is_reco_jet) {
 
+            /*
             float dphi_refrecojet = getDPHI(tmpjetphi, (*gjetphi)[ij]);
             float deta_refrecojet = tmpjeteta - (*gjeteta)[ij];
             float dr_refrecojet = sqrt(dphi_refrecojet*dphi_refrecojet + deta_refrecojet*deta_refrecojet);
@@ -1470,12 +1471,15 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     }
                 }
             }
+            */
 
             girth /= tmpjetpt;
             hgirth[phoBkg][k_rawJet_rawTrk]->Fill(girth, weight_jet);
+            /*
             h2dphigirth[phoBkg][k_rawJet_rawTrk]->Fill(girth, dphi_refrecojet, weight_jet);
             h2detagirth[phoBkg][k_rawJet_rawTrk]->Fill(girth, deta_refrecojet, weight_jet);
             h2drgirth[phoBkg][k_rawJet_rawTrk]->Fill(girth, dr_refrecojet, weight_jet);
+            */
         }
 
         if (isPP) continue;
@@ -1691,6 +1695,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
 
         if (is_ref_jet || is_reco_jet) {
+            /*
             float dphi_refrecojet = getDPHI(tmpjetphi, (*gjetphi)[ij]);
             float deta_refrecojet = tmpjeteta - (*gjeteta)[ij];
             float dr_refrecojet = sqrt(dphi_refrecojet*dphi_refrecojet + deta_refrecojet*deta_refrecojet);
@@ -1713,12 +1718,15 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             h2dphiptDisp[phoBkg][k_rawJet_ueTrk]->Fill(ptDisp, dphi_refrecojet, weight_jet);
             h2detaptDisp[phoBkg][k_rawJet_ueTrk]->Fill(ptDisp, deta_refrecojet, weight_jet);
             h2drptDisp[phoBkg][k_rawJet_ueTrk]->Fill(ptDisp, dr_refrecojet, weight_jet);
+            */
 
             girth /= tmpjetpt;
             hgirth[phoBkg][k_rawJet_ueTrk]->Fill(girth, weight_jet);
+            /*
             h2dphigirth[phoBkg][k_rawJet_ueTrk]->Fill(girth, dphi_refrecojet, weight_jet);
             h2detagirth[phoBkg][k_rawJet_ueTrk]->Fill(girth, deta_refrecojet, weight_jet);
             h2drgirth[phoBkg][k_rawJet_ueTrk]->Fill(girth, dr_refrecojet, weight_jet);
+            */
         }
       }
     }
@@ -2113,6 +2121,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           }
         }
         if (is_ref_jet || is_reco_jet) {
+            /*
             float dphi_refrecojet = getDPHI(tmpjetphi, (*gjetphi_mix)[ij_mix]);
             float deta_refrecojet = tmpjeteta - (*gjeteta_mix)[ij_mix];
             float dr_refrecojet = sqrt(dphi_refrecojet*dphi_refrecojet + deta_refrecojet*deta_refrecojet);
@@ -2168,12 +2177,15 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                     }
                 }
             }
+            */
 
             girth /= tmpjetpt;
             hgirth[phoBkg][k_bkgJet_rawTrk]->Fill(girth, weight_jet);
+            /*
             h2dphigirth[phoBkg][k_bkgJet_rawTrk]->Fill(girth, dphi_refrecojet, weight_jet);
             h2detagirth[phoBkg][k_bkgJet_rawTrk]->Fill(girth, deta_refrecojet, weight_jet);
             h2drgirth[phoBkg][k_bkgJet_rawTrk]->Fill(girth, dr_refrecojet, weight_jet);
+            */
         }
 
         if (is_gen0_part) continue;
@@ -2384,6 +2396,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           }
         }
         if (is_ref_jet || is_reco_jet) {
+            /*
             float dphi_refrecojet = getDPHI(tmpjetphi, (*gjetphi_mix)[ij_mix]);
             float deta_refrecojet = tmpjeteta - (*gjeteta_mix)[ij_mix];
             float dr_refrecojet = sqrt(dphi_refrecojet*dphi_refrecojet + deta_refrecojet*deta_refrecojet);
@@ -2406,12 +2419,15 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             h2dphiptDisp[phoBkg][k_bkgJet_ueTrk]->Fill(ptDisp, dphi_refrecojet, weight_jet);
             h2detaptDisp[phoBkg][k_bkgJet_ueTrk]->Fill(ptDisp, deta_refrecojet, weight_jet);
             h2drptDisp[phoBkg][k_bkgJet_ueTrk]->Fill(ptDisp, dr_refrecojet, weight_jet);
+            */
 
             girth /= tmpjetpt;
             hgirth[phoBkg][k_bkgJet_ueTrk]->Fill(girth, weight_jet);
+            /*
             h2dphigirth[phoBkg][k_bkgJet_ueTrk]->Fill(girth, dphi_refrecojet, weight_jet);
             h2detagirth[phoBkg][k_bkgJet_ueTrk]->Fill(girth, deta_refrecojet, weight_jet);
             h2drgirth[phoBkg][k_bkgJet_ueTrk]->Fill(girth, dr_refrecojet, weight_jet);
+            */
         }
       }
     }
