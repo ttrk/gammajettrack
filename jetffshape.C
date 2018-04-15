@@ -638,7 +638,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   //TF1* f_trkEffDiffPtDep_down = new TF1("f_trkEffDiffPtDep_down", "0.912737 + 0.00379736 * x", 0, 200);
 
   scaleErrorTool scaleErr("rcDifferences_20180406.txt");
-  scaleErr.Init();
+  if (isHI && (systematic == 11 || systematic == 12)) {
+      scaleErr.Init();
+  }
 
   // generic pointers
 
