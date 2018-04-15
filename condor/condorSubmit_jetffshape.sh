@@ -64,6 +64,8 @@ cp PbPb-weights-flt50ext.root $submitDir
 cp PbPb-weights-flt30flt50all.root $submitDir
 cp pp-weights.root $submitDir
 cp phoeffcorr.root $submitDir
+cp jec_pbpb.root $submitDir
+cp rcDifferences_20180406.txt $submitDir
 cp "condor/myRun.sh" $submitDir
 
 ## customizations for submit-hi2.mit.edu and submit.mit.edu machines ##
@@ -95,7 +97,7 @@ requirements = GLIDEIN_Site == "MIT_CampusFactory" && BOSCOGroup == "bosco_cmshi
 job_lease_duration = 240
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = /tmp/$proxyFile,myRun.sh,$progFile,PbPb-weights.root,PbPb-weights-flt30.root,PbPb-weights-flt50.root,PbPb-weights-flt50ext.root,PbPb-weights-flt30flt50all.root,pp-weights.root,phoeffcorr.root
+transfer_input_files = /tmp/$proxyFile,myRun.sh,$progFile,PbPb-weights.root,PbPb-weights-flt30.root,PbPb-weights-flt50.root,PbPb-weights-flt50ext.root,PbPb-weights-flt30flt50all.root,pp-weights.root,phoeffcorr.root,jec_pbpb.root,rcDifferences_20180406.txt
 
 Queue $nJobs
 
