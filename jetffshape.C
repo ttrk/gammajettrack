@@ -198,6 +198,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH2D* h2detarefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH2D* h2drrefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
 
+  /*
   TH2D* h2dphirefrecoJet_drTrk1Jet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH2D* h2detarefrecoJet_drTrk1Jet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH2D* h2drrefrecoJet_drTrk1Jet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
@@ -209,6 +210,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH2D* h2drrefrecoJet_drTrk1refJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH2D* h2dphirefrecoJet_dphiTrk1refJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH2D* h2detarefrecoJet_detaTrk1refJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
+  */
 
   TH2D* h2dphidetarefrecoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   std::vector<int> ptBins_dphidetarefrecoJet = {0, 10, 20, 30, 40, 50, 60, 80, 100, 120, 150, 9999};
@@ -220,10 +222,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   int nEtaBins_dphidetarefrecoJet = etaBins_dphidetarefrecoJet.size() - 1;
   TH2D* h2dphidetarefrecoJet_refptBin_etaBin[kN_PHO_SIGBKG][kN_JET_SIGBKG][nPtBins_dphidetarefrecoJet][nEtaBins_dphidetarefrecoJet];
 
+  /*
   std::vector<double> ptDispBins_dphidetarefrecoJet = {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 1, 1.1};
   int nPtDispBins_dphidetarefrecoJet = ptDispBins_dphidetarefrecoJet.size() - 1;
   TH2D* h2dphidetarefrecoJet_ptDispBin[kN_PHO_SIGBKG][kN_JET_SIGBKG][nPtDispBins_dphidetarefrecoJet];
   TH2D* h2dphidetarefrecoJet_refptBin_ptDispBin[kN_PHO_SIGBKG][kN_JET_SIGBKG][nPtBins_dphidetarefrecoJet][nPtDispBins_dphidetarefrecoJet];
+  */
 
   std::string titleCent = "";
   if (isHI && isMC) titleCent = Form("Cent:%d-%d%%", abs(centmin)/2, abs(centmax)/2);
@@ -254,6 +258,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           h2dphidetarefrecoJet[i][j] = new TH2D(Form("h2dphidetarefrecoJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
                                              , Form("%s;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}", titleCent.c_str()), 80, -0.4, 0.4, 80, -0.4, 0.4);
 
+          /*
           h2dphirefrecoJet_drTrk1Jet[i][j] = new TH2D(Form("h2dphirefrecoJet_drTrk1Jet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
                                    , Form("%s;#DeltaR(leading particle, jet);#phi^{jet} - #phi^{ref jet}", titleCent.c_str()), 12*4, 0, 0.6, 80, -0.4, 0.4);
           h2detarefrecoJet_drTrk1Jet[i][j] = new TH2D(Form("h2detarefrecoJet_drTrk1Jet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
@@ -277,6 +282,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                                    , Form("%s;#phi^{leading particle} - #phi^{ref jet};#phi^{jet} - #phi^{ref jet}", titleCent.c_str()), 12*4, -0.6, 0.6, 80, -0.4, 0.4);
           h2detarefrecoJet_detaTrk1refJet[i][j] = new TH2D(Form("h2detarefrecoJet_detaTrk1refJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax))
                                    , Form("%s;#eta^{leading particle} - #eta^{ref jet};#eta^{jet} - #eta^{ref jet}", titleCent.c_str()), 12*4, -0.6, 0.6, 80, -0.4, 0.4);
+          */
 
           for (int iPt = 0; iPt < nPtBins_dphidetarefrecoJet; ++iPt) {
               std::string tmpTitle = Form("%d < p_{T} < %d GeV/c, %s;#phi^{reco} - #phi^{ref};#eta^{reco} - #eta^{ref}",
@@ -299,6 +305,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                           tmpTitle.c_str(), 80, -0.4, 0.4, 80, -0.4, 0.4);
               }
 
+              /*
               for (int iPtDisp = 0; iPtDisp < nPtDispBins_dphidetarefrecoJet; ++iPtDisp) {
 
                   std::string tmpTextPtDisp = Form ("%.2f < p_{T}D < %.2f", ptDispBins_dphidetarefrecoJet[iPtDisp], ptDispBins_dphidetarefrecoJet[iPtDisp+1]);
@@ -308,8 +315,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                           iPt, iPtDisp, jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)),
                           tmpTitle.c_str(), 80, -0.4, 0.4, 80, -0.4, 0.4);
               }
+              */
           }
 
+          /*
           for (int iPtDisp = 0; iPtDisp < nPtDispBins_dphidetarefrecoJet; ++iPtDisp) {
 
               std::string tmpTextPtDisp = Form ("%.2f < p_{T}D < %.2f", ptDispBins_dphidetarefrecoJet[iPtDisp], ptDispBins_dphidetarefrecoJet[iPtDisp+1]);
@@ -318,6 +327,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                       iPtDisp, jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)),
                       tmpTitle.c_str(), 80, -0.4, 0.4, 80, -0.4, 0.4);
           }
+          */
       }
   }
 
@@ -369,6 +379,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hgammaffjs_refpt_eta_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr];
   TH1D* hgammaffjs_pt_eta_trkPt_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr];
 
+  /*
   // number of charged particles
   TH2D* h2dphiNch[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH2D* h2detaNch[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
@@ -388,12 +399,15 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH2D* h2dphiptDisp[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH2D* h2detaptDisp[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH2D* h2drptDisp[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
+  */
 
   // girth
   TH1D* hgirth[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
+  /*
   TH2D* h2dphigirth[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH2D* h2detagirth[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH2D* h2drgirth[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
+  */
 
   TH1D* hffjsLR[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH1D* hffjsLRAway[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
@@ -478,6 +492,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               }
           }
 
+          /*
           // number of charged particles
           h2dphiNch[i][j] = new TH2D(Form("h2dphiNch%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), Form("%s;N_{ch};#Delta#phi", titleCent.c_str()), 80, 0, 80, 80, -0.4, 0.4);
@@ -508,15 +523,19 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), Form("%s;p_{T}D;#Delta#eta", titleCent.c_str()), nBinsX*5, 0, 1.2, 80, -0.4, 0.4);
           h2drptDisp[i][j] = new TH2D(Form("h2drptDisp%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), Form("%s;p_{T}D;#DeltaR", titleCent.c_str()), nBinsX*5, 0, 1.2, 80, 0, 0.4);
+          */
+
 
           hgirth[i][j] = new TH1D(Form("hgirth%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), Form("%s;g;", titleCent.c_str()), nBinsX, 0, 0.2);
+          /*
           h2dphigirth[i][j] = new TH2D(Form("h2dphigirth%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), Form("%s;g;#Delta#phi", titleCent.c_str()), nBinsX*4, 0, 0.2, 80, -0.4, 0.4);
           h2detagirth[i][j] = new TH2D(Form("h2detagirth%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), Form("%s;g;#Delta#eta", titleCent.c_str()), nBinsX*4, 0, 0.2, 80, -0.4, 0.4);
           h2drgirth[i][j] = new TH2D(Form("h2drgirth%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), Form("%s;g;#DeltaR", titleCent.c_str()), nBinsX*4, 0, 0.2, 80, 0, 0.4);
+          */
 
           if (doSysLR) {
               // FF / jet shape from long range correlation
@@ -1225,8 +1244,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         girth = 0;
         weight_part_pt_sum = 0;
 
-        int indexMaxPt_part = -1;
-        double ptMax_part = -1;
+        // int indexMaxPt_part = -1;
+        // double ptMax_part = -1;
         // raw jets - jetshape
         for (int ip = 0; ip < nip; ++ip) {
           if ((*p_pt)[ip] < trkptmin) continue;
@@ -1259,10 +1278,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if ((defnFF == k_jetFF && deltar2 < 0.09) ||
               (defnFF == k_jetShape && deltar2 < js_r2Max)) {
 
+              /*
               if (deltar2 < 0.36 && (*p_pt)[ip] > ptMax_part) {
                   indexMaxPt_part = ip;
                   ptMax_part = (*p_pt)[ip];
               }
+              */
 
             TLorentzVector vtrack;
             float val = -1;
@@ -1937,8 +1958,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         girth = 0;
         weight_part_pt_sum = 0;
 
-        int indexMaxPt_part = -1;
-        double ptMax_part = -1;
+        // int indexMaxPt_part = -1;
+        // double ptMax_part = -1;
         // mix jets - jetshape
         for (int ip_mix = 0; ip_mix < nip_mix; ++ip_mix) {
           // tracks and jet must come from same mixed event
@@ -1967,10 +1988,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           if ((defnFF == k_jetFF && deltar2 < 0.09) ||
               (defnFF == k_jetShape && deltar2 < js_r2Max)) {
 
+              /*
               if (deltar2 < 0.36 && (*p_pt_mix)[ip_mix] > ptMax_part) {
                   indexMaxPt_part = ip_mix;
                   ptMax_part = (*p_pt_mix)[ip_mix];
               }
+              */
 
             TLorentzVector vtrack;
             float val = -1;
