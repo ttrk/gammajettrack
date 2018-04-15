@@ -376,7 +376,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hjettrkdphi[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
 
   TH1D* hgammaffjs_pt_eta_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr];
-  TH1D* hgammaffjs_refpt_eta_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr];
   TH1D* hgammaffjs_pt_eta_trkPt_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr];
 
   /*
@@ -482,13 +481,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                                       sample.data(), genlevel.data(), iPt, iEta, iTrkPt, abs(centmin), abs(centmax)),
                                       hTitle_ptBin_EtaBin_trkPtBin.c_str(), nBinsX, 0, xMax);
                   }
-
-                  std::string tmpTextRefpt = Form("%d < p^{ref}_{T} < %d GeV/c", ptBins_js_corr[iPt], ptBins_js_corr[iPt+1]);
-                  std::string hTitle_refptBin_EtaBin = Form("%s, %s;%s;", tmpTextRefpt.c_str(), tmpTextEta.c_str(), xTitle.c_str());
-                  hgammaffjs_refpt_eta_bins[i][j][iPt][iEta] = new TH1D(
-                          Form("%s%s%s_%s_%s_refptBin%d_etaBin%d_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                                  sample.data(), genlevel.data(), iPt, iEta, abs(centmin), abs(centmax)),
-                                  hTitle_refptBin_EtaBin.c_str(), nBinsX, 0, xMax);
               }
           }
 
@@ -1332,11 +1324,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                                 }
                             }
                         }
-                        if (is_ref_jet || is_reco_jet) {
-                            if (ptBins_js_corr[iPt] <= (*gjetpt)[ij] && (*gjetpt)[ij] < ptBins_js_corr[iPt+1]) {
-                                hgammaffjs_refpt_eta_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta]->Fill(val, weight_rawJet_rawTrk);
-                            }
-                        }
                     }
                 break;
                 }
@@ -1615,11 +1602,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                                 if (trkPtBins_js_corr[iTrkPt] <= (*p_pt_UE)[ip_UE] && (*p_pt_UE)[ip_UE] < trkPtBins_js_corr[iTrkPt+1]) {
                                     hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_rawJet_ueTrk][iPt][iEta][iTrkPt]->Fill(val, weight_rawJet_ueTrk);
                                 }
-                            }
-                        }
-                        if (is_ref_jet || is_reco_jet) {
-                            if (ptBins_js_corr[iPt] <= (*gjetpt)[ij] && (*gjetpt)[ij] < ptBins_js_corr[iPt+1]) {
-                                hgammaffjs_refpt_eta_bins[phoBkg][k_rawJet_ueTrk][iPt][iEta]->Fill(val, weight_rawJet_ueTrk);
                             }
                         }
                     }
@@ -2050,11 +2032,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                                 }
                             }
                         }
-                        if (is_ref_jet || is_reco_jet) {
-                            if (ptBins_js_corr[iPt] <= (*gjetpt_mix)[ij_mix] && (*gjetpt_mix)[ij_mix] < ptBins_js_corr[iPt+1]) {
-                                hgammaffjs_refpt_eta_bins[phoBkg][k_bkgJet_rawTrk][iPt][iEta]->Fill(val, weight_bkgJet_rawTrk);
-                            }
-                        }
                     }
                 break;
                 }
@@ -2327,11 +2304,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                                 if (trkPtBins_js_corr[iTrkPt] <= (*p_pt_UE)[ip_UE] && (*p_pt_UE)[ip_UE] < trkPtBins_js_corr[iTrkPt+1]) {
                                     hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_bkgJet_ueTrk][iPt][iEta][iTrkPt]->Fill(val, weight_bkgJet_ueTrk);
                                 }
-                            }
-                        }
-                        if (is_ref_jet || is_reco_jet) {
-                            if (ptBins_js_corr[iPt] <= (*gjetpt_mix)[ij_mix] && (*gjetpt_mix)[ij_mix] < ptBins_js_corr[iPt+1]) {
-                                hgammaffjs_refpt_eta_bins[phoBkg][k_bkgJet_ueTrk][iPt][iEta]->Fill(val, weight_bkgJet_ueTrk);
                             }
                         }
                     }
