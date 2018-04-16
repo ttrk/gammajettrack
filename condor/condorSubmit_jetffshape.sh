@@ -93,7 +93,7 @@ Error        = $condorLogsDir/\$(Process).err
 Log          = $condorLogsDir/\$(Process).log
 Rank         = Mips
 +AccountingGroup = "group_cmshi.$USER"
-requirements = GLIDEIN_Site == "MIT_CampusFactory" && BOSCOGroup == "bosco_cmshi" && HAS_CVMFS_cms_cern_ch && BOSCOCluster == "ce03.cmsaf.mit.edu"
+requirements = GLIDEIN_Site == "MIT_CampusFactory" && HAS_CVMFS_cms_cern_ch
 job_lease_duration = 240
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
