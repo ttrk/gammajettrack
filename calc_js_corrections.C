@@ -85,12 +85,13 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
         for (int iEta = 0; iEta < nEtaBins; ++iEta) {
             for (int iCent = 0; iCent < nCentBins; ++iCent) {
                 for (int iPtType = 0; iPtType < nPtTypes; ++iPtType) {
-                    for (int iTrkPt = 0; iTrkPt < nTrkPtBins + 1; ++iTrkPt) {
+                    for (int iTrkPt = 0; iTrkPt < nTrkPtBins*2 + 1; ++iTrkPt) {
 
                         std::cout << "iPt=" << iPt << " ieta=" << iEta << " icent="<<iCent << " ipttype="<<iPtType << " itrkpt="<<iTrkPt<< std::endl;
 
                         std::string strTrkPt = "";
                         if (iTrkPt < nTrkPtBins) strTrkPt = Form("_trkPtBin%d", iTrkPt);
+                        else if (iTrkPt < nTrkPtBins*2) strTrkPt = Form("_trkPtBin%d_fineR", iTrkPt-nTrkPtBins);
 
                         for (int i = 0; i < nSteps; ++i) {
 
