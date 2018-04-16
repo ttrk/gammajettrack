@@ -617,9 +617,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
                   for (int i = 0; i < nSteps_js_corr; ++i) {
 
-                      std::string histName = Form("hjs_corr_%s_%s2%s_ptBin%d_etaBin%d_trkPtBin%d_%d_%d", tmpSample.c_str(),
+                      std::string strFineR = "";
+                      if (label.find("fineR") != std::string::npos)
+                          strFineR = "_fineR";
+
+                      std::string histName = Form("hjs_corr_%s_%s2%s_ptBin%d_etaBin%d_trkPtBin%d%s_%d_%d", tmpSample.c_str(),
                               recoGenStepsDenom[i].c_str(), recoGenStepsNum[i].c_str(),
-                              iPt, iEta, iTrkPt, min_hiBin_js_corr[iCent], max_hiBin_js_corr[iCent]);
+                              iPt, iEta, iTrkPt, strFineR.c_str(), min_hiBin_js_corr[iCent], max_hiBin_js_corr[iCent]);
                       hgammaffjs_corr_pt_eta_trkPt_bins[k_sigPho][k_rawJet_rawTrk][iPt][iEta][iTrkPt][iCent][i] = 0;
                       hgammaffjs_corr_pt_eta_trkPt_bins[k_sigPho][k_rawJet_rawTrk][iPt][iEta][iTrkPt][iCent][i] = (TH1D*)fweight->Get(histName.c_str());
                       if (!hgammaffjs_corr_pt_eta_trkPt_bins[k_sigPho][k_rawJet_rawTrk][iPt][iEta][iTrkPt][iCent][i]) {
