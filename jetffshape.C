@@ -971,7 +971,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             weight *= getPhoEffCorr(phoEtTmp, hphoeffcorr[0]);
         }
         else {
-            weight *= getPhoEffCorr(phoEtTmp, hphoeffcorr[getCentralityBin4(hiBin)]);
+            weight *= getPhoEffCorr(phoEtTmp, hphoeffcorr[centBin4]);
         }
     }
 
@@ -1141,12 +1141,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if (!isPP && phoEtTmp < 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
             tmpjetpt = tmpjetpt * (1 + flavor_factor);
             */
-              int tmpCentBin = getCentralityBin4(hiBin);
-              int tmpBin = std::min(h_jec[tmpCentBin]->FindBin(tmpjetpt), h_jec[tmpCentBin]->GetNbinsX());
-              double tempScale = h_jec[tmpCentBin]->GetBinContent(tmpBin);
+              int tmpBin = std::min(h_jec[centBin4]->FindBin(tmpjetpt), h_jec[centBin4]->GetNbinsX());
+              double tempScale = h_jec[centBin4]->GetBinContent(tmpBin);
               do {
                   tmpBin--;
-                  tempScale = h_jec[tmpCentBin]->GetBinContent(tmpBin);
+                  tempScale = h_jec[centBin4]->GetBinContent(tmpBin);
               } while (tempScale < 0.5);
               double tmprawpt = tmpjetpt / tempScale;
               tmprawpt += TMath::Abs(scaleErr.getMuDataMinusMC(hiBin / 2, TMath::Abs(tmpjeteta), 3, "NoFlow"));
@@ -1158,12 +1157,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(tmpjetpt); }
             tmpjetpt = tmpjetpt * (1 - flavor_factor);
             */
-              int tmpCentBin = getCentralityBin4(hiBin);
-              int tmpBin = std::min(h_jec[tmpCentBin]->FindBin(tmpjetpt), h_jec[tmpCentBin]->GetNbinsX());
-              double tempScale = h_jec[tmpCentBin]->GetBinContent(tmpBin);
+              int tmpBin = std::min(h_jec[centBin4]->FindBin(tmpjetpt), h_jec[centBin4]->GetNbinsX());
+              double tempScale = h_jec[centBin4]->GetBinContent(tmpBin);
               do {
                   tmpBin--;
-                  tempScale = h_jec[tmpCentBin]->GetBinContent(tmpBin);
+                  tempScale = h_jec[centBin4]->GetBinContent(tmpBin);
               } while (tempScale < 0.5);
               double tmprawpt = tmpjetpt / tempScale;
               tmprawpt -= TMath::Abs(scaleErr.getMuDataMinusMC(hiBin / 2, TMath::Abs(tmpjeteta), 3, "NoFlow"));
@@ -1859,12 +1857,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if (!isPP && phoEtTmp < 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
             tmpjetpt = tmpjetpt * (1 + flavor_factor);
             */
-              int tmpCentBin = getCentralityBin4(hiBin);
-              int tmpBin = std::min(h_jec[tmpCentBin]->FindBin(tmpjetpt), h_jec[tmpCentBin]->GetNbinsX());
-              double tempScale = h_jec[tmpCentBin]->GetBinContent(tmpBin);
+              int tmpBin = std::min(h_jec[centBin4]->FindBin(tmpjetpt), h_jec[centBin4]->GetNbinsX());
+              double tempScale = h_jec[centBin4]->GetBinContent(tmpBin);
               do {
                   tmpBin--;
-                  tempScale = h_jec[tmpCentBin]->GetBinContent(tmpBin);
+                  tempScale = h_jec[centBin4]->GetBinContent(tmpBin);
               } while (tempScale < 0.5);
               double tmprawpt = tmpjetpt / tempScale;
               tmprawpt += TMath::Abs(scaleErr.getMuDataMinusMC(hiBin / 2, TMath::Abs(tmpjeteta), 3, "NoFlow"));
@@ -1876,12 +1873,11 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(tmpjetpt); }
             tmpjetpt = tmpjetpt * (1 - flavor_factor);
             */
-              int tmpCentBin = getCentralityBin4(hiBin);
-              int tmpBin = std::min(h_jec[tmpCentBin]->FindBin(tmpjetpt), h_jec[tmpCentBin]->GetNbinsX());
-              double tempScale = h_jec[tmpCentBin]->GetBinContent(tmpBin);
+              int tmpBin = std::min(h_jec[centBin4]->FindBin(tmpjetpt), h_jec[centBin4]->GetNbinsX());
+              double tempScale = h_jec[centBin4]->GetBinContent(tmpBin);
               do {
                   tmpBin--;
-                  tempScale = h_jec[tmpCentBin]->GetBinContent(tmpBin);
+                  tempScale = h_jec[centBin4]->GetBinContent(tmpBin);
               } while (tempScale < 0.5);
               double tmprawpt = tmpjetpt / tempScale;
               tmprawpt -= TMath::Abs(scaleErr.getMuDataMinusMC(hiBin / 2, TMath::Abs(tmpjeteta), 3, "NoFlow"));
