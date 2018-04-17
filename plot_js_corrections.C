@@ -81,7 +81,7 @@ int plot_js_corrections(std::string inputFile, std::string outputDir, std::strin
     for (int iPt = 3; iPt < nPtBins; ++iPt) {
         for (int iEta = 0; iEta < nEtaBins; ++iEta) {
                 for (int iPtType = 0; iPtType < nPtTypes; ++iPtType) {
-                    for (int iTrkPt = 0; iTrkPt < nTrkPtBins + 1; ++iTrkPt) {
+                    for (int iTrkPt = 0; iTrkPt < nTrkPtBins*2 + 1; ++iTrkPt) {
                         for (int i = 0; i < nSteps; ++i) {
 
                             int cnvWidth = (nCentBins > 1) ? nCentBins*800*0.9 : 800*1.4;
@@ -100,6 +100,7 @@ int plot_js_corrections(std::string inputFile, std::string outputDir, std::strin
 
                                 std::string strTrkPt = "";
                                 if (iTrkPt < nTrkPtBins) strTrkPt = Form("_trkPtBin%d", iTrkPt);
+                                else if (iTrkPt < nTrkPtBins*2) strTrkPt = Form("_trkPtBin%d_fineR", iTrkPt-nTrkPtBins);
 
                                 histCorrName = Form("%s_corr_%s_%s2%s_%sptBin%d_etaBin%d%s_%d_%d", stepsDenomPrefixes[i].c_str(),
                                         sample.c_str(), recoGenStepsDenom[i].c_str(), recoGenStepsNum[i].c_str(),
@@ -165,9 +166,11 @@ int plot_js_corrections(std::string inputFile, std::string outputDir, std::strin
                                 if (etaBins[iEta] == 0) {
                                     etaStr = Form("|#eta^{jet}| < %.1f", etaBins[iEta+1]);
                                 }
-                                std::string trkPtStr = Form("%d < p_{T}^{trk} < %d GeV/c", trkPtBins[iTrkPt], trkPtBins[iTrkPt+1]);
-                                if (trkPtBins[iTrkPt+1] >= 9999) {
-                                    trkPtStr = Form("p_{T}^{trk} > %d GeV/c", trkPtBins[iTrkPt]);
+                                int iTrkPtTmp = iTrkPt;
+                                if (iTrkPt >= nTrkPtBins && iTrkPt < nTrkPtBins*2) iTrkPtTmp = iTrkPt - nTrkPtBins;
+                                std::string trkPtStr = Form("%d < p_{T}^{trk} < %d GeV/c", trkPtBins[iTrkPtTmp], trkPtBins[iTrkPtTmp+1]);
+                                if (trkPtBins[iTrkPtTmp+1] >= 9999) {
+                                    trkPtStr = Form("p_{T}^{trk} > %d GeV/c", trkPtBins[iTrkPtTmp]);
                                 }
                                 std::vector<std::string> textLinesTmp = {stepStr, ptStr, etaStr, trkPtStr};
 
