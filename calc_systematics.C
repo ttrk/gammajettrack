@@ -207,17 +207,17 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
                 f1Tmp = 0;
                 if (hist_list[i].find("_100_200") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.987862 - 0.0759894*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.981611 + 0.100061*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else if (hist_list[i].find("_60_100") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.996064 - 0.00679715*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.998309 - 0.024358*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else if (hist_list[i].find("_20_60") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.967185 + 0.407108*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.969389 + 0.381728*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else if (hist_list[i].find("_0_20") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.930719 + 0.626752*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.934066 + 0.566312*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else if (hist_list[i].find("_0_60") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.951556 + 0.501241*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.949204 + 0.487204*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else if (hist_list[i].find("_60_200") != std::string::npos)
-                    f1Tmp = new TF1("f1Tmp", "((0.994423 - 0.0206356*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
+                    f1Tmp = new TF1("f1Tmp", "((0.994969 + 0.0005258*x)-1)/2 + 1", range_low_fnc, range_high_fnc);
                 else
                     f1Tmp = new TF1("f1Tmp", "1", range_low_fnc, range_high_fnc);
 
