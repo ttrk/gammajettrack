@@ -351,8 +351,8 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 std::string collStr = (isPP) ? "ppmc" : "pbpbmc";
 
                 std::string hName_qg_template = Form("hjs_%s_QG_template_%s", collStr.c_str(), centSuffix.c_str());
-                std::string hName_qg_template_varUp = Form("hjs_%s_QG_template_varUp_centDep_%s", collStr.c_str(), centSuffix.c_str());
-                std::string hName_qg_template_varDown = Form("hjs_%s_QG_template_varDown_centDep_%s", collStr.c_str(), centSuffix.c_str());
+                std::string hName_qg_template_varUp = Form("hjs_%s_QG_template_varUp_NcollDep_%s", collStr.c_str(), centSuffix.c_str());
+                std::string hName_qg_template_varDown = Form("hjs_%s_QG_template_varDown_NcollDep_%s", collStr.c_str(), centSuffix.c_str());
 
                 TH1D* hjs_qg_template = (TH1D*)file_jsqgFracDataMC->Get(hName_qg_template.c_str());
                 TH1D* hjs_qg_template_varUp = (TH1D*)file_jsqgFracDataMC->Get(hName_qg_template_varUp.c_str());
