@@ -107,6 +107,14 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
     TH1D* hOutG_fracData_varDown_centDep = 0;
     TH1D* hOutQG_Data_varDown_centDep = 0;
 
+    TH1D* hOutQ_fracData_varUp_NcollDep = 0;
+    TH1D* hOutG_fracData_varUp_NcollDep = 0;
+    TH1D* hOutQG_Data_varUp_NcollDep = 0;
+
+    TH1D* hOutQ_fracData_varDown_NcollDep = 0;
+    TH1D* hOutG_fracData_varDown_NcollDep = 0;
+    TH1D* hOutQG_Data_varDown_NcollDep = 0;
+
     std::vector<std::string> hInputPrefixesMC = {
             "hjs_ppmc",
             "hjs_pbpbmc",
@@ -153,6 +161,11 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
     TF1* f1CentDepNominal = new TF1("f1CentDepNominal", "0.516622+0.00109379*x", 5, 125);
     TF1* f1CentDepVaried = new TF1("f1CentDepVaried", "(0.516622+0.0670612)-5*[0] + [0]*x", 5, 125);
     f1CentDepVaried->SetParameter(0, 0.000569570);
+
+
+    TF1* f1NcollDepNominal = new TF1("f1NcollDepNominal", "0.653820-0.000146531*x", 1, 2000);
+    TF1* f1NcollDepVaried = new TF1("f1NcollDepVaried", "((0.653820-0.000146531*1625)-0.068238)-1625*[0] + [0]*x", 1, 2000);
+    f1NcollDepVaried->SetParameter(0, -0.000189641);
 
     int nInputPrefixes = hInputPrefixesMC.size();
     for (int i = 0; i < nInputPrefixes; ++i) {
@@ -240,6 +253,20 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
             hOutQ_fracData_varDown_centDep = (TH1D*)hOutQ_fracData->Clone(hOutPathQfracTemplateVarDownCentDep.c_str());
             hOutG_fracData_varDown_centDep = (TH1D*)hOutG_fracData->Clone(hOutPathGfracTemplateVarDownCentDep.c_str());
 
+            std::string hOutPathQfracTemplateVarUpNcollDep = Form("%s_%s_frac_template_varUp_NcollDep_%d_%d", hInputPrefixesMC[i].c_str(), recogenQ[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            std::string hOutPathGfracTemplateVarUpNcollDep = Form("%s_%s_frac_template_varUp_NcollDep_%d_%d", hInputPrefixesMC[i].c_str(), recogenG[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQ_fracData_varUp_NcollDep = (TH1D*)hOutQ_fracData->Clone(hOutPathQfracTemplateVarUpNcollDep.c_str());
+            hOutG_fracData_varUp_NcollDep = (TH1D*)hOutG_fracData->Clone(hOutPathGfracTemplateVarUpNcollDep.c_str());
+
+            std::string hOutPathQfracTemplateVarDownNcollDep = Form("%s_%s_frac_template_varDown_NcollDep_%d_%d", hInputPrefixesMC[i].c_str(), recogenQ[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            std::string hOutPathGfracTemplateVarDownNcollDep = Form("%s_%s_frac_template_varDown_NcollDep_%d_%d", hInputPrefixesMC[i].c_str(), recogenG[i].c_str(),
+                    min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQ_fracData_varDown_NcollDep = (TH1D*)hOutQ_fracData->Clone(hOutPathQfracTemplateVarDownNcollDep.c_str());
+            hOutG_fracData_varDown_NcollDep = (TH1D*)hOutG_fracData->Clone(hOutPathGfracTemplateVarDownNcollDep.c_str());
+
             qgTemplate = new Template(hInData, hOutQ_fracData, hOutG_fracData);
 
             std::string f1Name = Form("%s_f1_qg_template", hInPathData.c_str());
@@ -308,6 +335,7 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
 
             double centXaxis = (max_hiBin[iCent]/2 + min_hiBin[iCent]/2)/2;
             double errFromCentDep = TMath::Abs(f1CentDepNominal->Eval(centXaxis) - f1CentDepVaried->Eval(centXaxis));
+            errFromCentDep = std::max(errFromCentDep, 0.01);
             if (hInputPrefixesMC[i].find("pp") != std::string::npos) {
                 errFromCentDep = par1Err;
             }
@@ -336,6 +364,38 @@ void fit_qg_template(std::string inputFileMC, std::string inputFileData, std::st
             hOutQG_Data_varDown_centDep->Write("",TObject::kOverwrite);
 
             std::cout << "wrote hist for Down variation - Cent Dep" << std::endl;
+
+            double NcollXaxis = findNcollAverage(min_hiBin[iCent], max_hiBin[iCent]);
+            double errFromNcollDep = TMath::Abs(f1NcollDepNominal->Eval(NcollXaxis) - f1NcollDepVaried->Eval(NcollXaxis));
+            errFromNcollDep = std::max(errFromNcollDep, 0.01);
+            if (hInputPrefixesMC[i].find("pp") != std::string::npos) {
+                errFromNcollDep = par1Err;
+            }
+            hOutQ_fracData_varUp_NcollDep->Scale(par0*(par1+errFromNcollDep));
+            hOutG_fracData_varUp_NcollDep->Scale(par0*(1 - (par1+errFromNcollDep)));
+
+            std::string hOutPathQGTemplateVarUpNcollDep = Form("%s_QG_template_varUp_NcollDep_%d_%d", hInputPrefixesMC[i].c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQG_Data_varUp_NcollDep = (TH1D*)hOutQ_fracData_varUp_NcollDep->Clone(hOutPathQGTemplateVarUpNcollDep.c_str());
+            hOutQG_Data_varUp_NcollDep->Add(hOutG_fracData_varUp_NcollDep);
+
+            hOutQ_fracData_varUp_NcollDep->Write("",TObject::kOverwrite);
+            hOutG_fracData_varUp_NcollDep->Write("",TObject::kOverwrite);
+            hOutQG_Data_varUp_NcollDep->Write("",TObject::kOverwrite);
+
+            std::cout << "wrote hist for up variation - Ncoll Dep" << std::endl;
+
+            hOutQ_fracData_varDown_NcollDep->Scale(par0*(par1-errFromNcollDep));
+            hOutG_fracData_varDown_NcollDep->Scale(par0*(1 - (par1-errFromNcollDep)));
+
+            std::string hOutPathQGTemplateVarDownNcollDep = Form("%s_QG_template_varDown_NcollDep_%d_%d", hInputPrefixesMC[i].c_str(), min_hiBin[iCent], max_hiBin[iCent]);
+            hOutQG_Data_varDown_NcollDep = (TH1D*)hOutQ_fracData_varDown_NcollDep->Clone(hOutPathQGTemplateVarDownNcollDep.c_str());
+            hOutQG_Data_varDown_NcollDep->Add(hOutG_fracData_varDown_NcollDep);
+
+            hOutQ_fracData_varDown_NcollDep->Write("",TObject::kOverwrite);
+            hOutG_fracData_varDown_NcollDep->Write("",TObject::kOverwrite);
+            hOutQG_Data_varDown_NcollDep->Write("",TObject::kOverwrite);
+
+            std::cout << "wrote hist for Down variation - Ncoll Dep" << std::endl;
 
             if (hInputPrefixesMC[i].find("hjs") == 0) {
                 if (hInputPrefixesMC[i].find("pp") != std::string::npos) {
