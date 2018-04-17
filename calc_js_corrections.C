@@ -3,6 +3,8 @@
 #include "TH1D.h"
 #include "TH2D.h"
 
+#include "systematics.h"
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -168,6 +170,7 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
 
                             hCorrection = (TH1D*)hNum->Clone(histCorrName.c_str());
                             hCorrection->Divide(hDenom);
+                            th1_set_bin_errors4ratio_partialCorr(hCorrection, hNum, hDenom);
 
                             hCorrection->SetYTitle("correction factor");
                             hCorrection->SetMinimum(0);
