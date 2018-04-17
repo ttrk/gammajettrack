@@ -287,9 +287,9 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 double binContentTmp = hsys_js_nc_corrjs1[i]->GetBinContent(binTmp);
                 double binErrorTmp = hsys_js_nc_corrjs1[i]->GetBinError(binTmp);
 
-                if (hist_list[i].find("_0_20") != std::string::npos) uncTmp = 1.06;
+                if (hist_list[i].find("_0_20") != std::string::npos) uncTmp = 1.02;
                 else if (hist_list[i].find("_20_60") != std::string::npos) uncTmp = 1.02;
-                else if (hist_list[i].find("_0_60") != std::string::npos) uncTmp = 1.043;
+                else if (hist_list[i].find("_0_60") != std::string::npos) uncTmp = 1.02;
                 else uncTmp = 1.01;
 
                 hsys_js_nc_corrjs1[i]->SetBinContent(binTmp, binContentTmp * uncTmp);
