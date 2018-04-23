@@ -426,12 +426,11 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
         }
     }
 
-
     // photon observables
     TH1D* hg[kN_RBS] = {0};
 
-    std::vector<std::string> inputObsg = {"hphopt"};
-    std::vector<std::string> outputObsg = {"hphopt"};
+    std::vector<std::string> inputObsg = {"hphopt", "hphopt_purityBins"};
+    std::vector<std::string> outputObsg = {"hphopt", "hphopt_purityBins"};
 
     if (inputObsg.size() != outputObsg.size()) {
         std::cout << "mismatching number of input and output gamma observables" << std::endl;
@@ -443,44 +442,69 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
     for (int iObs = 0; iObs < nObsg; ++iObs) {
 
         for (int i=0; i<6; ++i) {
+
             std::string tag = Form("%s_%s_%i_%i", sample.c_str(), type.c_str(), min_hiBin[i], max_hiBin[i]);
 
             if (!finput->Get(Form("hphopt_%s", tag.c_str())))  continue;
 
             hphopt[r] = (TH1D*)finput->Get(Form("hphopt_%s", tag.c_str()))->Clone();
-            hphopt[b] = (TH1D*)finput->Get(Form("hphoptsideband_%s", tag.c_str()))->Clone();
 
             hg[r] = 0;
-            hg[r] = (TH1D*)finput->Get(Form("%s_%s", inputObsg[iObs].c_str(), tag.c_str()));
+            if (inputObsg[iObs] == "hphopt_purityBins") {
+                hg[r] = (TH1D*)finput->Get(Form("%s_%s", "hphopt", tag.c_str()))->Clone(
+                        Form("%s_%s", inputObsg[iObs].c_str(), tag.c_str()));
+            }
+            else hg[r] = (TH1D*)finput->Get(Form("%s_%s", inputObsg[iObs].c_str(), tag.c_str()));
+
             if (hg[r] == 0)  continue;
             else if (i == 0) {
                 std::cout << "working on gamma obs = " << inputObsg[iObs].c_str() << std::endl;
             }
+
+            // write original objects as well
             hg[r]->Write("",TObject::kOverwrite);
-
-            hg[b] = (TH1D*)finput->Get(Form("%ssideband_%s", inputObsg[iObs].c_str(), tag.c_str()));
-
-            if (sample == "pbpbmc" || sample == "ppmc") {
-                // write original objects as well
-                hg[r]->Write("",TObject::kOverwrite);
-                hg[b]->Write("",TObject::kOverwrite);
-            }
-
-            // normalize by the number of photons
-            hg[r]->Scale(1.0/hphopt[r]->Integral(), "width");
-            hg[b]->Scale(1.0/hphopt[b]->Integral(), "width");
 
             hg[s] = (TH1D*)hg[r]->Clone(Form("%s_final_%s", outputObsg[iObs].c_str(), tag.c_str()));
 
-            hg[s]->Scale(1.0/purity[i]);
-            hg[s]->Add(hg[b], (purity[i] - 1.0)/purity[i]);
+            if (inputObsg[iObs] == "hphopt_purityBins") {
+                int nBinsphopt = hg[s]->GetNbinsX();
+                for (int iBin = 1; iBin <= nBinsphopt; ++iBin) {
+                    int purity_ptTmp = -1;
+                    if (hg[s]->GetBinLowEdge(iBin) >= 40 && hg[s]->GetBinLowEdge(iBin+1) <= 50) purity_ptTmp = 2;
+                    else if (hg[s]->GetBinLowEdge(iBin) >= 50 && hg[s]->GetBinLowEdge(iBin+1) <= 60) purity_ptTmp = 3;
+                    else if (hg[s]->GetBinLowEdge(iBin) >= 60 && hg[s]->GetBinLowEdge(iBin+1) <= 80) purity_ptTmp = 4;
+                    else if (hg[s]->GetBinLowEdge(iBin) >= 80 && hg[s]->GetBinLowEdge(iBin+1) <= 100) purity_ptTmp = 6;
+                    else if (hg[s]->GetBinLowEdge(iBin) >= 100) purity_ptTmp = 7;
 
-            //hg[s]->Write(Form("%s_raw_final_%s", outputObsg[iObs].c_str(), tag.c_str()), TObject::kOverwrite);
+                    float purityTmp = 0;
+                    if (i < 4) {
+                        purityTmp = (purity_up[purity_sample][purity_ptTmp * 7 + 3 + i] * purity_factors[0] +
+                                purity_nominal[purity_sample][purity_ptTmp * 7 + 3 + i] * purity_factors[1] +
+                                purity_down[purity_sample][purity_ptTmp * 7 + 3 + i] * purity_factors[2]) / 2.;
+                    }
+                    else {
+                        purityTmp = (purity_up[purity_sample][purity_ptTmp * 7 - 3 + i] * purity_factors[0] +
+                                purity_nominal[purity_sample][purity_ptTmp * 7 - 3 + i] * purity_factors[1] +
+                                purity_down[purity_sample][purity_ptTmp * 7 - 3 + i] * purity_factors[2]) / 2.;
+                    }
+
+                    double binContent = hg[s]->GetBinContent(iBin);
+                    double binError = hg[s]->GetBinError(iBin);
+                    hg[s]->SetBinContent(iBin, binContent*purityTmp);
+                    hg[s]->SetBinError(iBin, binError*purityTmp);
+                }
+            }
+            else {
+                hg[s]->Scale(purity[i]);
+            }
 
             // write the objects explicitly
             // normalized versions of the histograms in "_merged.root" file.
+            hg[r]->Scale(1.0/hphopt[r]->Integral(), "width");
             hg[r]->Write(Form("%s_norm", hg[r]->GetName()),TObject::kOverwrite);
-            hg[b]->Write(Form("%s_norm", hg[b]->GetName()),TObject::kOverwrite);
+
+            // normalize by the number of photons
+            hg[s]->Scale(1.0/hg[s]->Integral(), "width");
 
             hg[s]->Write("",TObject::kOverwrite);
         }
