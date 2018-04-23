@@ -1081,7 +1081,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       if (systematic == 3) {
           if (isPP) nsmear *= _NSMEAR_JER;
-          else      nsmear *= _NSMEAR_JER_PbPb;
+          else  {
+              if (centBin == 0 || centBin == 1 || centBin == 4) nsmear *= 9;
+              else nsmear *= _NSMEAR_JER_PbPb;
+          }
       }
 
       float smear_weight = 1. / nsmear;
@@ -1797,7 +1800,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       if (systematic == 3) {
           if (isPP) nsmear *= _NSMEAR_JER;
-          else      nsmear *= _NSMEAR_JER_PbPb;
+          else  {
+              if (centBin == 0 || centBin == 1 || centBin == 4) nsmear *= 9;
+              else nsmear *= _NSMEAR_JER_PbPb;
+          }
       }
 
       float smear_weight = 1. / nsmear;
