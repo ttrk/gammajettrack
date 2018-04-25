@@ -50,6 +50,8 @@ enum DEFN_FF_SHAPE {
     k_DEFN_FF_SHAPE
 };
 
+const int sysJES_qg_UP = 11;
+const int sysJES_qg_DOWN = 12;
 const int sysLR = 13;
 const int sysTrackingRatio = 14;
 const int sysBkgEtagt0p3 = 16;
@@ -1151,12 +1153,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           case 2: {
             tmpjetpt = tmpjetpt * 0.98;
             break; }
-          case 11: {
+          case sysJES_qg_UP: {
             float flavor_factor = 0;
             if (!isPP && phoEtTmp < 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
             tmpjetpt = tmpjetpt * (1 + flavor_factor);
             break; }
-          case 12: {
+          case sysJES_qg_DOWN: {
             float flavor_factor = 0;
             if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(tmpjetpt); }
             tmpjetpt = tmpjetpt * (1 - flavor_factor);
@@ -1883,12 +1885,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           case 2: {
             tmpjetpt = tmpjetpt * 0.98;
             break; }
-          case 11: {
+          case sysJES_qg_UP: {
             float flavor_factor = 0;
             if (!isPP && phoEtTmp < 60) { flavor_factor = f_JES_G[centBin4]->Eval(tmpjetpt); }
             tmpjetpt = tmpjetpt * (1 + flavor_factor);
             break; }
-          case 12: {
+          case sysJES_qg_DOWN: {
             float flavor_factor = 0;
             if (!isPP) { flavor_factor = f_JES_Q[centBin4]->Eval(tmpjetpt); }
             tmpjetpt = tmpjetpt * (1 - flavor_factor);
