@@ -188,6 +188,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hphopt[kN_PHO_SIGBKG];
   TH1D* hjetpt[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH1D* hjeteta[kN_PHO_SIGBKG][kN_JET_SIGBKG];
+  TH1D* hjetphi[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH1D* hdphijg[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH1D* hxjg[kN_PHO_SIGBKG][kN_JET_SIGBKG];
   TH1D* hnPhoJet[kN_PHO_SIGBKG][kN_JET_SIGBKG];
@@ -237,7 +238,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
       for (int j = 0; j < kN_JET_SIGBKG; ++j) {
           hjetpt[i][j] = new TH1D(Form("hjetpt%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{jet}_{T};", 20, 0, 600);
-          hjeteta[i][j] = new TH1D(Form("hjeteta%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{jet}_{T};", 8, 0, 1.6);
+          hjeteta[i][j] = new TH1D(Form("hjeteta%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";|#eta^{jet}|;", 8, 0, 1.6);
+          hjetphi[i][j] = new TH1D(Form("hjetphi%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#phi^{jet};", 20, -TMath::Pi(), TMath::Pi());
           hdphijg[i][j] = new TH1D(Form("hdphijg%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#phi_{j#gamma};", 20, 0, TMath::Pi());
           hxjg[i][j] = new TH1D(Form("hxjg%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";x_{j#gamma} = p^{jet}_{T}/p^{#gamma}_{T};", 16, 0, 2);
           hnPhoJet[i][j] = new TH1D(Form("hnPhoJet%s%s_%s_%s_%d_%d", jet_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(), sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";nJet;", 10, 0, 10);
@@ -372,6 +374,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH2D* h2gammaffjsrefreco[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
   TH2D* h2gammaffjsgensgen[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
 
+  TH1D* htrkpt[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
+  TH1D* htrketa[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
+  TH1D* htrkphi[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];
+
   TH1D* hjettrkdeta[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
   TH1D* hjettrkdphi[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
 
@@ -456,10 +462,17 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           h2gammaffjsgensgen[i][j] = new TH2D(Form("%sgensgen%s%s_%s_%s_%d_%d", histNamePrefix2D.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                   sample.data(), genlevel.data(), abs(centmin), abs(centmax)), hTitle.c_str(), nBinsX*4, 0, xMax, nBinsX*4, 0, xMax);
 
+          htrkpt[i][j] = new TH1D(Form("htrkpt%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";p^{trk}_{T};", 100, 0, 20);
+          htrketa[i][j] = new TH1D(Form("htrketa%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";|#eta^{trk}|;", 24, 0, 2.4);
+          htrkphi[i][j] = new TH1D(Form("htrkphi%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#phi^{trk};", 20, -TMath::Pi(), TMath::Pi());
+
           hjettrkdeta[i][j] = new TH1D(Form("hjettrkdeta%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                            sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#eta;", nBinsX*4, 0, xMax);
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#eta;", nBinsX*4, 0, xMax);
           hjettrkdphi[i][j] = new TH1D(Form("hjettrkdphi%s%s_%s_%s_%d_%d", jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
-                            sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#phi;", nBinsX*4, 0, xMax);
+                  sample.data(), genlevel.data(), abs(centmin), abs(centmax)), ";#Delta#phi;", nBinsX*4, 0, xMax);
 
           for (int iPt = 0; iPt < nPtBins_js_corr; ++iPt) {
               for (int iEta = 0; iEta < nEtaBins_js_corr; ++iEta) {
@@ -1202,6 +1215,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         hjetpt[phoBkg][k_rawJet]->Fill(tmpjetpt, weight_jet);
         hjetptrebin[phoBkg][k_rawJet]->Fill(tmpjetpt, weight_jet);
         hjeteta[phoBkg][k_rawJet]->Fill(fabs(tmpjeteta), weight_jet);
+        hjetphi[phoBkg][k_rawJet]->Fill(tmpjetphi, weight_jet);
         hxjg[phoBkg][k_rawJet]->Fill(tmpjetpt/phoEtTmp, weight_jet);
         if (is_ref_jet || is_reco_jet) {
             h2ptRatiorefrecoJet[phoBkg][k_rawJet]->Fill((*gjetpt)[ij], tmpjetpt/(*gjetpt)[ij], weight_jet);
@@ -1280,6 +1294,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
           hjettrkdeta[phoBkg][k_rawJet_rawTrk]->Fill(std::fabs(deta), weight_rawJet_rawTrk);
           hjettrkdphi[phoBkg][k_rawJet_rawTrk]->Fill(std::fabs(dphi), weight_rawJet_rawTrk);
+
+          if (deltar2 < 0.09) {
+              htrkpt[phoBkg][k_rawJet_rawTrk]->Fill((*p_pt)[ip], weight_rawJet_rawTrk);
+              htrketa[phoBkg][k_rawJet_rawTrk]->Fill(std::fabs((*p_eta)[ip]), weight_rawJet_rawTrk);
+              htrkphi[phoBkg][k_rawJet_rawTrk]->Fill((*p_phi)[ip], weight_rawJet_rawTrk);
+          }
 
           if ((defnFF == k_jetFF && deltar2 < 0.09) ||
               (defnFF == k_jetShape && deltar2 < js_r2Max)) {
@@ -1570,6 +1590,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
           hjettrkdeta[phoBkg][k_rawJet_ueTrk]->Fill(std::fabs(deta), weight_rawJet_ueTrk);
           hjettrkdphi[phoBkg][k_rawJet_ueTrk]->Fill(std::fabs(dphi), weight_rawJet_ueTrk);
+
+          if (deltar2 < 0.09) {
+              htrkpt[phoBkg][k_rawJet_ueTrk]->Fill((*p_pt_UE)[ip_UE], weight_rawJet_ueTrk);
+              htrketa[phoBkg][k_rawJet_ueTrk]->Fill(std::fabs((*p_eta_UE)[ip_UE]), weight_rawJet_ueTrk);
+              htrkphi[phoBkg][k_rawJet_ueTrk]->Fill((*p_phi_UE)[ip_UE], weight_rawJet_ueTrk);
+          }
 
           if ((defnFF == k_jetFF && deltar2 < 0.09) ||
               (defnFF == k_jetShape && deltar2 < js_r2Max)) {
@@ -1921,6 +1947,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         hjetpt[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight_jet);
         hjetptrebin[phoBkg][k_bkgJet]->Fill(tmpjetpt, weight_jet);
         hjeteta[phoBkg][k_bkgJet]->Fill(fabs(tmpjeteta), weight_jet);
+        hjetphi[phoBkg][k_bkgJet]->Fill(tmpjetphi, weight_jet);
         hxjg[phoBkg][k_bkgJet]->Fill(tmpjetpt/phoEtTmp, weight_jet);
         if (is_ref_jet || is_reco_jet) {
             h2ptRatiorefrecoJet[phoBkg][k_bkgJet]->Fill((*gjetpt_mix)[ij_mix], tmpjetpt/(*gjetpt_mix)[ij_mix], weight_jet);
@@ -1995,6 +2022,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
           hjettrkdeta[phoBkg][k_bkgJet_rawTrk]->Fill(std::fabs(deta), weight_bkgJet_rawTrk);
           hjettrkdphi[phoBkg][k_bkgJet_rawTrk]->Fill(std::fabs(dphi), weight_bkgJet_rawTrk);
+
+          if (deltar2 < 0.09) {
+              htrkpt[phoBkg][k_bkgJet_rawTrk]->Fill((*p_pt_mix)[ip_mix], weight_bkgJet_rawTrk);
+              htrketa[phoBkg][k_bkgJet_rawTrk]->Fill(std::fabs((*p_eta_mix)[ip_mix]), weight_bkgJet_rawTrk);
+              htrkphi[phoBkg][k_bkgJet_rawTrk]->Fill((*p_phi_mix)[ip_mix], weight_bkgJet_rawTrk);
+          }
 
           if ((defnFF == k_jetFF && deltar2 < 0.09) ||
               (defnFF == k_jetShape && deltar2 < js_r2Max)) {
@@ -2280,6 +2313,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           hjettrkdeta[phoBkg][k_bkgJet_ueTrk]->Fill(std::fabs(deta), weight_bkgJet_ueTrk);
           hjettrkdphi[phoBkg][k_bkgJet_ueTrk]->Fill(std::fabs(dphi), weight_bkgJet_ueTrk);
 
+          if (deltar2 < 0.09) {
+              htrkpt[phoBkg][k_bkgJet_ueTrk]->Fill((*p_pt_UE)[ip_UE], weight_bkgJet_ueTrk);
+              htrketa[phoBkg][k_bkgJet_ueTrk]->Fill(std::fabs((*p_eta_UE)[ip_UE]), weight_bkgJet_ueTrk);
+              htrkphi[phoBkg][k_bkgJet_ueTrk]->Fill((*p_phi_UE)[ip_UE], weight_bkgJet_ueTrk);
+          }
+
           if ((defnFF == k_jetFF && deltar2 < 0.09) ||
               (defnFF == k_jetShape && deltar2 < js_r2Max)) {
 
@@ -2476,6 +2515,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           for (int j = 0; j < kN_JET_SIGBKG; ++j) {
               correctBinError(hjetpt[i][j], nsmear);
               correctBinError(hjeteta[i][j], nsmear);
+              correctBinError(hjetphi[i][j], nsmear);
               correctBinError(hdphijg[i][j], nsmear);
               correctBinError(hxjg[i][j], nsmear);
               correctBinError(hjetptrebin[i][j], nsmear);
@@ -2486,6 +2526,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               correctBinError(hgammaffjsdeta[i][j], nsmear);
               correctBinError(hgammaffjsdphi[i][j], nsmear);
               correctBinError(hgammaffjsfb[i][j], nsmear);
+
+              correctBinError(htrkpt[i][j], nsmear);
+              correctBinError(htrketa[i][j], nsmear);
+              correctBinError(htrkphi[i][j], nsmear);
 
               if (doSysLR) {
                   correctBinError(hffjsLR[i][j], nsmear);
