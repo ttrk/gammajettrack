@@ -50,6 +50,15 @@ enum DEFN_FF_SHAPE {
     k_DEFN_FF_SHAPE
 };
 
+// systematics
+const int sysJES_UP = 1;
+const int sysJES_DOWN = 2;
+const int sysJER = 3;
+const int sysPES = 4;
+const int sysISO = 5;
+const int sysEleRej = 6;
+const int sysTRK_UP = 9;
+const int sysTRK_DOWN = 10;
 const int sysJES_qg_UP = 11;
 const int sysJES_qg_DOWN = 12;
 const int sysLR = 13;
@@ -97,19 +106,6 @@ bool isGluon(int id);
 double getjscorrection(TH1D* h[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr][nCentBins_js_corr][nSteps_js_corr], float r, float jetpt, float jeteta, float trkPt, int hiBin, std::vector<int>& ptBins, std::vector<double>& etaBins, std::vector<int>& trkPtBins, std::vector<int>& max_hiBins, int stepFirst, int stepLast);
 float trackingDataMCDiffUncert(float trkPt = -1, int cent = -1, bool isRatio = 1, bool isPP = 0);
 double getTrkEffDiffPtDep(TF1* f, double trkPt);
-
-// systematic:
-// 1: JES_UP
-// 2: JES_DOWN
-// 3: JER
-// 4: PES
-// 5: ISO
-// 6: ELE_REJ
-// 9: TRK_UP
-// 10: TRK_DOWN
-// 11: JES_QG_UP
-// 12: JES_QG_DOWN
-// 13: LONGRANGE
 
 void photonjettrack::jetshape(std::string sample, int centmin, int centmax, float phoetmin, float phoetmax, float jetptcut, std::string genlevel, float trkptmin, int gammaxi, std::string label, int systematic, int defnFF) {
 
@@ -172,7 +168,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   TFile* file_jec = 0;
   TH1D* h_jec[4];
-  if (isHI && (systematic == 11 || systematic == 12)) {
+  if (isHI && (systematic == sysJES_pbpb_UE_UP || systematic == sysJES_pbpb_UE_DOWN)) {
       file_jec = TFile::Open("jec_pbpb.root");
       for (int i = 0; i < 4; ++i) {
           h_jec[i] = (TH1D*)file_jec->Get(Form("h_jec_vs_jetpt_pbpb_%d_%d", min_hiBin[i],  max_hiBin[i]));
@@ -180,8 +176,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   }
 
   bool doSysLR = (systematic == sysLR);
-  bool doSysTrkUp = (systematic == 9);
-  bool doSysTrkDown = (systematic == 10);
+  bool doSysTrkUp = (systematic == sysTRK_UP);
+  bool doSysTrkDown = (systematic == sysTRK_DOWN);
   bool doSysTrkJS = ((doSysTrkUp || doSysTrkDown) && defnFF == k_jetShape);
 
   if (fChain == 0) return;
@@ -673,7 +669,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   //TF1* f_trkEffDiffPtDep_down = new TF1("f_trkEffDiffPtDep_down", "0.912737 + 0.00379736 * x", 0, 200);
 
   scaleErrorTool scaleErr("rcDifferences_20180406.txt");
-  if (isHI && (systematic == 11 || systematic == 12)) {
+  if (isHI && (systematic == sysJES_pbpb_UE_UP || systematic == sysJES_pbpb_UE_DOWN)) {
       scaleErr.Init();
   }
 
@@ -939,21 +935,21 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     if (is_gen_pho) phoEtTmp = phoMCPt;
 
     // photon energy systematics
-    if (systematic == 4) {
+    if (systematic == sysPES) {
       if (isPP) { ; }
       else if (!is_gen_pho) { phoEtTmp = (hiBin < 60) ? phoEtTmp * (90.94649 / 90.00079) : phoEtTmp * (90.94943 / 90.64840); }
     }
     if (phoEtTmp < phoetmin || phoEtTmp > phoetmax) continue;
 
     // photon isolation systematics
-    if (systematic == 5) {
+    if (systematic == sysISO) {
       if (isMC)
         if (pho_genMatchedIndex == -1 || phoMCIsolation > 5.0)
           continue;
     }
 
     // electron rejection systematics
-    if (systematic != 6) {
+    if (systematic != sysEleRej) {
       if (phoisEle)
         continue;
     }
@@ -1094,7 +1090,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           }
       }
 
-      if (systematic == 3) {
+      if (systematic == sysJER) {
           if (isPP) nsmear *= _NSMEAR_JER;
           else  {
               if (centBin == 0 || centBin == 1 || centBin == 4) nsmear *= 9;
@@ -1147,10 +1143,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
 
         switch (systematic) {
-          case 1: {
+          case sysJES_UP: {
             tmpjetpt = tmpjetpt * 1.02;
             break; }
-          case 2: {
+          case sysJES_DOWN: {
             tmpjetpt = tmpjetpt * 0.98;
             break; }
           case sysJES_qg_UP: {
@@ -1185,7 +1181,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               tmprawpt -= TMath::Abs(scaleErr.getMuDataMinusMC(hiBin / 2, TMath::Abs(tmpjeteta), 3, "NoFlow"));
               tmpjetpt = tempScale*tmprawpt;
             break; }
-          case 3: {
+          case sysJER: {
             float jer_scale_factor= 1 + sqrt(0.15*0.15 + 0.07*0.07);
             float jer_scale_factor_sub1 = jer_scale_factor - 1;
             float jer_sigma = getResolutionHI(tmpjetpt, centBin);
@@ -1826,7 +1822,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           }
       }
 
-      if (systematic == 3) {
+      if (systematic == sysJER) {
           if (isPP) nsmear *= _NSMEAR_JER;
           else  {
               if (centBin == 0 || centBin == 1 || centBin == 4) nsmear *= 9;
@@ -1879,10 +1875,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
         }
 
         switch (systematic) {
-          case 1: {
+          case sysJES_UP: {
             tmpjetpt = tmpjetpt * 1.02;
             break; }
-          case 2: {
+          case sysJES_DOWN: {
             tmpjetpt = tmpjetpt * 0.98;
             break; }
           case sysJES_qg_UP: {
@@ -1917,7 +1913,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               tmprawpt -= TMath::Abs(scaleErr.getMuDataMinusMC(hiBin / 2, TMath::Abs(tmpjeteta), 3, "NoFlow"));
               tmpjetpt = tempScale*tmprawpt;
             break; }
-          case 3: {
+          case sysJER: {
             float jer_scale_factor = 1 + sqrt(0.15*0.15 + 0.07*0.07);
             float jer_scale_factor_sub1 = jer_scale_factor - 1;
             float jer_sigma = getResolutionHI(tmpjetpt, centBin);
