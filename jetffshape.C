@@ -50,16 +50,16 @@ enum DEFN_FF_SHAPE {
     k_DEFN_FF_SHAPE
 };
 
-int sysLR = 13;
-int sysTrackingRatio = 14;
-int sysBkgEtagt0p3 = 16;
-int sysBkgEtaReflection = 15;
-int sysPhoEffCorr = 17;
+const int sysLR = 13;
+const int sysTrackingRatio = 14;
+const int sysBkgEtagt0p3 = 16;
+const int sysBkgEtaReflection = 15;
+const int sysPhoEffCorr = 17;
 const int sysJES_pbpb_UE_UP = 18;
 const int sysJES_pbpb_UE_DOWN = 19;
-int sysDphiProjection = 30;
-int sysDetaDphiPhoTrk = 23;
-int sysDetaDphiJetTrk = 24;
+const int sysDphiProjection = 30;
+const int sysDetaDphiPhoTrk = 23;
+const int sysDetaDphiJetTrk = 24;
 
 int trkPtsLow[8] = {1, 2, 3, 4, 8, 12, 16, 20};
 int trkPtsUp[8] = {2, 3, 4, 8, 12, 16, 20, 9999};
