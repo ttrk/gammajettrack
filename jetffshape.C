@@ -149,9 +149,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       hReweightPP[k_bkgPho] = (TH1D*)file_reweightPP->Get(Form("hjetptrebin_sideband_ratio_recoreco_%d_%d", abs(centmin), abs(centmax)));
   }
 
+  bool noPhoEffCorr = (label.find("NoPhoEffCorr") != std::string::npos);
   TFile* file_phoeffcorr = 0;
   TH1D* hphoeffcorr[4];
-  file_phoeffcorr = TFile::Open("phoeffcorr.root");
+  if (!noPhoEffCorr) {
+      file_phoeffcorr = TFile::Open("phoeffcorr.root");
+  }
   for (int i = 0; i < 4; ++i) {
       std::string tmpSuffix = "effcorr";
       if (systematic == sysPhoEffCorr) {
@@ -762,7 +765,6 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   bool is_corrected_js_step3 = (jetLevel.find("corrjs3") != std::string::npos);
   bool is_corrected_js_ue0 = (jetLevel.find("corrjsue0") != std::string::npos);
   bool is_gen_pho = (jetLevel.find("gPho") != std::string::npos);
-  bool noPhoEffCorr = (jetLevel.find("noPhoEff") != std::string::npos);
 
   if (is_smeared_jet && !is_ptsmeared_jet && !is_phismeared_jet && !is_etasmeared_jet) {
       is_ptsmeared_jet = true;
@@ -904,7 +906,10 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   //std::vector<float> uescale = {0.9875, 0.9800, 0.96, 0.8585}; // v2
   //std::vector<float> uescale = {0.9885, 0.9780, 0.96, 0.8585}; // v3
   std::vector<float> uescale = {0.9875, 0.9780, 0.96, 0.8585}; // v4
-  if (label.find("UEscale1") != std::string::npos) {
+  if (defnFF == k_jetFF) {
+      uescale = {0.997, 0.99, 0.96, 0.85};
+  }
+  if (label.find("UEscale1") != std::string::npos || (systematic == sysBkgEtaReflection)) {
       uescale = {1, 1, 1, 1};
   }
 
