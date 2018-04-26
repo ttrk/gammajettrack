@@ -154,18 +154,18 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hphoeffcorr[4];
   if (!noPhoEffCorr) {
       file_phoeffcorr = TFile::Open("phoeffcorr.root");
-  }
-  for (int i = 0; i < 4; ++i) {
-      std::string tmpSuffix = "effcorr";
-      if (systematic == sysPhoEffCorr) {
-          tmpSuffix = "effcorr_sysvar";
-      }
-      if (!isHI) {
-          hphoeffcorr[0] = (TH1D*)file_phoeffcorr->Get(Form("hphopt_pp_%s", tmpSuffix.c_str()));
-          break;
-      }
-      else {
-          hphoeffcorr[i] = (TH1D*)file_phoeffcorr->Get(Form("hphopt_pbpb_%d_%d_%s", min_hiBin[i],  max_hiBin[i], tmpSuffix.c_str()));
+      for (int i = 0; i < 4; ++i) {
+          std::string tmpSuffix = "effcorr";
+          if (systematic == sysPhoEffCorr) {
+              tmpSuffix = "effcorr_sysvar";
+          }
+          if (!isHI) {
+              hphoeffcorr[0] = (TH1D*)file_phoeffcorr->Get(Form("hphopt_pp_%s", tmpSuffix.c_str()));
+              break;
+          }
+          else {
+              hphoeffcorr[i] = (TH1D*)file_phoeffcorr->Get(Form("hphopt_pbpb_%d_%d_%s", min_hiBin[i],  max_hiBin[i], tmpSuffix.c_str()));
+          }
       }
   }
 
