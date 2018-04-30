@@ -25,12 +25,12 @@ enum SYSUNC
 
 std::string sys_labels[kN_SYSUNC] = {
      "pes", "iso", "purity_up_plus", "ele_rej", "phoeffcorr",
-     "jes_qg_down", "jer", "tracking_up_plus", "longrange", "bkgsub", "xi_nonclosure"
+     "jes_up_plus", "jer", "tracking_up_plus", "longrange", "bkgsub", "xi_nonclosure"
 };
 
 std::string sys_labels_ratio[kN_SYSUNC] = {
      "pes", "iso", "purity_up_plus", "ele_rej", "phoeffcorr",
-     "jes_qg_down", "jer", "tracking_ratio", "longrange", "bkgsub", "xi_nonclosure"
+     "jes_up_plus", "jer", "tracking_ratio", "longrange", "bkgsub", "xi_nonclosure"
 };
 
 int sysMethod[kN_SYSUNC] = {
