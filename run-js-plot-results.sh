@@ -192,10 +192,10 @@ elif [[ $label == "sysvar" ]]; then
     sysFile=${inDir}sys/jssys_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs-systematics.root
     echo "sysFile : $sysFile"
 
-    sysVarIndices=(0 2 3 4 5 6 8 10 12)
-    sysVarLabels=(jes_up      jes_down jer pes iso ele_rej purity_up        purity_down  tracking_up      tracking_down jes_qg_up      jes_qg_down tracking_up)
-    sysVarNames=( jes_up_down NULL     jer pes iso ele_rej purity_up_down   NULL         tracking_up_down NULL          jes_qg_up_down NULL        tracking_up)
-    sysVarUpDowns=(1 1 0 0 0 0 1 1 1 1 1 1 0)
+    sysVarIndices=(0 2 3 4 5 6 8 10 11)
+    sysVarLabels=(jes_up      jes_down jer pes iso ele_rej purity_up        purity_down  tracking_up      tracking_down jes_qg_down tracking_up)
+    sysVarNames=( jes_up_down NULL     jer pes iso ele_rej purity_up_down   NULL         tracking_up_down NULL          jes_qg_down tracking_up)
+    sysVarUpDowns=(1 1 0 0 0 0 1 1 1 0 0 0)
     sysVarTitles=(
     "JES UP"
     "JES DOWN"
@@ -207,8 +207,7 @@ elif [[ $label == "sysvar" ]]; then
     "purity DOWN"
     "tracking UP"
     "tracking DOWN"
-    "JES PbPb data-MC UP"
-    "JES PbPb data-MC DOWN"
+    "JES quark-jet"
     "tracking eff"
      )
 
@@ -264,10 +263,10 @@ elif [[ $label == "sysvar_fitfnc" ]]; then
     sysFile=${inDir}sys/jssys_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs-systematics.root
     echo "sysFile : $sysFile"
 
-    sysVarIndices=(0 2 3 4 5 6 8 10 11 13)
-    sysVarLabels=(jes_up      jes_down jer pes iso ele_rej purity_up        purity_down  tracking_up      tracking_down tracking_up jes_qg_up      jes_qg_down phoeffcorr)
-    sysVarNames=( jes_up_down NULL     jer pes iso ele_rej purity_up_down   NULL         tracking_up_down NULL          tracking_up jes_qg_up_down NULL        phoeffcorr)
-    sysVarUpDowns=(1 1 0 0 0 0 1 1 1 0 0 1 1 0)
+    sysVarIndices=(0 2 3 4 5 6 8 10 11 12)
+    sysVarLabels=(jes_up      jes_down jer pes iso ele_rej purity_up        purity_down  tracking_up      tracking_down jes_qg_down tracking_up phoeffcorr)
+    sysVarNames=( jes_up_down NULL     jer pes iso ele_rej purity_up_down   NULL         tracking_up_down NULL          jes_qg_down tracking_up phoeffcorr)
+    sysVarUpDowns=(1 1 0 0 0 0 1 1 1 0 0 0 0)
     sysVarTitles=(
     "JES UP"
     "JES DOWN"
@@ -279,9 +278,8 @@ elif [[ $label == "sysvar_fitfnc" ]]; then
     "purity DOWN"
     "tracking UP"
     "tracking DOWN"
+    "JES quark-jet"
     "tracking eff"
-    "JES PbPb data-MC UP"
-    "JES PbPb data-MC DOWN"
     "photon efficiency"
      )
 
@@ -339,8 +337,8 @@ elif [[ $label == "sysall" ]]; then
     if [[ $sample == "pbpbdata" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
-      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
-      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure jes_qg_up jes_qg_down)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
+      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure jes_qg_down)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
@@ -352,8 +350,7 @@ elif [[ $label == "sysall" ]]; then
       "purity DOWN"
       #"Long range"
       "nonclosure"
-      "JES PbPb data-MC UP"
-      "JES PbPb data-MC DOWN"
+      "JES quark-jet"
        )
 
       echo -e "PbPb - nominal" >> $PLOTLIST
@@ -421,8 +418,8 @@ elif [[ $label == "sysalltot" ]]; then
     if [[ $sample == "pbpbdata" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
-      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
-      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure jes_qg_up jes_qg_down)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
+      sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down js_nonclosure jes_qg_down)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
@@ -434,8 +431,7 @@ elif [[ $label == "sysalltot" ]]; then
       "purity DOWN"
       #"Long range"
       "nonclosure"
-      "JES PbPb data-MC UP"
-      "JES PbPb data-MC DOWN"
+      "JES quark-jet"
        )
 
       echo -e "PbPb - nominal" >> $PLOTLIST
@@ -510,8 +506,8 @@ elif [[ $label == "sysalltotpercnt" ]]; then
     if [[ $sample == "pbpbdata" ]]; then
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
-      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11 12 13)
-      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down js_nonclosure tracking_up pes phoeffcorr jes_qg_up jes_qg_down bkgsub)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11 12)
+      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down js_nonclosure tracking_up pes phoeffcorr jes_qg_down bkgsub)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
@@ -525,11 +521,10 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "tracking eff."
       "PES"
       "photon efficiency"
-      "JES PbPb data-MC UP"
-      "JES PbPb data-MC DOWN"
+      "JES quark-jet"
       "bkg sub"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 0 1 1 0 1 1 0)
+      sysMethodIndices=(1 1 1 1 1 1 1 0 1 1 0 1 0)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -607,8 +602,8 @@ elif [[ $label == "sysalltotpercnt" ]]; then
 
       #sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_qg_down jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange js_nonclosure)
-      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11 12 13)
-      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down js_nonclosure tracking_ratio pes phoeffcorr jes_qg_up jes_qg_down bkgsub)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10 11 12)
+      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down js_nonclosure tracking_ratio pes phoeffcorr jes_qg_down bkgsub)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
@@ -622,11 +617,10 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "tracking eff."
       "PES"
       "photon efficiency"
-      "JES PbPb data-MC UP"
-      "JES PbPb data-MC DOWN"
+      "JES quark-jet"
       "bkg sub"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1 1 0 1 0 1 1 0)
+      sysMethodIndices=(1 1 1 1 1 1 1 1 1 0 1 0 1 0)
       sysMethodSuffices=(
       "ratio"
       "ratio_fit"
@@ -679,7 +673,7 @@ elif [[ $label == "sysallpercnt_phosys" ]]; then
       "PES"
       "photon efficiency"
        )
-      sysMethodIndices=(1 1 1 1 1 1)
+      sysMethodIndices=(1 1 1 1 1 0)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -709,16 +703,15 @@ elif [[ $label == "sysallpercnt_phosys" ]]; then
       rm $PLOTLIST
     
     elif [[ $sample == "ppdata" ]]; then
-      sysVarIndices=(0 1 2 3 4)
-      sysVarLabels=(iso ele_rej purity_up purity_down phoeffcorr)
+      sysVarIndices=(0 1 2 3)
+      sysVarLabels=(iso ele_rej purity_up purity_down)
       sysVarTitles=(
       "isolation"
       "electron rejection"
       "purity UP"
       "purity DOWN"
-      "photon efficiency"
        )
-      sysMethodIndices=(1 1 1 1 1)
+      sysMethodIndices=(1 1 1 1)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -752,7 +745,7 @@ elif [[ $label == "sysallpercnt_phosys" ]]; then
       "PES"
       "photon efficiency"
        )
-      sysMethodIndices=(1 1 1 1 1 1)
+      sysMethodIndices=(1 1 1 1 1 0)
       sysMethodSuffices=(
       "ratio"
       "ratio_fit"
@@ -790,16 +783,15 @@ elif [[ $label == "sysallpercnt_jetsys" ]]; then
     echo "sysFile : $sysFile"
 
     if [[ $sample == "pbpbdata" ]]; then
-      sysVarIndices=(0 1 2 3 4)
-      sysVarLabels=(jes_down jes_up jer jes_qg_up jes_qg_down)
+      sysVarIndices=(0 1 2 3)
+      sysVarLabels=(jes_down jes_up jer jes_qg_down)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
       "JER"
-      "JES PbPb data-MC UP"
-      "JES PbPb data-MC DOWN"
+      "JES quark-jet"
        )
-      sysMethodIndices=(1 1 1 1 1)
+      sysMethodIndices=(1 1 1 1)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
@@ -859,16 +851,15 @@ elif [[ $label == "sysallpercnt_jetsys" ]]; then
       ./plot_results.exe $sysFile ${outPrefix}_ppdata_sysallpercnt_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
       rm $PLOTLIST
     elif [[ $sample == "ratio" ]]; then
-      sysVarIndices=(0 1 2 3 4)
-      sysVarLabels=(jes_down jes_up jer jes_qg_up jes_qg_down)
+      sysVarIndices=(0 1 2 3)
+      sysVarLabels=(jes_down jes_up jer jes_qg_down)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
       "JER"
-      "JES PbPb data-MC UP"
-      "JES PbPb data-MC DOWN"
+      "JES quark-jet"
        )
-      sysMethodIndices=(1 1 1 1 1)
+      sysMethodIndices=(1 1 1 1)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
