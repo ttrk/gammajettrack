@@ -224,6 +224,18 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
 
                 if (sysMethod[iSys] == 2) hTmp->Divide(h_nom);
                 th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale
+
+                hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_up_plus_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
+                        sysMethodStr.c_str());
+                if (is_js) {
+                    hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_up_plus_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
+                    if (sysMethod[iSys] == 0)
+                        hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_up_plus_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
+                }
+                hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
+
+                if (sysMethod[iSys] == 2) hTmp->Divide(h_nom);
+                th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale + data-MC UE diff
             }
             int binFirst = 1;
             int binLast = 0;
