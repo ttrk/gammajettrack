@@ -47,7 +47,7 @@ SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_dow
 sysIndices="1 2 3 4 6 9 10 13 17"
 runSysIso=1
 if [ $sample = "pbpbdata" ] || [ $sample = "pbpbmc" ]; then
-  sysIndices="1 2 3 4 6 9 10 11 12 13 14 15 16 17"
+  sysIndices="1 2 3 4 6 9 10 12 13 14 15 16 17"
   runSysIso=1
 fi
 
