@@ -25,12 +25,12 @@ enum SYSUNC
 
 std::string sys_labels[kN_SYSUNC] = {
      "pes", "iso", "purity_up_plus", "ele_rej", "phoeffcorr",
-     "jes_up_plus", "jer", "tracking_up_plus", "longrange", "bkgsub", "xi_nonclosure"
+     "jes_qg_down", "jer", "tracking_up_plus", "longrange", "bkgsub", "xi_nonclosure"
 };
 
 std::string sys_labels_ratio[kN_SYSUNC] = {
      "pes", "iso", "purity_up_plus", "ele_rej", "phoeffcorr",
-     "jes_up_plus", "jer", "tracking_ratio", "longrange", "bkgsub", "xi_nonclosure"
+     "jes_qg_down", "jer", "tracking_ratio", "longrange", "bkgsub", "xi_nonclosure"
 };
 
 int sysMethod[kN_SYSUNC] = {
@@ -213,12 +213,12 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             if (iSys == k_JES) {
                 th1_sqrt_sum_squares(h_ratio_abs, h_ratio_abs); // 0.02^2 + 0.02^2
 
-                std::string hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_up_plus_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
+                std::string hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
                         sysMethodStr.c_str());
                 if (is_js) {
-                    hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_up_plus_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
+                    hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
                     if (sysMethod[iSys] == 0)
-                        hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_up_plus_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
+                        hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
                 }
                 hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
 
