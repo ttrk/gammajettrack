@@ -46,7 +46,7 @@ for rgLevel in $recogenLevels; do
     rgLevelPP="srecoreco"
   fi
   ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll
-  ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
+#  ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
 done
 wait
 
@@ -57,7 +57,7 @@ hadd -f $finalAllreweight $finalPPreweight $finalPBPB
 for rgLevel in $recogenLevels; do
   rgLevelPP=$rgLevel
   ./calc_ff_js_ratio.exe $finalAll pp${sample}reweight_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll
-  ./calc_ff_js_ratio.exe $finalAll pp${sample}reweight_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
+#  ./calc_ff_js_ratio.exe $finalAll pp${sample}reweight_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
 done
 wait
 
@@ -85,7 +85,7 @@ for SYS in ${sysIndices}; do
       rgLevelPP="srecoreco"
     fi
     ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll
-    ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
+#    ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
   done
 done
 wait
