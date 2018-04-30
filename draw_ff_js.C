@@ -215,8 +215,12 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
         }
     }
 
-    std::vector<std::string> inputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR", "hjsLRAway", "hgirth", "hdphiProjNR", "hdphiProjLR"};
-    std::vector<std::string> outputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR", "hjsLRAway", "hgirth", "hdphiProjNR", "hdphiProjLR"};
+    std::vector<std::string> inputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR",
+            "htrkpt", "htrketa", "htrkphi",
+            "hjsLRAway", "hgirth", "hdphiProjNR", "hdphiProjLR"};
+    std::vector<std::string> outputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR",
+            "htrkpt", "htrketa", "htrkphi",
+            "hjsLRAway", "hgirth", "hdphiProjNR", "hdphiProjLR"};
     for (int iPt = 0; iPt < 8; ++iPt) {
         inputObs.push_back(Form("hdphiProjNRptBin%d", iPt));
         outputObs.push_back(Form("hdphiProjNRptBin%d", iPt));
@@ -347,8 +351,8 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
     // photon+jet observables
     TH1D* hgj[kN_RBS][kN_RBS] = {0};
 
-    std::vector<std::string> inputObsgj = {"hjetpt", "hdphijg", "hxjg", "hjetptrebin", "hjeteta"};
-    std::vector<std::string> outputObsgj = {"hjetpt", "hdphijg", "hxjg", "hjetptrebin", "hjeteta"};
+    std::vector<std::string> inputObsgj = {"hjetpt", "hjeteta", "hjetphi", "hdphijg", "hxjg", "hjetptrebin", "hjeteta"};
+    std::vector<std::string> outputObsgj = {"hjetpt", "hjeteta", "hjetphi", "hdphijg", "hxjg", "hjetptrebin", "hjeteta"};
 
     if (inputObsgj.size() != outputObsgj.size()) {
         std::cout << "mismatching number of input and output gj observables" << std::endl;
