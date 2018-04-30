@@ -1536,7 +1536,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             */
         }
 
-        if (isPP) continue;
+        if (isPP && !(systematic == sysBkgEtaReflection)) continue;
         if (is_gen0_part) continue;
 
         // raw jets - underlying event jetshape
