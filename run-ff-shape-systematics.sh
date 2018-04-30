@@ -28,20 +28,6 @@ echo "sample    = $sample"
 echo "label     = $label"
 echo "recogenLevels = $recogenLevels"
 
-if [ $sample = "pbpbdata" ]; then
-    SKIM="/export/d00/scratch/tatar/GJT-out/PbPb-Data-skim-170911.root"
-elif [ $sample = "ppdata" ]; then
-    SKIM="/export/d00/scratch/tatar/GJT-out/pp-Data-skim-170911.root"
-else
-    echo "invalid sample"
-    exit 1
-fi
-
-echo "compiling macros..."
-g++ jetffshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetffshape.exe || exit 1
-
-mkdir -p $outputDir
-
 set -x
 
 if [ $sample = "pbpbmc" ]; then
@@ -60,6 +46,8 @@ else
     echo "invalid sample"
     exit 1
 fi
+
+mkdir -p $outputDir
 
 echo "compiling macros..."
 g++ jetffshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetffshape.exe || exit 1
