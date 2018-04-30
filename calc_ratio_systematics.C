@@ -33,38 +33,47 @@ enum SYS
     k_nonclosure,
     k_bkgsub,
     k_phoeffcorr,
+    k_jes_ue_up,
+    k_jes_ue_down,
     kN_SYS
 };
 
 std::string sys_types[kN_SYS] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_ratio", "jes_qg_down", "longrange", "nonclosure", "bkgsub", "phoeffcorr"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_ratio", "jes_qg_down", "longrange", "nonclosure", "bkgsub", "phoeffcorr",
+    "jes_ue_up", "jes_ue_down"
 };
 
 std::string fit_funcs[kN_SYS] = {
-    "pol1", "pol2", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
+    "pol1", "pol2", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1",
+    "pol1", "pol1"
 };
 
 int options[kN_SYS] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0
+    4, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0,
+    4, 0
 };
 
 int special[kN_SYS] = {
-    0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0
+    0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+    0, 1
 };
 
 int add2Total[kN_SYS] = {
-    0, 2, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1
+    0, 2, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1,
+    0, 1
 };
 
 int sysMethod[kN_SYS] = {
-    2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0, 2
+    2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0, 2,
+    2, 2
     //1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0
         //1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0
         //1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0
 };
 
 std::string sys_observables[kN_SYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "JES Q/G", "long range", "nonclosure", "bkg subtraction", "photon efficiency"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "JES Q/G", "long range", "nonclosure", "bkg subtraction", "photon efficiency",
+    "JES UE", "JES UE"
 };
 
 int calc_ratio_systematics(std::string observable, std::string filelist, std::string histlist, std::string label) {

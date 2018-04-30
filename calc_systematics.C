@@ -34,31 +34,39 @@ enum SYSVAR
     k_longrange,
     k_tracking_ratio,
     k_phoeffcorr,
+    k_jes_ue_up,
+    k_jes_ue_down,
     kN_SYSVAR
 };
 
 std::string sys_types[kN_SYSVAR] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_qg_down", "longrange", "tracking_ratio", "phoeffcorr"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_qg_down", "longrange", "tracking_ratio", "phoeffcorr",
+    "jes_ue_up", "jes_ue_down"
 };
 
 std::string fit_funcs[kN_SYSVAR] = {
-    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
+    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1",
+    "pol1", "pol1"
 };
 
 int options[kN_SYSVAR] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0
+    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0,
+    4, 0
 };
 
 int special[kN_SYSVAR] = {
-    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 0, 0
+    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 0, 0,
+    0, 1
 };
 
 int add2Total[kN_SYSVAR] = {
-    0, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1
+    0, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1,
+    0, 1
 };
 
 int sysMethod[kN_SYSVAR] = {
-    2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 0, 2
+    2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 0, 2,
+    2, 2
     //1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0
         //1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0
         //0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -66,7 +74,8 @@ int sysMethod[kN_SYSVAR] = {
 };
 
 std::string sys_labels[kN_SYSVAR] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long-range correlations", "tracking PbPb/pp", "photon efficiency"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long-range correlations", "tracking PbPb/pp", "photon efficiency",
+    "JES UE", "JES UE"
 };
 
 std::string getCentText(std::string objName);

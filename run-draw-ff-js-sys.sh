@@ -42,12 +42,12 @@ else
     exit 1
 fi
 
-SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange tracking_ratio eta_reflection etagt0p3 phoeffcorr)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange tracking_ratio eta_reflection etagt0p3 phoeffcorr jes_ue_up jes_ue_down)
 
 sysIndices="1 2 3 4 6 9 10 13 17"
 runSysIso=1
 if [ $sample = "pbpbdata" ] || [ $sample = "pbpbmc" ]; then
-  sysIndices="1 2 3 4 6 9 10 12 13 14 15 16 17"
+  sysIndices="1 2 3 4 6 9 10 12 13 14 15 16 17 18 19"
   runSysIso=1
 fi
 
