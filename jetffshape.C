@@ -388,6 +388,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   TH1D* hjettrkdphi[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG];     // fine binning
 
   TH1D* hgammaffjs_pt_eta_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr];
+  TH1D* hgammaffjs_eta_trkPt_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nEtaBins_js_corr][nTrkPtBins_js_corr];
   TH1D* hgammaffjs_pt_eta_trkPt_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr];
   TH1D* hgammaffjs_pt_eta_trkPt_bins_fineR[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr];
 
@@ -504,6 +505,14 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                               Form("%s%s%s_%s_%s_ptBin%d_etaBin%d_trkPtBin%d_fineR_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                                       sample.data(), genlevel.data(), iPt, iEta, iTrkPt, abs(centmin), abs(centmax)),
                                       hTitle_ptBin_EtaBin_trkPtBin.c_str(), nBinsX*2, 0, xMax);
+
+                      if (iPt == 0) {
+                          std::string hTitle_EtaBin_trkPtBin = Form("p^{jet}_{T} > 30 GeV/c, %s, %s;%s;", tmpTextEta.c_str(), tmpTextTrkPt.c_str(), xTitle.c_str());
+                          hgammaffjs_eta_trkPt_bins[i][j][iEta][iTrkPt] = new TH1D(
+                                  Form("%s%s%s_%s_%s_etaBin%d_trkPtBin%d_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
+                                          sample.data(), genlevel.data(), iEta, iTrkPt, abs(centmin), abs(centmax)),
+                                          hTitle_ptBin_EtaBin_trkPtBin.c_str(), nBinsX, 0, xMax);
+                      }
                   }
               }
           }
@@ -1363,6 +1372,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                             hgammaffjs_pt_eta_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta]->Fill(val, weight_rawJet_rawTrk);
                             for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
                                 if (trkPtBins_js_corr[iTrkPt] <= (*p_pt)[ip] && (*p_pt)[ip] < trkPtBins_js_corr[iTrkPt+1]) {
+                                    hgammaffjs_eta_trkPt_bins[phoBkg][k_rawJet_rawTrk][iEta][iTrkPt]->Fill(val, weight_rawJet_rawTrk);
                                     hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_rawJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_rawJet_rawTrk);
                                     hgammaffjs_pt_eta_trkPt_bins_fineR[phoBkg][k_rawJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_rawJet_rawTrk);
                                     break;
@@ -1652,6 +1662,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                             hgammaffjs_pt_eta_bins[phoBkg][k_rawJet_ueTrk][iPt][iEta]->Fill(val, weight_rawJet_ueTrk);
                             for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
                                 if (trkPtBins_js_corr[iTrkPt] <= (*p_pt_UE)[ip_UE] && (*p_pt_UE)[ip_UE] < trkPtBins_js_corr[iTrkPt+1]) {
+                                    hgammaffjs_eta_trkPt_bins[phoBkg][k_rawJet_ueTrk][iEta][iTrkPt]->Fill(val, weight_rawJet_ueTrk);
                                     hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_rawJet_ueTrk][iPt][iEta][iTrkPt]->Fill(val, weight_rawJet_ueTrk);
                                     hgammaffjs_pt_eta_trkPt_bins_fineR[phoBkg][k_rawJet_ueTrk][iPt][iEta][iTrkPt]->Fill(val, weight_rawJet_ueTrk);
                                     break;
@@ -2085,6 +2096,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                             hgammaffjs_pt_eta_bins[phoBkg][k_bkgJet_rawTrk][iPt][iEta]->Fill(val, weight_bkgJet_rawTrk);
                             for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
                                 if (trkPtBins_js_corr[iTrkPt] <= (*p_pt_mix)[ip_mix] && (*p_pt_mix)[ip_mix] < trkPtBins_js_corr[iTrkPt+1]) {
+                                    hgammaffjs_eta_trkPt_bins[phoBkg][k_bkgJet_rawTrk][iEta][iTrkPt]->Fill(val, weight_bkgJet_rawTrk);
                                     hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_bkgJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_bkgJet_rawTrk);
                                     hgammaffjs_pt_eta_trkPt_bins_fineR[phoBkg][k_bkgJet_rawTrk][iPt][iEta][iTrkPt]->Fill(val, weight_bkgJet_rawTrk);
                                     break;
@@ -2368,6 +2380,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                             hgammaffjs_pt_eta_bins[phoBkg][k_bkgJet_ueTrk][iPt][iEta]->Fill(val, weight_bkgJet_ueTrk);
                             for (int iTrkPt = 0; iTrkPt < nTrkPtBins_js_corr; ++iTrkPt) {
                                 if (trkPtBins_js_corr[iTrkPt] <= (*p_pt_UE)[ip_UE] && (*p_pt_UE)[ip_UE] < trkPtBins_js_corr[iTrkPt+1]) {
+                                    hgammaffjs_eta_trkPt_bins[phoBkg][k_bkgJet_ueTrk][iEta][iTrkPt]->Fill(val, weight_bkgJet_ueTrk);
                                     hgammaffjs_pt_eta_trkPt_bins[phoBkg][k_bkgJet_ueTrk][iPt][iEta][iTrkPt]->Fill(val, weight_bkgJet_ueTrk);
                                     hgammaffjs_pt_eta_trkPt_bins_fineR[phoBkg][k_bkgJet_ueTrk][iPt][iEta][iTrkPt]->Fill(val, weight_bkgJet_ueTrk);
                                     break;
