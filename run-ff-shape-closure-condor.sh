@@ -49,6 +49,9 @@ if [ $sample = "pbpbmc" ]; then
     elif [[ $outputDir = *photonOnly* ]]; then
       SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_skim_photonOnly_merged/job0.root"
     fi
+    if [[ $outputDir = *nodphijg* ]]; then
+      SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_Flt50_ext_skim_20180413_nodphijg_N1800_merged/job0.root"
+    fi
 elif [ $sample = "ppmc" ]; then
     SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/pp-MC-skim-180115.root"
     if [[ $outputDir = *stdPho* ]]; then
