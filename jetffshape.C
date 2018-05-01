@@ -511,7 +511,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
                           hgammaffjs_eta_trkPt_bins[i][j][iEta][iTrkPt] = new TH1D(
                                   Form("%s%s%s_%s_%s_etaBin%d_trkPtBin%d_%d_%d", histNamePrefix.c_str(), jet_track_sigbkg_labels[j].c_str(), pho_sigbkg_labels[i].c_str(),
                                           sample.data(), genlevel.data(), iEta, iTrkPt, abs(centmin), abs(centmax)),
-                                          hTitle_ptBin_EtaBin_trkPtBin.c_str(), nBinsX, 0, xMax);
+                                          hTitle_EtaBin_trkPtBin.c_str(), nBinsX, 0, xMax);
                       }
                   }
               }
