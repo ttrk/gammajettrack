@@ -170,6 +170,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
   }
 
+  /*
   TFile* file_jec = 0;
   TH1D* h_jec[4];
   if (isHI && (systematic == sysJES_pbpb_UE_UP || systematic == sysJES_pbpb_UE_DOWN)) {
@@ -178,6 +179,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           h_jec[i] = (TH1D*)file_jec->Get(Form("h_jec_vs_jetpt_pbpb_%d_%d", min_hiBin[i],  max_hiBin[i]));
       }
   }
+  */
 
   bool doSysLR = (systematic == sysLR);
   bool doSysTrkUp = (systematic == sysTRK_UP);
@@ -672,10 +674,12 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   //TF1* f_trkEffDiffPtDep_up = new TF1("f_trkEffDiffPtDep_up", "0.912737 + 0.0071926 * x", 0, 200);
   //TF1* f_trkEffDiffPtDep_down = new TF1("f_trkEffDiffPtDep_down", "0.912737 + 0.00379736 * x", 0, 200);
 
+  /*
   scaleErrorTool scaleErr("rcDifferences_20180406.txt");
   if (isHI && (systematic == sysJES_pbpb_UE_UP || systematic == sysJES_pbpb_UE_DOWN)) {
       scaleErr.Init();
   }
+  */
 
   // generic pointers
 
@@ -937,6 +941,13 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
     // check for number of mixed events
     if (!isPP && nmix < 3 && !isPhotonOnly) continue;
 
+    if (systematic == sysJES_pbpb_UE_UP) {
+        hiBin += 1;
+    }
+    else if (systematic == sysJES_pbpb_UE_DOWN) {
+        hiBin -= 1;
+    }
+
     // event selections
     if (!isPP) { if (hiBin < centmin || hiBin >= centmax) continue; }
     if (phoNoise == 0) continue;
@@ -1170,16 +1181,20 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             tmpjetpt = tmpjetpt * (1 - flavor_factor);
             break; }
           case sysJES_pbpb_UE_UP: {
+              /*
               double tempScale = getJecJetPtRawPt(tmpjetpt, h_jec[centBin4]);
               double tmprawpt = tmpjetpt / tempScale;
               tmprawpt += TMath::Abs(scaleErr.getMuDataMinusMC(hiBin / 2, TMath::Abs(tmpjeteta), 3, "NoFlow"));
               tmpjetpt = tempScale*tmprawpt;
+              */
             break; }
           case sysJES_pbpb_UE_DOWN: {
+              /*
               double tempScale = getJecJetPtRawPt(tmpjetpt, h_jec[centBin4]);
               double tmprawpt = tmpjetpt / tempScale;
               tmprawpt -= TMath::Abs(scaleErr.getMuDataMinusMC(hiBin / 2, TMath::Abs(tmpjeteta), 3, "NoFlow"));
               tmpjetpt = tempScale*tmprawpt;
+              */
             break; }
           case sysJER: {
             float jer_scale_factor= 1 + sqrt(0.15*0.15 + 0.07*0.07);
@@ -1892,16 +1907,20 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
             tmpjetpt = tmpjetpt * (1 - flavor_factor);
             break; }
           case sysJES_pbpb_UE_UP: {
+              /*
               double tempScale = getJecJetPtRawPt(tmpjetpt, h_jec[centBin4]);
               double tmprawpt = tmpjetpt / tempScale;
               tmprawpt += TMath::Abs(scaleErr.getMuDataMinusMC(hiBin / 2, TMath::Abs(tmpjeteta), 3, "NoFlow"));
               tmpjetpt = tempScale*tmprawpt;
+              */
             break; }
           case sysJES_pbpb_UE_DOWN: {
+              /*
               double tempScale = getJecJetPtRawPt(tmpjetpt, h_jec[centBin4]);
               double tmprawpt = tmpjetpt / tempScale;
               tmprawpt -= TMath::Abs(scaleErr.getMuDataMinusMC(hiBin / 2, TMath::Abs(tmpjeteta), 3, "NoFlow"));
               tmpjetpt = tempScale*tmprawpt;
+              */
             break; }
           case sysJER: {
             float jer_scale_factor = 1 + sqrt(0.15*0.15 + 0.07*0.07);
