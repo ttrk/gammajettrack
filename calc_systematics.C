@@ -135,10 +135,6 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     for (int i=0; i<nfiles; ++i)
         fsys[i] = new TFile(file_list[i].c_str(), "read");
 
-    TFile* file_jsqgcorr = 0;
-    if (isPP)  file_jsqgcorr = new TFile("jsclosure_ppmc_60_30_gxi0_obs2_ffjs_finaljsqgcorr.root", "read");
-    else       file_jsqgcorr = new TFile("jsclosure_pbpbmc_60_30_gxi0_obs2_ffjs_finaljsqgcorr.root", "read");
-
     TFile* file_jsqgFracDataMC = new TFile("fit_qg_template_pp_pbpb_gxi0_obs2.root", "read");
 
     TFile* fout = new TFile(Form("%s-systematics.root", label), "update");
@@ -397,7 +393,6 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     for (int i=0; i<nfiles; ++i)
         fsys[i]->Close();
 
-    file_jsqgcorr->Close();
     if (file_jsqgFracDataMC != 0) file_jsqgFracDataMC->Close();
 
     TCanvas* c1 = 0;
