@@ -34,39 +34,31 @@ enum SYSVAR
     k_longrange,
     k_tracking_ratio,
     k_phoeffcorr,
-    k_jes_ue_up,
-    k_jes_ue_down,
     kN_SYSVAR
 };
 
 std::string sys_types[kN_SYSVAR] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_qg_down", "longrange", "tracking_ratio", "phoeffcorr",
-    "jes_ue_up", "jes_ue_down"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_qg_down", "longrange", "tracking_ratio", "phoeffcorr"
 };
 
 std::string fit_funcs[kN_SYSVAR] = {
-    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1",
-    "pol1", "pol1"
+    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
 };
 
 int options[kN_SYSVAR] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0,
-    4, 0
+    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0
 };
 
 int special[kN_SYSVAR] = {
-    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 0, 0,
-    0, 1
+    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 0, 0
 };
 
 int add2Total[kN_SYSVAR] = {
-    0, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1,
-    0, 1
+    0, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1
 };
 
 int sysMethod[kN_SYSVAR] = {
-    2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 0, 2,
-    2, 2
+    2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 0, 2
     //1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0
         //1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0
         //0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -74,8 +66,7 @@ int sysMethod[kN_SYSVAR] = {
 };
 
 std::string sys_labels[kN_SYSVAR] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long-range correlations", "tracking PbPb/pp", "photon efficiency",
-    "JES UE", "JES UE"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long-range correlations", "tracking PbPb/pp", "photon efficiency"
 };
 
 std::string getCentText(std::string objName);
@@ -137,6 +128,9 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
 
     TFile* file_jsqgFracDataMC = new TFile("fit_qg_template_pp_pbpb_gxi0_obs2.root", "read");
 
+    TFile* file_jes_ue = 0;
+    if (!isPP)  file_jes_ue = new TFile("jsclosure_pbpbmc_60_30_gxi0_obs2_ffjs_jes_ue.root", "read");
+
     TFile* fout = new TFile(Form("%s-systematics.root", label), "update");
 
     total_sys_var_t* total_sys_vars[nhists] = {0};
@@ -150,6 +144,8 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     TH1D* hsys_js_nc_corrjs1[nhists] = {0};
     TH1D* hsys_js_nc_corrjs3[nhists] = {0};
     TH1D* hsys_js_nc_corrjsQGFrac[nhists] = {0};
+
+    TH1D* hsys_jes_ue[nhists] = {0};
 
     TH1D* hTmp = 0;
     TF1*  f1Tmp = 0;
@@ -386,6 +382,38 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             total_sys_vars[i]->add_sys_var(sysVar_js_nonclosure, 0, 0);
         }
 
+        if (is_js) {
+
+            // add systematics for JES due to data-MC UE difference subtraction
+            hsys_jes_ue[i] = (TH1D*)hnominals[i]->Clone(Form("%s_jes_ue", hnominals[i]->GetName()));
+            if (!isPP) {
+                std::string centSuffix = getCentText(hist_list[i]);
+                if (centSuffix == "0_60")  centSuffix = "0_20";
+                else if (centSuffix == "60_200")  centSuffix = "60_100";
+
+                std::string hName_jes_ue_nominal = Form("hjs_final_pbpbmc_corrjsrecoreco_%s", centSuffix.c_str());
+                std::string hName_jes_ue_up = Form("hjs_final_pbpbmc_corrjsrecoreco_%s_jes_ue_up", centSuffix.c_str());
+                std::string hName_jes_ue_down = Form("hjs_final_pbpbmc_corrjsrecoreco_%s_jes_ue_down", centSuffix.c_str());
+
+                TH1D* hjs_jes_ue_nominal = (TH1D*)file_jes_ue->Get(hName_jes_ue_nominal.c_str());
+                TH1D* hjs_jes_ue_up = (TH1D*)file_jes_ue->Get(hName_jes_ue_up.c_str());
+                TH1D* hjs_jes_ue_down = (TH1D*)file_jes_ue->Get(hName_jes_ue_down.c_str());
+
+                hjs_jes_ue_up->Divide(hjs_jes_ue_nominal);
+                hjs_jes_ue_down->Divide(hjs_jes_ue_nominal);
+
+                th1_ratio_abs(hjs_jes_ue_up, true);
+                th1_ratio_abs(hjs_jes_ue_down, true);
+
+                th1_max_of_2_th1(hjs_jes_ue_up, hjs_jes_ue_down, hsys_jes_ue[i]);
+                hsys_jes_ue[i]->Multiply(hnominals[i]);
+            }
+            sys_var_t* sysVar_jes_ue = new sys_var_t(hist_list[i], "jes_ue", hnominals[i], hsys_bkgsub[i]);
+            sysVar_jes_ue->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
+            sysVar_jes_ue->write();
+            total_sys_vars[i]->add_sys_var(sysVar_jes_ue, 0, 0);
+        }
+
         total_sys_vars[i]->write();
     }
     std::cout << "total_sys_vars[i]->write();" << std::endl;
@@ -394,6 +422,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
         fsys[i]->Close();
 
     if (file_jsqgFracDataMC != 0) file_jsqgFracDataMC->Close();
+    if (file_jes_ue != 0) file_jes_ue->Close();
 
     TCanvas* c1 = 0;
     for (int i=0; i<nhists; ++i) {

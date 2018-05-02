@@ -43,8 +43,6 @@ mv $outputTmp $outputIso
 ## for pp : nominal = jes_qg_down
 if [ $sample = "ppdata" ]; then
   cp ${nomFile} ${sysDir}/jssys_jes_qg_down_ppdata_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs2_ffjs_final.root
-  cp ${nomFile} ${sysDir}/jssys_jes_ue_up_ppdata_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs2_ffjs_final.root
-  cp ${nomFile} ${sysDir}/jssys_jes_ue_down_ppdata_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs2_ffjs_final.root
   cp ${nomFile} ${sysDir}/jssys_tracking_ratio_ppdata_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs2_ffjs_final.root
 fi
 #####
@@ -55,9 +53,9 @@ fi
 touch $SYSLIST
 
 #SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange tracking_ratio eta_reflection etagt0p3)
-SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrangecalc tracking_ratio phoeffcorr jes_ue_up jes_ue_down)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrangecalc tracking_ratio phoeffcorr)
 
-sysIndices="1 2 3 4 5 6 7 8 9 10 12 13 14 15 16 17"
+sysIndices="1 2 3 4 5 6 7 8 9 10 12 13 14 15"
 
 for SYS in ${sysIndices}
 do
