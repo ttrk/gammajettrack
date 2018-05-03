@@ -81,12 +81,6 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
     TH1D* hDenom = 0;
     TH1D* hDenomOut = 0;
     TH1D* hCorrection = 0;
-    TH1D* hCorrectionSmooth = 0;
-    TH1D* hCorrectionSmoothDenom = 0;
-    TH1D* hCorrectionSmoothv2 = 0;
-    TH1D* hCorrectionSmoothv3 = 0;
-
-    TH1D* hNumDenomDiff = 0;
 
     TH1D* hTmp = 0;
     for (int iPt = 0; iPt < nPtBins + 5; ++iPt) {
@@ -201,84 +195,6 @@ int calc_js_corrections(std::string inputFile, std::string outputFile, std::stri
                             hCorrection->SetMarkerStyle(kFullCircle);
                             hCorrection->Write("",TObject::kOverwrite);
                             std::cout << "saved histogram " << histCorrName.c_str() << std::endl;
-
-                            std::string histCorrSmoothName = Form("%s_corrsmooth_%s_%s2%s_%s%setaBin%d%s_%d_%d", stepsDenomPrefixes[i].c_str(),
-                                    sample.c_str(), recoGenStepsDenom[i].c_str(), recoGenStepsNum[i].c_str(),
-                                    ptTypes[iPtType].c_str(), jetptStr.c_str(), iEta,strTrkPt.c_str(), min_hiBin[iCent], max_hiBin[iCent]);
-
-                            hCorrectionSmooth = (TH1D*)hNum->Clone(histCorrSmoothName.c_str());
-                            //hCorrectionSmooth->SetAxisRange(0, 0.299, "X");
-                            hCorrectionSmooth->Smooth(1, "R");
-
-                            hCorrectionSmoothDenom = (TH1D*)hDenom->Clone(Form("%s_denom", histCorrSmoothName.c_str()));
-                            //hCorrectionSmoothDenom->SetAxisRange(0, 0.299, "X");
-                            hCorrectionSmoothDenom->Smooth(1, "R");
-
-                            hCorrectionSmooth->Divide(hCorrectionSmoothDenom);
-                            th1_set_bin_errors4ratio_partialCorr(hCorrectionSmooth, hNum, hDenom);
-
-                            hCorrectionSmooth->SetYTitle("correction factor - smoothed num and denom");
-                            hCorrectionSmooth->SetMinimum(0);
-                            hCorrectionSmooth->SetMaximum(5);
-                            hCorrectionSmooth->SetMarkerStyle(kFullCircle);
-                            hCorrectionSmooth->Write("",TObject::kOverwrite);
-                            std::cout << "saved histogram " << histCorrSmoothName.c_str() << std::endl;
-
-                            std::string histCorrSmoothv2Name = Form("%s_corrsmoothv2_%s_%s2%s_%s%setaBin%d%s_%d_%d", stepsDenomPrefixes[i].c_str(),
-                                    sample.c_str(), recoGenStepsDenom[i].c_str(), recoGenStepsNum[i].c_str(),
-                                    ptTypes[iPtType].c_str(), jetptStr.c_str(), iEta,strTrkPt.c_str(), min_hiBin[iCent], max_hiBin[iCent]);
-
-                            hCorrectionSmoothv2 = (TH1D*)hNum->Clone(histCorrSmoothv2Name.c_str());
-                            hCorrectionSmoothv2->Divide(hDenom);
-
-                            th1_set_bin_errors4ratio_partialCorr(hCorrectionSmoothv2, hNum, hDenom);
-                            hCorrectionSmoothv2->Smooth(1, "R");
-
-                            hCorrectionSmoothv2->SetYTitle("correction factor - smoothed ratio");
-                            hCorrectionSmoothv2->SetMinimum(0);
-                            hCorrectionSmoothv2->SetMaximum(5);
-                            hCorrectionSmoothv2->SetMarkerStyle(kFullCircle);
-                            hCorrectionSmoothv2->Write("",TObject::kOverwrite);
-                            std::cout << "saved histogram " << histCorrSmoothv2Name.c_str() << std::endl;
-
-                            std::string histCorrSmoothv3Name = Form("%s_corrsmoothv3_%s_%s2%s_%s%setaBin%d%s_%d_%d", stepsDenomPrefixes[i].c_str(),
-                                    sample.c_str(), recoGenStepsDenom[i].c_str(), recoGenStepsNum[i].c_str(),
-                                    ptTypes[iPtType].c_str(), jetptStr.c_str(), iEta,strTrkPt.c_str(), min_hiBin[iCent], max_hiBin[iCent]);
-
-                            hCorrectionSmoothv3 = (TH1D*)hNum->Clone(histCorrSmoothv3Name.c_str());
-                            hCorrectionSmoothDenom = (TH1D*)hDenom->Clone(Form("%s_denom", histCorrSmoothv3Name.c_str()));
-                            //hCorrectionSmoothDenom->SetAxisRange(0, 0.299, "X");
-                            hCorrectionSmoothDenom->Smooth(1, "R");
-                            hCorrectionSmoothv3->Divide(hCorrectionSmoothDenom);
-
-                            th1_set_bin_errors4ratio_partialCorr(hCorrectionSmoothv3, hNum, hDenom);
-                            //hCorrectionSmoothv3->Smooth(1, "R");
-
-                            hCorrectionSmoothv3->SetYTitle("correction factor - smoothed denom");
-                            hCorrectionSmoothv3->SetMinimum(0);
-                            hCorrectionSmoothv3->SetMaximum(5);
-                            hCorrectionSmoothv3->SetMarkerStyle(kFullCircle);
-                            hCorrectionSmoothv3->Write("",TObject::kOverwrite);
-                            std::cout << "saved histogram " << histCorrSmoothv3Name.c_str() << std::endl;
-
-                            std::string histNumDenomDiffName = Form("%s_diff_%s_%s2%s_%s%setaBin%d%s_%d_%d", stepsDenomPrefixes[i].c_str(),
-                                    sample.c_str(), recoGenStepsDenom[i].c_str(), recoGenStepsNum[i].c_str(),
-                                    ptTypes[iPtType].c_str(), jetptStr.c_str(), iEta,strTrkPt.c_str(), min_hiBin[iCent], max_hiBin[iCent]);
-
-                            hNumDenomDiff = (TH1D*)hNum->Clone(histNumDenomDiffName.c_str());
-                            hNumDenomDiff->Add(hDenom, -1);
-                            th1_set_bin_errors4diff_partialCorr(hNumDenomDiff, hNum, hDenom);
-
-                            hNumDenomDiff->SetYTitle("numerator - denominator");
-                            int binMax = hNumDenomDiff->GetMaximumBin();
-                            int binMin = hNumDenomDiff->GetMinimumBin();
-                            double extremum = std::max(TMath::Abs(hNumDenomDiff->GetBinContent(binMax)),
-                                                       TMath::Abs(hNumDenomDiff->GetBinContent(binMin)));
-                            hNumDenomDiff->SetMinimum(-1.2*extremum);
-                            hNumDenomDiff->SetMaximum(1.2*extremum);
-                            hNumDenomDiff->SetMarkerStyle(kFullCircle);
-                            hNumDenomDiff->Write("",TObject::kOverwrite);
-                            std::cout << "saved histogram " << histNumDenomDiffName.c_str() << std::endl;
 
                             if (hTmp != 0) hTmp->Delete();
                         }
