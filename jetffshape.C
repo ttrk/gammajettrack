@@ -1159,7 +1159,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       if (systematic == sysJER) {
           if (isPP) nsmear *= _NSMEAR_JER;
           else  {
-              if (centBin == 0 || centBin == 1 || centBin == 4) nsmear *= 9;
+              if (centBin == 0 || centBin == 1 || centBin == 4) nsmear *= 25;
               else nsmear *= _NSMEAR_JER_PbPb;
           }
       }
@@ -1947,7 +1947,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       if (systematic == sysJER) {
           if (isPP) nsmear *= _NSMEAR_JER;
           else  {
-              if (centBin == 0 || centBin == 1 || centBin == 4) nsmear *= 9;
+              if (centBin == 0 || centBin == 1 || centBin == 4) nsmear *= 25;
               else nsmear *= _NSMEAR_JER_PbPb;
           }
       }
