@@ -31,12 +31,12 @@ echo "recogenLevels = $recogenLevels"
 set -x
 
 if [ $sample = "pbpbmc" ]; then
-    SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_skim_20180115_merged/job0.root"
+    SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_Flt50_skim_20180413_merged/job0.root"
 elif [ $sample = "ppmc" ]; then
     SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/pp-MC-skim-180115.root"
 elif [ $sample = "pbpbdata" ]; then
     SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/skims/PbPb-Data-skim-170911.root"
-    MCSKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_skim_20180115_merged/job0.root"
+    MCSKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/PbPb_MC_Flt50_skim_20180413_merged/job0.root"
     MCSAMPLE="pbpbmc"
 elif [ $sample = "ppdata" ]; then
     SKIM="/mnt/hadoop/cms/store/user/tatar/GJT-out/skims/pp-Data-skim-170911.root"
