@@ -953,7 +953,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   //std::vector<float> uescale = {0.9774, 0.9705, 0.96, 0.8585}; // v1
   //std::vector<float> uescale = {0.9875, 0.9800, 0.96, 0.8585}; // v2
   //std::vector<float> uescale = {0.9885, 0.9780, 0.96, 0.8585}; // v3
-  std::vector<float> uescale = {0.9875, 0.9780, 0.96, 0.8585}; // v4
+  //std::vector<float> uescale = {0.9875, 0.9780, 0.96, 0.8585}; // v4
+  std::vector<float> uescale = {0.99, 0.9850, 0.957, 0.8585}; // v5
   if (defnFF == k_jetFF) {
       uescale = {0.997, 0.99, 0.96, 0.85};
   }
