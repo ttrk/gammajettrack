@@ -68,6 +68,7 @@ const int sysBkgEtagt0p3 = 16;
 const int sysPhoEffCorr = 17;
 const int sysJES_pbpb_UE_UP = 18;
 const int sysJES_pbpb_UE_DOWN = 19;
+const int sysBkgUEscale = 20;
 const int sysDetaDphiPhoTrk = 23;
 const int sysDetaDphiJetTrk = 24;
 const int sysDphiProjection = 30;
@@ -959,7 +960,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
   if (defnFF == k_jetFF) {
       uescale = {0.997, 0.99, 0.96, 0.85};
   }
-  if (label.find("UEscale1") != std::string::npos || (systematic == sysBkgEtaReflection)) {
+  if (label.find("UEscale1") != std::string::npos || (systematic == sysBkgEtaReflection) || (systematic == sysBkgUEscale)) {
       uescale = {1, 1, 1, 1};
   }
 

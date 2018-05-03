@@ -52,12 +52,12 @@ mkdir -p $outputDir
 echo "compiling macros..."
 g++ jetffshape.C $(root-config --cflags --libs) -Werror -Wall -O2 -o jetffshape.exe || exit 1
 
-SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange tracking_ratio eta_reflection etagt0p3 phoeffcorr jes_ue_up jes_ue_down)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange tracking_ratio eta_reflection etagt0p3 phoeffcorr jes_ue_up jes_ue_down noUEscale)
 
 sysIndices="1 2 3 4 6 9 10 13 17"
 runSysIso=1
 if [ $sample = "pbpbdata" ] || [ $sample = "pbpbmc" ]; then
-  sysIndices="1 2 3 4 6 9 10 12 13 14 15 16 17 18 19"
+  sysIndices="1 2 3 4 6 9 10 12 13 14 15 16 17 18 19 20"
   runSysIso=1
 fi
 
