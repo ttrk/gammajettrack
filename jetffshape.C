@@ -646,6 +646,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
   bool doJsCorrPt60 = (label.find("jscorrPt60") != std::string::npos);
   bool doJsCorrPt120 = (label.find("jscorrPt120") != std::string::npos);
+  doJsCorrPt120 = true;
   bool doJsCorrPtAll = (label.find("jscorrPtAll") != std::string::npos);
 
   TH1D* hgammaffjs_corr_pt_eta_trkPt_bins[kN_PHO_SIGBKG][kN_JET_TRK_SIGBKG][nPtBins_js_corr][nEtaBins_js_corr][nTrkPtBins_js_corr][nCentBins_js_corr][nSteps_js_corr];
