@@ -56,10 +56,14 @@ purityGroup=0
 set -x
 for SYS in ${sysIndices}; do
   echo "running systematics : " ${SYSTEMATIC[SYS]}
-  inputFile=${outputDir}/${label}_${SYSTEMATIC[SYS]}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_ffjs_merged.root
+  tmpSample=$sample
+  if [ $SYS == 18 ] || [ $SYS == 19 ]; then
+    tmpSample=$MCSAMPLE
+  fi
+  inputFile=${outputDir}/${label}_${SYSTEMATIC[SYS]}_${tmpSample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_ffjs_merged.root
   if [ -f $inputFile ]; then
     outputFile="${inputFile/_merged.root/_final.root}"
-    ./draw_ff_js.exe $sample $inputFile $outputFile $phoetMin $purityGroup $recogenLevels
+    ./draw_ff_js.exe $tmpSample $inputFile $outputFile $phoetMin $purityGroup $recogenLevels
   else
     echo "inputFile : $inputFile does not exist. Skipping this systematics."
   fi
