@@ -61,10 +61,10 @@ for rgLevel in $recogenLevels; do
 done
 wait
 
-SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrangecalc tracking_ratio eta_reflection etagt0p3 phoeffcorr jes_ue_up jes_ue_down)
-SYSTEMATICPP=(NOM       jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down NOM       NOM         longrangecalc NOM            NOM            NOM phoeffcorr NOM       NOM)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrangecalc tracking_ratio eta_reflection etagt0p3 phoeffcorr jes_ue_up jes_ue_down noUEscale)
+SYSTEMATICPP=(NOM       jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down NOM       NOM         longrangecalc NOM            NOM            NOM phoeffcorr NOM       NOM         NOM)
 
-sysIndices="1 2 3 4 6 9 10 12 13 14 15 16 17 18 19"
+sysIndices="1 2 3 4 6 9 10 12 13 14 15 16 17 20"
 runSysIso=1
 
 for SYS in ${sysIndices}; do
