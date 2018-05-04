@@ -374,7 +374,7 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 th1_max_of_2_th1(hjs_jes_ue_up, hjs_jes_ue_down, hsys_jes_ue[i]);
                 hsys_jes_ue[i]->Multiply(hnominals[i]);
             }
-            sys_var_t* sysVar_jes_ue = new sys_var_t(hist_list[i], "jes_ue", hnominals[i], hsys_bkgsub[i]);
+            sys_var_t* sysVar_jes_ue = new sys_var_t(hist_list[i], "jes_ue", hnominals[i], hsys_jes_ue[i]);
             sysVar_jes_ue->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
             sysVar_jes_ue->write();
             total_sys_vars[i]->add_sys_var(sysVar_jes_ue, 0, 0);
