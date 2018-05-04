@@ -34,31 +34,38 @@ enum SYSVAR
     k_longrange,
     k_tracking_ratio,
     k_phoeffcorr,
+    k_noUEscale,
     kN_SYSVAR
 };
 
 std::string sys_types[kN_SYSVAR] = {
-    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_qg_down", "longrange", "tracking_ratio", "phoeffcorr"
+    "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_up", "tracking_down", "jes_qg_down", "longrange", "tracking_ratio", "phoeffcorr",
+    "noUEscale"
 };
 
 std::string fit_funcs[kN_SYSVAR] = {
-    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1"
+    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1",
+    "pol1"
 };
 
 int options[kN_SYSVAR] = {
-    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0
+    4, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0,
+    0
 };
 
 int special[kN_SYSVAR] = {
-    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 0, 0
+    0, 1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 0, 0,
+    0
 };
 
 int add2Total[kN_SYSVAR] = {
-    0, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1
+    0, 2, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1,
+    1
 };
 
 int sysMethod[kN_SYSVAR] = {
-    2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 0, 2
+    2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 0, 2,
+    2
     //1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0
         //1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0
         //0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -66,7 +73,8 @@ int sysMethod[kN_SYSVAR] = {
 };
 
 std::string sys_labels[kN_SYSVAR] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long-range correlations", "tracking PbPb/pp", "photon efficiency"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "tracking", "JES Q/G", "long-range correlations", "tracking PbPb/pp", "photon efficiency",
+    "bkg sub - UE scale"
 };
 
 std::string getCentText(std::string objName);
@@ -142,7 +150,6 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     total_sys_var_t* total_sys_vars_js_nc[nhists] = {0};
     TH1D* hsys_js_nonclosure[nhists] = {0};
     TH1D* hsys_js_nc_corrjs1[nhists] = {0};
-    TH1D* hsys_js_nc_corrjs3[nhists] = {0};
     TH1D* hsys_js_nc_corrjsQGFrac[nhists] = {0};
 
     TH1D* hsys_jes_ue[nhists] = {0};
@@ -191,7 +198,6 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             }
         }
 
-        //std::cout << "add systematics for bkg subtraction" << std::endl;
         // add systematics for bkg subtraction
         hsys_bkgsub[i] = (TH1D*)hnominals[i]->Clone(Form("%s_bkgsub", hnominals[i]->GetName()));
         if (!isPP) {
