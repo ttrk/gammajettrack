@@ -34,45 +34,46 @@ enum SYS
     k_bkgsub,
     k_phoeffcorr,
     k_jes_ue,
+    k_noUEscale,
     kN_SYS
 };
 
 std::string sys_types[kN_SYS] = {
     "jes_up", "jes_down", "jer", "pes", "iso", "ele_rej", "purity_up", "purity_down", "tracking_ratio", "jes_qg_down", "longrange", "nonclosure", "bkgsub", "phoeffcorr",
-    "jes_ue"
+    "jes_ue", "noUEscale"
 };
 
 std::string fit_funcs[kN_SYS] = {
     "pol1", "pol2", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1",
-    "pol1"
+    "pol1", "pol1"
 };
 
 int options[kN_SYS] = {
     4, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0,
-    0
+    0, 0
 };
 
 int special[kN_SYS] = {
     0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0
+    0, 0
 };
 
 int add2Total[kN_SYS] = {
     0, 2, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1,
-    1
+    1, 1
 };
 
 int sysMethod[kN_SYS] = {
     2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0, 2,
-    0
+    0, 2
     //1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0
         //1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0
         //1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0
 };
 
 std::string sys_observables[kN_SYS] = {
-    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "JES Q/G", "long range", "nonclosure", "bkg subtraction", "photon efficiency",
-    "JES UE"
+    "JES", "JES", "JER", "photon energy", "photon isolation", "electron rejection", "photon purity", "photon purity", "tracking", "JES Q/G", "long range", "nonclosure", "bkg sub method", "photon efficiency",
+    "JES UE", "bkg sub - UE scale"
 };
 
 int calc_ratio_systematics(std::string observable, std::string filelist, std::string histlist, std::string label) {
