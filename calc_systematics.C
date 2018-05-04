@@ -305,46 +305,6 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
             total_sys_vars_js_nc[i]->add_sys_var(sysVar_js_nc_corrjs1, 0, 2);
 
             // systematics for non-closure due to model dependence
-            // take full difference between corrections derived using quark jets and gluon jets
-            hsys_js_nc_corrjs3[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjs3", hnominals[i]->GetName()));
-            {
-                /*
-                std::string recogenlevel = "corrjsrecoreco";
-                std::string hNameTmp = replaceAll(hist_list[i], "data", "mc");
-                std::string hName_corrqjs = replaceAll(hNameTmp, recogenlevel, "corrqjsreco0gen0");
-                std::string hName_corrgjs = replaceAll(hNameTmp, recogenlevel, "corrgjsreco0gen0");
-                std::string hName_corrjs = replaceAll(hNameTmp, recogenlevel, "corrjsreco0gen0");
-                if (isPP) {
-                    hName_corrqjs = "hjs_ppmc_corrqjsreco0gen0_100_200";
-                    hName_corrgjs = "hjs_ppmc_corrgjsreco0gen0_100_200";
-                    hName_corrjs = "hjs_ppmc_corrjsreco0gen0_100_200";
-                }
-                else {
-                    hName_corrqjs = replaceAll(hName_corrqjs, "_60_200", "_60_100");
-                    hName_corrqjs = replaceAll(hName_corrqjs, "_0_60", "_0_20");
-                    hName_corrgjs = replaceAll(hName_corrqjs, "corrqjsreco0gen0", "corrgjsreco0gen0");
-                    hName_corrjs = replaceAll(hName_corrqjs, "corrqjsreco0gen0", "corrjsreco0gen0");
-                }
-
-                TH1D* hcorrqjs = (TH1D*)file_jsqgcorr->Get(hName_corrqjs.c_str());
-                TH1D* hcorrgjs = (TH1D*)file_jsqgcorr->Get(hName_corrgjs.c_str());
-
-                TH1D* hcorrjs = (TH1D*)hcorrqjs->Clone(hName_corrjs.c_str());
-                hcorrjs->Divide(hcorrgjs);
-
-                th1_ratio_abs(hcorrjs, true);
-
-                //th1_max_of_2_th1(hcorrqjs, hcorrgjs, hsys_js_nc_corrjs3[i]);
-                hsys_js_nc_corrjs3[i] = (TH1D*)hcorrjs->Clone(hsys_js_nc_corrjs3[i]->GetName());
-                hsys_js_nc_corrjs3[i]->Multiply(hnominals[i]);
-                */
-            }
-            sys_var_t* sysVar_js_nc_corrjs3 = new sys_var_t(hist_list[i], "js_nonclosure_corrjs3", hnominals[i], hsys_js_nc_corrjs3[i]);
-            sysVar_js_nc_corrjs3->fit_sys("pol1", "pol1", range_low_fnc, range_high_fnc);
-            sysVar_js_nc_corrjs3->write();
-            total_sys_vars_js_nc[i]->add_sys_var(sysVar_js_nc_corrjs3, 0, 0);
-
-            // systematics for non-closure due to model dependence
             hsys_js_nc_corrjsQGFrac[i] = (TH1D*)hnominals[i]->Clone(Form("%s_js_nonclosure_corrjsQGFrac", hnominals[i]->GetName()));
             if (true) {
                 std::string centSuffix = getCentText(hist_list[i]);
