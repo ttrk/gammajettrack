@@ -235,6 +235,7 @@ public:
     ~sys_var_t();
 
     void scale_sys(float factor);
+    void scale_sys_hratio_fit(float factor);
     void fit_sys(std::string diff_fit_func, std::string ratio_fit_func, double range_low = 0, double range_high = -1);
     void calculate_h2D_fitBand_ratio(int nTrials = 50000, double range_low = 0, double range_high = -1);
     void calculate_hratio_fitBand(double bandFraction = 0.6827);
@@ -326,9 +327,23 @@ void sys_var_t::scale_sys(float factor) {
     if (hdiff_abs_fitBand)  hdiff_abs_fitBand->Scale(factor);
 
     if (hratio_abs) hratio_abs->Scale(factor);
+    if (hratio_fit) scale_sys_hratio_fit(factor);
     if (hratio_fit_diff) hratio_fit_diff->Scale(factor);
     if (hratio_abs_fit_diff) hratio_abs_fit_diff->Scale(factor);
     if (hratio_abs_fitBand) hratio_abs_fitBand->Scale(factor);
+}
+
+void sys_var_t::scale_sys_hratio_fit(float factor)
+{
+    for (int i = 1; i <= hratio_fit->GetNbinsX(); ++i) {
+        double binContent = hratio_fit->GetBinContent(i);
+        if (binContent >= 1) {
+            hratio_fit->SetBinContent(i, 1 + TMath::Abs(binContent-1)*factor);
+        }
+        else {
+            hratio_fit->SetBinContent(i, 1 - TMath::Abs(binContent-1)*factor);
+        }
+    }
 }
 
 void sys_var_t::fit_sys(std::string diff_fit_func, std::string ratio_fit_func, double range_low, double range_high) {
