@@ -35,7 +35,7 @@ std::string sys_labels_ratio[kN_SYSUNC] = {
 
 int sysMethod[kN_SYSUNC] = {
     2, 2, 2, 2, 2,
-    2, 2, 0, 0, 0, 0
+    2, 2, 2, 0, 0, 0
 };
 
 std::string sys_titles[kN_SYSUNC] = {
@@ -183,14 +183,19 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
                 hiBinMaxTmp = 200;
             }
 
+            int sysMethodTmp = sysMethod[iSys];
+            if (iSys == k_Tracking && (iCol == k_xijet_ratio || iCol == k_xijet_ratio)) {
+                sysMethodTmp = 0;
+            }
+
             std::string hist_name_nom = Form("h%s_final%s%s_%d_%d_nominal", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
             h_nom = 0;
             h_nom = (TH1D*)fsys[iCol]->Get(hist_name_nom.c_str());
 
             std::string sysMethodStr = "";
-            if (sysMethod[iSys] == 0) sysMethodStr = "";
-            else if (sysMethod[iSys] == 1) sysMethodStr = "_fitBand";
-            else if (sysMethod[iSys] == 2) sysMethodStr = "_fit";
+            if (sysMethodTmp == 0) sysMethodStr = "";
+            else if (sysMethodTmp == 1) sysMethodStr = "_fitBand";
+            else if (sysMethodTmp == 2) sysMethodStr = "_fit";
 
             std::string sys_label = sys_labels[iSys];
             if (iCol == k_xijet_ratio || iCol == k_xigamma_ratio)  sys_label = sys_labels_ratio[iSys];
@@ -198,17 +203,20 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             std::string hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
                     sys_label.c_str(), sysMethodStr.c_str());
             if (is_js) {
-                hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
-                        sys_label.c_str());
-                if (sysMethod[iSys] == 0)
+                if (sysMethodTmp == 2) {
+                    hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
+                            sys_label.c_str());
+                }
+                else if (sysMethodTmp == 0) {
                     hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
                         sys_label.c_str());
+                }
             }
 
             h_ratio_abs = 0;
             h_ratio_abs = (TH1D*)fsys[iCol]->Get(hist_name_sys.c_str());
 
-            if (sysMethod[iSys] == 2) h_ratio_abs->Divide(h_nom);
+            if (sysMethodTmp == 2) h_ratio_abs->Divide(h_nom);
 
             if (iSys == k_JES) {
                 th1_sqrt_sum_squares(h_ratio_abs, h_ratio_abs); // 0.02^2 + 0.02^2
@@ -217,25 +225,38 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
                         sysMethodStr.c_str());
                 if (is_js) {
                     hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
-                    if (sysMethod[iSys] == 0)
+                    if (sysMethodTmp == 0)
                         hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
                 }
                 hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
 
-                if (sysMethod[iSys] == 2) hTmp->Divide(h_nom);
+                if (sysMethodTmp == 2) hTmp->Divide(h_nom);
                 th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale
 
-                hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_up_plus_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
+                hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
                         sysMethodStr.c_str());
                 if (is_js) {
-                    hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_up_plus_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
-                    if (sysMethod[iSys] == 0)
-                        hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_up_plus_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
+                    //hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
+                    //if (sysMethod[iSys] == 0)
+                        hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_diff_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
                 }
                 hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
 
-                if (sysMethod[iSys] == 2) hTmp->Divide(h_nom);
+                if (sysMethodTmp == 2) hTmp->Divide(h_nom);
                 th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale + data-MC UE diff
+            }
+            if (iSys == k_BkgSub) {
+
+                std::string hist_name_Tmp = Form("h%s_final%s%s_%d_%d_noUEscale_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
+                        sysMethodStr.c_str());
+                if (is_js) {
+                    //hist_name_Tmp = Form("h%s_final%s%s_%d_%d_noUEscale_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
+                    hist_name_Tmp = Form("h%s_final%s%s_%d_%d_noUEscale_diff_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
+                }
+                hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
+
+                hTmp->Divide(h_nom);
+                th1_sqrt_sum_squares(h_ratio_abs, hTmp);
             }
             int binFirst = 1;
             int binLast = 0;
