@@ -44,7 +44,7 @@ std::string sys_types[kN_SYS] = {
 };
 
 std::string fit_funcs[kN_SYS] = {
-    "pol1", "pol2", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1",
+    "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1", "pol1",
     "pol1", "pol1"
 };
 
@@ -54,7 +54,7 @@ int options[kN_SYS] = {
 };
 
 int special[kN_SYS] = {
-    0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+    0, 1, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0,
     0, 0
 };
 
@@ -65,7 +65,7 @@ int add2Total[kN_SYS] = {
 
 int sysMethod[kN_SYS] = {
     2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0, 2,
-    0, 2
+    0, 0
     //1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0
         //1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0
         //1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0
@@ -177,13 +177,23 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
             sys_vars[i][j]->calculate_hratio_fitBand(fractionToySys);
             sys_vars[i][j]->write();
 
-            if (special[j]) {
-                sys_var_t* tmp_sys_var = sys_vars[i][j];
-                sys_vars[i][j] = new sys_var_t(sys_vars[i][j-1], tmp_sys_var);
-                sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), fit_funcs[j].c_str(), range_low_fnc, range_high_fnc);
-                sys_vars[i][j]->calculate_h2D_fitBand_ratio(50000, range_low_fnc, range_high_fnc);
-                sys_vars[i][j]->calculate_hratio_fitBand(fractionToySys);
-                sys_vars[i][j]->write();
+            switch (special[j]) {
+                case 1: {
+                    sys_var_t* tmp_sys_var = sys_vars[i][j];
+                    sys_vars[i][j] = new sys_var_t(sys_vars[i][j-1], tmp_sys_var);
+                    if (sysMethod[j-1] == 0 && sysMethod[j] == 0) {
+                        sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), fit_funcs[j].c_str(), range_low_fnc, range_high_fnc);
+                        sys_vars[i][j]->calculate_h2D_fitBand_ratio(50000, range_low_fnc, range_high_fnc);
+                    }
+                    sys_vars[i][j]->calculate_hratio_fitBand(fractionToySys);
+                    sys_vars[i][j]->write();
+                    break; }
+                case 2:
+                    sys_vars[i][j]->scale_sys(0.55);
+                    sys_vars[i][j]->write();
+                    break;
+                default:
+                    break;
             }
 
             for (int k = 0; k < add2Total[j]; ++k) {

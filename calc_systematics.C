@@ -64,8 +64,8 @@ int add2Total[kN_SYSVAR] = {
 };
 
 int sysMethod[kN_SYSVAR] = {
-    2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 0, 2,
-    2
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2,
+    0
     //1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0
         //1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0
         //0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -180,8 +180,10 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
                 case 1: {
                     sys_var_t* tmp_sys_var = sys_vars[i][j];
                     sys_vars[i][j] = new sys_var_t(sys_vars[i][j-1], tmp_sys_var);
-                    sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), fit_funcs[j].c_str(), range_low_fnc, range_high_fnc);
-                    sys_vars[i][j]->calculate_h2D_fitBand_ratio(50000, range_low_fnc, range_high_fnc);
+                    if (sysMethod[j-1] == 0 && sysMethod[j] == 0) {
+                        sys_vars[i][j]->fit_sys(fit_funcs[j].c_str(), fit_funcs[j].c_str(), range_low_fnc, range_high_fnc);
+                        sys_vars[i][j]->calculate_h2D_fitBand_ratio(50000, range_low_fnc, range_high_fnc);
+                    }
                     sys_vars[i][j]->calculate_hratio_fitBand(fractionToySys);
                     sys_vars[i][j]->write();
                     break; }
