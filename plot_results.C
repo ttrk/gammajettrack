@@ -530,16 +530,34 @@ void set_hist_style(TH1D* h1, int k) {
             h1->SetMarkerColor(kCyan);
             break;
         case 12:
-            h1->SetLineColor(kMagenta+3);
+            h1->SetLineColor(kRed+2);
             h1->SetMarkerSize(0.64);
             h1->SetMarkerStyle(kFullCross);
-            h1->SetMarkerColor(kMagenta+3);
+            h1->SetMarkerColor(kRed+2);
             break;
-        default:
+        case 13:
+            h1->SetLineColor(kCyan+2);
+            h1->SetMarkerSize(0.64);
+            h1->SetMarkerStyle(kOpenTriangleUp);
+            h1->SetMarkerColor(kCyan+2);
+            break;
+        case 14:
+            h1->SetLineColor(kViolet+1);
+            h1->SetMarkerSize(0.64);
+            h1->SetMarkerStyle(kOpenTriangleDown);
+            h1->SetMarkerColor(kViolet+1);
+            break;
+        case 15:
             h1->SetLineColor(kBlue-7);
             h1->SetMarkerSize(0.64);
             h1->SetMarkerStyle(kOpenDiamond);
             h1->SetMarkerColor(kBlue-7);
+            break;
+        default:
+            h1->SetLineColor(kOrange+2);
+            h1->SetMarkerSize(0.64);
+            h1->SetMarkerStyle(kFullSquare);
+            h1->SetMarkerColor(kOrange+2);
             break;
     }
 
