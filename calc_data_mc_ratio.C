@@ -12,7 +12,7 @@ int calc_data_mc_ratio(const char* file_data, const char* file_mc, const char* o
     TFile* input_data = new TFile(file_data, "read");
     TFile* input_mc = new TFile(file_mc, "read");
 
-    TFile* output = new TFile(output_file, "update");
+    TFile* output = new TFile(output_file, "recreate");
 
     TH1::SetDefaultSumw2();
 
