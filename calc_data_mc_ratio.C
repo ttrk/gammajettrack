@@ -79,6 +79,7 @@ int calc_data_mc_ratio(const char* file_data, const char* file_mc, const char* o
 
             hRatioSys->Add(hRatio, -1);
             calcTH1Abs4SysUnc(hRatioSys);
+            hTmp->Delete();
         }
         else if (i == k_data_over_mc) {
             hRatioSys = (TH1D*)hDataSys->Clone(histRatioSysPaths[i].c_str());
