@@ -2704,6 +2704,9 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
               correctBinError(hgammaffjsdphi[i][j], nsmear);
               correctBinError(hgammaffjsfb[i][j], nsmear);
 
+              correctBinError(hjettrkdeta[i][j], nsmear);
+              correctBinError(hjettrkdphi[i][j], nsmear);
+
               correctBinError(htrkpt[i][j], nsmear);
               correctBinError(htrketa[i][j], nsmear);
               correctBinError(htrkphi[i][j], nsmear);
