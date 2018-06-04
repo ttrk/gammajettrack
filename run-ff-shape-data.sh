@@ -32,6 +32,13 @@ if [ $sample = "pbpbdata" ]; then
     SKIM="/export/d00/scratch/tatar/GJT-out/PbPb-Data-skim-170911.root"
 elif [ $sample = "ppdata" ] || [ $sample = "ppdatareweight" ]; then
     SKIM="/export/d00/scratch/tatar/GJT-out/pp-Data-skim-170911.root"
+    if [[ $outputDir = *nodphijg* ]]; then
+      SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/pp_Data_skim_20180413_nodphijg/0.root"
+    elif [[ $outputDir = *stdPho* ]]; then
+      SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/pp_Data_stdPho_skim_20180309/0.root"
+    elif [[ $outputDir = *photonOnly* ]]; then
+      SKIM="/mnt/hadoop/cms/store/user/katatar/GJT-out/pp_Data_skim_photonOnly.root"
+    fi
 else
     echo "invalid sample"
     exit 1
