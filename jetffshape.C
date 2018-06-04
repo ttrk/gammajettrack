@@ -1121,8 +1121,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       }
 
       float tmpjetpt = (*j_pt)[ij];
-      float tmpjeteta = (*j_eta)[ij];
       float tmpjetphi = (*j_phi)[ij];
+      float tmpjeteta = (*j_eta)[ij];
 
       // jet eta cut
       if (fabs(tmpjeteta) > 1.6) continue;
@@ -1168,8 +1168,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
       float smear_weight = 1. / nsmear;
       for (int is = 0; is < nsmear; ++is) {
           tmpjetpt = (*j_pt)[ij];
-          tmpjeteta = (*j_eta)[ij];
           tmpjetphi = (*j_phi)[ij];
+          tmpjeteta = (*j_eta)[ij];
 
         if (is_smeared_jet && !is_jet_smeared_using_hist) {
             do {
