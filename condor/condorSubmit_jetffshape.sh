@@ -58,10 +58,10 @@ echo "directory for condor output     : $condorLogsDir"
 
 cp $progFile $submitDir
 cp PbPb-weights.root $submitDir
-cp PbPb-weights-flt30.root $submitDir
-cp PbPb-weights-flt50.root $submitDir
-cp PbPb-weights-flt50ext.root $submitDir
-cp PbPb-weights-flt30flt50all.root $submitDir
+#cp PbPb-weights-flt30.root $submitDir
+#cp PbPb-weights-flt50.root $submitDir
+#cp PbPb-weights-flt50ext.root $submitDir
+#cp PbPb-weights-flt30flt50all.root $submitDir
 cp pp-weights.root $submitDir
 cp phoeffcorr.root $submitDir
 cp jec_pbpb.root $submitDir
@@ -93,11 +93,11 @@ Error        = $condorLogsDir/\$(Process).err
 Log          = $condorLogsDir/\$(Process).log
 Rank         = Mips
 +AccountingGroup = "group_cmshi.$USER"
-requirements = GLIDEIN_Site == "MIT_CampusFactory" && HAS_CVMFS_cms_cern_ch
+requirements = GLIDEIN_Site == "MIT_CampusFactory" && HAS_CVMFS_cms_cern_ch && BOSCOCluster == "ce03.cmsaf.mit.edu"
 job_lease_duration = 240
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = /tmp/$proxyFile,myRun.sh,$progFile,PbPb-weights.root,PbPb-weights-flt30.root,PbPb-weights-flt50.root,PbPb-weights-flt50ext.root,PbPb-weights-flt30flt50all.root,pp-weights.root,phoeffcorr.root,jec_pbpb.root,rcDifferences_20180406.txt
+transfer_input_files = /tmp/$proxyFile,myRun.sh,$progFile,PbPb-weights.root,pp-weights.root,phoeffcorr.root,jec_pbpb.root,rcDifferences_20180406.txt
 
 Queue $nJobs
 
