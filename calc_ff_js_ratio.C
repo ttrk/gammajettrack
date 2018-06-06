@@ -52,22 +52,40 @@ int calc_ff_js_ratio(std::string inputFile, std::string ppType, std::string pbpb
         if (hpbpb == 0) continue;
 
         std::string hratioName = "";
-        if (ppType == "ppdata_corrjsrecoreco")
-            hratioName = Form("%s_final_ratio_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
-        else if (ppType == "ppdata_recoreco")
-            hratioName = Form("%s_final_ratio_recoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
-        else if (ppType == "ppdata_srecoreco")
-            hratioName = Form("%s_final_ratio_srecoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
-        else if (ppType == "ppdata_scorrjsrecoreco")
-            hratioName = Form("%s_final_ratio_scorrjsrecoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
-        else if (ppType == "ppdatareweight_recoreco")
-            hratioName = Form("%s_final_ratio_reweight_recoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
-        else if (ppType == "ppdatareweight_srecoreco")
-            hratioName = Form("%s_final_ratio_reweight_srecoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
-        else if (ppType == "ppdatareweight_corrjsrecoreco")
-            hratioName = Form("%s_final_ratio_reweight_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+        if (histPrefix == "hjs") {
+            if (ppType == "ppdata_corrjsrecoreco")
+                hratioName = Form("%s_final_ratio_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+            else if (ppType == "ppdata_recoreco")
+                hratioName = Form("%s_final_ratio_recoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+            else if (ppType == "ppdata_srecoreco")
+                hratioName = Form("%s_final_ratio_srecoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+            else if (ppType == "ppdata_scorrjsrecoreco")
+                hratioName = Form("%s_final_ratio_scorrjsrecoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+            else if (ppType == "ppdatareweight_recoreco")
+                hratioName = Form("%s_final_ratio_reweight_recoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+            else if (ppType == "ppdatareweight_srecoreco")
+                hratioName = Form("%s_final_ratio_reweight_srecoreco_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+            else if (ppType == "ppdatareweight_corrjsrecoreco")
+                hratioName = Form("%s_final_ratio_reweight_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+            else {
+                std::cout << "unknown pp type : " << ppType.c_str() << std::endl;
+                continue;
+            }
+        }
+        else if (histPrefix == "hff") {
+            if (ppType == "ppdata_srecoreco")
+                hratioName = Form("%s_final_ratio_%d_%d", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+            else if (ppType == "ppdata_recoreco")
+                hratioName = Form("%s_final_ratio_%d_%d_nosmear", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+            else if (ppType == "ppdatareweight_srecoreco")
+                hratioName = Form("%s_final_ratio_%d_%d_reweight", histPrefix.c_str(), min_hiBin[j], max_hiBin[j]);
+            else {
+                std::cout << "unknown pp type : " << ppType.c_str() << std::endl;
+                continue;
+            }
+        }
         else {
-            std::cout << "unknown pp type : " << ppType.c_str() << std::endl;
+            std::cout << "unknown histPrefix : " << histPrefix.c_str() << std::endl;
             continue;
         }
 

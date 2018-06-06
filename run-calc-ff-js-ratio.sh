@@ -39,13 +39,18 @@ finalAll=${outputDir}/${label}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_o
 finalPP=${outputDir}/${label}_pp${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_ffjs_final.root
 finalPBPB=${outputDir}/${label}_pbpb${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_ffjs_final.root
 
+histPrefix="hjs"
+if [ $obs = "1" ]; then
+  histPrefix="hff"
+fi
+
 hadd -f $finalAll $finalPP $finalPBPB
 for rgLevel in $recogenLevels; do
   rgLevelPP=$rgLevel
   if [ $rgLevelPP = "recoreco" ]; then
     rgLevelPP="srecoreco"
   fi
-  ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll
+  ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll $histPrefix
 #  ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
 done
 wait
@@ -56,7 +61,7 @@ finalPPreweight=${outputDir}/${label}_pp${sample}reweight_${phoetMin}_${jetptMin
 hadd -f $finalAllreweight $finalPPreweight $finalPBPB
 for rgLevel in $recogenLevels; do
   rgLevelPP=$rgLevel
-  ./calc_ff_js_ratio.exe $finalAll pp${sample}reweight_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll
+  ./calc_ff_js_ratio.exe $finalAll pp${sample}reweight_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll $histPrefix
 #  ./calc_ff_js_ratio.exe $finalAll pp${sample}reweight_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
 done
 wait
@@ -84,7 +89,7 @@ for SYS in ${sysIndices}; do
     if [ $rgLevelPP = "recoreco" ]; then
       rgLevelPP="srecoreco"
     fi
-    ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll
+    ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll $histPrefix
 #    ./calc_ff_js_ratio.exe $finalAll pp${sample}_${rgLevelPP} pbpb${sample}_${rgLevel} $finalAll hjs_normJet
   done
 done
