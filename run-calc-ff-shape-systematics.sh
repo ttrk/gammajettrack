@@ -29,7 +29,7 @@ g++ calc_ratio_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o
 g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_iso_systematics.exe || exit 1
 
 label="jssys"
-if [ $obs = "2" ]; then
+if [ $obs = "1" ]; then
   label="ffsys"
 fi
 
