@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 
-int calc_lr_systematics(const char* nominal, const char* variation, const char* sample, const char* type, int phoetmin, int jetptmin, int gammaxi) {
+int calc_lr_systematics(const char* nominal, const char* variation, const char* sample, const char* type, int phoetmin, int jetptmin, int gammaxi, std::string histPrefix = "hff") {
     TH1::SetDefaultSumw2(kTRUE);
 
     std::vector<int> min_hiBin = {0, 20, 60, 100, 0, 60};
@@ -16,8 +16,6 @@ int calc_lr_systematics(const char* nominal, const char* variation, const char* 
         max_hiBin = {200};
     }
     int nCentBins = min_hiBin.size();
-
-    std::string histPrefix = "hjs";
 
     TFile* finput = new TFile(nominal, "read");
     std::vector<TH1D*> hnominal(nCentBins, 0);
