@@ -77,6 +77,9 @@ for SYS in ${sysIndices}; do
   syslabelPP=${SYSTEMATICPP[SYS]}
   echo "running ratio for systematics : "${syslabel}
   label="jssys"
+  if [ $obs = "1" ]; then
+    label="ffsys"
+  fi
   finalAll=${outputDir}/sys/${label}_${syslabel}_${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_ffjs_final.root
   finalPP=${outputDir}/sys/${label}_${syslabelPP}_pp${sample}_${phoetMin}_${jetptMin}_gxi${gammaxi}_obs${obs}_ffjs_final.root
   if [ $syslabelPP = NOM ]; then
