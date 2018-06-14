@@ -28,16 +28,16 @@ g++ calc_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_
 g++ calc_ratio_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_ratio_systematics.exe || exit 1
 g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_iso_systematics.exe || exit 1
 
+label="jssys"
+if [ $obs = "2" ]; then
+  label="ffsys"
+fi
+
 set -x
 
 mcsample="ppmc"
 if [ $sample = "pbpbdata" ]; then
   mcsample="pbpbmc"
-fi
-
-label="jssys"
-if [ $obs = "2" ]; then
-  label="ffsys"
 fi
 
 inputNominalIso=${sysDir}/${label}_nominal_iso_${mcsample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root
