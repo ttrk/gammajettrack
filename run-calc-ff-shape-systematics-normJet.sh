@@ -29,7 +29,7 @@ g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o c
 
 set -x
 
-outputLR=${sysDir}/jssys_longrangecalc_${sample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs2_ffjs_final.root
+outputLR=${sysDir}/jssys_longrange_${sample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs2_ffjs_final.root
 outPutTmp="longrange_${sample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_defnFF1_ff_final.root"
 cp $outputLR $outPutTmp
 varFileLR=${sysDir}/jssys_longrange_${sample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs2_ffjs_final.root
@@ -61,7 +61,7 @@ fi
 touch $SYSLIST
 
 #SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange tracking_ratio eta_reflection etagt0p3)
-SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrangecalc tracking_ratio)
+SYSTEMATIC=(placeholder jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_up jes_qg_down longrange tracking_ratio)
 
 sysIndices="1 2 3 4 5 6 7 8 9 10 12 13 14"
 
