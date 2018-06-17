@@ -7,7 +7,6 @@
 
 #include "photonjettrack.h"
 #include "th1Util.h"
-#include "cmsroojr/scaleErrorTool.h"
 
 #include "math.h"
 
