@@ -215,10 +215,10 @@ int draw_ff_js(std::string sample, std::string type, std::string fname, std::str
         }
     }
 
-    std::vector<std::string> inputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR",
+    std::vector<std::string> inputObs = {"hgammaffxi", "hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR",
             "htrkpt", "htrketa", "htrkphi",
             "hjsLRAway", "hgirth", "hdphiProjNR", "hdphiProjLR"};
-    std::vector<std::string> outputObs = {"hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR",
+    std::vector<std::string> outputObs = {"hff",       "hff", "hffLR", "hffLRAway", "hjs", "hjsdeta", "hjsdphi", "hjsfb", "hjsLR",
             "htrkpt", "htrketa", "htrkphi",
             "hjsLRAway", "hgirth", "hdphiProjNR", "hdphiProjLR"};
     for (int iPt = 0; iPt < 8; ++iPt) {
