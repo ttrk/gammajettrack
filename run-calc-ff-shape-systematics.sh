@@ -28,12 +28,26 @@ g++ calc_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_
 g++ calc_ratio_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_ratio_systematics.exe || exit 1
 g++ calc_iso_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_iso_systematics.exe || exit 1
 
+
+obsSTR="js"
 label="jssys"
+histPrefix="hjs"
 if [ $obs = "1" ]; then
+  obsSTR="ff"
   label="ffsys"
+  histPrefix="hff"
 fi
 
 set -x
+
+if [ $obs = "1" ]; then
+  g++ calc_lr_systematics.C $(root-config --cflags --libs) -Werror -Wall -O2 -o calc_lr_systematics.exe || exit 1
+  varFileLR=$sysDir/${label}_longrange_${sample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root
+  outputTMP=longrange_${sample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_defnFF1_ff_final.root
+  cp $varFileLR $outputTMP
+  ./calc_lr_systematics.exe $nomFile $varFileLR $sample $type $phoetmin $jetptmin $gammaxi hff
+  mv $outputTMP $varFileLR
+fi
 
 mcsample="ppmc"
 if [ $sample = "pbpbdata" ]; then
@@ -44,6 +58,9 @@ inputNominalIso=${sysDir}/${label}_nominal_iso_${mcsample}_${phoetmin}_${jetptmi
 inputIso=${sysDir}/${label}_iso_${mcsample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root
 ./calc_iso_systematics.exe $inputNominalIso $inputIso $nomFile $mcsample $sample $type $phoetmin $jetptmin $gammaxi ${label}_iso
 outputTmp=${label}_iso_${sample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_js_final.root
+if [ $obs = "1" ]; then
+  outputTmp=iso_${sample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_defnFF1_ff_final.root
+fi
 outputIso=${sysDir}/${label}_iso_${sample}_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs_final.root
 mv $outputTmp $outputIso
 
@@ -75,18 +92,18 @@ if [ -f $HISTLIST ]; then
     rm $HISTLIST
 fi
 touch $HISTLIST
-echo -e "hjs_final_${sample}_${type}_100_200" >> $HISTLIST
+echo -e "${histPrefix}_final_${sample}_${type}_100_200" >> $HISTLIST
 if [ $sample = "pbpbdata" ] || ([ $sample = "ppdata" ] && ([ $type = "srecoreco" ] || [ $type = "scorrjsrecoreco" ])); then
-  echo -e "hjs_final_${sample}_${type}_60_100" >> $HISTLIST
-  echo -e "hjs_final_${sample}_${type}_20_60" >> $HISTLIST
-  echo -e "hjs_final_${sample}_${type}_0_20" >> $HISTLIST
-  echo -e "hjs_final_${sample}_${type}_60_200" >> $HISTLIST
-  echo -e "hjs_final_${sample}_${type}_0_60" >> $HISTLIST
+  echo -e "${histPrefix}_final_${sample}_${type}_60_100" >> $HISTLIST
+  echo -e "${histPrefix}_final_${sample}_${type}_20_60" >> $HISTLIST
+  echo -e "${histPrefix}_final_${sample}_${type}_0_20" >> $HISTLIST
+  echo -e "${histPrefix}_final_${sample}_${type}_60_200" >> $HISTLIST
+  echo -e "${histPrefix}_final_${sample}_${type}_0_60" >> $HISTLIST
 fi
 
 cp ${sysDir}"/"${label}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs-systematics.root .
 ./calc_systematics.exe $nomFile $SYSLIST $HISTLIST ${label}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs
-mv sys_hjs_final_${sample}_${type}_*_*-data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs.png ${sysDir}
+mv sys_${histPrefix}_final_${sample}_${type}_*_*-data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs.png ${sysDir}
 mv ${label}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs-systematics.root ${sysDir}
 
 rm $SYSLIST
@@ -112,8 +129,8 @@ echo -e "${sysDir}/${label}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}
 echo -e "${sysDir}/${label}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs-systematics.root" >> $SYSFILELIST
 
 cp ${sysDir}"/"${label}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs-systematics.root .
-./calc_ratio_systematics.exe js $SYSFILELIST $SYSHISTLIST ${label}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs
-mv sys_hjs_final_*_*_*-${label}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs.png ${sysDir}
+./calc_ratio_systematics.exe $obsSTR $SYSFILELIST $SYSHISTLIST ${label}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs
+mv sys_${histPrefix}_final_*_*_*-${label}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs.png ${sysDir}
 mv ${label}_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs-systematics.root ${sysDir}
 
 rm $SYSHISTLIST
