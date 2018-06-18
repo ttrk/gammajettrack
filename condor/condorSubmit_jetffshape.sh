@@ -1,15 +1,10 @@
 #!/bin/bash
 
-if [ $# -ne 14 ];
+if [ $# -ne 14 ] && [ $# -ne 15 ];
 then
-  echo "Usage: ./condor/condorSubmit_jetffshape.sh <skimFile> <sample> <hiBinMin> <hiBinMax> <phoetMin> <phoetMax> <jetptMin> <trkptMin> <gammaxi> <label> <systematics> <obs> <genlevel> <outputDir>"
+  echo "Usage: ./condor/condorSubmit_jetffshape.sh <skimFile> <sample> <hiBinMin> <hiBinMax> <phoetMin> <phoetMax> <jetptMin> <trkptMin> <gammaxi> <label> <systematics> <obs> <genlevel> <outputDir> <progFile>"
   exit 1
 fi
-
-#g++ jetffshape.C -Wall -Werror -O2 -Wno-narrowing `root-config --cflags --libs` -o jetffshape.exe || exit 1
-#echo "g++ jetffshape.C -Wall -Werror -O2 -Wno-narrowing `root-config --cflags --libs` -o jetffshape.exe || exit 1"
-
-progFile="jetffshape.exe"
 
 skimFile=$1
 sample=$2
@@ -26,6 +21,14 @@ obs=${12}
 genlevel=${13}
 outputDir=${14}
 
+progFile="jetffshape.exe"
+#g++ jetffshape.C -Wall -Werror -O2 -Wno-narrowing `root-config --cflags --libs` -o jetffshape.exe || exit 1
+#echo "g++ jetffshape.C -Wall -Werror -O2 -Wno-narrowing `root-config --cflags --libs` -o jetffshape.exe || exit 1"
+if [ $# -eq 15 ];
+then
+  progFile=${15}
+fi
+
 echo "skimFile : $skimFile"
 echo "sample   : $sample"
 echo "hiBinMin : $hiBinMin"
@@ -37,7 +40,9 @@ echo "trkptMin : $trkptMin"
 echo "gammaxi  : $gammaxi"
 echo "label    : $label"
 echo "systematics : $systematics"
-echo "obs : $obs"
+echo "obs      : $obs"
+echo "genlevel : $genlevel"
+echo "progFile : $progFile"
 
 outputName=$label"_"$sample"_"$genlevel"_"$phoetMin"_"$jetptMin"_"$gammaxi"_"$obs"_"$hiBinMin"_"$hiBinMax".root"
 
