@@ -97,7 +97,9 @@ int calc_lr_systematics(const char* nominal, const char* variation, const char* 
 }
 
 int main(int argc, char* argv[]) {
-    if (argc == 8)
+    if (argc == 9)
+        return calc_lr_systematics(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]), atoi(argv[6]), atoi(argv[7]), argv[8]);
+    else if (argc == 8)
         return calc_lr_systematics(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]), atoi(argv[6]), atoi(argv[7]));
     else
         return 1;
