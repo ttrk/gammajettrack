@@ -112,6 +112,8 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
         range_high_fnc = 4.5;
         sys_types[k_nonclosure] = "xi_nonclosure";
         sys_observables[k_nonclosure] = "xi nonclosure";
+        fit_funcs[k_jes_down] = "pol2";
+        fit_funcs[k_jer] = "pol2";
         }
     else if (is_js) {
         range_low_fnc = 0;
@@ -138,8 +140,14 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
 
         std::cout << "i = " << i << std::endl;
 
-        hpbpb[i] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_corrjsrecoreco_%s_jes_up_nominal", observable.c_str(), hist_list[i].c_str()));
-        hpp[i] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_corrjsrecoreco_100_200_jes_up_nominal", observable.c_str()));
+        if (is_ff) {
+            hpbpb[i] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_recoreco_%s_jes_up_nominal", observable.c_str(), hist_list[i].c_str()));
+            hpp[i] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_srecoreco_%s_jes_up_nominal", observable.c_str(), hist_list[i].c_str()));
+        }
+        else if (is_js) {
+            hpbpb[i] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_corrjsrecoreco_%s_jes_up_nominal", observable.c_str(), hist_list[i].c_str()));
+            hpp[i] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_corrjsrecoreco_100_200_jes_up_nominal", observable.c_str()));
+        }
         std::cout << "hpbpb[i] = " << hpbpb[i]->GetName() << std::endl;
         std::cout << "hpp[i] = " << hpp[i]->GetName() << std::endl;
 
@@ -148,13 +156,20 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
 
         for (int j=0; j<kN_SYS; ++j) {
 
+            if (is_ff && j == k_jes_ue)  continue;
             if (is_js && j == k_longrange)  continue;
 
             std::cout << "j = " << j << std::endl;
             std::cout << "sys_types[j] = " << sys_types[j].c_str() << std::endl;
 
-            hpbpb_sys[i][j] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_corrjsrecoreco_%s_%s_variation", observable.c_str(), hist_list[i].c_str(), sys_types[j].c_str()));
-            hpp_sys[i][j] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_corrjsrecoreco_100_200_%s_variation", observable.c_str(), sys_types[j].c_str()));
+            if (is_ff) {
+                hpbpb_sys[i][j] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_recoreco_%s_%s_variation", observable.c_str(), hist_list[i].c_str(), sys_types[j].c_str()));
+                hpp_sys[i][j] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_srecoreco_%s_%s_variation", observable.c_str(), hist_list[i].c_str(), sys_types[j].c_str()));
+            }
+            else if (is_js) {
+                hpbpb_sys[i][j] = (TH1D*)fsys[0]->Get(Form("h%s_final_pbpbdata_corrjsrecoreco_%s_%s_variation", observable.c_str(), hist_list[i].c_str(), sys_types[j].c_str()));
+                hpp_sys[i][j] = (TH1D*)fsys[1]->Get(Form("h%s_final_ppdata_corrjsrecoreco_100_200_%s_variation", observable.c_str(), sys_types[j].c_str()));
+            }
             hratio_sys[i][j] = (TH1D*)hpbpb_sys[i][j]->Clone(Form("h%s_final_ratio_%s_%s", observable.c_str(), hist_list[i].c_str(), sys_types[j].c_str()));
             hratio_sys[i][j]->Divide(hpp_sys[i][j]);
         }
@@ -169,6 +184,7 @@ int calc_ratio_systematics(std::string observable, std::string filelist, std::st
 
         for (int j=0; j<kN_SYS; ++j) {
 
+            if (is_ff && j == k_jes_ue)  continue;
             if (is_js && j == k_longrange)  continue;
 
             sys_vars[i][j] = new sys_var_t(Form("h%s_final_ratio_%s", observable.c_str(), hist_list[i].c_str()), sys_types[j], hnominals[i], hratio_sys[i][j]);
