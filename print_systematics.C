@@ -113,6 +113,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
     }
     else {
         reco = ffreco;
+        sysMethod[k_Tracking] = 0;
     }
 
     TH1D* h_nom = 0;
@@ -178,7 +179,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
             int hiBinMinTmp = hiBinMin;
             int hiBinMaxTmp = hiBinMax;
             bool isPPCol = (iCol == k_xijet_pp || iCol == k_xigamma_pp);
-            if (isPPCol) {
+            if (is_js && isPPCol) {
                 hiBinMinTmp = 100;
                 hiBinMaxTmp = 200;
             }
@@ -202,6 +203,14 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
 
             std::string hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
                     sys_label.c_str(), sysMethodStr.c_str());
+            if (sysMethodTmp == 2) {
+                hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
+                        sys_label.c_str());
+            }
+            else if (sysMethodTmp == 0) {
+                hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
+                    sys_label.c_str());
+            }
             if (is_js) {
                 if (sysMethodTmp == 2) {
                     hist_name_sys = Form("h%s_final%s%s_%d_%d_%s_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
@@ -223,6 +232,9 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
 
                 std::string hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
                         sysMethodStr.c_str());
+                hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
+                if (sysMethodTmp == 0)
+                    hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
                 if (is_js) {
                     hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_qg_down_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
                     if (sysMethodTmp == 0)
@@ -233,22 +245,20 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
                 if (sysMethodTmp == 2) hTmp->Divide(h_nom);
                 th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale
 
-                hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
-                        sysMethodStr.c_str());
                 if (is_js) {
-                    //hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
-                    //if (sysMethod[iSys] == 0)
-                        hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_diff_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
-                }
-                hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
+                    hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
+                            sysMethodStr.c_str());
+                    hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
 
-                if (sysMethodTmp == 2) hTmp->Divide(h_nom);
-                th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale + data-MC UE diff
+                    if (sysMethodTmp == 2) hTmp->Divide(h_nom);
+                    th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale + data-MC UE diff
+                }
             }
             if (iSys == k_BkgSub) {
 
                 std::string hist_name_Tmp = Form("h%s_final%s%s_%d_%d_noUEscale_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
                         sysMethodStr.c_str());
+                hist_name_Tmp = Form("h%s_final%s%s_%d_%d_noUEscale_diff_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
                 if (is_js) {
                     //hist_name_Tmp = Form("h%s_final%s%s_%d_%d_noUEscale_ratio_fit_diff", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
                     hist_name_Tmp = Form("h%s_final%s%s_%d_%d_noUEscale_diff_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
@@ -316,7 +326,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
                 int hiBinMinTmp = hiBinMin;
                 int hiBinMaxTmp = hiBinMax;
                 bool isPPCol = (iCol == k_xijet_pp || iCol == k_xigamma_pp);
-                if (isPPCol) {
+                if (is_js && isPPCol) {
                     hiBinMinTmp = 100;
                     hiBinMaxTmp = 200;
                 }
