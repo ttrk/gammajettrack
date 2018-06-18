@@ -107,6 +107,10 @@ int calc_systematics(const char* nominal_file, const char* filelist, const char*
     if (is_ff) {
         range_low_fnc = 0.5;
         range_high_fnc = 4.5;
+        fit_funcs[k_jes_down] = "pol2";
+        fit_funcs[k_jer] = "pol2";
+        sysMethod[k_tracking_up] = 0;
+        sysMethod[k_tracking_down] = 0;
         }
     else if (is_js) {
         range_low_fnc = 0;
