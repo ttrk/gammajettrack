@@ -1309,7 +1309,8 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         float refP = -1;
         if (defnFF == k_jetFF)  refP = gammaxi ? phoEtTmp : vJet.P();
-        else if (defnFF == k_jetShape) refP = gammaxi ? phoEtTmp : tmpjetpt;
+        else if (defnFF == k_jetShape) refP = gammaxi ? 1 : tmpjetpt;
+        // defnFF == k_jetShape && gammaxi == 1 --> no fractional energy wrt. jet, weight of a particle is only its pt.
 
         /*
         Nch = 0;
@@ -2097,7 +2098,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
 
         float refP = gammaxi ? phoEtTmp : tmpjetpt;
         if (defnFF == k_jetFF) refP = gammaxi ? phoEtTmp : vJet.P();
-        else if (defnFF == k_jetShape) refP = gammaxi ? phoEtTmp : tmpjetpt;
+        else if (defnFF == k_jetShape) refP = gammaxi ? 1 : tmpjetpt;
 
         /*
         Nch = 0;
