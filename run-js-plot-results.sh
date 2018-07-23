@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -lt 10 ]; then
-  echo "Usage: ./run-js-plot.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [obs] [sample] [label] [inputDir] [types...]"
+  echo "Usage: ./run-js-plot-results.sh [phoetmin] [phoetmax] [jetptmin] [trkptmin] [gammaxi] [obs] [sample] [label] [inputDir] [types...]"
   echo "Example: ./run-js-plot-results.sh 60 1000 30 1 0 0 pbpbmc closure results/closure/ sgengen sgenreco recogen recoreco"
   echo "Example: ./run-js-plot-results.sh 60 9999 30 1 0 1 pbpbdata data results/ recoreco"
   exit 1
@@ -32,7 +32,6 @@ echo "types    = ${types}"
 g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results.exe || exit 1
 echo "g++ plot_results.C $(root-config --cflags --libs) -Werror -Wall -O2 -o plot_results.exe || exit 1"
 
-label=$label
 inDir=$inputDir
 outDir=$inDir
 mkdir -p $outDir
