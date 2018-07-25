@@ -42,10 +42,10 @@ inputDirClosure="/export/d00/scratch/"$USER"/GJT-out/results/closure/"
 ## closure plots
 ./run-ff-plot-results.sh 60 9999 30 1 0 1 pbpbmc closure $inputDirClosure DUMMY
 ./run-ff-plot-results.sh 60 9999 30 1 1 1 pbpbmc closure $inputDirClosure DUMMY
-./run-ff-plot-results.sh 80 9999 40 1 0 1 pbpbmc closure $inputDirClosure DUMMY
-./run-ff-plot-results.sh 80 9999 40 1 1 1 pbpbmc closure $inputDirClosure DUMMY
+#./run-ff-plot-results.sh 80 9999 40 1 0 1 pbpbmc closure $inputDirClosure DUMMY
+#./run-ff-plot-results.sh 80 9999 40 1 1 1 pbpbmc closure $inputDirClosure DUMMY
 
 ./run-ff-plot-results.sh 60 9999 30 1 0 1 ppmc closure $inputDirClosure DUMMY
 ./run-ff-plot-results.sh 60 9999 30 1 1 1 ppmc closure $inputDirClosure DUMMY
-./run-ff-plot-results.sh 80 9999 40 1 0 1 ppmc closure $inputDirClosure DUMMY
-./run-ff-plot-results.sh 80 9999 40 1 1 1 ppmc closure $inputDirClosure DUMMY
+#./run-ff-plot-results.sh 80 9999 40 1 0 1 ppmc closure $inputDirClosure DUMMY
+#./run-ff-plot-results.sh 80 9999 40 1 1 1 ppmc closure $inputDirClosure DUMMY
