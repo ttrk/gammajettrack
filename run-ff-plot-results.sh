@@ -253,6 +253,85 @@ elif [[ $label == "sysvar" ]]; then
       fi
       rm $PLOTLIST
     done
+elif [[ $label == "sysvar_fitfnc" ]]; then
+    echo "running $label"
+    set -x
+    inPrefix=$inDir"data_sysvar_fitfnc"
+    outPrefix=$outDir"data_sysvar_fitfnc"
+
+    sysFile=${inDir}sys/ffsys_data_${phoetmin}_${jetptmin}_gxi${gammaxi}_obs${obs}_ffjs-systematics.root
+    echo "sysFile : $sysFile"
+
+    sysVarIndices=(0 2 3 4 5 6 8 10)
+    sysVarLabels=(jes_up jes_down jer pes iso ele_rej purity_up purity_down tracking_up tracking_down jes_qg_down)
+    sysVarNames=(jes_up_down NULL jer pes iso ele_rej purity_up_down NULL tracking_up_down NULL jes_qg_down)
+    sysVarUpDowns=(1 1 0 0 0 0 1 1 1 0 0)
+    sysVarTitles=(
+    "JES UP"
+    "JES DOWN"
+    "JER"
+    "PES"
+    "isolation"
+    "electron rejection"
+    "purity UP"
+    "purity DOWN"
+    "tracking UP"
+    "tracking DOWN"
+    "JES quark-jet"
+     )
+
+    for i1 in ${!sysVarIndices[*]}
+    do
+      iSys=${sysVarIndices[i1]}
+      sysVarLabel=${sysVarLabels[iSys]}
+      sysVarName=${sysVarNames[iSys]}
+      sysVarUpDown=${sysVarUpDowns[iSys]}
+      sysVarTitle=${sysVarTitles[iSys]}
+      if [[ $sample == "pbpbdata" ]]; then
+        echo -e "PbPb - nominal" >> $PLOTLIST
+        echo -e "hff_final_pbpbdata_recoreco_100_200_"$sysVarLabel"_nominal" >> $PLOTLIST
+        echo -e "hff_final_pbpbdata_recoreco_60_100_"$sysVarLabel"_nominal" >> $PLOTLIST
+        echo -e "hff_final_pbpbdata_recoreco_20_60_"$sysVarLabel"_nominal" >> $PLOTLIST
+        echo -e "hff_final_pbpbdata_recoreco_0_20_"$sysVarLabel"_nominal" >> $PLOTLIST
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hff_final_pbpbdata_recoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
+        echo -e "hff_final_pbpbdata_recoreco_60_100_"$sysVarLabel"_variation" >> $PLOTLIST
+        echo -e "hff_final_pbpbdata_recoreco_20_60_"$sysVarLabel"_variation" >> $PLOTLIST
+        echo -e "hff_final_pbpbdata_recoreco_0_20_"$sysVarLabel"_variation" >> $PLOTLIST
+        if [[ $sysVarUpDown > 0 ]]; then
+          echo -e ${sysVarTitles[$((iSys+1))]} >> $PLOTLIST
+          echo -e "hff_final_pbpbdata_recoreco_100_200_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
+          echo -e "hff_final_pbpbdata_recoreco_60_100_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
+          echo -e "hff_final_pbpbdata_recoreco_20_60_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
+          echo -e "hff_final_pbpbdata_recoreco_0_20_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
+        fi
+
+        nCols=4
+        ./plot_results.exe $sysFile ${outPrefix}_pbpbdata_${sysVarName}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
+      elif [[ $sample == "ppdata" ]]; then
+        echo -e "pp (smeared) - nominal" >> $PLOTLIST
+        echo -e "hff_final_ppdata_srecoreco_100_200_"$sysVarLabel"_nominal" >> $PLOTLIST
+        echo -e "hff_final_ppdata_srecoreco_60_100_"$sysVarLabel"_nominal" >> $PLOTLIST
+        echo -e "hff_final_ppdata_srecoreco_20_60_"$sysVarLabel"_nominal" >> $PLOTLIST
+        echo -e "hff_final_ppdata_srecoreco_0_20_"$sysVarLabel"_nominal" >> $PLOTLIST
+        echo -e $sysVarTitle >> $PLOTLIST
+        echo -e "hff_final_ppdata_srecoreco_100_200_"$sysVarLabel"_variation" >> $PLOTLIST
+        echo -e "hff_final_ppdata_srecoreco_60_100_"$sysVarLabel"_variation" >> $PLOTLIST
+        echo -e "hff_final_ppdata_srecoreco_20_60_"$sysVarLabel"_variation" >> $PLOTLIST
+        echo -e "hff_final_ppdata_srecoreco_0_20_"$sysVarLabel"_variation" >> $PLOTLIST
+        if [[ $sysVarUpDown > 0 ]]; then
+          echo -e ${sysVarTitles[$((iSys+1))]} >> $PLOTLIST
+          echo -e "hff_final_ppdata_srecoreco_100_200_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
+          echo -e "hff_final_ppdata_srecoreco_60_100_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
+          echo -e "hff_final_ppdata_srecoreco_20_60_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
+          echo -e "hff_final_ppdata_srecoreco_0_20_"${sysVarLabels[$((iSys+1))]}"_variation" >> $PLOTLIST
+        fi
+
+        nCols=4
+        ./plot_results.exe $sysFile ${outPrefix}_ppdata_${sysVarName}_gxi${gammaxi}_obs${obs}_${phoetmin}_${jetptmin} $PLOTLIST 1 $gammaxi $phoetmin $phoetmin $plotOption DUMMYSYS $nCols
+      fi
+      rm $PLOTLIST
+    done
 elif [[ $label == "sysall" ]]; then
     echo "running $label"
     set -x
