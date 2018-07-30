@@ -567,9 +567,9 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       rm $PLOTLIST
     
     elif [[ $sample == "ppdata" ]]; then
-      sysVarIndices=(0 1 2 3 4 5 6 7 8 9)
+      sysVarIndices=(0 1 2 3 4 5 6 7 8 9 10)
       #sysVarLabels=(jes_down jes_up jer pes iso ele_rej purity_up purity_down longrange)
-      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down tracking_up tracking_down js_nonclosure)
+      sysVarLabels=(jes_down jes_up jer iso ele_rej purity_up purity_down tracking_up tracking_down js_nonclosure phoeffcorr)
       sysVarTitles=(
       "JES DOWN"
       "JES UP"
@@ -582,8 +582,9 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "tracking UP"
       "tracking DOWN"
       "nonclosure"
+      "photon efficiency"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 1 1 0)
+      sysMethodIndices=(1 1 1 1 1 1 1 1 1 0 1)
       sysMethodSuffices=(
       "ratio" 
       "ratio_fit"
