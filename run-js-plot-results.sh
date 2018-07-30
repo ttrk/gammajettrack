@@ -632,7 +632,7 @@ elif [[ $label == "sysalltotpercnt" ]]; then
       "JES data-MC UE diff"
       "bkg sub, UE scaling"
        )
-      sysMethodIndices=(1 1 1 1 1 1 1 0 0 1 1 1 0 0 1)
+      sysMethodIndices=(1 1 1 1 1 1 1 0 0 1 1 1 0 0 0)
       sysMethodSuffices=(
       "ratio"
       "ratio_fit"
