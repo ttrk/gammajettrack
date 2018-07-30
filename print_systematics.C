@@ -145,7 +145,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
         }
     }
     else {
-        std::cout << "\\begin{tabular}{lcccc}" << std::endl;
+        std::cout << "\\begin{tabular}{lcccccc}" << std::endl;
         std::cout << "\\hline" << std::endl;
         if (!printRatio) {
             std::cout << "Systematic             & \\multicolumn{2}{c}{\\xijet} & \\multicolumn{2}{c}{\\xigamma} \\\\" << std::endl;
@@ -153,7 +153,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
         }
         else {
             std::cout << "Systematic             & \\multicolumn{3}{c}{\\xijet} & \\multicolumn{3}{c}{\\xigamma} \\\\" << std::endl;
-            std::cout << "uncertainty            & PbPb   &  pp   & PbPb/pp   & PbPb &  pp  && PbPb/pp       \\\\" << std::endl;
+            std::cout << "uncertainty            & PbPb   &  pp   & PbPb/pp   & PbPb &  pp  & PbPb/pp       \\\\" << std::endl;
         }
     }
     std::cout << "\\hline" << std::endl;
