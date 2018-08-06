@@ -246,8 +246,7 @@ int print_systematics(const char* filelist, const char* label, int hiBinMin, int
                 th1_sqrt_sum_squares(h_ratio_abs, hTmp);     // 0.02^2 + 0.02^2 + q/g scale
 
                 if (is_js) {
-                    hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_ratio_abs%s", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp,
-                            sysMethodStr.c_str());
+                    hist_name_Tmp = Form("h%s_final%s%s_%d_%d_jes_ue_diff_abs", label, sample[iCol].c_str(), reco[iCol].c_str(), hiBinMinTmp, hiBinMaxTmp);
                     hTmp = (TH1D*)fsys[iCol]->Get(hist_name_Tmp.c_str());
 
                     if (sysMethodTmp == 2) hTmp->Divide(h_nom);
