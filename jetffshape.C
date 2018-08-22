@@ -1244,7 +1244,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           case sysJER: {
             float jer_scale_factor = 1 + sqrt(0.15*0.15 + 0.07*0.07);
             float jer_scale_factor2_sub1 = jer_scale_factor*jer_scale_factor - 1;
-            float jer_sigma = (isPP) ? getResolutionPP(tmpjetpt) : getResolutionHI(tmpjetpt, centBin);
+            float jer_sigma = (isPP && !is_smeared_jet) ? getResolutionPP(tmpjetpt) : getResolutionHI(tmpjetpt, centBin);
             float tmpjetptinit = tmpjetpt;
             do {
                 tmpjetpt = tmpjetptinit * (1 + smear_rand.Gaus(0, jer_sigma) * std::sqrt(jer_scale_factor2_sub1));
@@ -2033,7 +2033,7 @@ void photonjettrack::jetshape(std::string sample, int centmin, int centmax, floa
           case sysJER: {
             float jer_scale_factor = 1 + sqrt(0.15*0.15 + 0.07*0.07);
             float jer_scale_factor2_sub1 = jer_scale_factor*jer_scale_factor - 1;
-            float jer_sigma = (isPP) ? getResolutionPP(tmpjetpt) : getResolutionHI(tmpjetpt, centBin);
+            float jer_sigma = (isPP && !is_smeared_jet) ? getResolutionPP(tmpjetpt) : getResolutionHI(tmpjetpt, centBin);
             float tmpjetptinit = tmpjetpt;
             do {
                 tmpjetpt = tmpjetptinit * (1 + smear_rand.Gaus(0, jer_sigma) * std::sqrt(jer_scale_factor2_sub1));
